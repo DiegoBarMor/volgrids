@@ -1,0 +1,119 @@
+import numpy as np
+
+######################## GENERAL PARAMETERS
+VERBOSE = False # print additional information to the console?
+DO_DX_OUTPUT = False # save the result of the potential grids in DX format?
+DO_MRC_OUTPUT = True # save the result of the potential grids in MRC format?
+DO_JSON_OUTPUT = False # save the result of the potential grids in JSON format?
+DO_LOG_APBS = False
+WARNING_GRID_SIZE = 2.5e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort
+USE_FIXED_DELTAS = True
+    # True: the deltas are fixed to the values below, resolution is calculated accordinly
+    # False: resolution is fixed to the values below, deltas are calculated accordingly
+
+######################## "WHOLE" MODE
+### deltas used for default calculations (resolutions change)
+GRID_DX_WM = 0.25
+GRID_DY_WM = 0.25
+GRID_DZ_WM = 0.25
+
+### resolution used for calculations with the '-s' flag (deltas change)
+GRID_XRES_WM = 200
+GRID_YRES_WM = 200
+GRID_ZRES_WM = 200
+
+EXTRA_BOX_SIZE = 5
+
+######################## "POCKET SPHERE" MODE
+### deltas used for default calculations (resolutions change)
+GRID_DX_PS = 0.25
+GRID_DY_PS = 0.25
+GRID_DZ_PS = 0.25
+
+### resolution used for calculations with the '-s' flag (deltas change)
+GRID_XRES_PS = 100
+GRID_YRES_PS = 100
+GRID_ZRES_PS = 100
+
+######################## TRIMMING
+SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask to *.mask.dx
+
+### SPHERE TRIMMING
+DO_TRIMMING_SPHERE = True
+
+### OCCUPANCY TRIMMING
+DO_TRIMMING_OCCUPANCY = True
+TRIMMING_DIST_LARGE = 3.0
+TRIMMING_DIST_SMALL = 2.5
+
+### RANDOM SEARCH TRIMMING
+DO_TRIMMING_RNDS = True
+MAX_RNDS_DIST = np.inf
+COG_CUBE_RADIUS = 3
+
+######################## LOG_ABS(APBS)
+APBS_MIN_CUTOFF = -2
+APBS_MAX_CUTOFF =  3
+
+######################## PARAMETERS FOR THE STATISTICAL ENERGY FUNCTIONS MODELS
+MU_HYDROPHOBIC = 4.0
+SIGMA_HYDROPHOBIC = 1.5
+
+MU_HYDROPHILIC = 3.0
+SIGMA_HYDROPHILIC = 0.15
+
+MU_ANGLE_HBA = 129.9
+MU_ANGLE_HBD = 109.0
+MU_DIST_HBOND = 2.93
+
+SIGMA_DIST_HBOND = 0.21
+SIGMA_ANGLE_HBA = 20.0 # 29.3 originally (given precisely)
+SIGMA_ANGLE_HBD = 20.0 # 20.0 originally (inferred from figure)
+
+
+MU_HBA = np.array([MU_ANGLE_HBA, MU_DIST_HBOND])
+COV_HBA = np.array(
+    [[SIGMA_ANGLE_HBA**2, 0],
+    [0, SIGMA_DIST_HBOND**2]]
+)
+COV_INV_HBA = np.linalg.inv(COV_HBA)
+
+
+MU_HBD = np.array([MU_ANGLE_HBD, MU_DIST_HBOND])
+COV_HBD =  np.array(
+    [[SIGMA_ANGLE_HBD**2, 0],
+    [0, SIGMA_DIST_HBOND**2]]
+)
+COV_INV_HBD = np.linalg.inv(COV_HBD)
+
+
+MU_STACKING = np.array([29.97767535, 4.1876158])
+COV_STACKING = np.array(
+    [[169.9862228 , 6.62318852],
+     [  6.62318852, 0.37123882]]
+)
+COV_INV_STACKING = np.linalg.inv(COV_STACKING)
+
+
+### square root of the DIST contribution to COV_STACKING,
+### calculated with np.sqrt(COV_STACKING[1,1])
+SIGMA_DIST_STACKING = 0.6092937058594976
+
+######################## KERNEL_PARAMETERS
+PHARMA_KERNEL_RADIUS = {
+    "stack" : 1.1, # stacking
+    "hba"   : 0.5, # hb acceptors
+    "hbd"   : 1.0, # hb donors
+    "hphob" : 1.0, # hydrophobicity
+    "pos"   : 1.0, # electropositive
+    "neg"   : 1.0, # electronegative
+}
+
+GAUSSIAN_KERNEL_SIGMAS = 4 # how many sigmas of width should the precalculated gaussians have?
+
+######################## Hydrophobicity
+HPHOB_RNA_SUGAR = -0.13
+HPHOB_RNA_PHOSPHATE = -2.02
+
+
+################################################################################
