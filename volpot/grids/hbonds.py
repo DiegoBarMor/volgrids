@@ -1,24 +1,20 @@
+import volpot
 import numpy as np
-
-from src.utilities import normalize
-from src.kernels import MultiGaussianKernel
-from src.tables import prot_hba, prot_hbd, rna_hba, rna_hbd
-from src.grids.potential_grids import StatisticalPotentialGrid
 
 from settings import MU_HBA, MU_HBD, COV_INV_HBA, COV_INV_HBD, GAUSSIAN_KERNEL_SIGMAS, SIGMA_DIST_HBOND
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class SPG_HBonds(StatisticalPotentialGrid):
+class SPG_HBonds(volpot.StatisticalPotentialGrid):
     def populate_grid(self):
         self.radius: float
         self.table_hbond: dict
         self.kernel_args: dict
 
-        gk = MultiGaussianKernel(self.radius, self.ms.deltas, np.float32)
+        gk = volpot.MultiGaussianKernel(self.radius, self.ms.deltas, np.float32)
         gk.link_to_grid(self.grid, self.ms.minCoords)
         for pos_antecedent, pos_atom_hbond in self.iter_particles():
-            direction = normalize(pos_atom_hbond - pos_antecedent)
+            direction = volpot.normalize(pos_atom_hbond - pos_antecedent)
             gk.recalculate_kernel(direction, **self.kernel_args)
             gk.stamp(pos_atom_hbond)
 
@@ -54,7 +50,7 @@ class SPG_HB_Accepts(SPG_HBonds):
 
     def populate_grid(self):
         self.radius = MU_HBA[1] + GAUSSIAN_KERNEL_SIGMAS * SIGMA_DIST_HBOND
-        self.table_hbond = rna_hba if self.ms.isNucleic else prot_hba
+        self.table_hbond = volpot.rna_hba if self.ms.isNucleic else volpot.prot_hba
         self.kernel_args = dict(mu = MU_HBA, cov_inv = COV_INV_HBA, isStacking = False)
         super().populate_grid()
 
@@ -68,14 +64,14 @@ class SPG_HB_Accepts(SPG_HBonds):
         ##### pseudo-antecedents
         if len(name_antecedent) == 2:
             name_antecedent_0, name_antecedent_1 = name_antecedent
-            
+
             ### special case for RNA, needs to check next residue
-            if name_hbond_atom == "O3'": 
+            if name_hbond_atom == "O3'":
                 return self.ms.relevant_atoms.select_atoms(
                     f"(segid {res.segid} and resid {res.resid} and resname {res.resname} and name {name_antecedent_0}) or" +\
                     f"(segid {res.segid} and resid {res.resid + 1} " +                 f"and name {name_antecedent_1})"
                 )
-            
+
             ### other pseudo-antecedent cases
             return res_atoms.select_atoms(f"name {name_antecedent_0} {name_antecedent_1}")
 
@@ -88,7 +84,7 @@ class SPG_HB_Donors(SPG_HBonds):
 
     def populate_grid(self):
         self.radius = MU_HBD[1] + GAUSSIAN_KERNEL_SIGMAS * SIGMA_DIST_HBOND
-        self.table_hbond = rna_hbd if self.ms.isNucleic else prot_hbd
+        self.table_hbond = volpot.rna_hbd if self.ms.isNucleic else volpot.prot_hbd
         self.kernel_args = dict(mu = MU_HBD, cov_inv = COV_INV_HBD, isStacking = False)
         super().populate_grid()
 
@@ -105,14 +101,14 @@ class SPG_HB_Donors(SPG_HBonds):
             raise ValueError(f"Invalid number of antecent atoms: {name_antecedent}")
 
         ## special case for RNA, it's a donor only if there is no next residue
-        if name_hbond_atom == "O3'": 
+        if name_hbond_atom == "O3'":
             sel_next_res = self.ms.relevant_atoms.select_atoms(
                 f"segid {res.segid} and resid {res.resid + 1}"
             )
             if len(sel_next_res) > 0: return
-        
+
         ## special case for RNA, it's a donor only if there is no previous residue
-        if name_hbond_atom == "O5'": 
+        if name_hbond_atom == "O5'":
             sel_prev_res = self.ms.relevant_atoms.select_atoms(
                 f"segid {res.segid} and resid {res.resid - 1}"
             )

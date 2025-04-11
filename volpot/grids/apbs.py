@@ -1,14 +1,12 @@
+import volpot
 import numpy as np
 from gridData import Grid
-
-from src.utilities import Timer, interpolate_3d
-from src.grids.potential_grids import PotentialGrid
 
 from settings import APBS_MIN_CUTOFF, APBS_MAX_CUTOFF, DO_LOG_APBS
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class PPG_APBS(PotentialGrid):
+class PPG_APBS(volpot.PotentialGrid):
     POTENTIAL_TYPE = "apbs"
 
     def __init__(self, ms):
@@ -21,7 +19,7 @@ class PPG_APBS(PotentialGrid):
         super().__init__(ms)
 
         if DO_LOG_APBS:
-            timer = Timer("...>>> Creating APBS-LOG potential grid...", flush = True)
+            timer = volpot.Timer("...>>> Creating APBS-LOG potential grid...", flush = True)
             self.apply_logabs_transform()
             timer.end()
         else:
@@ -39,7 +37,7 @@ class PPG_APBS(PotentialGrid):
         xmax1, ymax1, zmax1 = self.ms.maxCoords
         xres1, yres1, zres1 = self.ms.resolution
 
-        self.grid = interpolate_3d(
+        self.grid = volpot.interpolate_3d(
             x0 = np.linspace(xmin0, xmax0, xres0),
             y0 = np.linspace(ymin0, ymax0, yres0),
             z0 = np.linspace(zmin0, zmax0, zres0),

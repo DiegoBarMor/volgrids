@@ -1,6 +1,5 @@
+import volpot
 import numpy as np
-
-from src.utilities import Timer, write_json
 
 from settings import DO_DX_OUTPUT, DO_MRC_OUTPUT, DO_JSON_OUTPUT, VERBOSE
 
@@ -12,14 +11,14 @@ class PotentialGrid:
     def __init__(self, ms):
         if ms is None: return
 
-        timer = Timer(f"...>>> PG: Creating {self.POTENTIAL_TYPE} potential grid...")
+        timer = volpot.Timer(f"...>>> PG: Creating {self.POTENTIAL_TYPE} potential grid...")
         self.ms = ms
         self.grid = np.zeros(self.ms.resolution, dtype = np.float32)
         self.populate_grid()
         self.grid[self.ms.trimming_mask] = 0 # apply precalculated trimming mask
         timer.end()
 
-        if VERBOSE: timer = Timer(f"......       Saving {self.POTENTIAL_TYPE} potential grid...")
+        if VERBOSE: timer = volpot.Timer(f"......       Saving {self.POTENTIAL_TYPE} potential grid...")
         self.pack_data()
         self.save_data()
         if VERBOSE: timer.end()
@@ -31,7 +30,7 @@ class PotentialGrid:
         pg.ms = pg_0.ms
         pg.grid = pg_0.grid - pg_1.grid
 
-        timer = Timer(f".../// PG: Saving {name} potential grid...")
+        timer = volpot.Timer(f".../// PG: Saving {name} potential grid...")
         pg.pack_data()
         pg.save_data(name)
         timer.end()
@@ -71,7 +70,7 @@ class PotentialGrid:
         if DO_MRC_OUTPUT: self.ms.write_mrc(f"{path_prefix}.mrc", self.grid)
 
         ###### save to json
-        if DO_JSON_OUTPUT: write_json(f"{path_prefix}.json", self.data)
+        if DO_JSON_OUTPUT: volpot.write_json(f"{path_prefix}.json", self.data)
 
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)
