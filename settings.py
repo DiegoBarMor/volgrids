@@ -1,15 +1,11 @@
 import numpy as np
 
 ######################## GENERAL PARAMETERS
-VERBOSE = False # print additional information to the console?
 DO_DX_OUTPUT = False # save the result of the potential grids in DX format?
 DO_MRC_OUTPUT = True # save the result of the potential grids in MRC format?
 DO_JSON_OUTPUT = False # save the result of the potential grids in JSON format?
 DO_LOG_APBS = False
 WARNING_GRID_SIZE = 2.5e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort
-USE_FIXED_DELTAS = True
-    # True: the deltas are fixed to the values below, resolution is calculated accordinly
-    # False: resolution is fixed to the values below, deltas are calculated accordingly
 
 ######################## "WHOLE" MODE
 ### deltas used for default calculations (resolutions change)
@@ -62,6 +58,9 @@ SIGMA_HYDROPHOBIC = 1.5
 MU_HYDROPHILIC = 3.0
 SIGMA_HYDROPHILIC = 0.15
 
+HPHOB_RNA_SUGAR = -0.13
+HPHOB_RNA_PHOSPHATE = -2.02
+
 MU_ANGLE_HBA = 129.9
 MU_ANGLE_HBD = 109.0
 MU_DIST_HBOND = 2.93
@@ -100,20 +99,8 @@ COV_INV_STACKING = np.linalg.inv(COV_STACKING)
 SIGMA_DIST_STACKING = 0.6092937058594976
 
 ######################## KERNEL_PARAMETERS
-PHARMA_KERNEL_RADIUS = {
-    "stack" : 1.1, # stacking
-    "hba"   : 0.5, # hb acceptors
-    "hbd"   : 1.0, # hb donors
-    "hphob" : 1.0, # hydrophobicity
-    "pos"   : 1.0, # electropositive
-    "neg"   : 1.0, # electronegative
-}
 
 GAUSSIAN_KERNEL_SIGMAS = 4 # how many sigmas of width should the precalculated gaussians have?
-
-######################## Hydrophobicity
-HPHOB_RNA_SUGAR = -0.13
-HPHOB_RNA_PHOSPHATE = -2.02
 
 
 ################################################################################

@@ -1,7 +1,7 @@
 import volpot
 import numpy as np
 
-from settings import DO_DX_OUTPUT, DO_MRC_OUTPUT, DO_JSON_OUTPUT, VERBOSE
+from settings import DO_DX_OUTPUT, DO_MRC_OUTPUT, DO_JSON_OUTPUT
 
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -18,10 +18,8 @@ class PotentialGrid:
         self.grid[self.ms.trimming_mask] = 0 # apply precalculated trimming mask
         timer.end()
 
-        if VERBOSE: timer = volpot.Timer(f"......       Saving {self.POTENTIAL_TYPE} potential grid...")
         self.pack_data()
         self.save_data()
-        if VERBOSE: timer.end()
 
 
     @classmethod

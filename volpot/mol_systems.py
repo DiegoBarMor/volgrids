@@ -9,7 +9,7 @@ from settings import WARNING_GRID_SIZE, SAVE_CACHED_MASK, \
     DO_TRIMMING_SPHERE, DO_TRIMMING_OCCUPANCY, DO_TRIMMING_RNDS, \
     GRID_XRES_PS, GRID_YRES_PS, GRID_ZRES_PS, GRID_DX_PS, GRID_DY_PS, GRID_DZ_PS, \
     GRID_XRES_WM, GRID_YRES_WM, GRID_ZRES_WM, GRID_DX_WM, GRID_DY_WM, GRID_DZ_WM, \
-    COG_CUBE_RADIUS, MAX_RNDS_DIST, EXTRA_BOX_SIZE, VERBOSE, DO_DX_OUTPUT, DO_MRC_OUTPUT
+    COG_CUBE_RADIUS, MAX_RNDS_DIST, EXTRA_BOX_SIZE, DO_DX_OUTPUT, DO_MRC_OUTPUT
 
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -58,11 +58,6 @@ class MolecularSystem:
         self.deltas : np.array
         self.set_box_properties()
 
-        if VERBOSE: print(
-            f"...... Resolution = {volpot.format_vector_str(self.resolution)}, Deltas = {volpot.format_vector_str(self.deltas)}, "\
-            f"COG = {volpot.format_vector_str(self.cog)}, radius = {self.radius:.3f}", flush = True
-        )
-
 
         ###############################
         grid_size = np.prod(self.resolution)
@@ -93,14 +88,12 @@ class MolecularSystem:
 
         if not SAVE_CACHED_MASK: return
 
-        if VERBOSE: timer = volpot.Timer("......   Saving mask cache...")
         if DO_DX_OUTPUT:
             path_cached_mask = self.folder_potentials / f"{self.name}.mask.dx"
             self.write_dx(path_cached_mask, self.grid)
         if DO_MRC_OUTPUT:
             path_cached_mask = self.folder_potentials / f"{self.name}.mask.mrc"
             self.write_mrc(path_cached_mask, self.grid)
-        if VERBOSE: timer.end()
 
 
     def trim_occupancy(self, radius):
