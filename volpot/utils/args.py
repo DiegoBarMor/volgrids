@@ -1,5 +1,4 @@
 import argparse
-from argparse import RawDescriptionHelpFormatter
 from pathlib import Path
 
 
@@ -19,7 +18,7 @@ def process_args():
         "zcog" : "Z coordinate for the center of geometry of the pocket sphere. Will be ignored if 'whole' mode is active.",
     }
 
-    parser = argparse.ArgumentParser(description = docs_args["main"], formatter_class = RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(description = docs_args["main"], formatter_class = argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-i", "--pdb",    type = Path, required = True, help = docs_args["pdb"])
     parser.add_argument("-o", "--out",    type = Path, required = True, help = docs_args["out"])
     parser.add_argument("-a", "--apbs",   type = Path, default = '',    help = docs_args["apbs"])

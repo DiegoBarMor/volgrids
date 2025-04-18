@@ -1,16 +1,8 @@
-import volpot
 import numpy as np
+import volpot as vp
 from pathlib import Path
 import MDAnalysis as mda
-from gridData import Grid
 from gridData import mrc
-
-from settings import WARNING_GRID_SIZE, SAVE_CACHED_MASK, \
-    DO_TRIMMING_SPHERE, DO_TRIMMING_OCCUPANCY, DO_TRIMMING_RNDS, \
-    GRID_XRES_PS, GRID_YRES_PS, GRID_ZRES_PS, GRID_DX_PS, GRID_DY_PS, GRID_DZ_PS, \
-    GRID_XRES_WM, GRID_YRES_WM, GRID_ZRES_WM, GRID_DX_WM, GRID_DY_WM, GRID_DZ_WM, \
-    COG_CUBE_RADIUS, MAX_RNDS_DIST, EXTRA_BOX_SIZE, DO_DX_OUTPUT, DO_MRC_OUTPUT
-
 
 # //////////////////////////////////////////////////////////////////////////////
 class MolecularSystem:
@@ -61,7 +53,7 @@ class MolecularSystem:
 
         ###############################
         grid_size = np.prod(self.resolution)
-        if grid_size > WARNING_GRID_SIZE:
+        if grid_size > vp.WARNING_GRID_SIZE:
             print()
             while True:
                 choice = input(f">>> WARNING: resulting grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n").upper()
@@ -79,25 +71,25 @@ class MolecularSystem:
 
 
     def create_trimming_mask(self, min_dist):
-        timer = volpot.Timer("...>>> MS: Generating mask...")
+        timer = vp.Timer("...>>> MS: Generating mask...")
         self.trimming_mask = np.zeros(self.resolution, dtype = bool)
-        if DO_TRIMMING_SPHERE:    self.trim_sphere()
-        if DO_TRIMMING_OCCUPANCY: self.trim_occupancy(min_dist)
-        if DO_TRIMMING_RNDS:      self.trim_rnds()
+        if vp.DO_TRIMMING_SPHERE:    self.trim_sphere()
+        if vp.DO_TRIMMING_OCCUPANCY: self.trim_occupancy(min_dist)
+        if vp.DO_TRIMMING_RNDS:      self.trim_rnds()
         timer.end()
 
-        if not SAVE_CACHED_MASK: return
+        if not vp.SAVE_CACHED_MASK: return
 
-        if DO_DX_OUTPUT:
+        if vp.DO_DX_OUTPUT:
             path_cached_mask = self.folder_potentials / f"{self.name}.mask.dx"
             self.write_dx(path_cached_mask, self.grid)
-        if DO_MRC_OUTPUT:
+        if vp.DO_MRC_OUTPUT:
             path_cached_mask = self.folder_potentials / f"{self.name}.mask.mrc"
             self.write_mrc(path_cached_mask, self.grid)
 
 
     def trim_occupancy(self, radius):
-        sk = volpot.SphereKernel(radius, self.deltas, bool)
+        sk = vp.SphereKernel(radius, self.deltas, bool)
         sk.link_to_grid(self.trimming_mask, self.minCoords)
         for a in self.relevant_atoms_broad:
             sk.stamp(a.position)
@@ -165,7 +157,6 @@ class MolecularSystem:
             mrc_file.update_header_stats()
 
 
-
 # //////////////////////////////////////////////////////////////////////////////
 class MS_PocketSphere(MolecularSystem):
     def set_box_properties(self):
@@ -176,10 +167,10 @@ class MS_PocketSphere(MolecularSystem):
         box_size = self.maxCoords - self.minCoords
 
         if self.metadata["default_res"]:
-            self.resolution = np.array([GRID_XRES_PS, GRID_YRES_PS, GRID_ZRES_PS])
+            self.resolution = np.array([vp.GRID_XRES_PS, vp.GRID_YRES_PS, vp.GRID_ZRES_PS])
             self.deltas = box_size / self.resolution
         else:
-            self.deltas = np.array([GRID_DX_PS, GRID_DY_PS, GRID_DZ_PS])
+            self.deltas = np.array([vp.GRID_DX_PS, vp.GRID_DY_PS, vp.GRID_DZ_PS])
             self.resolution = np.round(box_size / self.deltas).astype(int)
 
         print("...>>> MS: PocketSphere mode. Info:", flush = True)
@@ -196,7 +187,7 @@ class MS_PocketSphere(MolecularSystem):
 
     def trim_sphere(self):
         shifted_coords = self.coords - self.cog
-        dist_from_cog = volpot.get_norm(shifted_coords)
+        dist_from_cog = vp.get_norm(shifted_coords)
         self.trimming_mask[dist_from_cog > self.radius] = True
 
     def trim_rnds(self):
@@ -208,9 +199,9 @@ class MS_PocketSphere(MolecularSystem):
         xres, yres, zres = self.resolution
         xcog, ycog, zcog = np.floor(self.resolution / 2).astype(int)
         cog_cube = set((x,y,z)
-            for x in range(xcog - COG_CUBE_RADIUS, xcog + COG_CUBE_RADIUS + 1)
-            for y in range(ycog - COG_CUBE_RADIUS, ycog + COG_CUBE_RADIUS + 1)
-            for z in range(zcog - COG_CUBE_RADIUS, zcog + COG_CUBE_RADIUS + 1)
+            for x in range(xcog - vp.COG_CUBE_RADIUS, xcog + vp.COG_CUBE_RADIUS + 1)
+            for y in range(ycog - vp.COG_CUBE_RADIUS, ycog + vp.COG_CUBE_RADIUS + 1)
+            for z in range(zcog - vp.COG_CUBE_RADIUS, zcog + vp.COG_CUBE_RADIUS + 1)
         )
         queue = cog_cube.copy()
 
@@ -234,7 +225,7 @@ class MS_PocketSphere(MolecularSystem):
 
                 neigh = ni,nj,nk
                 search_dist[neigh] = min(search_dist[node] + 1, search_dist[neigh])
-                if search_dist[neigh] > MAX_RNDS_DIST: continue
+                if search_dist[neigh] > vp.MAX_RNDS_DIST: continue
                 if visited[neigh]: continue
                 if self.trimming_mask[neigh]: continue
 
@@ -246,17 +237,17 @@ class MS_PocketSphere(MolecularSystem):
 # //////////////////////////////////////////////////////////////////////////////
 class MS_Whole(MolecularSystem):
     def set_box_properties(self):
-        self.maxCoords = np.max(self.system.coord.positions, axis = 0) + EXTRA_BOX_SIZE
-        self.minCoords = np.min(self.system.coord.positions, axis = 0) - EXTRA_BOX_SIZE
-        self.radius = volpot.get_norm(self.maxCoords - self.minCoords) / 2
+        self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vp.EXTRA_BOX_SIZE
+        self.minCoords = np.min(self.system.coord.positions, axis = 0) - vp.EXTRA_BOX_SIZE
+        self.radius = vp.get_norm(self.maxCoords - self.minCoords) / 2
         self.cog = (self.maxCoords + self.minCoords) / 2
         box_size = self.maxCoords - self.minCoords
 
         if self.metadata["default_res"]:
-            self.resolution = np.array([GRID_XRES_WM, GRID_YRES_WM, GRID_ZRES_WM])
+            self.resolution = np.array([vp.GRID_XRES_WM, vp.GRID_YRES_WM, vp.GRID_ZRES_WM])
             self.deltas = box_size / self.resolution
         else:
-            self.deltas = np.array([GRID_DX_WM, GRID_DY_WM, GRID_DZ_WM])
+            self.deltas = np.array([vp.GRID_DX_WM, vp.GRID_DY_WM, vp.GRID_DZ_WM])
             self.resolution = np.round(box_size / self.deltas).astype(int)
 
         print("...>>> MS: Whole mode. Info:", flush = True)
@@ -266,4 +257,4 @@ class MS_Whole(MolecularSystem):
         self.relevant_atoms_broad = self.relevant_atoms
 
 
-################################################################################
+# //////////////////////////////////////////////////////////////////////////////

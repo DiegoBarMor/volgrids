@@ -1,5 +1,5 @@
-import volpot
 import numpy as np
+import volpot as vp
 
 # //////////////////////////////////////////////////////////////////////////////
 class Kernel:
@@ -18,7 +18,7 @@ class Kernel:
         center = np.floor(self.kernel_res / 2) * self.deltas
         coords = np.indices(self.kernel_res).T * self.deltas
         self.shifted_coords = coords - center
-        self.dist = volpot.get_norm(self.shifted_coords)
+        self.dist = vp.get_norm(self.shifted_coords)
 
     def link_to_grid(self, grid, grid_origin):
         self.grid = grid
@@ -106,14 +106,14 @@ class GaussianKernel(Kernel):
     """For generating univariate gaussian spheres (e.g. for hydrophob)"""
     def __init__(self, mu, sigma, radius, deltas, dtype):
         super().__init__(radius, deltas, dtype)
-        self.kernel = volpot.univariate_gaussian(self.dist, mu, sigma)
+        self.kernel = vp.univariate_gaussian(self.dist, mu, sigma)
 
 
 # //////////////////////////////////////////////////////////////////////////////
 class MultiGaussianKernel(Kernel):
     """For generating multivariate gaussian distributions (for hba, hbd, stacking)"""
     def recalculate_kernel(self, normal, mu, cov_inv, isStacking):
-        beta_values = volpot.get_angle(self.shifted_coords, normal, isStacking)
+        beta_values = vp.get_angle(self.shifted_coords, normal, isStacking)
         input_mat = np.concatenate(
             (
                 np.resize(beta_values, list(beta_values.shape) + [1]),
@@ -121,7 +121,7 @@ class MultiGaussianKernel(Kernel):
             ),
             axis = 3
         )
-        self.kernel = volpot.multivariate_gaussian(input_mat, mu, cov_inv)
+        self.kernel = vp.multivariate_gaussian(input_mat, mu, cov_inv)
 
 
 # //////////////////////////////////////////////////////////////////////////////

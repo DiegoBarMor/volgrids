@@ -1,8 +1,5 @@
-import volpot
 import numpy as np
-
-from settings import DO_DX_OUTPUT, DO_MRC_OUTPUT, DO_JSON_OUTPUT
-
+import volpot as vp
 
 # //////////////////////////////////////////////////////////////////////////////
 class PotentialGrid:
@@ -11,7 +8,7 @@ class PotentialGrid:
     def __init__(self, ms):
         if ms is None: return
 
-        timer = volpot.Timer(f"...>>> PG: Creating {self.POTENTIAL_TYPE} potential grid...")
+        timer = vp.Timer(f"...>>> PG: Creating {self.POTENTIAL_TYPE} potential grid...")
         self.ms = ms
         self.grid = np.zeros(self.ms.resolution, dtype = np.float32)
         self.populate_grid()
@@ -28,7 +25,7 @@ class PotentialGrid:
         pg.ms = pg_0.ms
         pg.grid = pg_0.grid - pg_1.grid
 
-        timer = volpot.Timer(f".../// PG: Saving {name} potential grid...")
+        timer = vp.Timer(f".../// PG: Saving {name} potential grid...")
         pg.pack_data()
         pg.save_data(name)
         timer.end()
@@ -62,13 +59,13 @@ class PotentialGrid:
         path_prefix = self.ms.folder_potentials / f"{self.ms.name}.{prefix}"
 
         ###### save to dx
-        if DO_DX_OUTPUT: self.ms.write_dx(f"{path_prefix}.dx", self.grid)
+        if vp.DO_DX_OUTPUT: self.ms.write_dx(f"{path_prefix}.dx", self.grid)
 
         ###### save to mrc
-        if DO_MRC_OUTPUT: self.ms.write_mrc(f"{path_prefix}.mrc", self.grid)
+        if vp.DO_MRC_OUTPUT: self.ms.write_mrc(f"{path_prefix}.mrc", self.grid)
 
         ###### save to json
-        if DO_JSON_OUTPUT: volpot.write_json(f"{path_prefix}.json", self.data)
+        if vp.DO_JSON_OUTPUT: vp.write_json(f"{path_prefix}.json", self.data)
 
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)

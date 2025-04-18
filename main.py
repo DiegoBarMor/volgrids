@@ -1,8 +1,5 @@
 import volpot as vp
 
-from settings import TRIMMING_DIST_LARGE, TRIMMING_DIST_SMALL
-
-
 ################################################################################
 if __name__ == "__main__":
     args = vp.process_args()
@@ -14,8 +11,8 @@ if __name__ == "__main__":
 
     Class_ms = vp.MS_Whole if metadata["whole"] else vp.MS_PocketSphere
 
-    ms_trimming_large = Class_ms(metadata, TRIMMING_DIST_LARGE)
-    ms_trimming_small = Class_ms(metadata, TRIMMING_DIST_SMALL)
+    ms_trimming_large = Class_ms(metadata, vp.TRIMMING_DIST_LARGE)
+    ms_trimming_small = Class_ms(metadata, vp.TRIMMING_DIST_SMALL)
     pg_stacking  = vp.SPG_Stacking   (ms_trimming_large)
     pg_hba       = vp.SPG_HB_Accepts (ms_trimming_large)
     pg_hbd       = vp.SPG_HB_Donors  (ms_trimming_large)

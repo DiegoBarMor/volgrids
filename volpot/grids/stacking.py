@@ -1,33 +1,30 @@
-import volpot
 import numpy as np
+import volpot as vp
 from collections import defaultdict
 
-from settings import MU_STACKING, GAUSSIAN_KERNEL_SIGMAS, SIGMA_DIST_STACKING, COV_INV_STACKING
-
-
 # //////////////////////////////////////////////////////////////////////////////
-class SPG_Stacking(volpot.StatisticalPotentialGrid):
+class SPG_Stacking(vp.StatisticalPotentialGrid):
     POTENTIAL_TYPE = "stacking"
 
     def populate_grid(self):
-        radius = MU_STACKING[1] + GAUSSIAN_KERNEL_SIGMAS * SIGMA_DIST_STACKING
-        gk = volpot.MultiGaussianKernel(radius, self.ms.deltas, np.float32)
+        radius = vp.MU_STACKING[1] + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_DIST_STACKING
+        gk = vp.MultiGaussianKernel(radius, self.ms.deltas, np.float32)
 
         gk.link_to_grid(self.grid, self.ms.minCoords)
         for res_atoms in self.iter_particles():
             cog = res_atoms.center_of_geometry()
             a,b,c = res_atoms.positions[:3]
-            u = volpot.normalize(b - a)
-            v = volpot.normalize(c - a)
-            normal = volpot.normalize(np.cross(u, v))
+            u = vp.normalize(b - a)
+            v = vp.normalize(c - a)
+            normal = vp.normalize(np.cross(u, v))
 
-            gk.recalculate_kernel(normal, MU_STACKING, COV_INV_STACKING, isStacking = True)
+            gk.recalculate_kernel(normal, vp.MU_STACKING, vp.COV_INV_STACKING, isStacking = True)
             gk.stamp(cog)
 
 
     def iter_particles(self):
         resname_to_ids = defaultdict(set)
-        aromatic_dict = volpot.aromatic_bases if self.ms.isNucleic else volpot.aromatic_aminos
+        aromatic_dict = vp.aromatic_bases if self.ms.isNucleic else vp.aromatic_aminos
 
         for a in self.ms.relevant_atoms:
             resname_to_ids[a.resname].add((a.resid, a.chainID))

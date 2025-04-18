@@ -1,12 +1,9 @@
-import volpot
 import numpy as np
+import volpot as vp
 from gridData import Grid
 
-from settings import APBS_MIN_CUTOFF, APBS_MAX_CUTOFF, DO_LOG_APBS
-
-
 # //////////////////////////////////////////////////////////////////////////////
-class PPG_APBS(volpot.PotentialGrid):
+class PPG_APBS(vp.PotentialGrid):
     POTENTIAL_TYPE = "apbs"
 
     def __init__(self, ms):
@@ -18,8 +15,8 @@ class PPG_APBS(volpot.PotentialGrid):
 
         super().__init__(ms)
 
-        if DO_LOG_APBS:
-            timer = volpot.Timer("...>>> Creating APBS-LOG potential grid...", flush = True)
+        if vp.DO_LOG_APBS:
+            timer = vp.Timer("...>>> Creating APBS-LOG potential grid...", flush = True)
             self.apply_logabs_transform()
             timer.end()
         else:
@@ -37,7 +34,7 @@ class PPG_APBS(volpot.PotentialGrid):
         xmax1, ymax1, zmax1 = self.ms.maxCoords
         xres1, yres1, zres1 = self.ms.resolution
 
-        self.grid = volpot.interpolate_3d(
+        self.grid = vp.interpolate_3d(
             x0 = np.linspace(xmin0, xmax0, xres0),
             y0 = np.linspace(ymin0, ymax0, yres0),
             z0 = np.linspace(zmin0, zmax0, zres0),
@@ -55,14 +52,14 @@ class PPG_APBS(volpot.PotentialGrid):
         logneg = np.log10(-self.grid[self.grid < 0])
 
         ##### APPLY CUTOFFS
-        logpos[logpos < APBS_MIN_CUTOFF] = APBS_MIN_CUTOFF
-        logneg[logneg < APBS_MIN_CUTOFF] = APBS_MIN_CUTOFF
-        logpos[logpos > APBS_MAX_CUTOFF] = APBS_MAX_CUTOFF
-        logneg[logneg > APBS_MAX_CUTOFF] = APBS_MAX_CUTOFF
+        logpos[logpos < vp.APBS_MIN_CUTOFF] = vp.APBS_MIN_CUTOFF
+        logneg[logneg < vp.APBS_MIN_CUTOFF] = vp.APBS_MIN_CUTOFF
+        logpos[logpos > vp.APBS_MAX_CUTOFF] = vp.APBS_MAX_CUTOFF
+        logneg[logneg > vp.APBS_MAX_CUTOFF] = vp.APBS_MAX_CUTOFF
 
         ##### SHIFT VALUES TO 0
-        logpos -= APBS_MIN_CUTOFF
-        logneg -= APBS_MIN_CUTOFF
+        logpos -= vp.APBS_MIN_CUTOFF
+        logneg -= vp.APBS_MIN_CUTOFF
 
         ##### REVERSE SIGN OF LOG(ABS(GRID_NEG)) AND DOUBLE BOTH
         logpos *=  2 # this way the range of points varies between
@@ -74,8 +71,8 @@ class PPG_APBS(volpot.PotentialGrid):
 
         ##### additional adjustments before saving to json
         self.pack_data()
-        self.data["minPotential"] = float(-2 * (APBS_MAX_CUTOFF - APBS_MIN_CUTOFF))
-        self.data["maxPotential"] = float( 2 * (APBS_MAX_CUTOFF - APBS_MIN_CUTOFF))
+        self.data["minPotential"] = float(-2 * (vp.APBS_MAX_CUTOFF - vp.APBS_MIN_CUTOFF))
+        self.data["maxPotential"] = float( 2 * (vp.APBS_MAX_CUTOFF - vp.APBS_MIN_CUTOFF))
         self.save_data(override_prefix = "apbslog")
 
 
