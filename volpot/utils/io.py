@@ -1,4 +1,4 @@
-import json
+import os, json
 
 ################################################################################
 def read_json(path_json):
@@ -15,7 +15,10 @@ def save_metadata(metadata):
     meta = metadata.copy()
     for k in ("pdb", "out", "apbs", "meta"):
         meta[k] = str(meta[k])
-    write_json(meta["meta"], meta)
+
+    path_json = metadata["meta"]
+    os.makedirs(path_json.parent, exist_ok = True)
+    write_json(path_json, meta)
 
 
 ################################################################################

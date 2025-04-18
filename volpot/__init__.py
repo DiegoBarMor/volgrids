@@ -46,7 +46,7 @@ TRIMMING_DIST_LARGE = 3.0
 TRIMMING_DIST_SMALL = 2.5
 
 ### RANDOM SEARCH TRIMMING
-DO_TRIMMING_RNDS = True
+DO_TRIMMING_RNDS = False
 MAX_RNDS_DIST = _np.inf
 COG_CUBE_RADIUS = 3
 
@@ -110,25 +110,32 @@ GAUSSIAN_KERNEL_SIGMAS = 4 # how many sigmas of width should the precalculated g
 ################################### MODULES ####################################
 ################################################################################
 
-from .grids.grids import PotentialGrid, StatisticalPotentialGrid
+from .grids.grids import VolpotGrid, StatisticalPotentialGrid
 
-from .grids.apbs import PPG_APBS
-from .grids.hbonds import SPG_HB_Accepts, SPG_HB_Donors
-from .grids.hydro import SPG_Hydrophilic, SPG_Hydrophobic
-from .grids.stacking import SPG_Stacking
+from .grids.apbs import GridAPBS
+from .grids.hbonds import GridHBAccepts, GridHBDonors
+from .grids.hydro import GridHydrophilic, GridHydrophobic
+from .grids.stacking import GridStacking
 
 from .utils.args import process_args
-from .utils.io import read_json, write_json, save_metadata
-from .utils.math import normalize, dot_product, get_norm, get_angle, \
+from .utils.io import \
+    read_json, write_json, save_metadata
+from .utils.math import \
+    normalize, dot_product, get_norm, get_angle, \
     univariate_gaussian, multivariate_gaussian, \
     interpolate_3d, format_vector_str
-from .utils.tables import aromatic_aminos, aromatic_bases, ww_scale, \
+from .utils.tables import \
+    aromatic_aminos, aromatic_bases, ww_scale, \
     nucleic_backbone_phosphate, nucleic_backbone_sugar, \
     nucleic_bases, prot_hba, prot_hbd, rna_hba, rna_hbd
 from .utils.timer import Timer
 
-from .mol_systems import MolecularSystem, MS_PocketSphere, MS_Whole
-from .kernels import Kernel, SphereKernel, GaussianKernel, MultiGaussianKernel
+from .systems import \
+    MolecularSystem, MSPocketSphere, MSWhole
+from .kernels import \
+    Kernel, SphereKernel, GaussianKernel, MultiGaussianKernel
+from .trimmers import \
+    GridTrimmer, TrimmerPocketSphere, TrimmerWhole
 
 
 ################################################################################

@@ -30,12 +30,12 @@ apbs data/apbs/1iqj.in
 ### Examples
 - Perform a simple pocket sphere mode (`-x`, `-y`, `-z`, `-r`) in a protein system.
 ```
-python main.py -i data/pdb/1iqj.pdb -o data/potentials-ps -x 4.682 -y 21.475 -z 7.161 -r 14.675
+python3 main.py -i data/pdb/1iqj.pdb -o data/potentials-ps -x 4.682 -y 21.475 -z 7.161 -r 14.675
 ```
 
 - Perform a whole mode (`-w`) in an RNA system (`-n`) considering APBS data (`-a`).
 ```
-python main.py -i data/pdb/5bjo.pdb -o data/potentials-whole -w -n -a data/apbs/5bjo.pqr.dx
+python3 main.py -i data/pdb/5bjo.pdb -o data/potentials-whole -w -n -a data/apbs/5bjo.pqr.dx
 ```
 
 ## Benchmark

@@ -9,17 +9,31 @@ if __name__ == "__main__":
 
     print(f">>> Now processing '{args.pdb.stem}' ({'nucleic' if args.rna else 'protein'})...", flush = True)
 
-    Class_ms = vp.MS_Whole if metadata["whole"] else vp.MS_PocketSphere
+    if metadata["whole"]:
+        ms = vp.MSWhole(metadata)
+        Trimmer = vp.TrimmerWhole
+    else:
+        ms = vp.MSPocketSphere(metadata)
+        Trimmer = vp.TrimmerPocketSphere
 
-    ms_trimming_large = Class_ms(metadata, vp.TRIMMING_DIST_LARGE)
-    ms_trimming_small = Class_ms(metadata, vp.TRIMMING_DIST_SMALL)
-    pg_stacking  = vp.SPG_Stacking   (ms_trimming_large)
-    pg_hba       = vp.SPG_HB_Accepts (ms_trimming_large)
-    pg_hbd       = vp.SPG_HB_Donors  (ms_trimming_large)
-    pg_hbphob    = vp.SPG_Hydrophobic(ms_trimming_large)
-    pg_hphil     = vp.SPG_Hydrophilic(ms_trimming_small)
-    pg_apbs      = vp.PPG_APBS       (ms_trimming_large)
-    pg_hydrodiff = vp.PotentialGrid.grid_diff(pg_hbphob, pg_hphil, "hydrodiff")
+    trim_large = Trimmer(ms, vp.TRIMMING_DIST_LARGE)
+    trim_small = Trimmer(ms, vp.TRIMMING_DIST_SMALL)
+
+    pg_stacking = vp.GridStacking(ms)
+    pg_hba      = vp.GridHBAccepts(ms)
+    pg_hbd      = vp.GridHBDonors(ms)
+    pg_hbphob   = vp.GridHydrophobic(ms)
+    pg_hphil    = vp.GridHydrophilic(ms)
+    pg_apbs     = vp.GridAPBS(ms)
+
+    pg_stacking.run(trim_large)
+    pg_hba     .run(trim_large)
+    pg_hbd     .run(trim_large)
+    pg_hbphob  .run(trim_large)
+    pg_hphil   .run(trim_small)
+    pg_apbs    .run(trim_large)
+    if vp.DO_LOG_APBS: pg_apbs.apply_logabs_transform()
+    vp.VolpotGrid.grid_diff(pg_hbphob, pg_hphil, "hydrodiff")
 
 
 ################################################################################

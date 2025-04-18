@@ -3,25 +3,20 @@ import volpot as vp
 from gridData import Grid
 
 # //////////////////////////////////////////////////////////////////////////////
-class PPG_APBS(vp.PotentialGrid):
-    POTENTIAL_TYPE = "apbs"
+class GridAPBS(vp.VolpotGrid):
+    def get_type(self):
+        return "apbs"
 
-    def __init__(self, ms):
-        if str(ms.path_apbs) == '.':
-            return print("...>>> APBS output not provided. Electrostatic potential skipped.", flush = True)
+    def run(self, trimmer: "vp.GridTrimmer"):
+        if str(self.ms.path_apbs) == '.':
+            print("...--- APBS output not provided. Electrostatic potential skipped.", flush = True)
+            return
 
-        if not ms.path_apbs.exists():
-            return print(f"...XXX APBS output not found, '{ms.path_apbs}' doesn't exist. Electrostatic potential skipped.", flush = True)
+        if not self.ms.path_apbs.exists():
+            print(f"...XXX APBS output not found, '{self.ms.path_apbs}' doesn't exist. Electrostatic potential skipped.", flush = True)
+            return
 
-        super().__init__(ms)
-
-        if vp.DO_LOG_APBS:
-            timer = vp.Timer("...>>> Creating APBS-LOG potential grid...", flush = True)
-            self.apply_logabs_transform()
-            timer.end()
-        else:
-            print("...>>> APBS-LOG potential grid skipped.", flush = True)
-
+        super().run(trimmer)
 
     def populate_grid(self):
         apbs = Grid(self.ms.path_apbs)
@@ -48,6 +43,11 @@ class PPG_APBS(vp.PotentialGrid):
 
 
     def apply_logabs_transform(self):
+        if self.is_empty():
+            print(f"...--- APBS potential grid is empty. Skipping logabs transform.", flush = True)
+            return
+
+        timer = vp.Timer("...>>> Creating APBS-LOG potential grid...")
         logpos = np.log10( self.grid[self.grid > 0])
         logneg = np.log10(-self.grid[self.grid < 0])
 
@@ -74,6 +74,7 @@ class PPG_APBS(vp.PotentialGrid):
         self.data["minPotential"] = float(-2 * (vp.APBS_MAX_CUTOFF - vp.APBS_MIN_CUTOFF))
         self.data["maxPotential"] = float( 2 * (vp.APBS_MAX_CUTOFF - vp.APBS_MIN_CUTOFF))
         self.save_data(override_prefix = "apbslog")
+        timer.end()
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -2,9 +2,9 @@ import numpy as np
 import volpot as vp
 
 # //////////////////////////////////////////////////////////////////////////////
-class SPG_Hydro(vp.StatisticalPotentialGrid):
+class GridHydro(vp.StatisticalPotentialGrid):
     def iter_particles(self):
-        for atom in self.ms.relevant_atoms:
+        for atom in self.ms.get_relevant_atoms():
             # atom is part of a protein
             if not self.ms.isNucleic:
                 mul_factor = vp.ww_scale[atom.resname]
@@ -27,8 +27,9 @@ class SPG_Hydro(vp.StatisticalPotentialGrid):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class SPG_Hydrophilic(SPG_Hydro):
-    POTENTIAL_TYPE = "hydrophilic"
+class GridHydrophilic(GridHydro):
+    def get_type(self):
+        return "hydrophilic"
 
     def populate_grid(self):
         radius_hphil = vp.MU_HYDROPHILIC + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_HYDROPHILIC
@@ -41,8 +42,9 @@ class SPG_Hydrophilic(SPG_Hydro):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class SPG_Hydrophobic(SPG_Hydro):
-    POTENTIAL_TYPE = "hydrophobic"
+class GridHydrophobic(GridHydro):
+    def get_type(self):
+        return "hydrophobic"
 
     def populate_grid(self):
         radius_hphob = vp.MU_HYDROPHOBIC + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_HYDROPHOBIC

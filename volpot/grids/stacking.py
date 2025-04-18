@@ -3,8 +3,9 @@ import volpot as vp
 from collections import defaultdict
 
 # //////////////////////////////////////////////////////////////////////////////
-class SPG_Stacking(vp.StatisticalPotentialGrid):
-    POTENTIAL_TYPE = "stacking"
+class GridStacking(vp.StatisticalPotentialGrid):
+    def get_type(self):
+        return "stacking"
 
     def populate_grid(self):
         radius = vp.MU_STACKING[1] + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_DIST_STACKING
@@ -25,8 +26,9 @@ class SPG_Stacking(vp.StatisticalPotentialGrid):
     def iter_particles(self):
         resname_to_ids = defaultdict(set)
         aromatic_dict = vp.aromatic_bases if self.ms.isNucleic else vp.aromatic_aminos
+        atoms = self.ms.get_relevant_atoms()
 
-        for a in self.ms.relevant_atoms:
+        for a in atoms:
             resname_to_ids[a.resname].add((a.resid, a.chainID))
 
         for resname,res_infos in resname_to_ids.items():
@@ -37,7 +39,7 @@ class SPG_Stacking(vp.StatisticalPotentialGrid):
             for resid,chain in res_infos:
                 sel = f"resid {resid} and name {aromatic_atoms}"
                 if chain: sel += f" and chainID {chain}"
-                res_atoms = self.ms.relevant_atoms.select_atoms(sel)
+                res_atoms = atoms.select_atoms(sel)
                 if len(res_atoms) >= 3: # include rings even if they're not completely inside the PS
                     yield res_atoms
 
