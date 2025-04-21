@@ -9,13 +9,13 @@ def process_args():
         "pdb" : "Path to the PDB structure file of interest.",
         "out" : "Path to the folder where the output potentials should be stored.",
         "apbs" : "Path to the output of APBS for the respective PDB file (this must be done before). An OpenDX file is expected.",
-        "rna" : "The target macromolecule of interest is nucleic. If this flag is not provided, the target macromolecule is assumed to be proteic.",
-        "whole" : "Activates 'whole mode'. The potentials of all the volume surrounding the macromolecule will be calculated.",
-        "default-res" : "Use the default resolution values from settings.py (instead of the default delta values)",
         "radius" : "Radius of the pocket sphere. Will be ignored if 'whole' mode is active.",
         "xcog" : "X coordinate for the center of geometry of the pocket sphere. Will be ignored if 'whole' mode is active.",
         "ycog" : "Y coordinate for the center of geometry of the pocket sphere. Will be ignored if 'whole' mode is active.",
         "zcog" : "Z coordinate for the center of geometry of the pocket sphere. Will be ignored if 'whole' mode is active.",
+        "rna" : "The target macromolecule of interest is nucleic. If this flag is not provided, the target macromolecule is assumed to be proteic.",
+        "whole" : "Activates 'whole mode'. The potentials of all the volume surrounding the macromolecule will be calculated.",
+        "default-res" : "Use the default resolution values from settings.py (instead of the default delta values)",
     }
 
     parser = argparse.ArgumentParser(description = docs_args["main"], formatter_class = argparse.RawDescriptionHelpFormatter)
