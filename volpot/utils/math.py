@@ -30,12 +30,7 @@ def get_norm(m_vectors):
     return np.linalg.norm(m_vectors, axis = -1).T
 
 # ------------------------------------------------------------------------------
-def get_angle(m_vectors, vector, isStacking):
-    """
-    input (m): (xres, yres, zres, 3)
-    input (v): (3,)
-    output   : (xres, yres, zres)
-    """
+def get_projection(m_vectors, vector):
     numerator = dot_product(m_vectors, vector)
     denominator = get_norm(m_vectors).T * np.linalg.norm(vector).T
 
@@ -43,7 +38,17 @@ def get_angle(m_vectors, vector, isStacking):
     numerator[mask] = 1
     denominator[mask] = 1
 
-    cos_val = np.clip(numerator / denominator, -1, 1)
+    projection = np.clip(numerator / denominator, -1, 1)
+    return projection.T, mask
+
+# ------------------------------------------------------------------------------
+def get_angle(m_vectors, vector, isStacking):
+    """
+    input (m): (xres, yres, zres, 3)
+    input (v): (3,)
+    output   : (xres, yres, zres)
+    """
+    cos_val, mask = get_projection(m_vectors, vector)
     angle_radians = np.arccos(cos_val)
     angle_degrees = angle_radians * 180 / np.pi
 
@@ -54,7 +59,7 @@ def get_angle(m_vectors, vector, isStacking):
 
     angle_degrees[mask] = -90
 
-    return angle_degrees.T
+    return angle_degrees
 
 # ------------------------------------------------------------------------------
 def univariate_gaussian(x, mu, sigma):

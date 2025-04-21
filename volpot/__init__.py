@@ -70,7 +70,7 @@ MU_DIST_HBOND = 2.93
 
 SIGMA_DIST_HBOND = 0.21
 SIGMA_ANGLE_HBA = 20.0 # 29.3 originally (given precisely)
-SIGMA_ANGLE_HBD = 20.0 # 20.0 originally (inferred from figure)
+SIGMA_ANGLE_HBD = 20.0 # 20.0 originally (inferred from .figure)
 
 
 MU_HBA = _np.array([MU_ANGLE_HBA, MU_DIST_HBOND])
@@ -121,7 +121,7 @@ from .utils.args import process_args
 from .utils.io import \
     read_json, write_json, save_metadata
 from .utils.math import \
-    normalize, dot_product, get_norm, get_angle, \
+    normalize, dot_product, get_norm, get_projection, get_angle, \
     univariate_gaussian, multivariate_gaussian, \
     interpolate_3d, format_vector_str
 from .utils.tables import \
@@ -133,7 +133,7 @@ from .utils.timer import Timer
 from .systems import \
     MolecularSystem, MSPocketSphere, MSWhole
 from .kernels import \
-    Kernel, SphereKernel, GaussianKernel, MultiGaussianKernel
+    Kernel, SphereKernel, EllipseKernel, DiskKernel, GaussianKernel, MultiGaussianKernel
 from .trimmers import \
     GridTrimmer, TrimmerPocketSphere, TrimmerWhole
 

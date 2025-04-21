@@ -102,6 +102,46 @@ class SphereKernel(Kernel):
 
 
 # //////////////////////////////////////////////////////////////////////////////
+class EllipseKernel(Kernel):
+    """For generating boolean disks (e.g. for masks)"""
+    def __init__(self, radius, vdirection, height, deltas, dtype):
+        # radius = np.linalg.norm(vdirection)
+        super().__init__(radius, deltas, dtype)
+
+
+        projection, _ = vp.get_projection(self.shifted_coords, vdirection)
+        projection = np.abs(projection)
+
+        ### APPROACH 1
+        # projection[projection < height] = height
+        # ndist = self.dist / projection
+        # self.kernel[ndist < radius] = 1
+
+        ### APPROACH 2
+        ndist = self.dist - projection
+        ndist[ndist < 0] = 0
+        self.kernel[ndist < height] = 1
+
+
+# //////////////////////////////////////////////////////////////////////////////
+class DiskKernel(Kernel):
+    """For generating boolean disks (e.g. for masks)"""
+    def __init__(self, radius, vnormal, height, deltas, dtype):
+        super().__init__(radius, deltas, dtype)
+
+        projection, _ = vp.get_projection(self.shifted_coords, vnormal)
+        projection = np.abs(projection)
+        # projection = vp.normalize(np.abs(projection))
+
+        print(np.min(projection), np.max(projection))
+
+        self.kernel[self.dist < radius] = 1
+        self.kernel[projection > height] = 0
+        # self.kernel = np.sum(self.kernel, axis = 2)
+        # self.kernel = np.clip(self.kernel, 0, 1)
+
+
+# //////////////////////////////////////////////////////////////////////////////
 class GaussianKernel(Kernel):
     """For generating univariate gaussian spheres (e.g. for hydrophob)"""
     def __init__(self, mu, sigma, radius, deltas, dtype):
