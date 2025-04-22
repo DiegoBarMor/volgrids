@@ -3,7 +3,7 @@ import volpot as vp
 from gridData import Grid
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridAPBS(vp.VolpotGrid):
+class GridAPBS(vp.Grid):
     def get_type(self):
         return "apbs"
 

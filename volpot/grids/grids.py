@@ -3,7 +3,7 @@ import volpot as vp
 from gridData import mrc
 
 # //////////////////////////////////////////////////////////////////////////////
-class VolpotGrid:
+class Grid:
     def __init__(self, ms, dtype = np.float32):
         self.ms = ms
         self.xres, self.yres, self.zres = ms.resolution
@@ -27,7 +27,7 @@ class VolpotGrid:
         return ### OVERRIDE
 
     def copy(self):
-        pg = VolpotGrid(self.ms)
+        pg = Grid(self.ms)
         pg.grid = np.copy(self.grid)
         return pg
 
@@ -155,7 +155,7 @@ class VolpotGrid:
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class StatisticalPotentialGrid(VolpotGrid):
+class GridSMIF(Grid):
     def populate_grid(self):
         for particle in self.iter_particles():
             self.process_particle(particle)

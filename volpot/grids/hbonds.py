@@ -2,13 +2,13 @@ import numpy as np
 import volpot as vp
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBonds(vp.StatisticalPotentialGrid):
+class GridHBonds(vp.GridSMIF):
     def populate_grid(self):
         self.radius: float
         self.table_hbond: dict
         self.kernel_args: dict
 
-        gk = vp.MultiGaussianKernel(self.radius, self.ms.deltas, np.float32)
+        gk = vp.KernelGaussianMultivariate(self.radius, self.ms.deltas, np.float32)
         gk.link_to_grid(self.grid, self.ms.minCoords)
         for pos_antecedent, pos_atom_hbond in self.iter_particles():
             direction = vp.normalize(pos_atom_hbond - pos_antecedent)

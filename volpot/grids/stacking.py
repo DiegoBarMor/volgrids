@@ -3,13 +3,13 @@ import volpot as vp
 from collections import defaultdict
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridStacking(vp.StatisticalPotentialGrid):
+class GridStacking(vp.GridSMIF):
     def get_type(self):
         return "stacking"
 
     def populate_grid(self):
         radius = vp.MU_STACKING[1] + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_DIST_STACKING
-        gk = vp.MultiGaussianKernel(radius, self.ms.deltas, np.float32)
+        gk = vp.KernelGaussianMultivariate(radius, self.ms.deltas, np.float32)
 
         gk.link_to_grid(self.grid, self.ms.minCoords)
         for res_atoms in self.iter_particles():

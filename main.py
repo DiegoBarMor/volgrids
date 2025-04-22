@@ -33,7 +33,7 @@ if __name__ == "__main__":
     pg_hphil   .run(trim_small)
     pg_apbs    .run(trim_large)
     if vp.DO_LOG_APBS: pg_apbs.apply_logabs_transform()
-    vp.VolpotGrid.grid_diff(pg_hbphob, pg_hphil, "hydrodiff")
+    vp.Grid.grid_diff(pg_hbphob, pg_hphil, "hydrodiff")
 
 
 ################################################################################

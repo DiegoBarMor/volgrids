@@ -3,7 +3,7 @@ import volpot as vp
 from abc import ABC, abstractmethod
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridTrimmer(ABC, vp.VolpotGrid):
+class GridTrimmer(ABC, vp.Grid):
     def __init__(self, ms, trimming_dist):
         super().__init__(ms, dtype = bool)
 
@@ -25,7 +25,7 @@ class GridTrimmer(ABC, vp.VolpotGrid):
 
 
     def _trim_occupancy(self, radius):
-        sk = vp.SphereKernel(radius, self.ms.deltas, bool)
+        sk = vp.KernelSphere(radius, self.ms.deltas, bool)
         sk.link_to_grid(self.grid, self.ms.minCoords)
         for a in self.ms.get_relevant_atoms_broad(radius):
             sk.stamp(a.position)
