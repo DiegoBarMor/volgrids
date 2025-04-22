@@ -133,7 +133,7 @@ from .utils.timer import Timer
 from .systems import \
     MolecularSystem, MSPocketSphere, MSWhole
 from .kernels import \
-    Kernel, SphereKernel, EllipseKernel, DiskKernel, GaussianKernel, MultiGaussianKernel
+    Kernel, SphereKernel, CylinderKernel, DiskKernel, GaussianKernel, MultiGaussianKernel
 from .trimmers import \
     GridTrimmer, TrimmerPocketSphere, TrimmerWhole
 

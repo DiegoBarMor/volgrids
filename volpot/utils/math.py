@@ -39,15 +39,9 @@ def get_projection(m_vectors, vector):
     """
     projection of the m_vectors on the vector
     """
-    numerator = dot_product(m_vectors, vector)
-    denominator = np.linalg.norm(vector)
-
-    mask = denominator == 0
-    numerator[mask] = 1
-    denominator[mask] = 1
-
-    projection = np.clip(numerator / denominator, -1, 1)
-    return projection
+    dot_uv = dot_product(m_vectors, vector)
+    norm_v = np.linalg.norm(vector)
+    return 0 if (norm_v == 0) else dot_uv / norm_v
 
 # ------------------------------------------------------------------------------
 def get_angle(m_vectors, vector, isStacking):

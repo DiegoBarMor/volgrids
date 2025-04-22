@@ -15,9 +15,9 @@ class Kernel:
         self.grid_res = None
 
         ##### initizalize auxiliary kernel of distance values
-        center = np.floor(self.kernel_res / 2) * self.deltas
-        coords = vp.get_coords_array(self.kernel_res, self.deltas)
-        self.shifted_coords = coords - center
+        self.center = np.floor(self.kernel_res / 2) * self.deltas
+        self.coords = vp.get_coords_array(self.kernel_res, self.deltas)
+        self.shifted_coords = self.coords - self.center
         self.dist = vp.get_norm(self.shifted_coords)
 
     def link_to_grid(self, grid, grid_origin):
@@ -102,38 +102,24 @@ class SphereKernel(Kernel):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class EllipseKernel(Kernel):
+class CylinderKernel(Kernel):
     """For generating boolean disks (e.g. for masks)"""
     def __init__(self, radius, vdirection, height, deltas, dtype):
-        # radius = np.linalg.norm(vdirection)
         super().__init__(radius, deltas, dtype)
-
-
-        projection, _ = vp.get_projection(self.shifted_coords, vdirection)
-        projection = np.abs(projection)
-
-        ### APPROACH 2
-        ndist = self.dist - projection
-        ndist[ndist < 0] = 0
-        self.kernel[ndist < height] = 1
+        projection = vp.get_projection(self.shifted_coords, vdirection)
+        norm_coords = vp.get_norm(self.shifted_coords)
+        h = np.sqrt(norm_coords**2 - projection**2 )
+        self.kernel[h < height] = 1
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class DiskKernel(Kernel):
+class DiskKernel(SphereKernel):
     """For generating boolean disks (e.g. for masks)"""
     def __init__(self, radius, vnormal, height, deltas, dtype):
         super().__init__(radius, deltas, dtype)
-
-        projection, _ = vp.get_projection(self.shifted_coords, vnormal)
+        projection = vp.get_projection(self.shifted_coords, vnormal)
         projection = np.abs(projection)
-        # projection = vp.normalize(np.abs(projection))
-
-        print(np.min(projection), np.max(projection))
-
-        self.kernel[self.dist < radius] = 1
-        self.kernel[projection > height] = 0
-        # self.kernel = np.sum(self.kernel, axis = 2)
-        # self.kernel = np.clip(self.kernel, 0, 1)
+        self.kernel[projection >= height] = 0
 
 
 # //////////////////////////////////////////////////////////////////////////////
