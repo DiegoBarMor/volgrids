@@ -42,7 +42,7 @@ class GridTrimmer(ABC, vp.VolpotGrid):
 # //////////////////////////////////////////////////////////////////////////////
 class TrimmerPocketSphere(GridTrimmer):
     def _trim_sphere(self):
-        coords = self.ms.minCoords + np.indices(self.ms.resolution).T * self.ms.deltas
+        coords = vp.get_coords_array(self.ms.resolution, self.ms.deltas, self.ms.minCoords)
         shifted_coords = coords - self.ms.cog
         dist_from_cog = vp.get_norm(shifted_coords)
         self.grid[dist_from_cog > self.ms.radius] = True

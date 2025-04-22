@@ -27,19 +27,27 @@ def get_norm(m_vectors):
     input:  (xres, yres, zres, 3)
     output: (xres, yres, zres)
     """
-    return np.linalg.norm(m_vectors, axis = -1).T
+    norm = np.sqrt(
+        m_vectors[:,:,:,0]**2 + \
+        m_vectors[:,:,:,1]**2 + \
+        m_vectors[:,:,:,2]**2
+    )
+    return norm
 
 # ------------------------------------------------------------------------------
 def get_projection(m_vectors, vector):
+    """
+    projection of the m_vectors on the vector
+    """
     numerator = dot_product(m_vectors, vector)
-    denominator = get_norm(m_vectors).T * np.linalg.norm(vector).T
+    denominator = np.linalg.norm(vector)
 
     mask = denominator == 0
     numerator[mask] = 1
     denominator[mask] = 1
 
     projection = np.clip(numerator / denominator, -1, 1)
-    return projection.T, mask
+    return projection
 
 # ------------------------------------------------------------------------------
 def get_angle(m_vectors, vector, isStacking):
@@ -48,7 +56,14 @@ def get_angle(m_vectors, vector, isStacking):
     input (v): (3,)
     output   : (xres, yres, zres)
     """
-    cos_val, mask = get_projection(m_vectors, vector)
+    numerator = dot_product(m_vectors, vector)
+    denominator = get_norm(m_vectors) * np.linalg.norm(vector)
+
+    mask = denominator == 0
+    numerator[mask] = 1
+    denominator[mask] = 1
+
+    cos_val = np.clip(numerator / denominator, -1, 1)
     angle_radians = np.arccos(cos_val)
     angle_degrees = angle_radians * 180 / np.pi
 
@@ -91,5 +106,27 @@ def format_vector_str(vector : np.array) -> str:
             ' '.join(map(lambda n: f"{n:.3f}", vector))
         ) + ')'
 
+# ------------------------------------------------------------------------------
+def get_coords_array(resolution, deltas, minCoords = None):
+    """
+    input:  resolution (3,)
+            deltas (3,)
+            minCoords (3,)
+    output: coords (xres, yres, zres, 3)
+    """
+    xres, yres, zres = resolution
+    dx, dy, dz = deltas
+    x0, y0, z0 = (0,0,0) if minCoords is None else minCoords
+
+    xrange = x0 + np.arange(0, dx * xres, dx)
+    yrange = y0 + np.arange(0, dy * yres, dy)
+    zrange = z0 + np.arange(0, dz * zres, dz)
+    x,y,z = np.meshgrid(xrange, yrange, zrange, indexing = "ij")
+
+    grid = np.empty((xres, yres, zres, 3), dtype = np.float32)
+    grid[:,:,:,0] = x
+    grid[:,:,:,1] = y
+    grid[:,:,:,2] = z
+    return grid
 
 ################################################################################

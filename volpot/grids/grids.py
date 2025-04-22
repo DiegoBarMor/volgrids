@@ -60,7 +60,7 @@ class VolpotGrid:
                 "radius" : float(self.ms.radius),
                 "minPotential" : float(np.min(self.grid)),
                 "maxPotential" : float(np.max(self.grid)),
-                "potentials" : self.grid.T.astype(float).flatten().tolist(),
+                "potentials" : self.grid.T.astype(float).flatten().tolist(), # [TODO] check if this should be transposed or not
             }
 
 

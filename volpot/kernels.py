@@ -16,7 +16,7 @@ class Kernel:
 
         ##### initizalize auxiliary kernel of distance values
         center = np.floor(self.kernel_res / 2) * self.deltas
-        coords = np.indices(self.kernel_res).T * self.deltas
+        coords = vp.get_coords_array(self.kernel_res, self.deltas)
         self.shifted_coords = coords - center
         self.dist = vp.get_norm(self.shifted_coords)
 
@@ -111,11 +111,6 @@ class EllipseKernel(Kernel):
 
         projection, _ = vp.get_projection(self.shifted_coords, vdirection)
         projection = np.abs(projection)
-
-        ### APPROACH 1
-        # projection[projection < height] = height
-        # ndist = self.dist / projection
-        # self.kernel[ndist < radius] = 1
 
         ### APPROACH 2
         ndist = self.dist - projection

@@ -123,7 +123,7 @@ from .utils.io import \
 from .utils.math import \
     normalize, dot_product, get_norm, get_projection, get_angle, \
     univariate_gaussian, multivariate_gaussian, \
-    interpolate_3d, format_vector_str
+    interpolate_3d, format_vector_str, get_coords_array
 from .utils.tables import \
     aromatic_aminos, aromatic_bases, ww_scale, \
     nucleic_backbone_phosphate, nucleic_backbone_sugar, \

@@ -86,7 +86,7 @@ class MSWhole(MolecularSystem):
     def set_box_properties(self):
         self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vp.EXTRA_BOX_SIZE
         self.minCoords = np.min(self.system.coord.positions, axis = 0) - vp.EXTRA_BOX_SIZE
-        self.radius = vp.get_norm(self.maxCoords - self.minCoords) / 2
+        self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
         self.cog = (self.maxCoords + self.minCoords) / 2
         box_size = self.maxCoords - self.minCoords
 
