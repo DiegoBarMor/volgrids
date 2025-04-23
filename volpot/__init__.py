@@ -117,14 +117,15 @@ from .grids.hydro import GridHydrophilic, GridHydrophobic
 from .grids.stacking import GridStacking
 
 from .kernels.kernel import Kernel
-from .kernels.boolean import KernelSphere, KernelCylinder, KernelDisk
+from .kernels.boolean import KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut
 from .kernels.gaussian import KernelGaussianUnivariate, KernelGaussianMultivariate
 
 from .utils.args import process_args
 from .utils.io import \
     read_json, write_json, save_metadata
 from .utils.math import \
-    normalize, dot_product, get_norm, get_projection, get_angle, \
+    normalize, dot_product, get_norm, get_angle, \
+    get_projection, get_projection_height, \
     univariate_gaussian, multivariate_gaussian, \
     interpolate_3d, format_vector_str, get_coords_array
 from .utils.tables import \

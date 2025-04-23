@@ -13,7 +13,10 @@ class KernelGaussianUnivariate(vp.Kernel):
 class KernelGaussianMultivariate(vp.Kernel):
     """For generating multivariate gaussian distributions (for hba, hbd, stacking)"""
     def recalculate_kernel(self, normal, mu, cov_inv, isStacking):
-        beta_values = vp.get_angle(self.shifted_coords, normal, isStacking)
+        beta_values = vp.get_angle(
+            self.shifted_coords, normal,
+            flag_corrections = "stacking" if isStacking else "hbonds"
+        )
         input_mat = np.concatenate(
             (
                 np.resize(beta_values, list(beta_values.shape) + [1]),

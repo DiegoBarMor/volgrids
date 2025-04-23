@@ -35,21 +35,16 @@ def get_norm(m_vectors):
     return norm
 
 # ------------------------------------------------------------------------------
-def get_projection(m_vectors, vector):
-    """
-    projection of the m_vectors on the vector
-    """
-    dot_uv = dot_product(m_vectors, vector)
-    norm_v = np.linalg.norm(vector)
-    return 0 if (norm_v == 0) else dot_uv / norm_v
-
-# ------------------------------------------------------------------------------
-def get_angle(m_vectors, vector, isStacking):
+def get_angle(m_vectors, vector, in_degrees = True, flag_corrections = ''):
     """
     input (m): (xres, yres, zres, 3)
     input (v): (3,)
     output   : (xres, yres, zres)
     """
+    RIGHT_ANGLE = np.pi / 2
+    SEMICIRCLE  = np.pi
+    TO_DEGREES  = 180 / np.pi
+
     numerator = dot_product(m_vectors, vector)
     denominator = get_norm(m_vectors) * np.linalg.norm(vector)
 
@@ -58,17 +53,43 @@ def get_angle(m_vectors, vector, isStacking):
     denominator[mask] = 1
 
     cos_val = np.clip(numerator / denominator, -1, 1)
-    angle_radians = np.arccos(cos_val)
-    angle_degrees = angle_radians * 180 / np.pi
+    angle = np.arccos(cos_val) # in radians
 
-    if isStacking:
-        angle_degrees[angle_degrees >= 90] = 180 - angle_degrees[angle_degrees >= 90]
-    else: # hydrogen bonds
-        angle_degrees = 180 - angle_degrees
+    if flag_corrections == "stacking":
+        angle[angle >= RIGHT_ANGLE] = SEMICIRCLE - angle[angle >= RIGHT_ANGLE]
+    elif flag_corrections == "hbonds":
+        angle = SEMICIRCLE - angle
 
-    angle_degrees[mask] = -90
+    angle[mask] = -RIGHT_ANGLE
 
-    return angle_degrees
+    return angle*TO_DEGREES if in_degrees else angle
+
+# ------------------------------------------------------------------------------
+def get_projection(m_vectors, vector):
+    """
+    projection of the m_vectors on the vector
+    input (m): (xres, yres, zres, 3)
+    input (v): (3,)
+    output   : (xres, yres, zres)
+    """
+    dot_uv = dot_product(m_vectors, vector)
+    norm_v = np.linalg.norm(vector)
+    return 0 if (norm_v == 0) else dot_uv / norm_v
+
+# ------------------------------------------------------------------------------
+def get_projection_height(m_vectors, vector):
+    """
+    given the projection of the m_vectors on the vector, consider the "height"
+    as the distance from the projection to the vector
+    input (m): (xres, yres, zres, 3)
+    input (v): (3,)
+    output   : (xres, yres, zres)
+    """
+
+    projection = get_projection(m_vectors, vector)
+    norm_mvectors = get_norm(m_vectors)
+    height = np.sqrt(norm_mvectors**2 - projection**2)
+    return height
 
 # ------------------------------------------------------------------------------
 def univariate_gaussian(x, mu, sigma):
