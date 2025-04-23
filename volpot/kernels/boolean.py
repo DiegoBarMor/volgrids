@@ -32,14 +32,9 @@ class KernelDisk(KernelSphere):
 class KernelDiskConecut(KernelDisk):
     """For generating boolean disks with a cone cut"""
     def __init__(self, radius, vnormal, height, vdirection, max_angle, deltas, dtype):
-        # super().__init__(radius, deltas, dtype)# test inherit from KernelSphere
         super().__init__(radius, vnormal, height, deltas, dtype)
         angle = vp.get_angle(self.shifted_coords, vdirection, in_degrees = False)
-        # angle = np.abs(angle)
-        # max_angle = np.pi/2
         self.kernel[angle > max_angle/2] = 0
-        # print("MAX_ANGLE", max_angle)
-        # print("ANGLE", angle.min(), angle.max())
 
 
 # //////////////////////////////////////////////////////////////////////////////

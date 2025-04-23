@@ -25,21 +25,21 @@ class Kernel:
         self.grid_origin = grid_origin
         self.grid_res = np.array(grid.shape)
 
-    def stamp(self, center_stamp_at, multiplication_factor = None):
+    def stamp(self, center_stamp_at, multiplication_factor = None, operation = "sum"):
         if self.grid is None:
             raise ValueError("No grid associated, can't stamp Kernel. Use 'link_to_grid' first.")
 
-        ### infer the position where to stamp the kernel at the big grid
+        ##### infer the position where to stamp the kernel at the big grid
         stamp_orig = center_stamp_at - self.deltas * self.kernel_res / 2
         rel_orig = stamp_orig - self.grid_origin
         idx_orig = np.round(rel_orig / self.deltas).astype(int)
         idx_max = idx_orig + self.kernel_res
 
-        ### skip cases where the kernel would be stamped outside the big grid
+        ##### skip cases where the kernel would be stamped outside the big grid
         if (idx_max < 0).any(): return
         if (idx_orig > self.grid_res).any(): return
 
-        ### initialize the grid (g_*) and kernel (k_*) indices
+        ##### initialize the grid (g_*) and kernel (k_*) indices
         g_i0, g_j0, g_k0 = idx_orig
         g_i1, g_j1, g_k1 = idx_max
         k_i0, k_j0, k_k0 = 0, 0, 0
@@ -48,7 +48,7 @@ class Kernel:
         g_rx, g_ry, g_rz = self.grid_res
         k_rx, k_ry, k_rz = self.kernel_res
 
-        ### clamp the indices of both the big grid and the kernel
+        ##### clamp the indices of both the big grid and the kernel
         if g_i0 < 0 and g_i1 >= g_rx: # when the big grid is smaller than the kernel
             k_i0 = -g_i0
             k_i1 = k_i0 + g_rx
@@ -86,11 +86,19 @@ class Kernel:
             k_k1 = g_rz - g_k0
 
 
-        ### stamp the kernel on the big grid
-        if multiplication_factor is None: # multiplication_factor defaults to None (instead of 1) to avoid problems with bool grids
-            self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] += self.kernel[k_i0:k_i1, k_j0:k_j1, k_k0:k_k1]
-        else:
-            self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] += multiplication_factor * self.kernel[k_i0:k_i1, k_j0:k_j1, k_k0:k_k1]
+        ##### stamp the kernel on the big grid
+        subkernel = self.kernel[k_i0:k_i1, k_j0:k_j1, k_k0:k_k1]
 
+        # multiplication_factor defaults to None (instead of 1) to avoid problems with bool grids
+        if multiplication_factor is not None:
+            subkernel *= multiplication_factor
+
+        if operation == "sum":
+            self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] += subkernel
+
+        elif operation == "max":
+            self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] = np.maximum(
+                self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1], subkernel
+            )
 
 # //////////////////////////////////////////////////////////////////////////////
