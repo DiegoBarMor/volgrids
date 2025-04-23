@@ -41,6 +41,13 @@ class MolecularSystem:
                 if choice == 'Y': break
                 if choice == 'N': exit()
 
+    @classmethod
+    def simple_init(cls, path_pdb: Path, folder_out: Path):
+        return cls(metadata = {
+            "pdb": path_pdb, "out": folder_out, "apbs": '',
+            "rna": False, "default_res": False,
+            "meta": folder_out / f"{path_pdb.stem}.meta.json",
+        })
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)
     def set_box_properties(self): return

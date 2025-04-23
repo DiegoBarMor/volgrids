@@ -133,9 +133,9 @@ def get_coords_array(resolution, deltas, minCoords = None):
     dx, dy, dz = deltas
     x0, y0, z0 = (0,0,0) if minCoords is None else minCoords
 
-    xrange = x0 + np.arange(0, dx * xres, dx)
-    yrange = y0 + np.arange(0, dy * yres, dy)
-    zrange = z0 + np.arange(0, dz * zres, dz)
+    xrange = x0 + np.linspace(0, dx * (xres - 1), xres)
+    yrange = y0 + np.linspace(0, dy * (yres - 1), yres)
+    zrange = z0 + np.linspace(0, dz * (zres - 1), zres)
     x,y,z = np.meshgrid(xrange, yrange, zrange, indexing = "ij")
 
     grid = np.empty((xres, yres, zres, 3), dtype = np.float32)

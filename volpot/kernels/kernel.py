@@ -96,9 +96,17 @@ class Kernel:
         if operation == "sum":
             self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] += subkernel
 
+        elif operation == "min":
+            self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] = np.minimum(
+                self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1], subkernel
+            )
+
         elif operation == "max":
             self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] = np.maximum(
                 self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1], subkernel
             )
+
+        else:
+            raise ValueError(f"Unknown operation: {operation}. Use 'sum', 'min' or 'max'.")
 
 # //////////////////////////////////////////////////////////////////////////////
