@@ -90,20 +90,20 @@ class Kernel:
         subkernel = self.kernel[k_i0:k_i1, k_j0:k_j1, k_k0:k_k1]
 
         # multiplication_factor defaults to None (instead of 1) to avoid problems with bool grids
-        if multiplication_factor is not None:
-            subkernel *= multiplication_factor
+        scaled_subkernel = subkernel if (multiplication_factor is None) else multiplication_factor * subkernel 
+
 
         if operation == "sum":
-            self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] += subkernel
+            self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] += scaled_subkernel
 
         elif operation == "min":
             self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] = np.minimum(
-                self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1], subkernel
+                self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1], scaled_subkernel
             )
 
         elif operation == "max":
             self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] = np.maximum(
-                self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1], subkernel
+                self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1], scaled_subkernel
             )
 
         else:
