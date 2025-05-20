@@ -1,15 +1,65 @@
 import numpy as np
 import volpot as vp
-from gridData import mrc
+import gridData as gd
 
 # //////////////////////////////////////////////////////////////////////////////
 class Grid:
-    def __init__(self, ms, dtype = np.float32):
-        self.ms = ms
-        self.xres, self.yres, self.zres = ms.resolution
-        self.xmin, self.ymin, self.zmin = ms.minCoords
-        self.dx, self.dy, self.dz = ms.deltas
-        self.grid = np.zeros(ms.resolution, dtype = dtype)
+    def __init__(self, data, dtype = np.float32, init_grid = True):
+        if isinstance(data, vp.MolecularSystem):
+            self.ms = data
+            self.xres, self.yres, self.zres = data.resolution
+            self.xmin, self.ymin, self.zmin = data.minCoords
+            self.xmax, self.ymax, self.zmax = data.maxCoords
+            self.dx, self.dy, self.dz = data.deltas
+
+        elif isinstance(data, dict):
+            self.ms = None
+            self.xres, self.yres, self.zres = data["resolution"]
+            self.xmin, self.ymin, self.zmin = data["minCoords"]
+            self.xmax, self.ymax, self.zmax = data["maxCoords"]
+            self.dx, self.dy, self.dz = data["deltas"]
+
+        self.grid = np.zeros((self.xres, self.yres, self.zres), dtype = dtype) \
+            if init_grid else None
+
+    @classmethod
+    def from_mrc(cls, path_mrc):
+        with gd.mrc.mrcfile.open(path_mrc) as grid_mrc:
+            vsize = np.array(grid_mrc.voxel_size)
+            origin = np.array(grid_mrc.header["origin"])
+
+            delta = np.array([vsize["x"], vsize["y"], vsize["z"]], dtype = np.float32)
+            resolution = np.array(grid_mrc.data.shape)
+            minCoords = np.array([origin["x"], origin["y"], origin["z"]], dtype = np.float32)
+
+            grid_vp = cls(
+                data = {
+                    "resolution": resolution,
+                    "minCoords": minCoords,
+                    "maxCoords": minCoords + delta * resolution,
+                    "deltas": delta
+                },
+                init_grid = False
+            )
+            grid_vp.grid = grid_mrc.data.T
+        return grid_vp
+
+
+    @classmethod
+    def from_dx(cls, path_dx):
+        grid_dx = gd.Grid(path_dx)
+        grid_vp = cls(
+            data = {
+                "resolution": grid_dx.grid.shape,
+                "minCoords": grid_dx.origin,
+                "maxCoords": grid_dx.origin + grid_dx.delta * grid_dx.grid.shape,
+                "deltas": grid_dx.delta
+            },
+            init_grid = False
+        )
+        grid_vp.grid = grid_dx.grid
+        return grid_vp
+
 
     def run(self, trimmer: "vp.GridTrimmer"= None):
         timer = vp.Timer(f"...>>> PG: Calculating {self.get_type()} potential grid...")
@@ -80,14 +130,14 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def write_mrc(self, path_mrc):
-        with mrc.mrcfile.new(path_mrc, overwrite = True) as mrc_file:
-            mrc_file.set_data(self.grid.T.astype(np.float32))
-            mrc_file.voxel_size = [self.dx, self.dy, self.dz]
-            mrc_file.header["origin"]['x'] = self.xmin
-            mrc_file.header["origin"]['y'] = self.ymin
-            mrc_file.header["origin"]['z'] = self.zmin
-            mrc_file.update_header_from_data()
-            mrc_file.update_header_stats()
+        with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as grid_mrc:
+            grid_mrc.set_data(self.grid.T.astype(np.float32))
+            grid_mrc.voxel_size = [self.dx, self.dy, self.dz]
+            grid_mrc.header["origin"]['x'] = self.xmin
+            grid_mrc.header["origin"]['y'] = self.ymin
+            grid_mrc.header["origin"]['z'] = self.zmin
+            grid_mrc.update_header_from_data()
+            grid_mrc.update_header_stats()
 
     # ------------------------------------------------------------------------------
     def write_dx(self, path_dx):
@@ -118,7 +168,7 @@ class Grid:
             f"delta {0:6e} {self.dy:6e} {0:6e}",
             f"delta {0:6e} {0:6e} {self.dz:6e}",
             f"object 2 class gridconnections counts  {self.xres} {self.yres} {self.zres}",
-            f"object 3 class array type {dtype} rank 0 items {np.prod(self.ms.resolution)} data follows",
+            f"object 3 class array type {dtype} rank 0 items {self.xres*self.yres*self.zres}, data follows",
         ))
         footer = '\n'.join((
             '',

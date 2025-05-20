@@ -19,20 +19,15 @@ class GridAPBS(vp.Grid):
         super().run(trimmer)
 
     def populate_grid(self):
-        apbs = Grid(self.ms.path_apbs)
-
-        xmin0, ymin0, zmin0 = apbs.origin
-        xmax0, ymax0, zmax0 = apbs.origin + apbs.delta * apbs.grid.shape
-        xres0, yres0, zres0 = apbs.grid.shape
-
         xmin1, ymin1, zmin1 = self.ms.minCoords
         xmax1, ymax1, zmax1 = self.ms.maxCoords
         xres1, yres1, zres1 = self.ms.resolution
+        apbs = vp.Grid.from_dx(self.ms.path_apbs)
 
         self.grid = vp.interpolate_3d(
-            x0 = np.linspace(xmin0, xmax0, xres0),
-            y0 = np.linspace(ymin0, ymax0, yres0),
-            z0 = np.linspace(zmin0, zmax0, zres0),
+            x0 = np.linspace(apbs.xmin, apbs.xmax, apbs.xres),
+            y0 = np.linspace(apbs.ymin, apbs.ymax, apbs.yres),
+            z0 = np.linspace(apbs.zmin, apbs.zmax, apbs.zres),
             data_0 = apbs.grid,
             new_coords = np.mgrid[
                 xmin1 : xmax1 : complex(0, xres1),
