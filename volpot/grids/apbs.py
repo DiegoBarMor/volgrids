@@ -22,7 +22,7 @@ class GridAPBS(vp.Grid):
         xmin1, ymin1, zmin1 = self.ms.minCoords
         xmax1, ymax1, zmax1 = self.ms.maxCoords
         xres1, yres1, zres1 = self.ms.resolution
-        apbs = vp.Grid.from_dx(self.ms.path_apbs)
+        apbs = vp.Grid.read_dx(self.ms.path_apbs)
 
         self.grid = vp.interpolate_3d(
             x0 = np.linspace(apbs.xmin, apbs.xmax, apbs.xres),

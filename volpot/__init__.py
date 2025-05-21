@@ -122,7 +122,9 @@ from .kernels.gaussian import KernelGaussianUnivariate, KernelGaussianMultivaria
 
 from .utils.args import process_args
 from .utils.io import \
-    read_json, write_json, save_metadata
+    read_json, read_mrc, read_dx, \
+    write_json, write_mrc, write_dx, \
+    save_metadata
 from .utils.math import \
     normalize, dot_product, get_norm, get_angle, \
     get_projection, get_projection_height, \
