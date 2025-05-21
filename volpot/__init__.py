@@ -5,7 +5,8 @@ import numpy as _np
 
 ######################## GENERAL PARAMETERS
 DO_DX_OUTPUT = False # save the result of the potential grids in DX format?
-DO_MRC_OUTPUT = True # save the result of the potential grids in MRC format?
+DO_MRC_OUTPUT = False # save the result of the potential grids in MRC format?
+DO_CMAP_OUTPUT = True # save the result of the potential grids in CMAP format?
 DO_JSON_OUTPUT = False # save the result of the potential grids in JSON format?
 DO_LOG_APBS = False
 WARNING_GRID_SIZE = 2.5e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort

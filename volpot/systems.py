@@ -19,7 +19,12 @@ class MolecularSystem:
         self.isNucleic = bool(metadata["rna"])
         self.macro_query = f"{'nucleic' if self.isNucleic else 'protein'} and not (name H*)"
 
-        self.system = mda.Universe(metadata["pdb"])
+        if str(metadata["traj"]) == '.':
+            self.system = mda.Universe(metadata["pdb"])
+        else:
+            self.system = mda.Universe(metadata["pdb"], metadata["traj"])
+
+        self.frame = 0
         self.metadata = metadata.copy()
 
         ###############################

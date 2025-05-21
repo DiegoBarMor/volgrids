@@ -42,7 +42,6 @@ class GridAPBS(vp.Grid):
             print(f"...--- APBS potential grid is empty. Skipping logabs transform.", flush = True)
             return
 
-        timer = vp.Timer("...>>> Creating APBS-LOG potential grid...")
         logpos = np.log10( self.grid[self.grid > 0])
         logneg = np.log10(-self.grid[self.grid < 0])
 
@@ -69,7 +68,6 @@ class GridAPBS(vp.Grid):
         self.data["minPotential"] = float(-2 * (vp.APBS_MAX_CUTOFF - vp.APBS_MIN_CUTOFF))
         self.data["maxPotential"] = float( 2 * (vp.APBS_MAX_CUTOFF - vp.APBS_MIN_CUTOFF))
         self.save_data(override_prefix = "apbslog")
-        timer.end()
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -23,8 +23,6 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def run(self, trimmer: "vp.GridTrimmer"= None):
-        timer = vp.Timer(f"...>>> PG: Calculating {self.get_type()} potential grid...")
-
         self.populate_grid()
         if trimmer is not None:
             trimmer.apply_trimming(self)
@@ -32,7 +30,6 @@ class Grid:
         self.data = {}
         self.pack_data()
         self.save_data()
-        timer.end()
 
     # --------------------------------------------------------------------------
     def copy(self):
@@ -47,12 +44,10 @@ class Grid:
     # --------------------------------------------------------------------------
     @classmethod
     def grid_diff(cls, pg_0, pg_1, name = "diff"):
-        timer = vp.Timer(f".../// PG: Calculating {name} potential grid...")
         pg = pg_0.copy()
         pg.grid = pg_0.grid - pg_1.grid
         pg.pack_data()
         pg.save_data(name)
-        timer.end()
 
     # --------------------------------------------------------------------------
     def pack_data(self):
@@ -84,6 +79,9 @@ class Grid:
 
         ###### save to mrc
         if vp.DO_MRC_OUTPUT: vp.write_mrc(f"{path_prefix}.mrc", self)
+
+        ###### save to cmap
+        if vp.DO_CMAP_OUTPUT: vp.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.name}.{self.ms.frame:04}")
 
         ###### save to json
         if vp.DO_JSON_OUTPUT: vp.write_json(f"{path_prefix}.json", self.data)

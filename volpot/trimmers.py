@@ -7,11 +7,9 @@ class GridTrimmer(ABC, vp.Grid):
     def __init__(self, ms, trimming_dist):
         super().__init__(ms, dtype = bool)
 
-        timer = vp.Timer("...>>> MS: Generating mask...")
         if vp.DO_TRIMMING_SPHERE:    self._trim_sphere()
         if vp.DO_TRIMMING_OCCUPANCY: self._trim_occupancy(trimming_dist)
         if vp.DO_TRIMMING_RNDS:      self._trim_rnds()
-        timer.end()
 
         if vp.SAVE_CACHED_MASK:
             self.pack_data()

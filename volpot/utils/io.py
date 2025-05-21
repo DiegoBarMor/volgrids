@@ -2,6 +2,7 @@ import os, json, h5py
 import numpy as np
 import volpot as vp
 import gridData as gd
+from pathlib import Path
 
 ################################################################################
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
@@ -188,8 +189,9 @@ def get_cmap_keys(path_cmap) -> list[str]:
 # ------------------------------------------------------------------------------
 def save_metadata(metadata):
     meta = metadata.copy()
-    for k in ("pdb", "out", "apbs", "meta"):
-        meta[k] = str(meta[k])
+    for k,v in meta.items():
+        if isinstance(v, Path):
+            meta[k] = str(v)
 
     path_json = metadata["meta"]
     os.makedirs(path_json.parent, exist_ok = True)
