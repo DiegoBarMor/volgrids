@@ -1,9 +1,10 @@
-import os, json
+import os, json, h5py
 import numpy as np
 import volpot as vp
 import gridData as gd
 
 ################################################################################
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
 def read_json(path_json) -> dict | list:
     with open(path_json, 'r') as file:
         return json.load(file)
@@ -15,36 +16,37 @@ def read_mrc(path_mrc) -> "vp.Grid":
         vsize = np.array(grid_mrc.voxel_size)
         origin = np.array(grid_mrc.header["origin"])
 
-        delta = np.array([vsize["x"], vsize["y"], vsize["z"]], dtype = np.float32)
-        resolution = np.array(grid_mrc.data.shape)
-        minCoords = np.array([origin["x"], origin["y"], origin["z"]], dtype = np.float32)
-
-        grid_vp = vp.Grid(
-            data = {
-                "resolution": resolution,
-                "minCoords": minCoords,
-                "maxCoords": minCoords + delta * resolution,
-                "deltas": delta
-            },
-            init_grid = False
-        )
-        grid_vp.grid = grid_mrc.data.T
+        grid_vp = vp.Grid(**grid_init_metadata(
+            resolution = np.array(grid_mrc.data.shape),
+            origin = np.array([origin["x"], origin["y"], origin["z"]], dtype = np.float32),
+            delta = np.array([vsize["x"], vsize["y"], vsize["z"]], dtype = np.float32)
+        ))
+        grid_vp.grid = grid_mrc.data.transpose(2,1,0)
     return grid_vp
 
 
 # ------------------------------------------------------------------------------
 def read_dx(path_dx) -> "vp.Grid":
     grid_dx = gd.Grid(path_dx)
-    grid_vp = vp.Grid(
-        data = {
-            "resolution": grid_dx.grid.shape,
-            "minCoords": grid_dx.origin,
-            "maxCoords": grid_dx.origin + grid_dx.delta * grid_dx.grid.shape,
-            "deltas": grid_dx.delta
-        },
-        init_grid = False
-    )
+    grid_vp = vp.Grid(**grid_init_metadata(
+        resolution = grid_dx.grid.shape,
+        origin = grid_dx.origin,
+        delta = grid_dx.delta
+    ))
     grid_vp.grid = grid_dx.grid
+    return grid_vp
+
+
+# ------------------------------------------------------------------------------
+def read_cmap(path_cmap, key) -> "vp.Grid":
+    with h5py.File(path_cmap, 'r') as h5:
+        frame = h5["Chimera"][key]
+        grid_vp = vp.Grid(**grid_init_metadata(
+            resolution = np.array(frame["data_zyx"].shape),
+            origin = frame.attrs["origin"],
+            delta = frame.attrs["step"]
+        ))
+        grid_vp.grid = frame["data_zyx"][()].transpose(2,1,0)
     return grid_vp
 
 
@@ -57,7 +59,7 @@ def write_json(path_json, data: dict | list):
 # --------------------------------------------------------------------------
 def write_mrc(path_mrc, data: "vp.Grid"):
     with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as grid_mrc:
-        grid_mrc.set_data(data.grid.T.astype(np.float32))
+        grid_mrc.set_data(data.grid.transpose(2,1,0).astype(np.float32))
         grid_mrc.voxel_size = [data.dx, data.dy, data.dz]
         grid_mrc.header["origin"]['x'] = data.xmin
         grid_mrc.header["origin"]['y'] = data.ymin
@@ -124,6 +126,63 @@ def write_dx(path_dx, data: "vp.Grid"):
             file, last_row, fmt = fmt, delimiter = '\t',
             footer = footer, comments = ''
         )
+
+
+# ------------------------------------------------------------------------------
+def write_cmap(path_cmap, data: "vp.Grid", key):
+    ### imitate the Chimera cmap format, as "specified" in this sample:
+    ### https://github.com/RBVI/ChimeraX/blob/develop/testdata/cell15_timeseries.cmap
+    def add_generic_attrs(group, c = "GROUP"):
+        group.attrs["CLASS"] = np.bytes_(c)
+        group.attrs["TITLE"] = np.bytes_("")
+        group.attrs["VERSION"] = np.bytes_("1.0")
+
+    if not os.path.exists(path_cmap):
+        with h5py.File(path_cmap, 'w') as h5:
+            h5.attrs["PYTABLES_FORMAT_VERSION"] = np.bytes_("2.0")
+            add_generic_attrs(h5)
+
+            chim = h5.create_group("Chimera")
+            add_generic_attrs(chim)
+
+    with h5py.File(path_cmap, 'a') as h5:
+        chim = h5["Chimera"]
+        if key in chim.keys():
+            frame = chim[key]
+            del frame["data_zyx"]
+        else:
+            frame = h5.create_group(f"/Chimera/{key}")
+            frame.attrs["chimera_map_version"] = np.int64(1)
+            frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
+            frame.attrs["name"] = np.bytes_(key)
+            frame.attrs["origin"] = np.array([data.xmin, data.ymin, data.zmin], dtype = np.float32)
+            frame.attrs["step"] = np.array([data.dx, data.dy, data.dz], dtype = np.float32)
+            add_generic_attrs(frame)
+
+        framedata = frame.create_dataset(
+            "data_zyx", data = data.grid.transpose(2,1,0), dtype = vp.FLOAT_DTYPE,
+            compression = "gzip", compression_opts = vp.GZIP_COMPRESSION
+        )
+        add_generic_attrs(framedata, "CARRAY")
+
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ OTHER I/O UTILITIES
+def grid_init_metadata(resolution: np.array, origin: np.array, delta: np.array)-> dict:
+    return dict(
+        data = {
+            "resolution": resolution,
+            "minCoords": origin,
+            "maxCoords": origin + delta * resolution,
+            "deltas": delta
+        },
+        init_grid = False
+    )
+
+
+# ------------------------------------------------------------------------------
+def get_cmap_keys(path_cmap) -> list[str]:
+    with h5py.File(path_cmap, 'r') as h5:
+        return list(h5["Chimera"].keys())
 
 
 # ------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ class GridAPBS(vp.Grid):
         xmin1, ymin1, zmin1 = self.ms.minCoords
         xmax1, ymax1, zmax1 = self.ms.maxCoords
         xres1, yres1, zres1 = self.ms.resolution
-        apbs = vp.Grid.read_dx(self.ms.path_apbs)
+        apbs = vp.read_dx(self.ms.path_apbs)
 
         self.grid = vp.interpolate_3d(
             x0 = np.linspace(apbs.xmin, apbs.xmax, apbs.xres),
@@ -34,7 +34,7 @@ class GridAPBS(vp.Grid):
                 ymin1 : ymax1 : complex(0, yres1),
                 zmin1 : zmax1 : complex(0, zres1),
             ].T
-        ).astype(np.float32)
+        ).astype(vp.FLOAT_DTYPE)
 
 
     def apply_logabs_transform(self):
