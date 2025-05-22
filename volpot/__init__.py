@@ -114,15 +114,20 @@ GAUSSIAN_KERNEL_SIGMAS = 4 # how many sigmas of width should the precalculated g
 ################################### MODULES ####################################
 ################################################################################
 
-from .grids.grids import Grid, GridSMIF
+from .core.grid import Grid, GridSMIF
+from .core.kernel import Kernel
+from .core.systems import MolecularSystem, MSPocketSphere, MSWhole
+from .core.trimmers import GridTrimmer, TrimmerPocketSphere, TrimmerWhole
+
 from .grids.apbs import GridAPBS
 from .grids.hbonds import GridHBAccepts, GridHBDonors
 from .grids.hydro import GridHydrophilic, GridHydrophobic
 from .grids.stacking import GridStacking
 
-from .kernels.kernel import Kernel
-from .kernels.boolean import KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut
-from .kernels.gaussian import KernelGaussianUnivariate, KernelGaussianMultivariate
+from .kernels.boolean import \
+    KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut
+from .kernels.gaussian import \
+    KernelGaussianUnivariate, KernelGaussianMultivariate
 
 from .utils.args import process_args
 from .utils.io import \
@@ -139,9 +144,5 @@ from .utils.tables import \
     nucleic_backbone_phosphate, nucleic_backbone_sugar, \
     nucleic_bases, prot_hba, prot_hbd, rna_hba, rna_hbd
 from .utils.timer import Timer
-
-from .systems import MolecularSystem, MSPocketSphere, MSWhole
-from .trimmers import GridTrimmer, TrimmerPocketSphere, TrimmerWhole
-
 
 ################################################################################
