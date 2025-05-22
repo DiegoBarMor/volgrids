@@ -4,7 +4,7 @@ from pathlib import Path
 ################################################################################
 def args_smiffer():
     docs_args = {
-        "main" : "Two modes are available for this standalone calculator: **PocketSphere (PS)** and **Whole (W)**. **PS** calculates the potentials in a spherical volume defined to be a binding pocket, while **W** calculates the potentials of all the volume surrounding the macromolecule.",
+        "" : "Two modes are available for this standalone calculator: **PocketSphere (PS)** and **Whole (W)**. **PS** calculates the potentials in a spherical volume defined to be a binding pocket, while **W** calculates the potentials of all the volume surrounding the macromolecule.",
         "pdb" : "Path to the PDB structure file of interest.",
         "out" : "Path to the folder where the output potentials should be stored.",
         "traj" : "Path to the trajectory file for TRAJ mode.",
@@ -18,7 +18,7 @@ def args_smiffer():
         "default-res" : "Use the default resolution values from settings.py (instead of the default delta values)",
     }
 
-    parser = argparse.ArgumentParser(description = docs_args["main"], formatter_class = argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(description = docs_args[""], formatter_class = argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-i", "--pdb",    type = Path, required = True, help = docs_args["pdb"])
     parser.add_argument("-o", "--out",    type = Path, required = True, help = docs_args["out"])
     parser.add_argument("-t", "--traj",   type = Path, default = '',    help = docs_args["traj"])
@@ -30,6 +30,23 @@ def args_smiffer():
     parser.add_argument("-n", "--rna",         action = "store_true",   help = docs_args["rna"])
     parser.add_argument("-w", "--whole",       action = "store_true",   help = docs_args["whole"])
     parser.add_argument("-s", "--default-res", action = "store_true",   help = docs_args["default-res"])
+    return parser.parse_args()
+
+
+def args_tools():
+    docs_args = {
+        "" : "Toolset for post-processing SMIF grids.",
+        "to-mrc" : "Path to the grid file to be converted into MRC format. If input file is a CMAP file, it will be assumed that it contains a single structure, so the first CAMP key is used to access the data.",
+        "to-cmap" : "Path to the grid file to be converted into CMAP format. The stem of the input file will be used as the CMAP key.",
+        "pack" : "Output path of for the packed CMAP series-file, followed by the list of paths to the grid files to be packed.",
+        "unpack" : "Path to the CMAP series-file to be unpacked into several CMAP grid-files.",
+    }
+
+    parser = argparse.ArgumentParser(description = docs_args[""], formatter_class = argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("-m", "--to-mrc",  type = Path, default = '', help = docs_args["to-mrc"])
+    parser.add_argument("-c", "--to-cmap", type = Path, default = '', help = docs_args["to-cmap"])
+    parser.add_argument("-p", "--pack",    type = Path, default = '', help = docs_args["pack"], nargs = '+')
+    parser.add_argument("-u", "--unpack",  type = Path, default = '', help = docs_args["unpack"])
     return parser.parse_args()
 
 

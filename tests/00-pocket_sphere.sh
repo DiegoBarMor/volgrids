@@ -28,3 +28,12 @@ python3 -W ignore smiffer.py -i $fpdb/6tf3.pdb  -a $fapbs/6tf3.pqr.dx  -o $fout 
 python3 -W ignore smiffer.py -i $fpdb/7oax0.pdb -a $fapbs/7oax0.pqr.dx -o $fout -n -r 12.179 -x -16.98  -y 7.444  -z -4.446
 python3 -W ignore smiffer.py -i $fpdb/7oax1.pdb -a $fapbs/7oax1.pqr.dx -o $fout -n -r 14.835 -x 10.243  -y -5.151 -z -8.194
 python3 -W ignore smiffer.py -i $fpdb/8eyv.pdb  -a $fapbs/8eyv.pqr.dx  -o $fout -n -r 11.998 -x -1.612  -y -8.183 -z 18.333
+
+rm -f $fout/*.json # remove metadata
+
+names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
+for name in "${names[@]}"; do
+    mapfile -t paths_grids < <(ls "$fout/$name".*) # get the list of files corresponding to the pdb
+    python3 smif_tools.py -p "$fout/$name.cmap" "${paths_grids[@]}" # pack them into a single CMAP file
+    rm -f "${paths_grids[@]}" # remove the individual grid files
+done

@@ -141,7 +141,7 @@ from .kernels.boolean import \
 from .kernels.gaussian import \
     KernelGaussianUnivariate, KernelGaussianMultivariate
 
-from .utils.args import args_smiffer
+from .utils.args import args_smiffer, args_tools
 from .utils.io import \
     read_json, read_mrc, read_dx, read_cmap, \
     write_json, write_mrc, write_dx, write_cmap, \
