@@ -3,7 +3,7 @@ import volpot as vp
 
 # //////////////////////////////////////////////////////////////////////////////
 class Grid:
-    def __init__(self, data, dtype = np.float32, init_grid = True):
+    def __init__(self, data, init_grid = True, dtype = None):
         if isinstance(data, vp.MolecularSystem):
             self.ms = data
             self.xres, self.yres, self.zres = data.resolution
@@ -18,6 +18,7 @@ class Grid:
             self.xmax, self.ymax, self.zmax = data["maxCoords"]
             self.dx, self.dy, self.dz = data["deltas"]
 
+        if dtype is None: dtype = vp.FLOAT_DTYPE
         self.grid = np.zeros((self.xres, self.yres, self.zres), dtype = dtype) \
             if init_grid else None
 

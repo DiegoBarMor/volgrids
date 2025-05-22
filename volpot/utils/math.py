@@ -1,4 +1,5 @@
 import numpy as np
+import volpot as vp
 from scipy import interpolate
 
 ################################################################################
@@ -138,7 +139,7 @@ def get_coords_array(resolution, deltas, minCoords = None):
     zrange = z0 + np.linspace(0, dz * (zres - 1), zres)
     x,y,z = np.meshgrid(xrange, yrange, zrange, indexing = "ij")
 
-    grid = np.empty((xres, yres, zres, 3), dtype = np.float32)
+    grid = np.empty((xres, yres, zres, 3), dtype = vp.FLOAT_DTYPE)
     grid[:,:,:,0] = x
     grid[:,:,:,1] = y
     grid[:,:,:,2] = z

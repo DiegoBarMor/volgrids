@@ -8,7 +8,7 @@ class GridHBonds(vp.GridSMIF):
         self.table_hbond: dict
         self.kernel_args: dict
 
-        gk = vp.KernelGaussianMultivariate(self.radius, self.ms.deltas, np.float32)
+        gk = vp.KernelGaussianMultivariate(self.radius, self.ms.deltas, vp.FLOAT_DTYPE)
         gk.link_to_grid(self.grid, self.ms.minCoords)
         for pos_antecedent, pos_atom_hbond in self.iter_particles():
             direction = vp.normalize(pos_atom_hbond - pos_antecedent)

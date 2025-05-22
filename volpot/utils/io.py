@@ -19,8 +19,8 @@ def read_mrc(path_mrc) -> "vp.Grid":
 
         grid_vp = vp.Grid(**grid_init_metadata(
             resolution = np.array(grid_mrc.data.shape),
-            origin = np.array([origin["x"], origin["y"], origin["z"]], dtype = np.float32),
-            delta = np.array([vsize["x"], vsize["y"], vsize["z"]], dtype = np.float32)
+            origin = np.array([origin["x"], origin["y"], origin["z"]], dtype = vp.FLOAT_DTYPE),
+            delta = np.array([vsize["x"], vsize["y"], vsize["z"]], dtype = vp.FLOAT_DTYPE)
         ))
         grid_vp.grid = grid_mrc.data.transpose(2,1,0)
     return grid_vp
@@ -60,7 +60,7 @@ def write_json(path_json, data: dict | list):
 # --------------------------------------------------------------------------
 def write_mrc(path_mrc, data: "vp.Grid"):
     with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as grid_mrc:
-        grid_mrc.set_data(data.grid.transpose(2,1,0).astype(np.float32))
+        grid_mrc.set_data(data.grid.transpose(2,1,0))
         grid_mrc.voxel_size = [data.dx, data.dy, data.dz]
         grid_mrc.header["origin"]['x'] = data.xmin
         grid_mrc.header["origin"]['y'] = data.ymin
@@ -71,11 +71,14 @@ def write_mrc(path_mrc, data: "vp.Grid"):
 
 # ------------------------------------------------------------------------------
 def write_dx(path_dx, data: "vp.Grid"):
-    if data.grid.dtype == np.float32:
+    ints = (int, np.int8, np.int16, np.int32, np.int64)
+    floats = (float, np.float16, np.float32, np.float64)
+
+    if data.grid.dtype in floats:
         grid_data = data.grid
         dtype = '"float"'
         fmt = "%.3f"
-    elif data.grid.dtype == int:
+    elif data.grid.dtype in ints:
         grid_data = data.grid
         dtype = '"int"'
         fmt = "%i"
@@ -157,8 +160,8 @@ def write_cmap(path_cmap, data: "vp.Grid", key):
             frame.attrs["chimera_map_version"] = np.int64(1)
             frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
             frame.attrs["name"] = np.bytes_(key)
-            frame.attrs["origin"] = np.array([data.xmin, data.ymin, data.zmin], dtype = np.float32)
-            frame.attrs["step"] = np.array([data.dx, data.dy, data.dz], dtype = np.float32)
+            frame.attrs["origin"] = np.array([data.xmin, data.ymin, data.zmin], dtype = vp.FLOAT_DTYPE)
+            frame.attrs["step"] = np.array([data.dx, data.dy, data.dz], dtype = vp.FLOAT_DTYPE)
             add_generic_attrs(frame)
 
         framedata = frame.create_dataset(

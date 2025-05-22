@@ -9,7 +9,7 @@ class GridStacking(vp.GridSMIF):
 
     def populate_grid(self):
         radius = vp.MU_STACKING[1] + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_DIST_STACKING
-        gk = vp.KernelGaussianMultivariate(radius, self.ms.deltas, np.float32)
+        gk = vp.KernelGaussianMultivariate(radius, self.ms.deltas, vp.FLOAT_DTYPE)
 
         gk.link_to_grid(self.grid, self.ms.minCoords)
         for res_atoms in self.iter_particles():

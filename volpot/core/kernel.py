@@ -90,7 +90,7 @@ class Kernel:
         subkernel = self.kernel[k_i0:k_i1, k_j0:k_j1, k_k0:k_k1]
 
         # multiplication_factor defaults to None (instead of 1) to avoid problems with bool grids
-        scaled_subkernel = subkernel if (multiplication_factor is None) else multiplication_factor * subkernel 
+        scaled_subkernel = subkernel if (multiplication_factor is None) else multiplication_factor * subkernel
 
 
         if operation == "sum":

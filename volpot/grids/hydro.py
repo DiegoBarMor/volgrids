@@ -33,7 +33,10 @@ class GridHydrophilic(GridHydro):
 
     def populate_grid(self):
         radius_hphil = vp.MU_HYDROPHILIC + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_HYDROPHILIC
-        gk_hphil = vp.KernelGaussianUnivariate(vp.MU_HYDROPHILIC, vp.SIGMA_HYDROPHILIC, radius_hphil, self.ms.deltas, np.float32)
+        gk_hphil = vp.KernelGaussianUnivariate(
+            vp.MU_HYDROPHILIC, vp.SIGMA_HYDROPHILIC,
+            radius_hphil, self.ms.deltas, vp.FLOAT_DTYPE
+        )
         gk_hphil.link_to_grid(self.grid, self.ms.minCoords)
 
         for particle, mul_factor in self.iter_particles():
@@ -48,7 +51,10 @@ class GridHydrophobic(GridHydro):
 
     def populate_grid(self):
         radius_hphob = vp.MU_HYDROPHOBIC + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_HYDROPHOBIC
-        gk_hphob = vp.KernelGaussianUnivariate(vp.MU_HYDROPHOBIC, vp.SIGMA_HYDROPHOBIC, radius_hphob, self.ms.deltas, np.float32)
+        gk_hphob = vp.KernelGaussianUnivariate(
+            vp.MU_HYDROPHOBIC, vp.SIGMA_HYDROPHOBIC,
+            radius_hphob, self.ms.deltas, vp.FLOAT_DTYPE
+        )
         gk_hphob.link_to_grid(self.grid, self.ms.minCoords)
 
         for particle, mul_factor in self.iter_particles():
