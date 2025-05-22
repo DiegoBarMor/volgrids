@@ -41,8 +41,9 @@ class MolecularSystem:
         grid_size = np.prod(self.resolution)
         if grid_size > vp.WARNING_GRID_SIZE:
             print()
+            rx, ry, rz = self.resolution
             while True:
-                choice = input(f">>> WARNING: resulting grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n").upper()
+                choice = input(f">>> WARNING: resulting ({rx}x{ry}x{rz}) grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n").upper()
                 if choice == 'Y': break
                 if choice == 'N': exit()
 
@@ -76,8 +77,6 @@ class MSPocketSphere(MolecularSystem):
             self.deltas = np.array([vp.GRID_DX_PS, vp.GRID_DY_PS, vp.GRID_DZ_PS])
             self.resolution = np.round(box_size / self.deltas).astype(int)
 
-        print("...>>> MS: PocketSphere mode. Info:", flush = True)
-
 
     def get_relevant_atoms(self):
         xcog, ycog, zcog = self.cog
@@ -109,10 +108,10 @@ class MSWhole(MolecularSystem):
             self.deltas = np.array([vp.GRID_DX_WM, vp.GRID_DY_WM, vp.GRID_DZ_WM])
             self.resolution = np.round(box_size / self.deltas).astype(int)
 
-        print("...>>> MS: Whole mode. Info:", flush = True)
 
     def get_relevant_atoms(self):
         return self.system.select_atoms(self.macro_query)
+
 
     def get_relevant_atoms_broad(self, trimming_dist):
         return self.system.select_atoms(self.macro_query)

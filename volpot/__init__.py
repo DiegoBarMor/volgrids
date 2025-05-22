@@ -9,9 +9,10 @@ DO_MRC_OUTPUT = False # save the result of the potential grids in MRC format?
 DO_CMAP_OUTPUT = True # save the result of the potential grids in CMAP format?
 DO_JSON_OUTPUT = False # save the result of the potential grids in JSON format?
 DO_LOG_APBS = False
-WARNING_GRID_SIZE = 2.5e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort
+
+GZIP_COMPRESSION = 9 # gzip compression level for CMAP files (0-9); h5py default is 4
 FLOAT_DTYPE = _np.float32 # numerical precision of the grid data
-GZIP_COMPRESSION = 4 # gzip compression level for CMAP files (0-9); h5py default is 4
+WARNING_GRID_SIZE = 5.0e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort
 
 ######################## "WHOLE" MODE
 ### deltas used for default calculations (resolutions change)

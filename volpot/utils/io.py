@@ -150,7 +150,8 @@ def write_cmap(path_cmap, data: "vp.Grid", key):
         chim = h5["Chimera"]
         if key in chim.keys():
             frame = chim[key]
-            del frame["data_zyx"]
+            if "data_zyx" in frame.keys():
+                del frame["data_zyx"]
         else:
             frame = h5.create_group(f"/Chimera/{key}")
             frame.attrs["chimera_map_version"] = np.int64(1)

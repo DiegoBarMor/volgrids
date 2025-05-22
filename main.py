@@ -7,7 +7,10 @@ if __name__ == "__main__":
     metadata["meta"] = args.out / f"{args.pdb.stem}.meta.json"
     vp.save_metadata(metadata)
 
-    print(f">>> Now processing '{args.pdb.stem}' ({'nucleic' if args.rna else 'protein'})...", flush = True)
+    timer = vp.Timer(
+        f">>> Now processing '{args.pdb.stem}' ({'nucleic' if args.rna else 'protein'}) " +\
+        f"in '{'Whole' if metadata['whole'] else 'PocketSphere'}' mode"
+    )
 
     if metadata["whole"]:
         ms = vp.MSWhole(metadata)
@@ -34,6 +37,8 @@ if __name__ == "__main__":
     pg_apbs    .run(trim_large)
     if vp.DO_LOG_APBS: pg_apbs.apply_logabs_transform()
     vp.Grid.grid_diff(pg_hbphob, pg_hphil, "hydrodiff")
+
+    timer.end()
 
 
 ################################################################################

@@ -74,6 +74,8 @@ class Grid:
         prefix = self.get_type() if override_prefix is None else override_prefix
         path_prefix = self.ms.folder_potentials / f"{self.ms.name}.{prefix}"
 
+        # if vp.DO_CMAP_OUTPUT: vp.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.name}.{self.ms.frame:04}")
+
         ###### save to dx
         if vp.DO_DX_OUTPUT: vp.write_dx(f"{path_prefix}.dx", self)
 
@@ -81,7 +83,7 @@ class Grid:
         if vp.DO_MRC_OUTPUT: vp.write_mrc(f"{path_prefix}.mrc", self)
 
         ###### save to cmap
-        if vp.DO_CMAP_OUTPUT: vp.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.name}.{self.ms.frame:04}")
+        if vp.DO_CMAP_OUTPUT: vp.write_cmap(f"{path_prefix}.cmap", self, self.ms.name)
 
         ###### save to json
         if vp.DO_JSON_OUTPUT: vp.write_json(f"{path_prefix}.json", self.data)
