@@ -1,5 +1,7 @@
 # Volumetric Potentials Calculator
-## Required packages
+This is the alpha version of the SMIFFER package. New features are first tested here before being implemented in the main package.
+
+## Requirements
 - Numpy
 - Scipy
 - MDAnalysis
@@ -40,10 +42,16 @@ python3 smiffer.py -i data/pdb/1iqj.pdb -o data/smifs -x 4.682 -y 21.475 -z 7.16
 python3 smiffer.py -i data/pdb/5bjo.pdb -o data/smifs -w -n -a data/apbs/5bjo.pqr.dx
 ```
 
+- Perform a trajectory mode (`-t`) in an RNA system (`-n`). Note that this is only implemented for whole mode (`-w`) at the moment.
+```
+python3 smiffer.py -i data/tests/04-traj/7vki.pdb -o data/tests/04-traj -t data/tests/04-traj/7vki.xtc -n -w
+```
+
 ## Benchmark
 A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [this location](https://drive.google.com/file/d/1o1jR4RhXlIL0Jg3m0twrpbiTV7eIGZ38/view?usp=sharing), in the form of PDB and PQR input files.
 
-## Color standard
+## Visualization
+### Color standard
 | Potential       | Color      | RGB 0-1    | RGB 0-255  | HEX    |
 |-----------------|------------|------------|------------|--------|
 | APBS +          | Blue       | 0,0,1      | 0,0,255    | 0000FF |
@@ -52,3 +60,16 @@ A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [thi
 | Hydrophilic (-) | Light Blue | 0.3,0.85,1 | 77,217,255 | 4DD9FF |
 | HB Acceptors    | Orange     | 1,0.5,0    | 255,128,0  | FF8000 |
 | HB Donors       | Violet     | 0.7,0,1    | 179,0,255  | B300FF |
+
+### Visualizing CMAP trajectories in Chimera
+Follow this instructions to visualize the atomic and SMIF trajectories simultaneously in Chimera. ChimeraX is recommended.
+1) Open the PDB and load the atom trajectory into it (in ChimeraX, simply drag the files into the window).
+2) Open the CMAP file in a similar way.
+3) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps.
+```
+  coordset #1; vseries play #2
+```
+4) Use this Chiimera command to stop the playback. The ids used must match the previous command.
+```
+  coordset stop #1; vseries stop #2
+```

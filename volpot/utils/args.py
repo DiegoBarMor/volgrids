@@ -1,9 +1,8 @@
 import argparse
 from pathlib import Path
 
-
 ################################################################################
-def process_args():
+def args_smiffer():
     docs_args = {
         "main" : "Two modes are available for this standalone calculator: **PocketSphere (PS)** and **Whole (W)**. **PS** calculates the potentials in a spherical volume defined to be a binding pocket, while **W** calculates the potentials of all the volume surrounding the macromolecule.",
         "pdb" : "Path to the PDB structure file of interest.",

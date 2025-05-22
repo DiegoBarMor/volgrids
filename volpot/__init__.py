@@ -3,13 +3,31 @@
 ################################################################################
 import numpy as _np
 
-######################## GENERAL PARAMETERS
-DO_DX_OUTPUT = False # save the result of the potential grids in DX format?
-DO_MRC_OUTPUT = False # save the result of the potential grids in MRC format?
-DO_CMAP_OUTPUT = True # save the result of the potential grids in CMAP format?
-DO_JSON_OUTPUT = False # save the result of the potential grids in JSON format?
-DO_LOG_APBS = False
+######################## TOGGLES
+### GRIDS
+DO_SMIF_STACKING = True
+DO_SMIF_HBA = True
+DO_SMIF_HBD = True
+DO_SMIF_HYDROPHOBIC = True
+DO_SMIF_HYDROPHILIC = True
+DO_SMIF_APBS = True
 
+DO_SMIF_LOG_APBS = False
+DO_SMIF_HYDRODIFF = False
+
+### TRIMMING
+DO_TRIMMING_SPHERE = True
+DO_TRIMMING_OCCUPANCY = True
+DO_TRIMMING_RNDS = False
+
+### OUTPUTS
+DO_OUTPUT_DX = False
+DO_OUTPUT_MRC = True
+DO_OUTPUT_CMAP = False
+DO_OUTPUT_JSON = False
+SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask to *.mask.dx
+
+######################## SPACE EFFICIENCY
 GZIP_COMPRESSION = 9 # gzip compression level for CMAP files (0-9); h5py default is 4
 FLOAT_DTYPE = _np.float32 # numerical precision of the grid data
 WARNING_GRID_SIZE = 5.0e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort
@@ -39,18 +57,11 @@ GRID_YRES_PS = 100
 GRID_ZRES_PS = 100
 
 ######################## TRIMMING
-SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask to *.mask.dx
-
-### SPHERE TRIMMING
-DO_TRIMMING_SPHERE = True
-
 ### OCCUPANCY TRIMMING
-DO_TRIMMING_OCCUPANCY = True
 TRIMMING_DIST_LARGE = 3.0
 TRIMMING_DIST_SMALL = 2.5
 
 ### RANDOM SEARCH TRIMMING
-DO_TRIMMING_RNDS = False
 MAX_RNDS_DIST = _np.inf
 COG_CUBE_RADIUS = 3
 
@@ -116,6 +127,7 @@ GAUSSIAN_KERNEL_SIGMAS = 4 # how many sigmas of width should the precalculated g
 
 from .core.grid import Grid, GridSMIF
 from .core.kernel import Kernel
+from .core.smiffer import Smiffer
 from .core.systems import MolecularSystem, MSPocketSphere, MSWhole
 from .core.trimmers import GridTrimmer, TrimmerPocketSphere, TrimmerWhole
 
@@ -129,7 +141,7 @@ from .kernels.boolean import \
 from .kernels.gaussian import \
     KernelGaussianUnivariate, KernelGaussianMultivariate
 
-from .utils.args import process_args
+from .utils.args import args_smiffer
 from .utils.io import \
     read_json, read_mrc, read_dx, read_cmap, \
     write_json, write_mrc, write_dx, write_cmap, \

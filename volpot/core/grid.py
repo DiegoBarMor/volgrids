@@ -51,7 +51,7 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def pack_data(self):
-        if vp.DO_JSON_OUTPUT:
+        if vp.DO_OUTPUT_JSON:
             self.data = {
                 "name" : self.ms.name,
                 "xResolution" : int(self.xres - 1),
@@ -74,19 +74,15 @@ class Grid:
         prefix = self.get_type() if override_prefix is None else override_prefix
         path_prefix = self.ms.folder_potentials / f"{self.ms.name}.{prefix}"
 
-        # if vp.DO_CMAP_OUTPUT: vp.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.name}.{self.ms.frame:04}")
+        if self.ms.metadata["do_traj"]:
+            ### ignore the OUTPUT flags, CMAP is the only format that supports multiple frames
+            vp.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.name}.{self.ms.frame:04}")
+            return
 
-        ###### save to dx
-        if vp.DO_DX_OUTPUT: vp.write_dx(f"{path_prefix}.dx", self)
-
-        ###### save to mrc
-        if vp.DO_MRC_OUTPUT: vp.write_mrc(f"{path_prefix}.mrc", self)
-
-        ###### save to cmap
-        if vp.DO_CMAP_OUTPUT: vp.write_cmap(f"{path_prefix}.cmap", self, self.ms.name)
-
-        ###### save to json
-        if vp.DO_JSON_OUTPUT: vp.write_json(f"{path_prefix}.json", self.data)
+        if vp.DO_OUTPUT_DX:   vp.write_dx  (f"{path_prefix}.dx",   self)
+        if vp.DO_OUTPUT_MRC:  vp.write_mrc (f"{path_prefix}.mrc",  self)
+        if vp.DO_OUTPUT_CMAP: vp.write_cmap(f"{path_prefix}.cmap", self, self.ms.name)
+        if vp.DO_OUTPUT_JSON: vp.write_json(f"{path_prefix}.json", self.data)
 
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)
