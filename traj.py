@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
 
 ################################################################################
-# python3 traj.py -i data/potentials-test/traj/7VKI.pdb -o data/potentials-test/traj -t data/potentials-test/traj/7VKI.xtc -n -w
+# python3 traj.py -i data/tests/traj/7VKI.pdb -o data/tests/traj -t data/tests/traj/7VKI.xtc -n -w
 
 # coordset #1; vseries play #2
 # coordset stop #1; vseries stop #2

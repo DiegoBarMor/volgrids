@@ -3,6 +3,7 @@
 - Numpy
 - Scipy
 - MDAnalysis
+- h5py
 
 ## Usage
 Two modes are available for this standalone calculator: **PocketSphere (PS)** and **Whole (W)**. **PS** calculates the potentials in a spherical volume defined to be a binding pocket, while **W** calculates the potentials of all the volume surrounding the macromolecule.
@@ -11,6 +12,7 @@ Two modes are available for this standalone calculator: **PocketSphere (PS)** an
 Run `main.py` and provide the parameters of the calculation via arguments:
   - `pdb` (-i): **Mandatory argument**, path to the *PDB* structure file of interest.
   - `out` (-o): **Mandatory argument**, path to the folder where the output potentials should be stored.
+  - `traj` : Path to the trajectory file for TRAJ mode. Formats supported by MDAnalysis are expected.
   - `apbs` (-a) : Path to the output of APBS. An *OpenDX* file is expected.
   - `radius` (-r) : Radius of the pocket sphere. Will be ignored if 'whole' mode is active.
   - `xcog` (-x) : X coordinate for the center of geometry of the pocket sphere. Will be ignored if 'whole' mode is active.
@@ -30,12 +32,12 @@ apbs data/apbs/1iqj.in
 ### Examples
 - Perform a simple pocket sphere mode (`-x`, `-y`, `-z`, `-r`) in a protein system.
 ```
-python3 main.py -i data/pdb/1iqj.pdb -o data/potentials-ps -x 4.682 -y 21.475 -z 7.161 -r 14.675
+python3 main.py -i data/pdb/1iqj.pdb -o data/smifs -x 4.682 -y 21.475 -z 7.161 -r 14.675
 ```
 
 - Perform a whole mode (`-w`) in an RNA system (`-n`) considering APBS data (`-a`).
 ```
-python3 main.py -i data/pdb/5bjo.pdb -o data/potentials-whole -w -n -a data/apbs/5bjo.pqr.dx
+python3 main.py -i data/pdb/5bjo.pdb -o data/smifs -w -n -a data/apbs/5bjo.pqr.dx
 ```
 
 ## Benchmark
