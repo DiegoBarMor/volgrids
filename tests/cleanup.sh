@@ -11,3 +11,4 @@ folder04="$folder_data/04-traj"
 rm -rf $folder00 $folder01
 rm -f $folder02/dx* $folder02/mrc*
 rm -f $folder03/1iqj.*.mrc $folder03/2esj.cmap
+rm -f $folder04/*.cmap $folder04/*.json

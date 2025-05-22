@@ -1,6 +1,9 @@
 #!/bin/bash
 set -eu
 
+echo
+echo ">>> TEST 00: Benchmark, Pocket Sphere mode"
+
 fapbs="data/apbs"
 fpdb="data/pdb"
 fout="data/tests/00-pocket_sphere"

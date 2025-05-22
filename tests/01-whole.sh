@@ -1,6 +1,9 @@
 #!/bin/bash
 set -eu
 
+echo
+echo ">>> TEST 01: Benchmark, Whole mode"
+
 fapbs="data/apbs"
 fpdb="data/pdb"
 fout="data/tests/01-whole"

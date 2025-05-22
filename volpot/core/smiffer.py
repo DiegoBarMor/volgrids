@@ -30,13 +30,13 @@ class Smiffer:
             if not self.metadata["whole"]:
                 raise NotImplementedError("PocketSphere not implemented yet for trajectory mode. Use -w flag")
 
+            print()
             for _ in self.ms.system.trajectory:
                 self.ms.frame += 1
                 timer_frame = vp.Timer(f"...>>> Frame {self.ms.frame}/{len(self.ms.system.trajectory)}")
                 timer_frame.start()
                 self._process_grids()
                 timer_frame.end()
-            print()
 
         else: # SINGLE PDB MODE
             self._process_grids()
