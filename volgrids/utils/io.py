@@ -1,6 +1,6 @@
 import os, json, h5py
 import numpy as np
-import volpot as vp
+import volgrids as vg
 import gridData as gd
 from pathlib import Path
 
@@ -12,43 +12,43 @@ def read_json(path_json) -> dict | list:
 
 
 # ------------------------------------------------------------------------------
-def read_mrc(path_mrc) -> "vp.Grid":
+def read_mrc(path_mrc) -> "vg.Grid":
     with gd.mrc.mrcfile.open(path_mrc) as grid_mrc:
         vsize = np.array(grid_mrc.voxel_size)
         origin = np.array(grid_mrc.header["origin"])
 
-        grid_vp = vp.Grid(**grid_init_metadata(
+        grid_vg = vg.Grid(**grid_init_metadata(
             resolution = np.array(grid_mrc.data.shape),
-            origin = np.array([origin["x"], origin["y"], origin["z"]], dtype = vp.FLOAT_DTYPE),
-            delta = np.array([vsize["x"], vsize["y"], vsize["z"]], dtype = vp.FLOAT_DTYPE)
+            origin = np.array([origin["x"], origin["y"], origin["z"]], dtype = vg.FLOAT_DTYPE),
+            delta = np.array([vsize["x"], vsize["y"], vsize["z"]], dtype = vg.FLOAT_DTYPE)
         ))
-        grid_vp.grid = grid_mrc.data.transpose(2,1,0)
-    return grid_vp
+        grid_vg.grid = grid_mrc.data.transpose(2,1,0)
+    return grid_vg
 
 
 # ------------------------------------------------------------------------------
-def read_dx(path_dx) -> "vp.Grid":
+def read_dx(path_dx) -> "vg.Grid":
     grid_dx = gd.Grid(path_dx)
-    grid_vp = vp.Grid(**grid_init_metadata(
+    grid_vg = vg.Grid(**grid_init_metadata(
         resolution = grid_dx.grid.shape,
         origin = grid_dx.origin,
         delta = grid_dx.delta
     ))
-    grid_vp.grid = grid_dx.grid
-    return grid_vp
+    grid_vg.grid = grid_dx.grid
+    return grid_vg
 
 
 # ------------------------------------------------------------------------------
-def read_cmap(path_cmap, key) -> "vp.Grid":
+def read_cmap(path_cmap, key) -> "vg.Grid":
     with h5py.File(path_cmap, 'r') as h5:
         frame = h5["Chimera"][key]
-        grid_vp = vp.Grid(**grid_init_metadata(
+        grid_vg = vg.Grid(**grid_init_metadata(
             resolution = np.array(frame["data_zyx"].shape),
             origin = frame.attrs["origin"],
             delta = frame.attrs["step"]
         ))
-        grid_vp.grid = frame["data_zyx"][()].transpose(2,1,0)
-    return grid_vp
+        grid_vg.grid = frame["data_zyx"][()].transpose(2,1,0)
+    return grid_vg
 
 
 # ------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ def write_json(path_json, data: dict | list):
 
 
 # --------------------------------------------------------------------------
-def write_mrc(path_mrc, data: "vp.Grid"):
+def write_mrc(path_mrc, data: "vg.Grid"):
     with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as grid_mrc:
         grid_mrc.set_data(data.grid.transpose(2,1,0))
         grid_mrc.voxel_size = [data.dx, data.dy, data.dz]
@@ -70,7 +70,7 @@ def write_mrc(path_mrc, data: "vp.Grid"):
 
 
 # ------------------------------------------------------------------------------
-def write_dx(path_dx, data: "vp.Grid"):
+def write_dx(path_dx, data: "vg.Grid"):
     ints = (int, np.int8, np.int16, np.int32, np.int64)
     floats = (float, np.float16, np.float32, np.float64)
 
@@ -90,7 +90,7 @@ def write_dx(path_dx, data: "vp.Grid"):
         raise TypeError(f"Unsupported data type for DX output: {data.grid.dtype}")
 
     header = '\n'.join((
-        "# OpenDX density file written by volpot2",
+        "# OpenDX density file written by volgrids",
         "# File format: http://opendx.sdsc.edu/docs/html/pages/usrgu068.htm#HDREDF",
         "# Data are embedded in the header and tied to the grid positions.",
         "# Data is written in C array order: In grid[x,y,z] the axis z is fastest",
@@ -133,7 +133,7 @@ def write_dx(path_dx, data: "vp.Grid"):
 
 
 # ------------------------------------------------------------------------------
-def write_cmap(path_cmap, data: "vp.Grid", key):
+def write_cmap(path_cmap, data: "vg.Grid", key):
     ### imitate the Chimera cmap format, as "specified" in this sample:
     ### https://github.com/RBVI/ChimeraX/blob/develop/testdata/cell15_timeseries.cmap
     def add_generic_attrs(group, c = "GROUP"):
@@ -160,13 +160,13 @@ def write_cmap(path_cmap, data: "vp.Grid", key):
             frame.attrs["chimera_map_version"] = np.int64(1)
             frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
             frame.attrs["name"] = np.bytes_(key)
-            frame.attrs["origin"] = np.array([data.xmin, data.ymin, data.zmin], dtype = vp.FLOAT_DTYPE)
-            frame.attrs["step"] = np.array([data.dx, data.dy, data.dz], dtype = vp.FLOAT_DTYPE)
+            frame.attrs["origin"] = np.array([data.xmin, data.ymin, data.zmin], dtype = vg.FLOAT_DTYPE)
+            frame.attrs["step"] = np.array([data.dx, data.dy, data.dz], dtype = vg.FLOAT_DTYPE)
             add_generic_attrs(frame)
 
         framedata = frame.create_dataset(
-            "data_zyx", data = data.grid.transpose(2,1,0), dtype = vp.FLOAT_DTYPE,
-            compression = "gzip", compression_opts = vp.GZIP_COMPRESSION
+            "data_zyx", data = data.grid.transpose(2,1,0), dtype = vg.FLOAT_DTYPE,
+            compression = "gzip", compression_opts = vg.GZIP_COMPRESSION
         )
         add_generic_attrs(framedata, "CARRAY")
 

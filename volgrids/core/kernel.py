@@ -1,5 +1,5 @@
 import numpy as np
-import volpot as vp
+import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class Kernel:
@@ -16,9 +16,9 @@ class Kernel:
 
         ##### initizalize auxiliary kernel of distance values
         self.center = np.floor(self.kernel_res / 2) * self.deltas
-        self.coords = vp.get_coords_array(self.kernel_res, self.deltas)
+        self.coords = vg.get_coords_array(self.kernel_res, self.deltas)
         self.shifted_coords = self.coords - self.center
-        self.dist = vp.get_norm(self.shifted_coords)
+        self.dist = vg.get_norm(self.shifted_coords)
 
     def link_to_grid(self, grid, grid_origin):
         self.grid = grid

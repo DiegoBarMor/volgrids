@@ -1,25 +1,25 @@
 import numpy as np
-import volpot as vp
+import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHydro(vp.GridSMIF):
+class GridHydro(vg.GridSMIF):
     def iter_particles(self):
         for atom in self.ms.get_relevant_atoms():
             # atom is part of a protein
             if not self.ms.isNucleic:
-                mul_factor = vp.ww_scale[atom.resname]
+                mul_factor = vg.ww_scale[atom.resname]
 
             # atom is in the nitrogenous base (RNA)
-            elif atom.name in vp.nucleic_bases[atom.resname]:
-                mul_factor = vp.ww_scale[atom.resname]
+            elif atom.name in vg.nucleic_bases[atom.resname]:
+                mul_factor = vg.ww_scale[atom.resname]
 
             # atom is part of the phosphate backbone (RNA)
-            elif atom.name in vp.nucleic_backbone_phosphate:
-                mul_factor = vp.HPHOB_RNA_PHOSPHATE
+            elif atom.name in vg.nucleic_backbone_phosphate:
+                mul_factor = vg.HPHOB_RNA_PHOSPHATE
 
             # atom is part of the sugar (RNA)
-            elif atom.name in vp.nucleic_backbone_sugar:
-                mul_factor = vp.HPHOB_RNA_SUGAR
+            elif atom.name in vg.nucleic_backbone_sugar:
+                mul_factor = vg.HPHOB_RNA_SUGAR
 
             else: continue # unknown atom type
 
@@ -32,10 +32,10 @@ class GridHydrophilic(GridHydro):
         return "hydrophilic"
 
     def populate_grid(self):
-        radius_hphil = vp.MU_HYDROPHILIC + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_HYDROPHILIC
-        gk_hphil = vp.KernelGaussianUnivariate(
-            vp.MU_HYDROPHILIC, vp.SIGMA_HYDROPHILIC,
-            radius_hphil, self.ms.deltas, vp.FLOAT_DTYPE
+        radius_hphil = vg.MU_HYDROPHILIC + vg.GAUSSIAN_KERNEL_SIGMAS * vg.SIGMA_HYDROPHILIC
+        gk_hphil = vg.KernelGaussianUnivariate(
+            vg.MU_HYDROPHILIC, vg.SIGMA_HYDROPHILIC,
+            radius_hphil, self.ms.deltas, vg.FLOAT_DTYPE
         )
         gk_hphil.link_to_grid(self.grid, self.ms.minCoords)
 
@@ -50,10 +50,10 @@ class GridHydrophobic(GridHydro):
         return "hydrophobic"
 
     def populate_grid(self):
-        radius_hphob = vp.MU_HYDROPHOBIC + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_HYDROPHOBIC
-        gk_hphob = vp.KernelGaussianUnivariate(
-            vp.MU_HYDROPHOBIC, vp.SIGMA_HYDROPHOBIC,
-            radius_hphob, self.ms.deltas, vp.FLOAT_DTYPE
+        radius_hphob = vg.MU_HYDROPHOBIC + vg.GAUSSIAN_KERNEL_SIGMAS * vg.SIGMA_HYDROPHOBIC
+        gk_hphob = vg.KernelGaussianUnivariate(
+            vg.MU_HYDROPHOBIC, vg.SIGMA_HYDROPHOBIC,
+            radius_hphob, self.ms.deltas, vg.FLOAT_DTYPE
         )
         gk_hphob.link_to_grid(self.grid, self.ms.minCoords)
 

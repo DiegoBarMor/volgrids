@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="volpot",
+    name="volgrids",
     version="0.1.0",
     description="Beta version of the SMIFFER tool",
     keywords="grid",
@@ -9,7 +9,7 @@ setup(
     long_description_content_type="text/markdown",
     author="DiegoBarMor",
     author_email="diegobarmor42@gmail.com",
-    url="https://github.com/diegobarmor/volpot2",
+    url="https://github.com/diegobarmor/volgrids",
     license="MIT",
     packages=find_packages(),
     install_requires=[],

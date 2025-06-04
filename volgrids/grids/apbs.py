@@ -1,13 +1,13 @@
 import numpy as np
-import volpot as vp
+import volgrids as vg
 from gridData import Grid
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridAPBS(vp.Grid):
+class GridAPBS(vg.Grid):
     def get_type(self):
         return "apbs"
 
-    def run(self, trimmer: "vp.GridTrimmer"):
+    def run(self, trimmer: "vg.GridTrimmer"):
         if str(self.ms.path_apbs) == '.':
             print("...--- APBS output not provided. Electrostatic potential skipped.", flush = True)
             return
@@ -22,9 +22,9 @@ class GridAPBS(vp.Grid):
         xmin1, ymin1, zmin1 = self.ms.minCoords
         xmax1, ymax1, zmax1 = self.ms.maxCoords
         xres1, yres1, zres1 = self.ms.resolution
-        apbs = vp.read_dx(self.ms.path_apbs)
+        apbs = vg.read_dx(self.ms.path_apbs)
 
-        self.grid = vp.interpolate_3d(
+        self.grid = vg.interpolate_3d(
             x0 = np.linspace(apbs.xmin, apbs.xmax, apbs.xres),
             y0 = np.linspace(apbs.ymin, apbs.ymax, apbs.yres),
             z0 = np.linspace(apbs.zmin, apbs.zmax, apbs.zres),
@@ -34,7 +34,7 @@ class GridAPBS(vp.Grid):
                 ymin1 : ymax1 : complex(0, yres1),
                 zmin1 : zmax1 : complex(0, zres1),
             ].T
-        ).astype(vp.FLOAT_DTYPE)
+        ).astype(vg.FLOAT_DTYPE)
 
 
     def apply_logabs_transform(self):
@@ -46,14 +46,14 @@ class GridAPBS(vp.Grid):
         logneg = np.log10(-self.grid[self.grid < 0])
 
         ##### APPLY CUTOFFS
-        logpos[logpos < vp.APBS_MIN_CUTOFF] = vp.APBS_MIN_CUTOFF
-        logneg[logneg < vp.APBS_MIN_CUTOFF] = vp.APBS_MIN_CUTOFF
-        logpos[logpos > vp.APBS_MAX_CUTOFF] = vp.APBS_MAX_CUTOFF
-        logneg[logneg > vp.APBS_MAX_CUTOFF] = vp.APBS_MAX_CUTOFF
+        logpos[logpos < vg.APBS_MIN_CUTOFF] = vg.APBS_MIN_CUTOFF
+        logneg[logneg < vg.APBS_MIN_CUTOFF] = vg.APBS_MIN_CUTOFF
+        logpos[logpos > vg.APBS_MAX_CUTOFF] = vg.APBS_MAX_CUTOFF
+        logneg[logneg > vg.APBS_MAX_CUTOFF] = vg.APBS_MAX_CUTOFF
 
         ##### SHIFT VALUES TO 0
-        logpos -= vp.APBS_MIN_CUTOFF
-        logneg -= vp.APBS_MIN_CUTOFF
+        logpos -= vg.APBS_MIN_CUTOFF
+        logneg -= vg.APBS_MIN_CUTOFF
 
         ##### REVERSE SIGN OF LOG(ABS(GRID_NEG)) AND DOUBLE BOTH
         logpos *=  2 # this way the range of points varies between
@@ -65,8 +65,8 @@ class GridAPBS(vp.Grid):
 
         ##### additional adjustments before saving to json
         self.pack_data()
-        self.data["minPotential"] = float(-2 * (vp.APBS_MAX_CUTOFF - vp.APBS_MIN_CUTOFF))
-        self.data["maxPotential"] = float( 2 * (vp.APBS_MAX_CUTOFF - vp.APBS_MIN_CUTOFF))
+        self.data["minPotential"] = float(-2 * (vg.APBS_MAX_CUTOFF - vg.APBS_MIN_CUTOFF))
+        self.data["maxPotential"] = float( 2 * (vg.APBS_MAX_CUTOFF - vg.APBS_MIN_CUTOFF))
         self.save_data(override_prefix = "apbslog")
 
 

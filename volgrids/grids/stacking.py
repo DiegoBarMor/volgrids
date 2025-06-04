@@ -1,31 +1,31 @@
 import numpy as np
-import volpot as vp
+import volgrids as vg
 from collections import defaultdict
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridStacking(vp.GridSMIF):
+class GridStacking(vg.GridSMIF):
     def get_type(self):
         return "stacking"
 
     def populate_grid(self):
-        radius = vp.MU_STACKING[1] + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_DIST_STACKING
-        gk = vp.KernelGaussianMultivariate(radius, self.ms.deltas, vp.FLOAT_DTYPE)
+        radius = vg.MU_STACKING[1] + vg.GAUSSIAN_KERNEL_SIGMAS * vg.SIGMA_DIST_STACKING
+        gk = vg.KernelGaussianMultivariate(radius, self.ms.deltas, vg.FLOAT_DTYPE)
 
         gk.link_to_grid(self.grid, self.ms.minCoords)
         for res_atoms in self.iter_particles():
             cog = res_atoms.center_of_geometry()
             a,b,c = res_atoms.positions[:3]
-            u = vp.normalize(b - a)
-            v = vp.normalize(c - a)
-            normal = vp.normalize(np.cross(u, v))
+            u = vg.normalize(b - a)
+            v = vg.normalize(c - a)
+            normal = vg.normalize(np.cross(u, v))
 
-            gk.recalculate_kernel(normal, vp.MU_STACKING, vp.COV_INV_STACKING, isStacking = True)
+            gk.recalculate_kernel(normal, vg.MU_STACKING, vg.COV_INV_STACKING, isStacking = True)
             gk.stamp(cog)
 
 
     def iter_particles(self):
         resname_to_ids = defaultdict(set)
-        aromatic_dict = vp.aromatic_bases if self.ms.isNucleic else vp.aromatic_aminos
+        aromatic_dict = vg.aromatic_bases if self.ms.isNucleic else vg.aromatic_aminos
         atoms = self.ms.get_relevant_atoms()
 
         for a in atoms:

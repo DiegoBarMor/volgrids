@@ -1,19 +1,19 @@
 import numpy as np
-import volpot as vp
+import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
-class KernelGaussianUnivariate(vp.Kernel):
+class KernelGaussianUnivariate(vg.Kernel):
     """For generating univariate gaussian spheres (e.g. for hydrophob)"""
     def __init__(self, mu, sigma, radius, deltas, dtype):
         super().__init__(radius, deltas, dtype)
-        self.kernel = vp.univariate_gaussian(self.dist, mu, sigma)
+        self.kernel = vg.univariate_gaussian(self.dist, mu, sigma)
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class KernelGaussianMultivariate(vp.Kernel):
+class KernelGaussianMultivariate(vg.Kernel):
     """For generating multivariate gaussian distributions (for hba, hbd, stacking)"""
     def recalculate_kernel(self, normal, mu, cov_inv, isStacking):
-        beta_values = vp.get_angle(
+        beta_values = vg.get_angle(
             self.shifted_coords, normal,
             flag_corrections = "stacking" if isStacking else "hbonds"
         )
@@ -24,7 +24,7 @@ class KernelGaussianMultivariate(vp.Kernel):
             ),
             axis = 3
         )
-        self.kernel = vp.multivariate_gaussian(input_mat, mu, cov_inv)
+        self.kernel = vg.multivariate_gaussian(input_mat, mu, cov_inv)
 
 
 # //////////////////////////////////////////////////////////////////////////////

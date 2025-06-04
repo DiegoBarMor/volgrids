@@ -1,17 +1,17 @@
 import numpy as np
-import volpot as vp
+import volgrids as vg
 from abc import ABC, abstractmethod
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridTrimmer(ABC, vp.Grid):
+class GridTrimmer(ABC, vg.Grid):
     def __init__(self, ms, trimming_dist):
         super().__init__(ms, dtype = bool)
 
-        if vp.DO_TRIMMING_SPHERE:    self._trim_sphere()
-        if vp.DO_TRIMMING_OCCUPANCY: self._trim_occupancy(trimming_dist)
-        if vp.DO_TRIMMING_RNDS:      self._trim_rnds()
+        if vg.DO_TRIMMING_SPHERE:    self._trim_sphere()
+        if vg.DO_TRIMMING_OCCUPANCY: self._trim_occupancy(trimming_dist)
+        if vg.DO_TRIMMING_RNDS:      self._trim_rnds()
 
-        if vp.SAVE_CACHED_MASK:
+        if vg.SAVE_CACHED_MASK:
             self.pack_data()
             self.save_data()
 
@@ -23,7 +23,7 @@ class GridTrimmer(ABC, vp.Grid):
 
 
     def _trim_occupancy(self, radius):
-        sk = vp.KernelSphere(radius, self.ms.deltas, bool)
+        sk = vg.KernelSphere(radius, self.ms.deltas, bool)
         sk.link_to_grid(self.grid, self.ms.minCoords)
         for a in self.ms.get_relevant_atoms_broad(radius):
             sk.stamp(a.position)
@@ -40,9 +40,9 @@ class GridTrimmer(ABC, vp.Grid):
 # //////////////////////////////////////////////////////////////////////////////
 class TrimmerPocketSphere(GridTrimmer):
     def _trim_sphere(self):
-        coords = vp.get_coords_array(self.ms.resolution, self.ms.deltas, self.ms.minCoords)
+        coords = vg.get_coords_array(self.ms.resolution, self.ms.deltas, self.ms.minCoords)
         shifted_coords = coords - self.ms.cog
-        dist_from_cog = vp.get_norm(shifted_coords)
+        dist_from_cog = vg.get_norm(shifted_coords)
         self.grid[dist_from_cog > self.ms.radius] = True
 
 
@@ -55,9 +55,9 @@ class TrimmerPocketSphere(GridTrimmer):
         xres, yres, zres = self.ms.resolution
         xcog, ycog, zcog = np.floor(self.ms.resolution / 2).astype(int)
         cog_cube = set((x,y,z)
-            for x in range(xcog - vp.COG_CUBE_RADIUS, xcog + vp.COG_CUBE_RADIUS + 1)
-            for y in range(ycog - vp.COG_CUBE_RADIUS, ycog + vp.COG_CUBE_RADIUS + 1)
-            for z in range(zcog - vp.COG_CUBE_RADIUS, zcog + vp.COG_CUBE_RADIUS + 1)
+            for x in range(xcog - vg.COG_CUBE_RADIUS, xcog + vg.COG_CUBE_RADIUS + 1)
+            for y in range(ycog - vg.COG_CUBE_RADIUS, ycog + vg.COG_CUBE_RADIUS + 1)
+            for z in range(zcog - vg.COG_CUBE_RADIUS, zcog + vg.COG_CUBE_RADIUS + 1)
         )
         queue = cog_cube.copy()
 
@@ -81,7 +81,7 @@ class TrimmerPocketSphere(GridTrimmer):
 
                 neigh = ni,nj,nk
                 search_dist[neigh] = min(search_dist[node] + 1, search_dist[neigh])
-                if search_dist[neigh] > vp.MAX_RNDS_DIST: continue
+                if search_dist[neigh] > vg.MAX_RNDS_DIST: continue
                 if visited[neigh]: continue
                 if self.grid[neigh]: continue
 

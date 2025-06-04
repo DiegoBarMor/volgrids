@@ -1,5 +1,5 @@
 import numpy as np
-import volpot as vp
+import volgrids as vg
 from pathlib import Path
 import MDAnalysis as mda
 
@@ -39,7 +39,7 @@ class MolecularSystem:
 
         ###############################
         grid_size = np.prod(self.resolution)
-        if grid_size > vp.WARNING_GRID_SIZE:
+        if grid_size > vg.WARNING_GRID_SIZE:
             print()
             rx, ry, rz = self.resolution
             while True:
@@ -71,10 +71,10 @@ class MSPocketSphere(MolecularSystem):
         box_size = self.maxCoords - self.minCoords
 
         if self.metadata["default_res"]:
-            self.resolution = np.array([vp.GRID_XRES_PS, vp.GRID_YRES_PS, vp.GRID_ZRES_PS])
+            self.resolution = np.array([vg.GRID_XRES_PS, vg.GRID_YRES_PS, vg.GRID_ZRES_PS])
             self.deltas = box_size / self.resolution
         else:
-            self.deltas = np.array([vp.GRID_DX_PS, vp.GRID_DY_PS, vp.GRID_DZ_PS])
+            self.deltas = np.array([vg.GRID_DX_PS, vg.GRID_DY_PS, vg.GRID_DZ_PS])
             self.resolution = np.round(box_size / self.deltas).astype(int)
 
 
@@ -95,17 +95,17 @@ class MSPocketSphere(MolecularSystem):
 # //////////////////////////////////////////////////////////////////////////////
 class MSWhole(MolecularSystem):
     def set_box_properties(self):
-        self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vp.EXTRA_BOX_SIZE
-        self.minCoords = np.min(self.system.coord.positions, axis = 0) - vp.EXTRA_BOX_SIZE
+        self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
+        self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
         self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
         self.cog = (self.maxCoords + self.minCoords) / 2
         box_size = self.maxCoords - self.minCoords
 
         if self.metadata["default_res"]:
-            self.resolution = np.array([vp.GRID_XRES_WM, vp.GRID_YRES_WM, vp.GRID_ZRES_WM])
+            self.resolution = np.array([vg.GRID_XRES_WM, vg.GRID_YRES_WM, vg.GRID_ZRES_WM])
             self.deltas = box_size / self.resolution
         else:
-            self.deltas = np.array([vp.GRID_DX_WM, vp.GRID_DY_WM, vp.GRID_DZ_WM])
+            self.deltas = np.array([vg.GRID_DX_WM, vg.GRID_DY_WM, vg.GRID_DZ_WM])
             self.resolution = np.round(box_size / self.deltas).astype(int)
 
 

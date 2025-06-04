@@ -1,24 +1,24 @@
-import volpot as vp
+import volgrids as vg
 
 # ------------------------------------------------------------------------------
-def open_grid(path) -> tuple[str, vp.Grid]:
+def open_grid(path) -> tuple[str, vg.Grid]:
     if path.suffix == ".dx":
-        return "DX", vp.read_dx(path)
+        return "DX", vg.read_dx(path)
 
     if path.suffix == ".mrc":
-        return "MRC", vp.read_mrc(path)
+        return "MRC", vg.read_mrc(path)
 
     elif path.suffix == ".cmap":
-        keys = vp.get_cmap_keys(path)
+        keys = vg.get_cmap_keys(path)
         if not keys: raise ValueError(f"Empty cmap file: {path}")
-        return "CMAP", vp.read_cmap(path, keys[0])
+        return "CMAP", vg.read_cmap(path, keys[0])
 
     raise ValueError(f"Unrecognized file format: {path.suffix}")
 
 
 ################################################################################
 if __name__ == "__main__":
-    args = vp.args_tools()
+    args = vg.args_tools()
 
     # --------------------------------------------------------------------------
     if str(args.to_mrc) != '.':
@@ -26,7 +26,7 @@ if __name__ == "__main__":
         path_out = path_in.with_suffix(".mrc")
         kind, grid = open_grid(path_in)
         print(f">>> Converting {kind} file into MRC: {path_in}")
-        vp.write_mrc(path_out, grid)
+        vg.write_mrc(path_out, grid)
 
 
     # --------------------------------------------------------------------------
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         path_in = args.to_cmap
         path_out = path_in.with_suffix(".cmap")
         print(">>> Converting DX file to CMAP:", path_in)
-        vp.write_cmap(path_out, grid, path_in.stem)
+        vg.write_cmap(path_out, grid, path_in.stem)
 
 
     # --------------------------------------------------------------------------
@@ -51,19 +51,19 @@ if __name__ == "__main__":
                 print("...>>> Skipping non-existing file:", path_in)
                 continue
             kind, grid = open_grid(path_in)
-            vp.write_cmap(path_out, grid, path_in.stem)
+            vg.write_cmap(path_out, grid, path_in.stem)
 
 
     # --------------------------------------------------------------------------
     if str(args.unpack) != '.':
         path_in = args.unpack
 
-        keys = vp.get_cmap_keys(path_in)
+        keys = vg.get_cmap_keys(path_in)
         print(f">>> Unpacking {keys} from '{path_in}' into '{path_out}'")
         for key in keys:
             path_out = path_in.parent / f"{key}.cmap"
-            grid = vp.read_cmap(path_in, key)
-            vp.write_cmap(path_out, grid)
+            grid = vg.read_cmap(path_in, key)
+            vg.write_cmap(path_out, grid)
 
 
 ################################################################################

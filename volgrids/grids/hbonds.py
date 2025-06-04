@@ -1,17 +1,17 @@
 import numpy as np
-import volpot as vp
+import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBonds(vp.GridSMIF):
+class GridHBonds(vg.GridSMIF):
     def populate_grid(self):
         self.radius: float
         self.table_hbond: dict
         self.kernel_args: dict
 
-        gk = vp.KernelGaussianMultivariate(self.radius, self.ms.deltas, vp.FLOAT_DTYPE)
+        gk = vg.KernelGaussianMultivariate(self.radius, self.ms.deltas, vg.FLOAT_DTYPE)
         gk.link_to_grid(self.grid, self.ms.minCoords)
         for pos_antecedent, pos_atom_hbond in self.iter_particles():
-            direction = vp.normalize(pos_atom_hbond - pos_antecedent)
+            direction = vg.normalize(pos_atom_hbond - pos_antecedent)
             gk.recalculate_kernel(direction, **self.kernel_args)
             gk.stamp(pos_atom_hbond)
 
@@ -48,9 +48,9 @@ class GridHBAccepts(GridHBonds):
         return "hbacceptors"
 
     def populate_grid(self):
-        self.radius = vp.MU_HBA[1] + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_DIST_HBOND
-        self.table_hbond = vp.rna_hba if self.ms.isNucleic else vp.prot_hba
-        self.kernel_args = dict(mu = vp.MU_HBA, cov_inv = vp.COV_INV_HBA, isStacking = False)
+        self.radius = vg.MU_HBA[1] + vg.GAUSSIAN_KERNEL_SIGMAS * vg.SIGMA_DIST_HBOND
+        self.table_hbond = vg.rna_hba if self.ms.isNucleic else vg.prot_hba
+        self.kernel_args = dict(mu = vg.MU_HBA, cov_inv = vg.COV_INV_HBA, isStacking = False)
         super().populate_grid()
 
     def select_antecedent(self, res, res_atoms, name_antecedent, name_hbond_atom):
@@ -84,9 +84,9 @@ class GridHBDonors(GridHBonds):
         return "hbdonors"
 
     def populate_grid(self):
-        self.radius = vp.MU_HBD[1] + vp.GAUSSIAN_KERNEL_SIGMAS * vp.SIGMA_DIST_HBOND
-        self.table_hbond = vp.rna_hbd if self.ms.isNucleic else vp.prot_hbd
-        self.kernel_args = dict(mu = vp.MU_HBD, cov_inv = vp.COV_INV_HBD, isStacking = False)
+        self.radius = vg.MU_HBD[1] + vg.GAUSSIAN_KERNEL_SIGMAS * vg.SIGMA_DIST_HBOND
+        self.table_hbond = vg.rna_hbd if self.ms.isNucleic else vg.prot_hbd
+        self.kernel_args = dict(mu = vg.MU_HBD, cov_inv = vg.COV_INV_HBD, isStacking = False)
         super().populate_grid()
 
     def select_antecedent(self, res, res_atoms, name_antecedent, name_hbond_atom):

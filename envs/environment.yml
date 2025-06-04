@@ -1,4 +1,4 @@
-name: volpot
+name: volgrids
 channels:
   - conda-forge
   - defaults

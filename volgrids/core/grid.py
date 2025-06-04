@@ -1,10 +1,10 @@
 import numpy as np
-import volpot as vp
+import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class Grid:
     def __init__(self, data, init_grid = True, dtype = None):
-        if isinstance(data, vp.MolecularSystem):
+        if isinstance(data, vg.MolecularSystem):
             self.ms = data
             self.xres, self.yres, self.zres = data.resolution
             self.xmin, self.ymin, self.zmin = data.minCoords
@@ -18,12 +18,12 @@ class Grid:
             self.xmax, self.ymax, self.zmax = data["maxCoords"]
             self.dx, self.dy, self.dz = data["deltas"]
 
-        if dtype is None: dtype = vp.FLOAT_DTYPE
+        if dtype is None: dtype = vg.FLOAT_DTYPE
         self.grid = np.zeros((self.xres, self.yres, self.zres), dtype = dtype) \
             if init_grid else None
 
     # --------------------------------------------------------------------------
-    def run(self, trimmer: "vp.GridTrimmer"= None):
+    def run(self, trimmer: "vg.GridTrimmer"= None):
         self.populate_grid()
         if trimmer is not None:
             trimmer.apply_trimming(self)
@@ -52,7 +52,7 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def pack_data(self):
-        if vp.DO_OUTPUT_JSON:
+        if vg.DO_OUTPUT_JSON:
             self.data = {
                 "name" : self.ms.name,
                 "xResolution" : int(self.xres - 1),
@@ -77,13 +77,13 @@ class Grid:
 
         if self.ms.metadata["do_traj"]:
             ### ignore the OUTPUT flags, CMAP is the only format that supports multiple frames
-            vp.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.name}.{self.ms.frame:04}")
+            vg.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.name}.{self.ms.frame:04}")
             return
 
-        if vp.DO_OUTPUT_DX:   vp.write_dx  (f"{path_prefix}.dx",   self)
-        if vp.DO_OUTPUT_MRC:  vp.write_mrc (f"{path_prefix}.mrc",  self)
-        if vp.DO_OUTPUT_CMAP: vp.write_cmap(f"{path_prefix}.cmap", self, self.ms.name)
-        if vp.DO_OUTPUT_JSON: vp.write_json(f"{path_prefix}.json", self.data)
+        if vg.DO_OUTPUT_DX:   vg.write_dx  (f"{path_prefix}.dx",   self)
+        if vg.DO_OUTPUT_MRC:  vg.write_mrc (f"{path_prefix}.mrc",  self)
+        if vg.DO_OUTPUT_CMAP: vg.write_cmap(f"{path_prefix}.cmap", self, self.ms.name)
+        if vg.DO_OUTPUT_JSON: vg.write_json(f"{path_prefix}.json", self.data)
 
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)

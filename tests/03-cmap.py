@@ -1,5 +1,5 @@
 from pathlib import Path
-import volpot as vp
+import volgrids as vg
 
 FOLDER_TEST = Path("data/tests/03-cmap")
 FOLDER_TEST.mkdir(parents = True, exist_ok = True)
@@ -20,12 +20,12 @@ PATH_CMAP_PACKED = FOLDER_TEST / "2esj.cmap"
 ##### Test operations
 print("\n>>> TEST 03: CMAP packing / unpacking")
 
-for key in vp.get_cmap_keys(PATH_CMAP_IN):
+for key in vg.get_cmap_keys(PATH_CMAP_IN):
     print("...>>> Unpacking cmap key:", key)
-    grid = vp.read_cmap(PATH_CMAP_IN, key)
-    vp.write_mrc(FOLDER_TEST / f"{key}.mrc", grid)
+    grid = vg.read_cmap(PATH_CMAP_IN, key)
+    vg.write_mrc(FOLDER_TEST / f"{key}.mrc", grid)
 
 for path_mrc in PATHS_MRC_IN:
     print("...>>> Packing mrc:", path_mrc)
-    grid = vp.read_mrc(path_mrc)
-    vp.write_cmap(PATH_CMAP_PACKED, grid, path_mrc.stem)
+    grid = vg.read_mrc(path_mrc)
+    vg.write_cmap(PATH_CMAP_PACKED, grid, path_mrc.stem)
