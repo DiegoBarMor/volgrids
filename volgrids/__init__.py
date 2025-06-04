@@ -24,7 +24,6 @@ DO_TRIMMING_RNDS = False
 DO_OUTPUT_DX = False
 DO_OUTPUT_MRC = True
 DO_OUTPUT_CMAP = False
-DO_OUTPUT_JSON = False
 SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask to *.mask.dx
 
 ######################## SPACE EFFICIENCY
@@ -143,8 +142,8 @@ from .kernels.gaussian import \
 
 from .utils.args import args_smiffer, args_tools
 from .utils.io import \
-    read_json, read_mrc, read_dx, read_cmap, \
-    write_json, write_mrc, write_dx, write_cmap, \
+    read_mrc, read_dx, read_cmap, \
+    write_mrc, write_dx, write_cmap, \
     grid_init_metadata, get_cmap_keys, save_metadata
 from .utils.math import \
     normalize, dot_product, get_norm, get_angle, \

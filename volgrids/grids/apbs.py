@@ -62,11 +62,6 @@ class GridAPBS(vg.Grid):
         ##### RESULT
         self.grid[self.grid > 0] = logpos
         self.grid[self.grid < 0] = logneg
-
-        ##### additional adjustments before saving to json
-        self.pack_data()
-        self.data["minPotential"] = float(-2 * (vg.APBS_MAX_CUTOFF - vg.APBS_MIN_CUTOFF))
-        self.data["maxPotential"] = float( 2 * (vg.APBS_MAX_CUTOFF - vg.APBS_MIN_CUTOFF))
         self.save_data(override_prefix = "apbslog")
 
 

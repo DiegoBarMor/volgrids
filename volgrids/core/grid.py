@@ -28,8 +28,6 @@ class Grid:
         if trimmer is not None:
             trimmer.apply_trimming(self)
 
-        self.data = {}
-        self.pack_data()
         self.save_data()
 
     # --------------------------------------------------------------------------
@@ -47,28 +45,7 @@ class Grid:
     def grid_diff(cls, pg_0, pg_1, name = "diff"):
         pg = pg_0.copy()
         pg.grid = pg_0.grid - pg_1.grid
-        pg.pack_data()
         pg.save_data(name)
-
-    # --------------------------------------------------------------------------
-    def pack_data(self):
-        if vg.DO_OUTPUT_JSON:
-            self.data = {
-                "name" : self.ms.name,
-                "xResolution" : int(self.xres - 1),
-                "yResolution" : int(self.yres - 1),
-                "zResolution" : int(self.zres - 1),
-                "xOrigin" : float(self.xmin),
-                "yOrigin" : float(self.ymin),
-                "zOrigin" : float(self.zmin),
-                "xDelta" : float(self.dx),
-                "yDelta" : float(self.dy),
-                "zDelta" : float(self.dz),
-                "radius" : float(self.ms.radius),
-                "minPotential" : float(np.min(self.grid)),
-                "maxPotential" : float(np.max(self.grid)),
-                "potentials" : self.grid.T.astype(float).flatten().tolist(), # [TODO] check if this should be transposed or not
-            }
 
     # --------------------------------------------------------------------------
     def save_data(self, override_prefix = None):
@@ -83,7 +60,6 @@ class Grid:
         if vg.DO_OUTPUT_DX:   vg.write_dx  (f"{path_prefix}.dx",   self)
         if vg.DO_OUTPUT_MRC:  vg.write_mrc (f"{path_prefix}.mrc",  self)
         if vg.DO_OUTPUT_CMAP: vg.write_cmap(f"{path_prefix}.cmap", self, self.ms.name)
-        if vg.DO_OUTPUT_JSON: vg.write_json(f"{path_prefix}.json", self.data)
 
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)

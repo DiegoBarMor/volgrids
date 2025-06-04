@@ -6,12 +6,6 @@ from pathlib import Path
 
 ################################################################################
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
-def read_json(path_json) -> dict | list:
-    with open(path_json, 'r') as file:
-        return json.load(file)
-
-
-# ------------------------------------------------------------------------------
 def read_mrc(path_mrc) -> "vg.Grid":
     with gd.mrc.mrcfile.open(path_mrc) as grid_mrc:
         vsize = np.array(grid_mrc.voxel_size)
@@ -52,12 +46,6 @@ def read_cmap(path_cmap, key) -> "vg.Grid":
 
 
 # ------------------------------------------------------------------------------
-def write_json(path_json, data: dict | list):
-    with open(path_json, 'w') as file:
-        file.write(json.dumps(data))
-
-
-# --------------------------------------------------------------------------
 def write_mrc(path_mrc, data: "vg.Grid"):
     with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as grid_mrc:
         grid_mrc.set_data(data.grid.transpose(2,1,0))
@@ -199,7 +187,8 @@ def save_metadata(metadata):
 
     path_json = metadata["meta"]
     os.makedirs(path_json.parent, exist_ok = True)
-    write_json(path_json, meta)
+    with open(path_json, 'w') as file:
+        file.write(json.dumps(meta))
 
 
 ################################################################################

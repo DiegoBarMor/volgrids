@@ -12,7 +12,6 @@ class GridTrimmer(ABC, vg.Grid):
         if vg.DO_TRIMMING_RNDS:      self._trim_rnds()
 
         if vg.SAVE_CACHED_MASK:
-            self.pack_data()
             self.save_data()
 
     def get_type(self):

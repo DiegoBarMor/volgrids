@@ -20,8 +20,15 @@ def open_grid(path) -> tuple[str, vg.Grid]:
 if __name__ == "__main__":
     args = vg.args_tools()
 
+    do_to_mrc  = str(args.to_mrc) != '.'
+    do_to_cmap = str(args.to_cmap) != '.'
+    do_pack    = isinstance(args.pack, list)
+    do_unpack  = str(args.unpack) != '.'
+    if not (do_to_mrc or do_to_cmap or do_pack or do_unpack):
+        raise ValueError("No operation specified. Use --to-mrc, --to-cmap, --pack, or --unpack.")
+
     # --------------------------------------------------------------------------
-    if str(args.to_mrc) != '.':
+    if do_to_mrc:
         path_in = args.to_mrc
         path_out = path_in.with_suffix(".mrc")
         kind, grid = open_grid(path_in)
@@ -30,7 +37,7 @@ if __name__ == "__main__":
 
 
     # --------------------------------------------------------------------------
-    if str(args.to_cmap) != '.':
+    if do_to_cmap:
         path_in = args.to_cmap
         path_out = path_in.with_suffix(".cmap")
         print(">>> Converting DX file to CMAP:", path_in)
@@ -38,7 +45,7 @@ if __name__ == "__main__":
 
 
     # --------------------------------------------------------------------------
-    if isinstance(args.pack, list):
+    if do_pack:
         if len(args.pack) < 2:
             raise ValueError("Packing requires at least two files: one for the output and one or more for the input.")
 
@@ -55,7 +62,7 @@ if __name__ == "__main__":
 
 
     # --------------------------------------------------------------------------
-    if str(args.unpack) != '.':
+    if do_unpack:
         path_in = args.unpack
 
         keys = vg.get_cmap_keys(path_in)

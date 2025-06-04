@@ -8,6 +8,11 @@ This is the alpha version of the SMIFFER package. New features are first tested 
 - MDAnalysis
 - h5py
 
+### Installing with conda
+```
+conda env create -f environment.yml
+```
+
 
 ## Usage
 Two modes are available for this standalone calculator: **PocketSphere (PS)** and **Whole (W)**. **PS** calculates the potentials in a spherical volume defined to be a binding pocket, while **W** calculates the potentials of all the volume surrounding the macromolecule.
@@ -72,8 +77,27 @@ Follow this instructions to visualize the atomic and SMIF trajectories simultane
 3) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps.
 ```
   coordset #1; vseries play #2
+  coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5
+  coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5; vseries play #3 pauseFrames 5
+
 ```
 4) Use this Chimera command to stop the playback. The ids used must match the previous command.
 ```
   coordset stop #1; vseries stop #2
 ```
+
+#### Smooth Trajectories
+1) Open the PDB and load the atom trajectory into it (in ChimeraX, simply drag the files into the window).
+2) Open the CMAP file in a similar way.
+3) (Optional) Open the `smooth_md.py` script.
+4) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps.
+```
+  coordset #1 pauseFrames 10; vop morph #2 playStep 0.0005 frames 2000 modelId 3
+  coordset #1 pauseFrames 20; vop morph #2 playStep 0.00025 frames 4000 modelId 3
+  coordset #1 pauseFrames 20; vop morph #2 playStep 0.00025 frames 4000 modelId 4; vop morph #3 playStep 0.00025 frames 4000 modelId 5
+```
+4) Use this Chimera command to stop the playback. The ids used must match the previous command.
+```
+  coordset stop #1; vseries stop #2
+```
+Note that this time, the morph can be paused manually with the slider button (is there a command equivalent?)
