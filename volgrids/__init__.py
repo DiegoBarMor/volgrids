@@ -24,36 +24,25 @@ DO_TRIMMING_RNDS = False
 DO_OUTPUT_DX = False
 DO_OUTPUT_MRC = True
 DO_OUTPUT_CMAP = False
-SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask to *.mask.dx
+SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask
 
 ######################## SPACE EFFICIENCY
 GZIP_COMPRESSION = 9 # gzip compression level for CMAP files (0-9); h5py default is 4
 FLOAT_DTYPE = _np.float32 # numerical precision of the grid data
 WARNING_GRID_SIZE = 5.0e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort
 
-######################## "WHOLE" MODE
+######################## GRIDS
 ### deltas used for default calculations (resolutions change)
-GRID_DX_WM = 0.25
-GRID_DY_WM = 0.25
-GRID_DZ_WM = 0.25
+GRID_DX = 0.25
+GRID_DY = 0.25
+GRID_DZ = 0.25
 
 ### resolution used for calculations with the '-s' flag (deltas change)
-GRID_XRES_WM = 200
-GRID_YRES_WM = 200
-GRID_ZRES_WM = 200
+GRID_XRES = 200
+GRID_YRES = 200
+GRID_ZRES = 200
 
-EXTRA_BOX_SIZE = 5
-
-######################## "POCKET SPHERE" MODE
-### deltas used for default calculations (resolutions change)
-GRID_DX_PS = 0.25
-GRID_DY_PS = 0.25
-GRID_DZ_PS = 0.25
-
-### resolution used for calculations with the '-s' flag (deltas change)
-GRID_XRES_PS = 100
-GRID_YRES_PS = 100
-GRID_ZRES_PS = 100
+EXTRA_BOX_SIZE = 5 # only applies to whole mode
 
 ######################## TRIMMING
 ### OCCUPANCY TRIMMING
@@ -131,6 +120,7 @@ from .core.systems import MolecularSystem, MSPocketSphere, MSWhole
 from .core.trimmers import GridTrimmer, TrimmerPocketSphere, TrimmerWhole
 
 from .grids.apbs import GridAPBS
+# from .grids.cavities import GridCavities
 from .grids.hbonds import GridHBAccepts, GridHBDonors
 from .grids.hydro import GridHydrophilic, GridHydrophobic
 from .grids.stacking import GridStacking
@@ -151,7 +141,7 @@ from .utils.math import \
     univariate_gaussian, multivariate_gaussian, \
     interpolate_3d, format_vector_str, get_coords_array
 from .utils.tables import \
-    aromatic_aminos, aromatic_bases, ww_scale, \
+    planar_prot, planar_rna, ww_scale, \
     nucleic_backbone_phosphate, nucleic_backbone_sugar, \
     nucleic_bases, prot_hba, prot_hbd, rna_hba, rna_hbd
 from .utils.timer import Timer

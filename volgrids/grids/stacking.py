@@ -25,16 +25,15 @@ class GridStacking(vg.GridSMIF):
 
     def iter_particles(self):
         resname_to_ids = defaultdict(set)
-        aromatic_dict = vg.aromatic_bases if self.ms.isNucleic else vg.aromatic_aminos
+        aromatic_dict = vg.planar_rna if self.ms.isNucleic else vg.planar_prot
         atoms = self.ms.get_relevant_atoms()
 
         for a in atoms:
-            resname_to_ids[a.resname].add((a.resid, a.chainID))
+            resname_to_ids[a.resname.upper()].add((a.resid, a.chainID))
 
         for resname,res_infos in resname_to_ids.items():
-            aromatic_ring = aromatic_dict.get(resname)
-            if aromatic_ring is None: continue
-            aromatic_atoms, ring_size = aromatic_ring
+            aromatic_atoms = aromatic_dict.get(resname)
+            if aromatic_atoms is None: continue
 
             for resid,chain in res_infos:
                 sel = f"resid {resid} and name {aromatic_atoms}"

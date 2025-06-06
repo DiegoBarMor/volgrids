@@ -71,10 +71,10 @@ class MSPocketSphere(MolecularSystem):
         box_size = self.maxCoords - self.minCoords
 
         if self.metadata["default_res"]:
-            self.resolution = np.array([vg.GRID_XRES_PS, vg.GRID_YRES_PS, vg.GRID_ZRES_PS])
+            self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES])
             self.deltas = box_size / self.resolution
         else:
-            self.deltas = np.array([vg.GRID_DX_PS, vg.GRID_DY_PS, vg.GRID_DZ_PS])
+            self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
             self.resolution = np.round(box_size / self.deltas).astype(int)
 
 
@@ -102,10 +102,10 @@ class MSWhole(MolecularSystem):
         box_size = self.maxCoords - self.minCoords
 
         if self.metadata["default_res"]:
-            self.resolution = np.array([vg.GRID_XRES_WM, vg.GRID_YRES_WM, vg.GRID_ZRES_WM])
+            self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES])
             self.deltas = box_size / self.resolution
         else:
-            self.deltas = np.array([vg.GRID_DX_WM, vg.GRID_DY_WM, vg.GRID_DZ_WM])
+            self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
             self.resolution = np.round(box_size / self.deltas).astype(int)
 
 

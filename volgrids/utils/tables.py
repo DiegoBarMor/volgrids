@@ -1,15 +1,16 @@
-aromatic_aminos = {
-    "HIS" : ("CD2 CE1 CG ND1 NE2", 5),
-    "PHE" : ("CD1 CD2 CE1 CE2 CG CZ", 6),
-    "TRP" : ("CD1 CD2 CE2 CE3 CG CH2 CZ2 CZ3 NE1", 9),
-    "TYR" : ("CD1 CD2 CE1 CE2 CG CZ", 6 ),
+planar_prot = {
+    "ARG" : "CZ NE NH1 NH2",
+    "HIS" : "CD2 CE1 CG ND1 NE2",
+    "PHE" : "CD1 CD2 CE1 CE2 CG CZ",
+    "TRP" : "CD1 CD2 CE2 CE3 CG CH2 CZ2 CZ3 NE1",
+    "TYR" : "CD1 CD2 CE1 CE2 CG CZ",
 }
 
-aromatic_bases = {
-    "U" : ("N1 C2 N3 C4 C5 C6", 6),
-    "C" : ("N1 C2 N3 C4 C5 C6", 6),
-    "A" : ("N1 C2 N3 C4 C5 C6 N7 C8 N9", 9),
-    "G" : ("N1 C2 N3 C4 C5 C6 N7 C8 N9", 9),
+planar_rna = {
+    "U" : "N1 C2 N3 C4 C5 C6",
+    "C" : "N1 C2 N3 C4 C5 C6",
+    "A" : "N1 C2 N3 C4 C5 C6 N7 C8 N9",
+    "G" : "N1 C2 N3 C4 C5 C6 N7 C8 N9",
 }
 
 ww_scale = {
@@ -249,4 +250,3 @@ rna_hbd = {
         [("C2",), "N2"]
     ]
 }
-
