@@ -5,36 +5,34 @@ import MDAnalysis as mda
 
 # //////////////////////////////////////////////////////////////////////////////
 class MolecularSystem:
-    def __init__(self, metadata):
-        self.resolution = np.zeros(3, dtype = int)
-        self.minCoords = np.zeros(3)
-        self.deltas = np.zeros(3)
+    def __init__(self, meta: "vg.SmifferArgsParser"):
+        self.resolution: np.array = np.zeros(3, dtype = int)
+        self.minCoords : np.array = np.zeros(3)
+        self.deltas    : np.array = np.zeros(3)
+        self.meta: "vg.SmifferArgsParser" = meta
 
-        self.path_pdb = Path(metadata["pdb"])
-        self.path_apbs = Path(metadata["apbs"])
-        self.path_metadata = Path(metadata["meta"])
-        self.folder_potentials = Path(metadata["out"])
+        self.isNucleic = meta.mode == "rna" # [WIP]
+        self.macro_query = f"{meta.moltype} and not (name H*)"
 
-        self.name = self.path_pdb.stem
-        self.isNucleic = bool(metadata["rna"])
-        self.macro_query = f"{'nucleic' if self.isNucleic else 'protein'} and not (name H*)"
-
-        if str(metadata["traj"]) == '.':
-            self.system = mda.Universe(metadata["pdb"])
-        else:
-            self.system = mda.Universe(metadata["pdb"], metadata["traj"])
+        args =  (meta.path_in, meta.path_traj) if meta.do_traj else (meta.path_in, )
+        self.system = mda.Universe(*args)
 
         self.frame = 0
-        self.metadata = metadata.copy()
 
         ###############################
         self.radius : np.array
         self.cog : np.array
         self.minCoords : np.array
         self.maxCoords : np.array
-        self.resolution : np.array
-        self.deltas : np.array
         self.set_box_properties()
+
+        box_size = self.maxCoords - self.minCoords
+        if vg.USE_FIXED_DELTAS:
+            self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
+            self.resolution = np.round(box_size / self.deltas).astype(int)
+        else:
+            self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES])
+            self.deltas = box_size / self.resolution
 
 
         ###############################
@@ -47,13 +45,13 @@ class MolecularSystem:
                 if choice == 'Y': break
                 if choice == 'N': exit()
 
-    @classmethod
-    def simple_init(cls, path_pdb: Path, folder_out: Path):
-        return cls(metadata = {
-            "pdb": path_pdb, "out": folder_out, "apbs": '',
-            "rna": False, "default_res": False,
-            "meta": folder_out / f"{path_pdb.stem}.meta.json",
-        })
+    # @classmethod
+    # def simple_init(cls, path_pdb: Path, folder_out: Path):
+    #     return cls(metadata = {
+    #         "pdb": path_pdb, "out": folder_out, "apbs": '',
+    #         "rna": False,
+    #         "meta": folder_out / f"{path_pdb.stem}.meta.json",
+    #     })
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)
     def set_box_properties(self): return
@@ -64,18 +62,11 @@ class MolecularSystem:
 # //////////////////////////////////////////////////////////////////////////////
 class MSPocketSphere(MolecularSystem):
     def set_box_properties(self):
-        self.cog = np.array([self.metadata["xcog"], self.metadata["ycog"], self.metadata["zcog"]])
-        self.radius = self.metadata["radius"]
+        r,x,y,z = self.meta.ps_info
+        self.cog = np.array([x, y, z])
+        self.radius = r
         self.minCoords = self.cog - self.radius
         self.maxCoords = self.cog + self.radius
-        box_size = self.maxCoords - self.minCoords
-
-        if self.metadata["default_res"]:
-            self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES])
-            self.deltas = box_size / self.resolution
-        else:
-            self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
-            self.resolution = np.round(box_size / self.deltas).astype(int)
 
 
     def get_relevant_atoms(self):
@@ -99,14 +90,6 @@ class MSWhole(MolecularSystem):
         self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
         self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
         self.cog = (self.maxCoords + self.minCoords) / 2
-        box_size = self.maxCoords - self.minCoords
-
-        if self.metadata["default_res"]:
-            self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES])
-            self.deltas = box_size / self.resolution
-        else:
-            self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
-            self.resolution = np.round(box_size / self.deltas).astype(int)
 
 
     def get_relevant_atoms(self):

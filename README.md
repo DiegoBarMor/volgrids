@@ -17,19 +17,15 @@ conda env create -f environment.yml
 ## Usage
 Two modes are available for this standalone calculator: **PocketSphere (PS)** and **Whole (W)**. **PS** calculates the potentials in a spherical volume defined to be a binding pocket, while **W** calculates the potentials of all the volume surrounding the macromolecule.
 
-### Running via "smiffer.py"
-Run `smiffer.py` and provide the parameters of the calculation via arguments:
-  - `pdb` (-i): **Mandatory argument**, path to the *PDB* structure file of interest.
-  - `out` (-o): **Mandatory argument**, path to the folder where the output potentials should be stored.
-  - `traj` : Path to the trajectory file for TRAJ mode. Formats supported by MDAnalysis are expected.
-  - `apbs` (-a) : Path to the output of APBS. An *OpenDX* file is expected.
-  - `radius` (-r) : Radius of the pocket sphere. Will be ignored if 'whole' mode is active.
-  - `xcog` (-x) : X coordinate for the center of geometry of the pocket sphere. Will be ignored if 'whole' mode is active.
-  - `ycog` (-y) : Y coordinate for the center of geometry of the pocket sphere. Will be ignored if 'whole' mode is active.
-  - `zcog` (-z) : Z coordinate for the center of geometry of the pocket sphere. Will be ignored if 'whole' mode is active.
-  - `rna` (-n) : The target macromolecule of interest is nucleic. If this flag is not provided, the target macromolecule is assumed to be proteic.
-  - `whole` (-w) : Activates 'whole mode'. The potentials of all the volume surrounding the macromolecule will be calculated.
-  - `default-res` (-s) : Use the default resolution values from settings.py (instead of the default delta values).
+### SMIFFER implementation
+Run `python3 smiffer.py [mode] [path_input] [options...]` and provide the parameters of the calculation via arguments:
+  - replace `[mode]` with `prot` or `rna` according to the structure of interest.
+  - replace `[path_input]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
+  - Optionally, replace `[options...]` with any combination of the following:
+    - `-o [path_out]` where `[path_out]` is the folder where the output SMIFs should be stored. if not provided, the parent folder of the input file will be used.
+    - `-t [path_traj]`  where `[path_traj]` is the path to a trajectory file (e.g. XTC) supported by MDAnalysis. This activates "traj" mode, where SMIFs are calculated for all the frames of the trajectory and saved in a CMAP-series file.",
+    - `-a [path_apbs]` where `[path_apbs]` is the path to the output of APBS. An *OpenDX* file is expected.
+    - `-rxyz [r] [x] [y] [z]` where `[r]`, `[x]`, `[y]` and `[z]` are the float values for the radius and X,Y,Z coordinates of a sphere in space, respectively. This activates "pocket sphere" mode, where the SMIFs will only be calculated inside the sphere provided.
 
 ### APBS
 The potential grids provided by APBS can be trimmed and interpolated into the same shape of the other grids, by using the flag `-a`. In this case, the APBS pipeline must be run first to obtain the input electrostatic potential grids. Example of using APBS:
@@ -39,19 +35,19 @@ apbs data/apbs/1iqj.in
 ```
 
 ### Examples
-- Perform a simple pocket sphere mode (`-x`, `-y`, `-z`, `-r`) in a protein system.
+- Perform a simple pocket sphere mode (`-rxyz`) in a protein system (`prot`).
 ```
-python3 smiffer.py -i data/pdb/1iqj.pdb -o data/smifs -x 4.682 -y 21.475 -z 7.161 -r 14.675
-```
-
-- Perform a whole mode (`-w`) in an RNA system (`-n`) considering APBS data (`-a`).
-```
-python3 smiffer.py -i data/pdb/5bjo.pdb -o data/smifs -w -n -a data/apbs/5bjo.pqr.dx
+python3 smiffer.py prot data/pdb/1iqj.pdb -o data/smifs -rxyz 14.675 4.682 21.475 7.161
 ```
 
-- Perform a trajectory mode (`-t`) in an RNA system (`-n`). Note that this is only implemented for whole mode (`-w`) at the moment.
+- Perform a whole mode in an RNA system (`rna`) considering APBS data (`-a`).
 ```
-python3 smiffer.py -i data/tests/04-traj/7vki.pdb -o data/tests/04-traj -t data/tests/04-traj/7vki.xtc -n -w
+python3 smiffer.py rna data/pdb/5bjo.pdb -a data/apbs/5bjo.pqr.dx -o data/smifs
+```
+
+- Perform a trajectory mode (`-t`) in an RNA system (`rna`). Note that this is only implemented for whole mode at the moment.
+```
+python3 smiffer.py rna data/tests/04-traj/7vki.pdb -t data/tests/04-traj/7vki.xtc -o data/tests/04-traj
 ```
 
 

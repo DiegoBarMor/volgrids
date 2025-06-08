@@ -23,9 +23,22 @@ if __name__ == "__main__":
     vg.DO_OUTPUT_CMAP = False
     vg.SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask
 
+    vg.USE_FIXED_DELTAS = True # whether to use fixed dx,dy,dz and le xres,yres,zres change (or the opposite)
     vg.WARNING_GRID_SIZE = 5.0e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort
 
-    vg.Smiffer().run()
+    vg.GRID_DX = 0.25 # deltas used for calculations when USE_FIXED_DELTAS = True (resolutions change)
+    vg.GRID_DY = 0.25
+    vg.GRID_DZ = 0.25
+
+    vg.GRID_XRES = 200 # resolution used for calculations when USE_FIXED_DELTAS = False (deltas change)
+    vg.GRID_YRES = 200
+    vg.GRID_ZRES = 200
+
+
+    # --------------------------------------------------------------------------
+    meta = vg.SmifferArgsParser()
+    if meta.mode in ["prot", "rna"]:
+        vg.Smiffer(meta).run()
 
 
 ################################################################################

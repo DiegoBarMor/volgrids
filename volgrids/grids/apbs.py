@@ -8,21 +8,16 @@ class GridAPBS(vg.Grid):
         return "apbs"
 
     def run(self, trimmer: "vg.GridTrimmer"):
-        if str(self.ms.path_apbs) == '.':
+        if self.ms.meta.path_apbs is None:
             print("...--- APBS output not provided. Electrostatic potential skipped.", flush = True)
             return
-
-        if not self.ms.path_apbs.exists():
-            print(f"...XXX APBS output not found, '{self.ms.path_apbs}' doesn't exist. Electrostatic potential skipped.", flush = True)
-            return
-
         super().run(trimmer)
 
     def populate_grid(self):
         xmin1, ymin1, zmin1 = self.ms.minCoords
         xmax1, ymax1, zmax1 = self.ms.maxCoords
         xres1, yres1, zres1 = self.ms.resolution
-        apbs = vg.read_dx(self.ms.path_apbs)
+        apbs = vg.read_dx(self.ms.meta.path_apbs) # [TODO] path_apbs could also be other grid formats !
 
         self.grid = vg.interpolate_3d(
             x0 = np.linspace(apbs.xmin, apbs.xmax, apbs.xres),

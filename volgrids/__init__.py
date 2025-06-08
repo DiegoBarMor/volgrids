@@ -32,17 +32,18 @@ FLOAT_DTYPE = _np.float32 # numerical precision of the grid data
 WARNING_GRID_SIZE = 5.0e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort
 
 ######################## GRIDS
-### deltas used for default calculations (resolutions change)
+### deltas used for calculations when USE_FIXED_DELTAS = True (resolutions change)
 GRID_DX = 0.25
 GRID_DY = 0.25
 GRID_DZ = 0.25
 
-### resolution used for calculations with the '-s' flag (deltas change)
+### resolution used for calculations when USE_FIXED_DELTAS = False (deltas change)
 GRID_XRES = 200
 GRID_YRES = 200
 GRID_ZRES = 200
 
 EXTRA_BOX_SIZE = 5 # only applies to whole mode
+USE_FIXED_DELTAS = True # whether to use fixed dx,dy,dz and le xres,yres,zres change (or the opposite)
 
 ######################## TRIMMING
 ### OCCUPANCY TRIMMING
@@ -130,11 +131,11 @@ from .kernels.boolean import \
 from .kernels.gaussian import \
     KernelGaussianUnivariate, KernelGaussianMultivariate
 
-from .utils.args import args_smiffer, args_tools
+from .utils.args import SmifferArgsParser
 from .utils.io import \
     read_mrc, read_dx, read_cmap, \
     write_mrc, write_dx, write_cmap, \
-    grid_init_metadata, get_cmap_keys, save_metadata
+    read_auto, grid_init_metadata, get_cmap_keys
 from .utils.math import \
     normalize, dot_product, get_norm, get_angle, \
     get_projection, get_projection_height, \
@@ -145,5 +146,6 @@ from .utils.tables import \
     nucleic_backbone_phosphate, nucleic_backbone_sugar, \
     nucleic_bases, prot_hba, prot_hbd, rna_hba, rna_hbd
 from .utils.timer import Timer
+
 
 ################################################################################

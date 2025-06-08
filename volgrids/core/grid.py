@@ -41,6 +41,22 @@ class Grid:
         return np.all(self.grid == 0)
 
     # --------------------------------------------------------------------------
+    def reshape(self, xres1, yres1, zres1):
+        xres0, yres0, zres0 = self.grid.shape
+
+        self.grid = vg.interpolate_3d(
+            x0 = np.linspace(self.xmin, self.xmax, xres0),
+            y0 = np.linspace(self.ymin, self.ymax, yres0),
+            z0 = np.linspace(self.zmin, self.zmax, zres0),
+            data_0 = self.grid,
+            new_coords = np.mgrid[
+                self.xmin : self.xmax : complex(0, xres1),
+                self.ymin : self.ymax : complex(0, yres1),
+                self.zmin : self.zmax : complex(0, zres1),
+            ].T
+        ).astype(vg.FLOAT_DTYPE)
+
+    # --------------------------------------------------------------------------
     @classmethod
     def grid_diff(cls, pg_0, pg_1, name = "diff"):
         pg = pg_0.copy()
@@ -49,17 +65,18 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def save_data(self, override_prefix = None):
+        name = self.ms.meta.name
         prefix = self.get_type() if override_prefix is None else override_prefix
-        path_prefix = self.ms.folder_potentials / f"{self.ms.name}.{prefix}"
+        path_prefix = self.ms.meta.path_out / f"{name}.{prefix}"
 
-        if self.ms.metadata["do_traj"]:
+        if self.ms.meta.do_traj:
             ### ignore the OUTPUT flags, CMAP is the only format that supports multiple frames
-            vg.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.name}.{self.ms.frame:04}")
+            vg.write_cmap(f"{path_prefix}.cmap", self, f"{name}.{self.ms.frame:04}")
             return
 
         if vg.DO_OUTPUT_DX:   vg.write_dx  (f"{path_prefix}.dx",   self)
         if vg.DO_OUTPUT_MRC:  vg.write_mrc (f"{path_prefix}.mrc",  self)
-        if vg.DO_OUTPUT_CMAP: vg.write_cmap(f"{path_prefix}.cmap", self, self.ms.name)
+        if vg.DO_OUTPUT_CMAP: vg.write_cmap(f"{path_prefix}.cmap", self, name)
 
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)

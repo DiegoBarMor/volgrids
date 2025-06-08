@@ -160,6 +160,25 @@ def write_cmap(path_cmap, data: "vg.Grid", key):
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ OTHER I/O UTILITIES
+def read_auto(path_grid: Path) -> tuple[str, "vg.Grid"]:
+    """Detect the format of the grid file based on its extension and then read it."""
+    ext = path_grid.suffix.lower()
+
+    if ext == ".dx":
+        return "DX", vg.read_dx(path_grid)
+
+    if ext == ".mrc":
+        return "MRC", vg.read_mrc(path_grid)
+
+    elif ext == ".cmap":
+        keys = vg.get_cmap_keys(path_grid)
+        if not keys: raise ValueError(f"Empty cmap file: {path_grid}")
+        return "CMAP", vg.read_cmap(path_grid, keys[0])
+
+    raise ValueError(f"Unrecognized file format: {ext}")
+
+
+# ------------------------------------------------------------------------------
 def grid_init_metadata(resolution: np.array, origin: np.array, delta: np.array)-> dict:
     return dict(
         data = {
@@ -176,19 +195,6 @@ def grid_init_metadata(resolution: np.array, origin: np.array, delta: np.array)-
 def get_cmap_keys(path_cmap) -> list[str]:
     with h5py.File(path_cmap, 'r') as h5:
         return list(h5["Chimera"].keys())
-
-
-# ------------------------------------------------------------------------------
-def save_metadata(metadata):
-    meta = metadata.copy()
-    for k,v in meta.items():
-        if isinstance(v, Path):
-            meta[k] = str(v)
-
-    path_json = metadata["meta"]
-    os.makedirs(path_json.parent, exist_ok = True)
-    with open(path_json, 'w') as file:
-        file.write(json.dumps(meta))
 
 
 ################################################################################

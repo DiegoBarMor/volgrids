@@ -8,26 +8,29 @@ fapbs="data/apbs"
 fpdb="data/pdb"
 fout="data/tests/01-whole"
 
-python3 -W ignore smiffer.py -i $fpdb/1akx.pdb  -a $fapbs/1akx.pqr.dx  -o $fout -n -w
-python3 -W ignore smiffer.py -i $fpdb/1bg0.pdb  -a $fapbs/1bg0.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/1eby.pdb  -a $fapbs/1eby.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/1ehe.pdb  -a $fapbs/1ehe.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/1h7l.pdb  -a $fapbs/1h7l.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/1i9v.pdb  -a $fapbs/1i9v.pqr.dx  -o $fout -n -w
-python3 -W ignore smiffer.py -i $fpdb/1iqj.pdb  -a $fapbs/1iqj.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/1ofz.pdb  -a $fapbs/1ofz.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/2esj.pdb  -a $fapbs/2esj.pqr.dx  -o $fout -n -w
-python3 -W ignore smiffer.py -i $fpdb/3dd0.pdb  -a $fapbs/3dd0.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/3ee4.pdb  -a $fapbs/3ee4.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/4f8u.pdb  -a $fapbs/4f8u.pqr.dx  -o $fout -n -w
-python3 -W ignore smiffer.py -i $fpdb/5bjo.pdb  -a $fapbs/5bjo.pqr.dx  -o $fout -n -w
-python3 -W ignore smiffer.py -i $fpdb/5kx9.pdb  -a $fapbs/5kx9.pqr.dx  -o $fout -n -w
-python3 -W ignore smiffer.py -i $fpdb/5m9w.pdb  -a $fapbs/5m9w.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/6e9a.pdb  -a $fapbs/6e9a.pqr.dx  -o $fout    -w
-python3 -W ignore smiffer.py -i $fpdb/6tf3.pdb  -a $fapbs/6tf3.pqr.dx  -o $fout -n -w
-python3 -W ignore smiffer.py -i $fpdb/7oax0.pdb -a $fapbs/7oax0.pqr.dx -o $fout -n -w
-python3 -W ignore smiffer.py -i $fpdb/7oax1.pdb -a $fapbs/7oax1.pqr.dx -o $fout -n -w
-python3 -W ignore smiffer.py -i $fpdb/8eyv.pdb  -a $fapbs/8eyv.pqr.dx  -o $fout -n -w
+mkdir -p $fout
+cp $fpdb/*.pdb $fout/
+
+python3 -W ignore smiffer.py rna  $fout/1akx.pdb  -a $fapbs/1akx.pqr.dx
+python3 -W ignore smiffer.py prot $fout/1bg0.pdb  -a $fapbs/1bg0.pqr.dx
+python3 -W ignore smiffer.py prot $fout/1eby.pdb  -a $fapbs/1eby.pqr.dx
+python3 -W ignore smiffer.py prot $fout/1ehe.pdb  -a $fapbs/1ehe.pqr.dx
+python3 -W ignore smiffer.py prot $fout/1h7l.pdb  -a $fapbs/1h7l.pqr.dx
+python3 -W ignore smiffer.py rna  $fout/1i9v.pdb  -a $fapbs/1i9v.pqr.dx
+python3 -W ignore smiffer.py prot $fout/1iqj.pdb  -a $fapbs/1iqj.pqr.dx
+python3 -W ignore smiffer.py prot $fout/1ofz.pdb  -a $fapbs/1ofz.pqr.dx
+python3 -W ignore smiffer.py rna  $fout/2esj.pdb  -a $fapbs/2esj.pqr.dx
+python3 -W ignore smiffer.py prot $fout/3dd0.pdb  -a $fapbs/3dd0.pqr.dx
+python3 -W ignore smiffer.py prot $fout/3ee4.pdb  -a $fapbs/3ee4.pqr.dx
+python3 -W ignore smiffer.py rna  $fout/4f8u.pdb  -a $fapbs/4f8u.pqr.dx
+python3 -W ignore smiffer.py rna  $fout/5bjo.pdb  -a $fapbs/5bjo.pqr.dx
+python3 -W ignore smiffer.py rna  $fout/5kx9.pdb  -a $fapbs/5kx9.pqr.dx
+python3 -W ignore smiffer.py prot $fout/5m9w.pdb  -a $fapbs/5m9w.pqr.dx
+python3 -W ignore smiffer.py prot $fout/6e9a.pdb  -a $fapbs/6e9a.pqr.dx
+python3 -W ignore smiffer.py rna  $fout/6tf3.pdb  -a $fapbs/6tf3.pqr.dx
+python3 -W ignore smiffer.py rna  $fout/7oax0.pdb -a $fapbs/7oax0.pqr.dx
+python3 -W ignore smiffer.py rna  $fout/7oax1.pdb -a $fapbs/7oax1.pqr.dx
+python3 -W ignore smiffer.py rna  $fout/8eyv.pdb  -a $fapbs/8eyv.pqr.dx
 
 rm -f $fout/*.json # remove metadata
 

@@ -2,23 +2,21 @@ import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class Smiffer:
-    def __init__(self):
-        args = vg.args_smiffer()
-        self.metadata = vars(args)
-        self.metadata["meta"] = args.out / f"{args.pdb.stem}.meta.json"
-        self.metadata["do_traj"] = str(args.traj) != '.'
-        vg.save_metadata(self.metadata)
+    def __init__(self, meta: "vg.SmifferArgsParser"):
+        self.meta = meta
+        self.meta.save_metadata()
 
-        if self.metadata["whole"]:
-            self.ms = vg.MSWhole(self.metadata)
-            self.Trimmer = vg.TrimmerWhole
-        else:
-            self.ms = vg.MSPocketSphere(self.metadata)
+        if meta.do_ps:
+            self.ms = vg.MSPocketSphere(meta)
             self.Trimmer = vg.TrimmerPocketSphere
+            str_mode = "PocketSphere"
+        else:
+            self.ms = vg.MSWhole(meta)
+            self.Trimmer = vg.TrimmerWhole
+            str_mode = "Whole"
 
         self.timer = vg.Timer(
-            f">>> Now processing '{args.pdb.stem}' ({'nucleic' if args.rna else 'protein'}) " +\
-            f"in '{'Whole' if args.whole else 'PocketSphere'}' mode"
+            f">>> Now processing '{meta.name}' ({meta.mode}) in '{str_mode}' mode"
         )
 
 
@@ -26,8 +24,8 @@ class Smiffer:
     def run(self):
         self.timer.start()
 
-        if self.metadata["do_traj"]: # TRAJECTORY MODE
-            if not self.metadata["whole"]:
+        if self.meta.do_traj: # TRAJECTORY MODE
+            if self.meta.do_ps:
                 raise NotImplementedError("PocketSphere not implemented yet for trajectory mode. Use -w flag")
 
             print()
@@ -46,13 +44,22 @@ class Smiffer:
 
     # --------------------------------------------------------------------------
     def _process_grids(self):
+        # do_cavities = self.meta.do_cavities
+
         ### Only trim if needed
         if (
             vg.DO_SMIF_STACKING or
             vg.DO_SMIF_HBA or vg.DO_SMIF_HBD or
-            vg.DO_SMIF_HYDROPHOBIC or vg.DO_SMIF_APBS
+            vg.DO_SMIF_HYDROPHOBIC or vg.DO_SMIF_APBS or
+            vg.SAVE_CACHED_MASK # or do_cavities
         ):
             trim_large = self.Trimmer(self.ms, vg.TRIMMING_DIST_LARGE)
+
+        # if self.meta.do_cavities:
+        #     pg_pocket = vg.GridCavities(self.ms)
+        #     pg_pocket.radius_pocket = float(self.meta.cavities) # [WIP] improve
+        #     pg_pocket.run(trim_large)
+        #     return  # Exit after running the pocket finder
 
         if vg.DO_SMIF_HYDROPHILIC:
             trim_small = self.Trimmer(self.ms, vg.TRIMMING_DIST_SMALL)
