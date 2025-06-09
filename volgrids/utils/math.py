@@ -117,10 +117,10 @@ def interpolate_3d(x0, y0, z0, data_0, new_coords):
 
 # ------------------------------------------------------------------------------
 def format_vector_str(vector : np.array) -> str:
-        return '(' + (
-            ' '.join(vector.astype(str)) if vector.dtype == int else \
-            ' '.join(map(lambda n: f"{n:.3f}", vector))
-        ) + ')'
+    return '(' + (
+        ' '.join(vector.astype(str)) if vector.dtype == int else \
+        ' '.join(map(lambda n: f"{n:.3f}", vector))
+    ) + ')'
 
 # ------------------------------------------------------------------------------
 def get_coords_array(resolution, deltas, minCoords = None):

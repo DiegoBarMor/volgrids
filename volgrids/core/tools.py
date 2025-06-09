@@ -49,12 +49,24 @@ class VGTools:
         paths_in = self.meta.paths_pack_in
         path_out = self.meta.path_pack_out
 
+        resolution = None
         print(f">>> Packing {len(paths_in)} grids into '{path_out}'")
         for path_in in paths_in:
             if not path_in.exists():
                 print("...>>> Skipping non-existing file:", path_in)
                 continue
+
             _, grid = vg.read_auto(path_in)
+            if resolution is None:
+                resolution = (grid.xres, grid.yres, grid.zres)
+
+            new_res = (grid.xres, grid.yres, grid.zres)
+            if new_res != resolution:
+                print(
+                    f">>> Warning: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\
+                    "Chimera won't recognize it as a volume series and open every grid in a separate representation." +\
+                    "Use `smiffer.py fix-cmap` if you want to fix this."
+                )
             key = str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
             vg.write_cmap(path_out, grid, key)
 

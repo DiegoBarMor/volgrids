@@ -82,7 +82,7 @@ A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [thi
 Follow this instructions to visualize the atomic and SMIF trajectories simultaneously in Chimera. ChimeraX is recommended.
 1) Open the PDB and load the atom trajectory into it (in ChimeraX, simply drag the files into the window).
 2) Open the CMAP file in a similar way.
-3) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps.
+3) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
 ```
   coordset #1; vseries play #2
   coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5
@@ -98,7 +98,7 @@ Follow this instructions to visualize the atomic and SMIF trajectories simultane
 1) Open the PDB and load the atom trajectory into it (in ChimeraX, simply drag the files into the window).
 2) Open the CMAP file in a similar way.
 3) (Optional) Open the `smooth_md.py` script.
-4) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps.
+4) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
 ```
   coordset #1 pauseFrames 10; vop morph #2 playStep 0.0005 frames 2000 modelId 3
   coordset #1 pauseFrames 20; vop morph #2 playStep 0.00025 frames 4000 modelId 3
@@ -109,3 +109,16 @@ Follow this instructions to visualize the atomic and SMIF trajectories simultane
   coordset stop #1; vseries stop #2
 ```
 Note that this time, the morph can be paused manually with the slider button (is there a command equivalent?)
+
+
+<!-- ----------------------------------------------------------------------- -->
+## TODO
+* fix concept behind hbonds that shouldn't be allowed to rotate
+  * protein_backbone
+  * TRP PRO HIS ARG ASN GLN
+  * U C A G
+* check kernel bug when running tiny systems
+* making the format for the molecule params
+* check what happens if performing "fix-cmap" operation when cmap input and output are the same file
+* implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
+* implement: raise an error if a format file is opened with the wrong function
