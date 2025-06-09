@@ -8,6 +8,7 @@ folder=data/tests/03-tools
 fc="$folder/converting"
 fp="$folder/packing"
 fu="$folder/unpacking"
+ff="$folder/fix_cmap"
 
 ############################# CONVERSIONS
 path_dx_input="$fc/1iqj.stk.dx"
@@ -42,3 +43,9 @@ python3 smiffer.py pack -i $paths_in -o "$path_out"
 ############################# UNPACKING
 path_in="$fu/1iqj.cmap"
 python3 smiffer.py unpack -i "$path_in"
+
+
+############################# FIX CMAP
+path_in="$ff/hbdonors.issue.cmap"
+path_out="$ff/hbdonors.fixed.cmap"
+python3 smiffer.py fix-cmap -i "$path_in" -o "$path_out"

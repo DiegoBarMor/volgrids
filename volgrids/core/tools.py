@@ -20,7 +20,7 @@ class VGTools:
             self._run_unpack()
             return
 
-        if self.meta.mode == "fix_cmap":
+        if self.meta.mode == "fix-cmap":
             self._run_fix_cmap()
             return
 
@@ -55,7 +55,7 @@ class VGTools:
                 print("...>>> Skipping non-existing file:", path_in)
                 continue
             _, grid = vg.read_auto(path_in)
-            key = str(path_in).replace(' ', '_').replace('/', '_').replace('\\', '_')
+            key = str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
             vg.write_cmap(path_out, grid, key)
 
 
@@ -77,26 +77,15 @@ class VGTools:
         path_in = self.meta.path_fixcmap_in
         path_out = self.meta.path_fixcmap_out
 
-        keys = vg.get_cmap_keys(path_in)
-
         resolution = None
-
+        keys = vg.get_cmap_keys(path_in)
         print(f">>> Fixing CMAP file: {path_in}")
         for key in keys:
             grid = vg.read_cmap(path_in, key)
             if resolution is None:
                 resolution = (grid.xres, grid.yres, grid.zres)
 
-            xres, yres, zres = resolution
-
-            # [WIP]
-            print("OLD ACTUAL SHAPE", grid.grid.shape)
-            print("OLD METADATA SHAPE",grid.xres, grid.yres, grid.zres)
-            print("RESHAPE TO", xres, yres, zres)
-            grid.reshape(xres, yres, zres)
-            print("NEW ACTUAL SHAPE", grid.grid.shape)
-            print("NEW METADATA SHAPE",grid.xres, grid.yres, grid.zres)
-            exit()
+            grid.reshape(*resolution)
             vg.write_cmap(path_out, grid, key)
 
 
