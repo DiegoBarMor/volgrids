@@ -36,10 +36,13 @@ def read_dx(path_dx) -> "vg.Grid":
 def read_cmap(path_cmap, key) -> "vg.Grid":
     with h5py.File(path_cmap, 'r') as h5:
         frame = h5["Chimera"][key]
+        rz, ry, rx = frame["data_zyx"].shape
+        oz, oy, ox = frame.attrs["origin"]
+        dz, dy, dx = frame.attrs["step"]
         grid_vg = vg.Grid(**grid_init_metadata(
-            resolution = np.array(frame["data_zyx"].shape),
-            origin = frame.attrs["origin"],
-            delta = frame.attrs["step"]
+            resolution = np.array([rx, ry, rz]),
+            origin = np.array([ox, oy, oz]),
+            delta = np.array([dx, dy, dz])
         ))
         grid_vg.grid = frame["data_zyx"][()].transpose(2,1,0)
     return grid_vg
@@ -148,8 +151,8 @@ def write_cmap(path_cmap, data: "vg.Grid", key):
             frame.attrs["chimera_map_version"] = np.int64(1)
             frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
             frame.attrs["name"] = np.bytes_(key)
-            frame.attrs["origin"] = np.array([data.xmin, data.ymin, data.zmin], dtype = vg.FLOAT_DTYPE)
-            frame.attrs["step"] = np.array([data.dx, data.dy, data.dz], dtype = vg.FLOAT_DTYPE)
+            frame.attrs["origin"] = np.array([data.zmin, data.ymin, data.xmin], dtype = vg.FLOAT_DTYPE)
+            frame.attrs["step"] = np.array([data.dz, data.dy, data.dx], dtype = vg.FLOAT_DTYPE)
             add_generic_attrs(frame)
 
         framedata = frame.create_dataset(

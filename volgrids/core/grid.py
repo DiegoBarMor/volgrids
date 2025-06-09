@@ -41,20 +41,21 @@ class Grid:
         return np.all(self.grid == 0)
 
     # --------------------------------------------------------------------------
-    def reshape(self, xres1, yres1, zres1):
-        xres0, yres0, zres0 = self.grid.shape
-
+    def reshape(self, new_xres, new_yres, new_zres):
         self.grid = vg.interpolate_3d(
-            x0 = np.linspace(self.xmin, self.xmax, xres0),
-            y0 = np.linspace(self.ymin, self.ymax, yres0),
-            z0 = np.linspace(self.zmin, self.zmax, zres0),
+            x0 = np.linspace(self.xmin, self.xmax, self.xres),
+            y0 = np.linspace(self.ymin, self.ymax, self.yres),
+            z0 = np.linspace(self.zmin, self.zmax, self.zres),
             data_0 = self.grid,
             new_coords = np.mgrid[
-                self.xmin : self.xmax : complex(0, xres1),
-                self.ymin : self.ymax : complex(0, yres1),
-                self.zmin : self.zmax : complex(0, zres1),
+                self.xmin : self.xmax : complex(0, new_xres),
+                self.ymin : self.ymax : complex(0, new_yres),
+                self.zmin : self.zmax : complex(0, new_zres),
             ].T
         ).astype(vg.FLOAT_DTYPE)
+        self.xres = new_xres
+        self.yres = new_yres
+        self.zres = new_zres
 
     # --------------------------------------------------------------------------
     @classmethod
