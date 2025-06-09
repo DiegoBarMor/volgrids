@@ -42,6 +42,7 @@ class SmifferArgsParser:
         self.do_ps:     bool = False # PS mode
         self.do_traj:   bool = False # TRAJ mode
 
+        self.debug_vars: dict = {}   # global variables can be overriden from the command line
 
         ##### SMIF Tools
         ### Convert
@@ -140,6 +141,26 @@ class SmifferArgsParser:
 
 
     # --------------------------------------------------------------------------
+    def _get_debug_vars(self, options: list[str]) -> None:
+        """Parse the command line arguments for debug variables.
+        Debug variables are specified as --debug <var_name>=<value>."""
+
+        def parse_str(str_value: str):
+            if str_value.isdigit():
+                return int(str_value)
+            if str_value.lower() in ["true", "false"]:
+                return str_value.lower() == "true"
+            try:
+                return float(str_value)
+            except ValueError:
+                return str_value.strip('"').strip("'")
+
+        for option in options:
+            name, str_value = option.split('=', 1)
+            self.debug_vars[name] = parse_str(str_value)
+
+
+    # --------------------------------------------------------------------------
     def _parse_smiffer_calc(self) -> None:
         help_string = '\n'.join((
             f"usage: python3 smiffer.py {self.mode} path/input/struct.pdb [options...]",
@@ -158,6 +179,7 @@ class SmifferArgsParser:
             "apbs" : ("-a", "--apbs"),
             "ps"   : ("-rxyz", "-ps", "--pocket-sphere"),
             # "cav": ("-c", "--cavities"), # [TODO] not implemented yet
+            "debug": ("--debug",)
         })
 
         if fdict.get("help") is not None:
@@ -210,6 +232,9 @@ class SmifferArgsParser:
                 print_exit(-1, f"{help_string}\nError: The specified trajectory file '{self.path_traj}' does not exist.")
 
         self.path_meta = self.path_out / f"{self.name}.meta.json"
+
+        if fdict.get("debug"):
+            self._get_debug_vars(fdict["debug"])
 
 
     # --------------------------------------------------------------------------
@@ -346,13 +371,13 @@ class SmifferArgsParser:
         if not options_in:
             print_exit(-1, f"{help_string}\nError: No input CMAP file provided.")
 
-        if not self.path_fixcmap_in.exists():
-            print_exit(-1, f"{help_string}\nError: The specified CMAP file '{self.path_fixcmap_in}' does not exist.")
-
         if not options_out:
             print_exit(-1, f"{help_string}\nError: No output path provided for the fixed CMAP file.")
 
-        self.path_fixcmap_in = Path(options_in[0])
+        self.path_fixcmap_in  = Path(options_in[0])
+        if not self.path_fixcmap_in.exists():
+            print_exit(-1, f"{help_string}\nError: The specified CMAP file '{self.path_fixcmap_in}' does not exist.")
+
         self.path_fixcmap_out = Path(options_out[0])
         os.makedirs(self.path_fixcmap_out.parent, exist_ok = True)
 

@@ -37,6 +37,14 @@ if __name__ == "__main__":
 
     # --------------------------------------------------------------------------
     meta = vg.SmifferArgsParser()
+
+    for name, value in meta.debug_vars.items():
+        if hasattr(vg, name):
+            setattr(vg, name, value)
+        else:
+            print(f"Warning: {name} is not a valid volgrids variable. Skipping.")
+            continue
+
     if meta.mode in ["prot", "rna"]:
         vg.Smiffer(meta).run()
     else:
