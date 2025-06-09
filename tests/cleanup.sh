@@ -4,11 +4,16 @@ set -eu
 folder_data="data/tests"
 folder00="$folder_data/00-pocket_sphere"
 folder01="$folder_data/01-whole"
-folder02="$folder_data/02-conversions"
-folder03="$folder_data/03-cmap"
-folder04="$folder_data/04-traj"
+folder02="$folder_data/02-traj"
+folder03="$folder_data/03-tools"
+
+folder03c="$folder03/converting"
+folder03p="$folder03/packing"
+folder03u="$folder03/unpacking"
 
 rm -rf $folder00 $folder01
-rm -f $folder02/dx* $folder02/mrc*
-rm -f $folder03/1iqj.*.mrc $folder03/2esj.cmap
-rm -f $folder04/*.cmap $folder04/*.json
+rm  -f $folder02/*.cmap $folder02/*.json
+
+rm  -f $folder03c/dx* $folder03c/mrc*
+rm  -f $folder03p/2esj.cmap
+rm  -f $folder03u/1iqj.*.cmap

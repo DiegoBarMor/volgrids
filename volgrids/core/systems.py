@@ -1,6 +1,5 @@
 import numpy as np
 import volgrids as vg
-from pathlib import Path
 import MDAnalysis as mda
 
 # //////////////////////////////////////////////////////////////////////////////

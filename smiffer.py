@@ -18,9 +18,9 @@ if __name__ == "__main__":
     vg.DO_TRIMMING_SPHERE = True # only applies for pocket-sphere mode
     vg.DO_TRIMMING_RNDS = False  # only applies for pocket-sphere mode
 
-    vg.DO_OUTPUT_DX = False
-    vg.DO_OUTPUT_MRC = True
-    vg.DO_OUTPUT_CMAP = False
+    vg.DO_OUTPUT_DX = False # Human-readable format (heavy). Tested with VMD, Chimera, ChimeraX, UnityMol.
+    vg.DO_OUTPUT_MRC = False # Binary format (light). Tested with VMD, Chimera, ChimeraX.
+    vg.DO_OUTPUT_CMAP = True # Compressed binary format (very light). Tested with ChimeraX.
     vg.SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask
 
     vg.USE_FIXED_DELTAS = True # whether to use fixed dx,dy,dz and le xres,yres,zres change (or the opposite)
@@ -39,6 +39,8 @@ if __name__ == "__main__":
     meta = vg.SmifferArgsParser()
     if meta.mode in ["prot", "rna"]:
         vg.Smiffer(meta).run()
+    else:
+        vg.VGTools(meta).run()
 
 
 ################################################################################

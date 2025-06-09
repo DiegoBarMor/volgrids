@@ -1,8 +1,9 @@
 # Volumetric Potentials Calculator
 This is the alpha version of the SMIFFER package. New features are first tested here before being implemented in the main package.
 
-
-## Requirements
+<!-- ----------------------------------------------------------------------- -->
+## Setup
+### Requirements
 - Numpy
 - Scipy
 - MDAnalysis
@@ -11,30 +12,36 @@ This is the alpha version of the SMIFFER package. New features are first tested 
 ### Installing with conda
 ```
 conda env create -f environment.yml
+conda activate volgrids
 ```
 
 
+<!-- ----------------------------------------------------------------------- -->
 ## Usage
-Two modes are available for this standalone calculator: **PocketSphere (PS)** and **Whole (W)**. **PS** calculates the potentials in a spherical volume defined to be a binding pocket, while **W** calculates the potentials of all the volume surrounding the macromolecule.
-
-### SMIFFER implementation
+### SMIFFER calculator
 Run `python3 smiffer.py [mode] [path_input] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `prot` or `rna` according to the structure of interest.
   - replace `[path_input]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
   - Optionally, replace `[options...]` with any combination of the following:
     - `-o [path_out]` where `[path_out]` is the folder where the output SMIFs should be stored. if not provided, the parent folder of the input file will be used.
     - `-t [path_traj]`  where `[path_traj]` is the path to a trajectory file (e.g. XTC) supported by MDAnalysis. This activates "traj" mode, where SMIFs are calculated for all the frames of the trajectory and saved in a CMAP-series file.",
-    - `-a [path_apbs]` where `[path_apbs]` is the path to the output of APBS. An *OpenDX* file is expected.
+    - `-a [path_apbs]` where `[path_apbs]` is the path to the output of APBS. An *OpenDX* file is expected. This grid will be interpolated into the shape of the other grids.
     - `-rxyz [r] [x] [y] [z]` where `[r]`, `[x]`, `[y]` and `[z]` are the float values for the radius and X,Y,Z coordinates of a sphere in space, respectively. This activates "pocket sphere" mode, where the SMIFs will only be calculated inside the sphere provided.
 
+### Volgrid Tools
+
+- TODO
+
+
+<!-- ----------------------------------------------------------------------- -->
+## Commands examples
 ### APBS
-The potential grids provided by APBS can be trimmed and interpolated into the same shape of the other grids, by using the flag `-a`. In this case, the APBS pipeline must be run first to obtain the input electrostatic potential grids. Example of using APBS:
 ```
 pdb2pqr --ff=AMBER data/pdb/1iqj.pdb data/pqr/1iqj.pqr --apbs-input data/apbs/1iqj.in
 apbs data/apbs/1iqj.in
 ```
 
-### Examples
+### SMIFFER
 - Perform a simple pocket sphere mode (`-rxyz`) in a protein system (`prot`).
 ```
 python3 smiffer.py prot data/pdb/1iqj.pdb -o data/smifs -rxyz 14.675 4.682 21.475 7.161
@@ -50,11 +57,16 @@ python3 smiffer.py rna data/pdb/5bjo.pdb -a data/apbs/5bjo.pqr.dx -o data/smifs
 python3 smiffer.py rna data/tests/04-traj/7vki.pdb -t data/tests/04-traj/7vki.xtc -o data/tests/04-traj
 ```
 
+### Volgrid Tools
+- TODO
 
+
+<!-- ----------------------------------------------------------------------- -->
 ## Benchmark
 A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [this location](https://drive.google.com/file/d/1o1jR4RhXlIL0Jg3m0twrpbiTV7eIGZ38/view?usp=sharing), in the form of PDB and PQR input files.
 
 
+<!-- ----------------------------------------------------------------------- -->
 ## Visualization
 ### Color standard
 | Potential       | Color      | RGB 0-1    | RGB 0-255  | HEX    |

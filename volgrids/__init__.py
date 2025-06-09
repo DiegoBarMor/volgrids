@@ -118,6 +118,7 @@ from .core.grid import Grid, GridSMIF
 from .core.kernel import Kernel
 from .core.smiffer import Smiffer
 from .core.systems import MolecularSystem, MSPocketSphere, MSWhole
+from .core.tools import VGTools
 from .core.trimmers import GridTrimmer, TrimmerPocketSphere, TrimmerWhole
 
 from .grids.apbs import GridAPBS
