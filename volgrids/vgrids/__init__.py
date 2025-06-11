@@ -28,10 +28,6 @@ USE_FIXED_DELTAS = True # whether to use fixed dx,dy,dz and le xres,yres,zres ch
 #################################################################
 
 from .args import ArgsParser
-from .io import \
-    read_dx, read_mrc, read_cmap, \
-    write_dx, write_mrc, write_cmap, \
-    read_auto, get_cmap_keys
 from .grid import Grid
 from .kernel import Kernel
 from .systems import MolecularSystem, MSPocketSphere, MSWhole
@@ -46,6 +42,10 @@ from .utils.math import \
     get_projection, get_projection_height, \
     univariate_gaussian, multivariate_gaussian, \
     interpolate_3d, format_vector_str, get_coords_array
+from .utils.io import \
+    read_dx, read_mrc, read_cmap, \
+    write_dx, write_mrc, write_cmap, \
+    read_auto, get_cmap_keys
 from .utils.timer import Timer
 
 

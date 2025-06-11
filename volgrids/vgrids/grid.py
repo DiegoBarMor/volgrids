@@ -22,13 +22,6 @@ class Grid:
         self.grid = np.zeros((self.xres, self.yres, self.zres), dtype = dtype) \
             if init_grid else None
 
-    # --------------------------------------------------------------------------
-    def run(self, trimmer = None):
-        self.populate_grid()
-        if trimmer is not None:
-            trimmer.apply_trimming(self)
-
-        self.save_data()
 
     # --------------------------------------------------------------------------
     def copy(self):
@@ -59,10 +52,10 @@ class Grid:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def grid_diff(cls, pg_0, pg_1, name = "diff"):
-        pg = pg_0.copy()
-        pg.grid = pg_0.grid - pg_1.grid
-        pg.save_data(name)
+    def substract(cls, grid_0: "Grid", grid_1: "Grid") -> "Grid":
+        grid = grid_0.copy()
+        grid.grid = grid_0.grid - grid_1.grid
+        return grid
 
     # --------------------------------------------------------------------------
     def save_data(self, override_prefix = None):

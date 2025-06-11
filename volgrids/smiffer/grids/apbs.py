@@ -57,7 +57,6 @@ class GridAPBS(vg.Grid):
         ##### RESULT
         self.grid[self.grid > 0] = logpos
         self.grid[self.grid < 0] = logneg
-        self.save_data(override_prefix = "apbslog")
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -67,35 +67,41 @@ class SmifferCalculator:
 
         ### Calculate standard SMIF grids
         if sm.DO_SMIF_STACKING:
-            pg_stacking = sm.GridStacking(self.ms)
-            pg_stacking.run(trim_large)
+            self._calc_smif(sm.GridStacking(self.ms), trim_large)
 
         if sm.DO_SMIF_HBA:
-            pg_hba = sm.GridHBAccepts(self.ms)
-            pg_hba.run(trim_large)
+            self._calc_smif(sm.GridHBAccepts(self.ms), trim_large)
 
         if sm.DO_SMIF_HBD:
-            pg_hbd = sm.GridHBDonors(self.ms)
-            pg_hbd.run(trim_large)
+            self._calc_smif(sm.GridHBDonors(self.ms), trim_large)
 
         if sm.DO_SMIF_HYDROPHOBIC:
-            pg_hbphob = sm.GridHydrophobic(self.ms)
-            pg_hbphob.run(trim_large)
+            grid_hphob = sm.GridHydrophobic(self.ms)
+            self._calc_smif(grid_hphob, trim_large)
 
         if sm.DO_SMIF_HYDROPHILIC:
-            pg_hphil = sm.GridHydrophilic(self.ms)
-            pg_hphil.run(trim_small)
+            grid_hphil = sm.GridHydrophilic(self.ms)
+            self._calc_smif(grid_hphil, trim_small)
 
         if sm.DO_SMIF_APBS:
-            pg_apbs = sm.GridAPBS(self.ms)
-            pg_apbs.run(trim_large)
+            grid_apbs = sm.GridAPBS(self.ms)
+            self._calc_smif(grid_apbs, trim_large)
 
         ### Calculate additional grids
-        if sm.DO_SMIF_LOG_APBS:
-            pg_apbs.apply_logabs_transform()
+            if sm.DO_SMIF_LOG_APBS:
+                grid_apbs.apply_logabs_transform()
+                grid_apbs.save_data(override_prefix = "apbslog")
 
-        if sm.DO_SMIF_HYDRODIFF:
-            vg.Grid.grid_diff(pg_hbphob, pg_hphil, "hydrodiff")
+        if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
+            grid_hpdiff = vg.Grid.substract(grid_hphob, grid_hphil)
+            grid_hpdiff.save_data(override_prefix = "hydrodiff")
+
+
+    # --------------------------------------------------------------------------
+    def _calc_smif(self, grid: "vg.Grid", trimmer: "sm.GridTrimmer"):
+        grid.populate_grid()
+        trimmer.apply_trimming(grid)
+        grid.save_data()
 
 
 # //////////////////////////////////////////////////////////////////////////////
