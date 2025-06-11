@@ -8,13 +8,7 @@ class SmifferCalculator:
         self.meta.save_metadata()
         self.ms = vg.MolecularSystem(meta)
 
-        if meta.do_ps:
-            self.Trimmer = sm.TrimmerPocketSphere
-            str_mode = "PocketSphere"
-        else:
-            self.Trimmer = sm.TrimmerWhole
-            str_mode = "Whole"
-
+        str_mode = "PocketSphere" if meta.do_ps else "Whole"
         self.timer = vg.Timer(
             f">>> Now processing '{meta.name}' ({meta.mode}) in '{str_mode}' mode"
         )
@@ -53,7 +47,7 @@ class SmifferCalculator:
             sm.DO_SMIF_HYDROPHOBIC or sm.DO_SMIF_APBS or
             sm.SAVE_CACHED_MASK # or do_cavities
         ):
-            trim_large = self.Trimmer(self.ms, sm.TRIMMING_DIST_LARGE)
+            trim_large = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_LARGE)
 
         # if self.meta.do_cavities:
         #     pg_pocket = sm.GridCavities(self.ms)
@@ -62,7 +56,7 @@ class SmifferCalculator:
         #     return  # Exit after running the pocket finder
 
         if sm.DO_SMIF_HYDROPHILIC:
-            trim_small = self.Trimmer(self.ms, sm.TRIMMING_DIST_SMALL)
+            trim_small = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_SMALL)
 
         ### Calculate standard SMIF grids
         if sm.DO_SMIF_STACKING:
@@ -83,14 +77,9 @@ class SmifferCalculator:
             self._calc_smif(grid_hphil, trim_small)
 
         if sm.DO_SMIF_APBS:
-            grid_apbs = sm.GridAPBS(self.ms)
-            self._calc_smif(grid_apbs, trim_large)
+            self._process_apbs(trim_large)
 
         ### Calculate additional grids
-            if sm.DO_SMIF_LOG_APBS:
-                grid_apbs.apply_logabs_transform()
-                grid_apbs.save_data(override_prefix = "apbslog")
-
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
             grid_hpdiff = vg.Grid.substract(grid_hphob, grid_hphil)
             grid_hpdiff.save_data(override_prefix = "hydrodiff")
@@ -101,6 +90,19 @@ class SmifferCalculator:
         grid.populate_grid()
         trimmer.apply_trimming(grid)
         grid.save_data()
+
+
+    # --------------------------------------------------------------------------
+    def _process_apbs(self, trimmer: "sm.GridTrimmer"):
+        if self.meta.path_apbs is None: return
+
+        grid_apbs = sm.GridAPBS(self.ms)
+        self._calc_smif(grid_apbs, trimmer)
+
+        if not sm.DO_SMIF_LOG_APBS: return
+
+        grid_apbs.apply_logabs_transform()
+        grid_apbs.save_data(override_prefix = "apbslog")
 
 
 # //////////////////////////////////////////////////////////////////////////////

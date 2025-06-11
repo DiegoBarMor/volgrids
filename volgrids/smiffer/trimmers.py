@@ -1,44 +1,44 @@
 import numpy as np
 import volgrids.vgrids as vg
 import volgrids.smiffer as sm
-from abc import ABC, abstractmethod
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridTrimmer(ABC, vg.Grid):
-    def __init__(self, ms, trimming_dist):
+class GridTrimmer(vg.Grid):
+    def __init__(self, ms: "vg.MolecularSystem", trimming_dist):
         super().__init__(ms, dtype = bool)
 
-        if sm.DO_TRIMMING_SPHERE:    self._trim_sphere()
-        if sm.DO_TRIMMING_OCCUPANCY: self._trim_occupancy(trimming_dist)
-        if sm.DO_TRIMMING_RNDS:      self._trim_rnds()
+        if sm.DO_TRIMMING_OCCUPANCY:
+            self._trim_occupancy(trimming_dist)
+
+        if sm.DO_TRIMMING_SPHERE and ms.meta.do_ps:
+            self._trim_sphere()
+
+        if sm.DO_TRIMMING_RNDS and ms.meta.do_ps:
+            self._trim_rnds()
 
         if sm.SAVE_CACHED_MASK:
             self.save_data()
 
+
+    # --------------------------------------------------------------------------
     def get_type(self):
         return "mask"
 
-    def apply_trimming(self, potential_grid):
-        potential_grid.grid[self.grid] = 0
+
+    # --------------------------------------------------------------------------
+    def apply_trimming(self, vgrid: "vg.Grid"):
+        vgrid.grid[self.grid] = 0
 
 
+    # --------------------------------------------------------------------------
     def _trim_occupancy(self, radius):
         sk = vg.KernelSphere(radius, self.ms.deltas, bool)
         sk.link_to_grid(self.grid, self.ms.minCoords)
         for a in self.ms.relevant_atoms:
             sk.stamp(a.position)
 
-    @abstractmethod
-    def _trim_sphere(self):
-        return
 
-    @abstractmethod
-    def _trim_rnds(self):
-        return
-
-
-# //////////////////////////////////////////////////////////////////////////////
-class TrimmerPocketSphere(GridTrimmer):
+    # --------------------------------------------------------------------------
     def _trim_sphere(self):
         coords = vg.get_coords_array(self.ms.resolution, self.ms.deltas, self.ms.minCoords)
         shifted_coords = coords - self.ms.cog
@@ -46,6 +46,7 @@ class TrimmerPocketSphere(GridTrimmer):
         self.grid[dist_from_cog > self.ms.radius] = True
 
 
+    # --------------------------------------------------------------------------
     def _trim_rnds(self):
         """perform a random search to remove isolated regions"""
         visited = np.zeros(self.ms.resolution, dtype = bool)
@@ -88,15 +89,6 @@ class TrimmerPocketSphere(GridTrimmer):
                 queue.add(neigh)
 
         self.grid[np.logical_not(visited)] = True
-
-
-# //////////////////////////////////////////////////////////////////////////////
-class TrimmerWhole(GridTrimmer):
-    def _trim_sphere(self):
-        return
-
-    def _trim_rnds(self):
-        return
 
 
 # //////////////////////////////////////////////////////////////////////////////

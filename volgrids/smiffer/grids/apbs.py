@@ -4,15 +4,12 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridAPBS(vg.Grid):
+    # --------------------------------------------------------------------------
     def get_type(self):
         return "apbs"
 
-    def run(self, trimmer: "sm.GridTrimmer"):
-        if self.ms.meta.path_apbs is None:
-            print("...--- APBS output not provided. Electrostatic potential skipped.", flush = True)
-            return
-        super().run(trimmer)
 
+    # --------------------------------------------------------------------------
     def populate_grid(self):
         xmin1, ymin1, zmin1 = self.ms.minCoords
         xmax1, ymax1, zmax1 = self.ms.maxCoords
@@ -32,6 +29,7 @@ class GridAPBS(vg.Grid):
         ).astype(vg.FLOAT_DTYPE)
 
 
+    # --------------------------------------------------------------------------
     def apply_logabs_transform(self):
         if self.is_empty():
             print(f"...--- APBS potential grid is empty. Skipping logabs transform.", flush = True)

@@ -101,7 +101,7 @@ from .tables import \
     planar_prot, planar_rna, ww_scale, \
     nucleic_backbone_phosphate, nucleic_backbone_sugar, \
     nucleic_bases, prot_hba, prot_hbd, rna_hba, rna_hbd
-from .trimmers import GridTrimmer, TrimmerPocketSphere, TrimmerWhole
+from .trimmers import GridTrimmer
 
 
 from .calculator import SmifferCalculator
