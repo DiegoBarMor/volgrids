@@ -1,27 +1,28 @@
-import volgrids as vg
+import volgrids.vgrids as vg
+import volgrids.smiffer as sm
 
 ################################################################################
 if __name__ == "__main__":
     ##### Here you can override any of the default parameters.
     ##### Check the volgrids/__init__.py file for other global values (like th SMIFs' gaussian parameters)
-    vg.DO_SMIF_STACKING = True
-    vg.DO_SMIF_HBA = True
-    vg.DO_SMIF_HBD = True
-    vg.DO_SMIF_HYDROPHOBIC = True
-    vg.DO_SMIF_HYDROPHILIC = True
-    vg.DO_SMIF_APBS = True
+    sm.DO_SMIF_STACKING = True
+    sm.DO_SMIF_HBA = True
+    sm.DO_SMIF_HBD = True
+    sm.DO_SMIF_HYDROPHOBIC = True
+    sm.DO_SMIF_HYDROPHILIC = True
+    sm.DO_SMIF_APBS = True
 
-    vg.DO_SMIF_LOG_APBS = False
-    vg.DO_SMIF_HYDRODIFF = False
+    sm.DO_SMIF_LOG_APBS = False
+    sm.DO_SMIF_HYDRODIFF = False
 
-    vg.DO_TRIMMING_OCCUPANCY = True
-    vg.DO_TRIMMING_SPHERE = True # only applies for pocket-sphere mode
-    vg.DO_TRIMMING_RNDS = False  # only applies for pocket-sphere mode
+    sm.DO_TRIMMING_OCCUPANCY = True
+    sm.DO_TRIMMING_SPHERE = True # only applies for pocket-sphere mode
+    sm.DO_TRIMMING_RNDS = False  # only applies for pocket-sphere mode
 
     vg.DO_OUTPUT_DX = False # Human-readable format (heavy). Tested with VMD, Chimera, ChimeraX, UnityMol.
     vg.DO_OUTPUT_MRC = False # Binary format (light). Tested with VMD, Chimera, ChimeraX.
     vg.DO_OUTPUT_CMAP = True # Compressed binary format (very light). Tested with ChimeraX.
-    vg.SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask
+    sm.SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask
 
     vg.USE_FIXED_DELTAS = True # whether to use fixed dx,dy,dz and le xres,yres,zres change (or the opposite)
     vg.WARNING_GRID_SIZE = 5.0e7 # if the grid would exceed this amount of points, trigger a warning with possibility to abort
@@ -36,17 +37,17 @@ if __name__ == "__main__":
 
 
     # --------------------------------------------------------------------------
-    meta = vg.SmifferArgsParser()
+    meta = sm.SmifferArgsParser()
 
     for name, value in meta.debug_vars.items():
-        if hasattr(vg, name):
-            setattr(vg, name, value)
+        if hasattr(sm, name):
+            setattr(sm, name, value)
         else:
             print(f"Warning: {name} is not a valid volgrids variable. Skipping.")
             continue
 
     if meta.mode in ["prot", "rna"]:
-        vg.Smiffer(meta).run()
+        sm.SmifferCalculator(meta).run()
     else:
         vg.VGTools(meta).run()
 

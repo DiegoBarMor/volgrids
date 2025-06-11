@@ -1,13 +1,13 @@
 import numpy as np
-import volgrids as vg
-from gridData import Grid
+import volgrids.vgrids as vg
+import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridAPBS(vg.Grid):
     def get_type(self):
         return "apbs"
 
-    def run(self, trimmer: "vg.GridTrimmer"):
+    def run(self, trimmer: "sm.GridTrimmer"):
         if self.ms.meta.path_apbs is None:
             print("...--- APBS output not provided. Electrostatic potential skipped.", flush = True)
             return
@@ -17,7 +17,7 @@ class GridAPBS(vg.Grid):
         xmin1, ymin1, zmin1 = self.ms.minCoords
         xmax1, ymax1, zmax1 = self.ms.maxCoords
         xres1, yres1, zres1 = self.ms.resolution
-        apbs = vg.read_dx(self.ms.meta.path_apbs) # [TODO] path_apbs could also be other grid formats !
+        _,apbs = vg.read_auto(self.ms.meta.path_apbs)
 
         self.grid = vg.interpolate_3d(
             x0 = np.linspace(apbs.xmin, apbs.xmax, apbs.xres),
@@ -41,14 +41,14 @@ class GridAPBS(vg.Grid):
         logneg = np.log10(-self.grid[self.grid < 0])
 
         ##### APPLY CUTOFFS
-        logpos[logpos < vg.APBS_MIN_CUTOFF] = vg.APBS_MIN_CUTOFF
-        logneg[logneg < vg.APBS_MIN_CUTOFF] = vg.APBS_MIN_CUTOFF
-        logpos[logpos > vg.APBS_MAX_CUTOFF] = vg.APBS_MAX_CUTOFF
-        logneg[logneg > vg.APBS_MAX_CUTOFF] = vg.APBS_MAX_CUTOFF
+        logpos[logpos < sm.APBS_MIN_CUTOFF] = sm.APBS_MIN_CUTOFF
+        logneg[logneg < sm.APBS_MIN_CUTOFF] = sm.APBS_MIN_CUTOFF
+        logpos[logpos > sm.APBS_MAX_CUTOFF] = sm.APBS_MAX_CUTOFF
+        logneg[logneg > sm.APBS_MAX_CUTOFF] = sm.APBS_MAX_CUTOFF
 
         ##### SHIFT VALUES TO 0
-        logpos -= vg.APBS_MIN_CUTOFF
-        logneg -= vg.APBS_MIN_CUTOFF
+        logpos -= sm.APBS_MIN_CUTOFF
+        logneg -= sm.APBS_MIN_CUTOFF
 
         ##### REVERSE SIGN OF LOG(ABS(GRID_NEG)) AND DOUBLE BOTH
         logpos *=  2 # this way the range of points varies between

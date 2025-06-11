@@ -1,17 +1,17 @@
 import numpy as np
-import volgrids as vg
 import MDAnalysis as mda
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class MolecularSystem:
-    def __init__(self, meta: "vg.SmifferArgsParser"):
+    def __init__(self, meta: "vg.ArgsParser"):
         self.resolution: np.array = np.zeros(3, dtype = int)
         self.minCoords : np.array = np.zeros(3)
         self.deltas    : np.array = np.zeros(3)
-        self.meta: "vg.SmifferArgsParser" = meta
+        self.meta: "vg.ArgsParser" = meta
 
         self.isNucleic = meta.mode == "rna" # [WIP]
-        self.macro_query = f"{meta.moltype} and not (name H*)"
+        self.macro_query = f"{meta.moltype} and not (name H*)" # [WIP]
 
         args =  (meta.path_in, meta.path_traj) if meta.do_traj else (meta.path_in, )
         self.system = mda.Universe(*args)

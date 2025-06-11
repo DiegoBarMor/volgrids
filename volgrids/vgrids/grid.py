@@ -1,5 +1,5 @@
 import numpy as np
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class Grid:
@@ -23,7 +23,7 @@ class Grid:
             if init_grid else None
 
     # --------------------------------------------------------------------------
-    def run(self, trimmer: "vg.GridTrimmer"= None):
+    def run(self, trimmer = None):
         self.populate_grid()
         if trimmer is not None:
             trimmer.apply_trimming(self)
@@ -32,9 +32,9 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def copy(self):
-        pg = Grid(self.ms)
-        pg.grid = np.copy(self.grid)
-        return pg
+        vg = Grid(self.ms)
+        vg.grid = np.copy(self.grid)
+        return vg
 
     # --------------------------------------------------------------------------
     def is_empty(self):
@@ -83,17 +83,6 @@ class Grid:
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)
     def get_type(self): return
     def populate_grid(self): return
-
-
-# //////////////////////////////////////////////////////////////////////////////
-class GridSMIF(Grid):
-    def populate_grid(self):
-        for particle in self.iter_particles():
-            self.process_particle(particle)
-
-    ######################### SPECIFIC METHODS (OVERRIDE TO USE)
-    def iter_particles(self): return
-    def process_particle(self, particle): return
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 import numpy as np
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class KernelGaussianUnivariate(vg.Kernel):

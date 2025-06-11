@@ -1,14 +1,15 @@
 import numpy as np
-import volgrids as vg
+import volgrids.vgrids as vg
+import volgrids.smiffer as sm
 from collections import defaultdict
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridStacking(vg.GridSMIF):
+class GridStacking(vg.Grid):
     def get_type(self):
         return "stacking"
 
     def populate_grid(self):
-        radius = vg.MU_STACKING[1] + vg.GAUSSIAN_KERNEL_SIGMAS * vg.SIGMA_DIST_STACKING
+        radius = sm.MU_STACKING[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_STACKING
         gk = vg.KernelGaussianMultivariate(radius, self.ms.deltas, vg.FLOAT_DTYPE)
 
         gk.link_to_grid(self.grid, self.ms.minCoords)
@@ -19,13 +20,13 @@ class GridStacking(vg.GridSMIF):
             v = vg.normalize(c - a)
             normal = vg.normalize(np.cross(u, v))
 
-            gk.recalculate_kernel(normal, vg.MU_STACKING, vg.COV_INV_STACKING, isStacking = True)
+            gk.recalculate_kernel(normal, sm.MU_STACKING, sm.COV_INV_STACKING, isStacking = True)
             gk.stamp(cog)
 
 
     def iter_particles(self):
         resname_to_ids = defaultdict(set)
-        aromatic_dict = vg.planar_rna if self.ms.isNucleic else vg.planar_prot
+        aromatic_dict = sm.planar_rna if self.ms.isNucleic else sm.planar_prot
         atoms = self.ms.get_relevant_atoms()
 
         for a in atoms:

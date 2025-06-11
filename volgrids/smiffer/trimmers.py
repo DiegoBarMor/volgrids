@@ -1,5 +1,6 @@
 import numpy as np
-import volgrids as vg
+import volgrids.vgrids as vg
+import volgrids.smiffer as sm
 from abc import ABC, abstractmethod
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -7,11 +8,11 @@ class GridTrimmer(ABC, vg.Grid):
     def __init__(self, ms, trimming_dist):
         super().__init__(ms, dtype = bool)
 
-        if vg.DO_TRIMMING_SPHERE:    self._trim_sphere()
-        if vg.DO_TRIMMING_OCCUPANCY: self._trim_occupancy(trimming_dist)
-        if vg.DO_TRIMMING_RNDS:      self._trim_rnds()
+        if sm.DO_TRIMMING_SPHERE:    self._trim_sphere()
+        if sm.DO_TRIMMING_OCCUPANCY: self._trim_occupancy(trimming_dist)
+        if sm.DO_TRIMMING_RNDS:      self._trim_rnds()
 
-        if vg.SAVE_CACHED_MASK:
+        if sm.SAVE_CACHED_MASK:
             self.save_data()
 
     def get_type(self):
@@ -54,9 +55,9 @@ class TrimmerPocketSphere(GridTrimmer):
         xres, yres, zres = self.ms.resolution
         xcog, ycog, zcog = np.floor(self.ms.resolution / 2).astype(int)
         cog_cube = set((x,y,z)
-            for x in range(xcog - vg.COG_CUBE_RADIUS, xcog + vg.COG_CUBE_RADIUS + 1)
-            for y in range(ycog - vg.COG_CUBE_RADIUS, ycog + vg.COG_CUBE_RADIUS + 1)
-            for z in range(zcog - vg.COG_CUBE_RADIUS, zcog + vg.COG_CUBE_RADIUS + 1)
+            for x in range(xcog - sm.COG_CUBE_RADIUS, xcog + sm.COG_CUBE_RADIUS + 1)
+            for y in range(ycog - sm.COG_CUBE_RADIUS, ycog + sm.COG_CUBE_RADIUS + 1)
+            for z in range(zcog - sm.COG_CUBE_RADIUS, zcog + sm.COG_CUBE_RADIUS + 1)
         )
         queue = cog_cube.copy()
 
@@ -80,7 +81,7 @@ class TrimmerPocketSphere(GridTrimmer):
 
                 neigh = ni,nj,nk
                 search_dist[neigh] = min(search_dist[node] + 1, search_dist[neigh])
-                if search_dist[neigh] > vg.MAX_RNDS_DIST: continue
+                if search_dist[neigh] > sm.MAX_RNDS_DIST: continue
                 if visited[neigh]: continue
                 if self.grid[neigh]: continue
 

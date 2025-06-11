@@ -1,8 +1,8 @@
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class VGTools:
-    def __init__(self, meta: "vg.SmifferArgsParser"):
+    def __init__(self, meta: "vg.ArgsParser"):
         self.meta = meta
 
 
@@ -33,7 +33,7 @@ class VGTools:
 
         if self.meta.path_dx is not None:
             print(f">>> Converting {kind} file to DX: {self.meta.path_dx}")
-            vg.write_mrc(self.meta.path_dx, grid)
+            vg.write_dx(self.meta.path_dx, grid)
 
         if self.meta.path_mrc is not None:
             print(f">>> Converting {kind} file to MRC: {self.meta.path_mrc}")

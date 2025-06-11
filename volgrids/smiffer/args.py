@@ -1,15 +1,11 @@
-import os, sys, json
+import os, json
 from pathlib import Path
-
-# ------------------------------------------------------------------------------
-def print_exit(exit_code: int, message: str):
-    print(message)
-    exit(exit_code)
-
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
-class SmifferArgsParser:
+class SmifferArgsParser(vg.ArgsParser):
     def __init__(self):
+        super().__init__()
         help_string = '\n'.join((
             "usage: python3 smiffer.py [prot|rna|convert|pack|unpack] [options...]",
             "Available modes:",
@@ -23,8 +19,6 @@ class SmifferArgsParser:
             "Running 'python3 smiffer.py' without a valid mode will display this help message.",
         ))
 
-        self.args = sys.argv[1:]
-        self.mode = self._next_arg().lower()
 
         self.path_in: Path = None # "path/input/struct.pdb" SMIFFER
                                   # "path/input/grid.dx"    SMIFF Tools
@@ -89,7 +83,7 @@ class SmifferArgsParser:
             self._parse_fix_cmap()
             return
 
-        print_exit(-1, help_string)
+        self.print_exit(-1, help_string)
 
 
     # --------------------------------------------------------------------------
@@ -107,57 +101,6 @@ class SmifferArgsParser:
                 "pocket_sphere": self.ps_info,
                 "trajectory": str(self.path_traj),
             }))
-
-
-    # --------------------------------------------------------------------------
-    def _next_arg(self) -> str:
-        return self.args.pop(0) if self.args else ''
-
-
-    # --------------------------------------------------------------------------
-    def _get_flags_dict(self, flag_names: dict[str, tuple[str]]) -> dict[str, list[str]]:
-        """flag_names is a dict where keys are flag identifiers., each associated with a list of aliases for said flag.
-        This method then outputs a dict where the keys are the flag identifiers actually found in self.args,
-        together with their correspondant values."""
-        flags_dict = {None: []} # None is used for options at the start that are not associated with any flag
-        alias_to_flagname = {}
-
-        for name,aliases in flag_names.items():
-            alias_to_flagname = {**alias_to_flagname, **{alias:name for alias in aliases}}
-
-        current_name = None
-        while self.args:
-            arg = self._next_arg()
-            if arg.lower() in alias_to_flagname: # arg is a flag
-                current_name = alias_to_flagname[arg.lower()]
-                if current_name in flags_dict:
-                    raise ValueError(f"Flag '{current_name}' is defined multiple times in the arguments.")
-                flags_dict[current_name] = []
-
-            else: # arg is a flag's option
-                flags_dict[current_name].append(arg)
-
-        return flags_dict
-
-
-    # --------------------------------------------------------------------------
-    def _get_debug_vars(self, options: list[str]) -> None:
-        """Parse the command line arguments for debug variables.
-        Debug variables are specified as --debug <var_name>=<value>."""
-
-        def parse_str(str_value: str):
-            if str_value.isdigit():
-                return int(str_value)
-            if str_value.lower() in ["true", "false"]:
-                return str_value.lower() == "true"
-            try:
-                return float(str_value)
-            except ValueError:
-                return str_value.strip('"').strip("'")
-
-        for option in options:
-            name, str_value = option.split('=', 1)
-            self.debug_vars[name] = parse_str(str_value)
 
 
     # --------------------------------------------------------------------------
@@ -183,7 +126,7 @@ class SmifferArgsParser:
         })
 
         if fdict.get("help") is not None:
-            print_exit(0, help_string)
+            self.print_exit(0, help_string)
 
         options_in   = fdict.get(None)
         options_out  = fdict.get("out")
@@ -192,35 +135,35 @@ class SmifferArgsParser:
         options_ps   = fdict.get("ps")
 
         if not options_in:
-            print_exit(-1, f"{help_string}\nError: No input structure file provided. Provide a path to the structure file as first positional argument.")
+            self.print_exit(-1, f"{help_string}\nError: No input structure file provided. Provide a path to the structure file as first positional argument.")
 
         self.path_in = Path(options_in[0])
         self.name = self.path_in.stem
 
         if not self.path_in.exists():
-            print_exit(-1, f"{help_string}\nError: The specified structure file '{self.path_in}' does not exist.")
+            self.print_exit(-1, f"{help_string}\nError: The specified structure file '{self.path_in}' does not exist.")
 
         self.path_out = Path(options_out[0]) if options_out else self.path_in.parent
         if self.path_out.is_file():
-            print_exit(-1, f"{help_string}\nError: The specified output folder '{self.path_out}' is a file, not a directory.")
+            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{self.path_out}' is a file, not a directory.")
 
         os.makedirs(self.path_out, exist_ok = True)
 
         if options_apbs:
             self.path_apbs = Path(options_apbs[0])
             if not self.path_apbs.exists():
-                print_exit(-1, f"{help_string}\nError: The specified APBS file '{self.path_apbs}' does not exist.")
+                self.print_exit(-1, f"{help_string}\nError: The specified APBS file '{self.path_apbs}' does not exist.")
 
         if options_ps is not None:
             if len(options_ps) != 4:
-                print_exit(-1, f"{help_string}\nError: Pocket sphere options must be provided as -rxyz <radius> <x> <y> <z>.")
+                self.print_exit(-1, f"{help_string}\nError: Pocket sphere options must be provided as -rxyz <radius> <x> <y> <z>.")
             try:
                 radius = float(options_ps[0])
                 x_cog = float(options_ps[1])
                 y_cog = float(options_ps[2])
                 z_cog = float(options_ps[3])
             except ValueError:
-                print_exit(-1, f"{help_string}\nError: Pocket sphere options must be numeric values.")
+                self.print_exit(-1, f"{help_string}\nError: Pocket sphere options must be numeric values.")
 
             self.do_ps = True
             self.ps_info = (radius, x_cog, y_cog, z_cog)
@@ -229,7 +172,7 @@ class SmifferArgsParser:
             self.do_traj = True
             self.path_traj = Path(options_traj[0])
             if not self.path_traj.exists():
-                print_exit(-1, f"{help_string}\nError: The specified trajectory file '{self.path_traj}' does not exist.")
+                self.print_exit(-1, f"{help_string}\nError: The specified trajectory file '{self.path_traj}' does not exist.")
 
         self.path_meta = self.path_out / f"{self.name}.meta.json"
 
@@ -256,7 +199,7 @@ class SmifferArgsParser:
         })
 
         if fdict.get("help") is not None:
-            print_exit(0, help_string)
+            self.print_exit(0, help_string)
 
         options_in   = fdict.get(None)
         options_dx   = fdict.get("dx")
@@ -264,11 +207,11 @@ class SmifferArgsParser:
         options_cmap = fdict.get("cmap")
 
         if not options_in:
-            print_exit(-1, f"{help_string}\nError: No input grid file provided. Provide a path to the grid file as first positional argument.")
+            self.print_exit(-1, f"{help_string}\nError: No input grid file provided. Provide a path to the grid file as first positional argument.")
 
         self.path_in = Path(options_in[0])
         if not self.path_in.exists():
-            print_exit(-1, f"{help_string}\nError: The specified grid file '{self.path_in}' does not exist.")
+            self.print_exit(-1, f"{help_string}\nError: The specified grid file '{self.path_in}' does not exist.")
 
         if options_dx:
             self.path_dx = Path(options_dx[0])
@@ -300,13 +243,13 @@ class SmifferArgsParser:
         })
 
         if fdict.get("help") is not None:
-            print_exit(0, help_string)
+            self.print_exit(0, help_string)
 
         options_in   = fdict.get("input")
         options_out  = fdict.get("output")
 
         if not options_in or not options_out:
-            print_exit(-1, f"{help_string}\nError: Input grids and output path must be provided.")
+            self.print_exit(-1, f"{help_string}\nError: Input grids and output path must be provided.")
 
         self.paths_pack_in = [Path(path) for path in options_in]
         self.path_pack_out = Path(options_out[0])
@@ -329,21 +272,21 @@ class SmifferArgsParser:
         })
 
         if fdict.get("help") is not None:
-            print_exit(0, help_string)
+            self.print_exit(0, help_string)
 
         options_in   = fdict.get("input")
         options_out  = fdict.get("output")
 
         if not options_in:
-            print_exit(-1, f"{help_string}\nError: Input packed file must be provided.")
+            self.print_exit(-1, f"{help_string}\nError: Input packed file must be provided.")
 
         self.path_unpack_in = Path(options_in[0])
         if not self.path_unpack_in.exists():
-            print_exit(-1, f"{help_string}\nError: The specified packed file '{self.path_unpack_in}' does not exist.")
+            self.print_exit(-1, f"{help_string}\nError: The specified packed file '{self.path_unpack_in}' does not exist.")
 
         self.path_unpack_out = Path(options_out[0]) if options_out else self.path_unpack_in.parent
         if self.path_unpack_out.is_file():
-            print_exit(-1, f"{help_string}\nError: The specified output folder '{self.path_unpack_out}' is a file, not a directory.")
+            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{self.path_unpack_out}' is a file, not a directory.")
 
 
     # --------------------------------------------------------------------------
@@ -363,20 +306,20 @@ class SmifferArgsParser:
         })
 
         if fdict.get("help") is not None:
-            print_exit(0, help_string)
+            self.print_exit(0, help_string)
 
         options_in   = fdict.get("input")
         options_out  = fdict.get("output")
 
         if not options_in:
-            print_exit(-1, f"{help_string}\nError: No input CMAP file provided.")
+            self.print_exit(-1, f"{help_string}\nError: No input CMAP file provided.")
 
         if not options_out:
-            print_exit(-1, f"{help_string}\nError: No output path provided for the fixed CMAP file.")
+            self.print_exit(-1, f"{help_string}\nError: No output path provided for the fixed CMAP file.")
 
         self.path_fixcmap_in  = Path(options_in[0])
         if not self.path_fixcmap_in.exists():
-            print_exit(-1, f"{help_string}\nError: The specified CMAP file '{self.path_fixcmap_in}' does not exist.")
+            self.print_exit(-1, f"{help_string}\nError: The specified CMAP file '{self.path_fixcmap_in}' does not exist.")
 
         self.path_fixcmap_out = Path(options_out[0])
         os.makedirs(self.path_fixcmap_out.parent, exist_ok = True)

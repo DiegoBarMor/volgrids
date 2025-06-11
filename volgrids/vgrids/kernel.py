@@ -1,5 +1,5 @@
 import numpy as np
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class Kernel:
@@ -108,5 +108,6 @@ class Kernel:
 
         else:
             raise ValueError(f"Unknown operation: {operation}. Use 'sum', 'min' or 'max'.")
+
 
 # //////////////////////////////////////////////////////////////////////////////

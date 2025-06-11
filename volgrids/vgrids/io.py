@@ -1,8 +1,8 @@
-import os, json, h5py
+import os, h5py
 import numpy as np
-import volgrids as vg
 import gridData as gd
 from pathlib import Path
+import volgrids.vgrids as vg
 
 ################################################################################
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
@@ -11,7 +11,7 @@ def read_mrc(path_mrc) -> "vg.Grid":
         vsize = np.array(grid_mrc.voxel_size)
         origin = np.array(grid_mrc.header["origin"])
 
-        grid_vg = vg.Grid(**grid_init_metadata(
+        grid_vg = vg.Grid(**_grid_init_metadata(
             resolution = np.array(grid_mrc.data.shape),
             origin = np.array([origin["x"], origin["y"], origin["z"]], dtype = vg.FLOAT_DTYPE),
             delta = np.array([vsize["x"], vsize["y"], vsize["z"]], dtype = vg.FLOAT_DTYPE)
@@ -23,7 +23,7 @@ def read_mrc(path_mrc) -> "vg.Grid":
 # ------------------------------------------------------------------------------
 def read_dx(path_dx) -> "vg.Grid":
     grid_dx = gd.Grid(path_dx)
-    grid_vg = vg.Grid(**grid_init_metadata(
+    grid_vg = vg.Grid(**_grid_init_metadata(
         resolution = grid_dx.grid.shape,
         origin = grid_dx.origin,
         delta = grid_dx.delta
@@ -39,7 +39,7 @@ def read_cmap(path_cmap, key) -> "vg.Grid":
         rz, ry, rx = frame["data_zyx"].shape
         oz, oy, ox = frame.attrs["origin"]
         dz, dy, dx = frame.attrs["step"]
-        grid_vg = vg.Grid(**grid_init_metadata(
+        grid_vg = vg.Grid(**_grid_init_metadata(
             resolution = np.array([rx, ry, rz]),
             origin = np.array([ox, oy, oz]),
             delta = np.array([dx, dy, dz])
@@ -168,21 +168,27 @@ def read_auto(path_grid: Path) -> tuple[str, "vg.Grid"]:
     ext = path_grid.suffix.lower()
 
     if ext == ".dx":
-        return "DX", vg.read_dx(path_grid)
+        return "DX", read_dx(path_grid)
 
     if ext == ".mrc":
-        return "MRC", vg.read_mrc(path_grid)
+        return "MRC", read_mrc(path_grid)
 
     elif ext == ".cmap":
-        keys = vg.get_cmap_keys(path_grid)
+        keys = get_cmap_keys(path_grid)
         if not keys: raise ValueError(f"Empty cmap file: {path_grid}")
-        return "CMAP", vg.read_cmap(path_grid, keys[0])
+        return "CMAP", read_cmap(path_grid, keys[0])
 
     raise ValueError(f"Unrecognized file format: {ext}")
 
 
 # ------------------------------------------------------------------------------
-def grid_init_metadata(resolution: np.array, origin: np.array, delta: np.array)-> dict:
+def get_cmap_keys(path_cmap) -> list[str]:
+    with h5py.File(path_cmap, 'r') as h5:
+        return list(h5["Chimera"].keys())
+
+
+# ------------------------------------------------------------------------------
+def _grid_init_metadata(resolution: np.array, origin: np.array, delta: np.array)-> dict:
     return dict(
         data = {
             "resolution": resolution,
@@ -192,12 +198,6 @@ def grid_init_metadata(resolution: np.array, origin: np.array, delta: np.array)-
         },
         init_grid = False
     )
-
-
-# ------------------------------------------------------------------------------
-def get_cmap_keys(path_cmap) -> list[str]:
-    with h5py.File(path_cmap, 'r') as h5:
-        return list(h5["Chimera"].keys())
 
 
 ################################################################################

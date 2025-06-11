@@ -1,18 +1,19 @@
-import volgrids as vg
+import volgrids.vgrids as vg
+import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
-class Smiffer:
-    def __init__(self, meta: "vg.SmifferArgsParser"):
+class SmifferCalculator:
+    def __init__(self, meta: "sm.SmifferArgsParser"):
         self.meta = meta
         self.meta.save_metadata()
 
         if meta.do_ps:
             self.ms = vg.MSPocketSphere(meta)
-            self.Trimmer = vg.TrimmerPocketSphere
+            self.Trimmer = sm.TrimmerPocketSphere
             str_mode = "PocketSphere"
         else:
             self.ms = vg.MSWhole(meta)
-            self.Trimmer = vg.TrimmerWhole
+            self.Trimmer = sm.TrimmerWhole
             str_mode = "Whole"
 
         self.timer = vg.Timer(
@@ -48,52 +49,52 @@ class Smiffer:
 
         ### Only trim if needed
         if (
-            vg.DO_SMIF_STACKING or
-            vg.DO_SMIF_HBA or vg.DO_SMIF_HBD or
-            vg.DO_SMIF_HYDROPHOBIC or vg.DO_SMIF_APBS or
-            vg.SAVE_CACHED_MASK # or do_cavities
+            sm.DO_SMIF_STACKING or
+            sm.DO_SMIF_HBA or sm.DO_SMIF_HBD or
+            sm.DO_SMIF_HYDROPHOBIC or sm.DO_SMIF_APBS or
+            sm.SAVE_CACHED_MASK # or do_cavities
         ):
-            trim_large = self.Trimmer(self.ms, vg.TRIMMING_DIST_LARGE)
+            trim_large = self.Trimmer(self.ms, sm.TRIMMING_DIST_LARGE)
 
         # if self.meta.do_cavities:
-        #     pg_pocket = vg.GridCavities(self.ms)
+        #     pg_pocket = sm.GridCavities(self.ms)
         #     pg_pocket.radius_pocket = float(self.meta.cavities) # [WIP] improve
         #     pg_pocket.run(trim_large)
         #     return  # Exit after running the pocket finder
 
-        if vg.DO_SMIF_HYDROPHILIC:
-            trim_small = self.Trimmer(self.ms, vg.TRIMMING_DIST_SMALL)
+        if sm.DO_SMIF_HYDROPHILIC:
+            trim_small = self.Trimmer(self.ms, sm.TRIMMING_DIST_SMALL)
 
         ### Calculate standard SMIF grids
-        if vg.DO_SMIF_STACKING:
-            pg_stacking = vg.GridStacking(self.ms)
+        if sm.DO_SMIF_STACKING:
+            pg_stacking = sm.GridStacking(self.ms)
             pg_stacking.run(trim_large)
 
-        if vg.DO_SMIF_HBA:
-            pg_hba = vg.GridHBAccepts(self.ms)
+        if sm.DO_SMIF_HBA:
+            pg_hba = sm.GridHBAccepts(self.ms)
             pg_hba.run(trim_large)
 
-        if vg.DO_SMIF_HBD:
-            pg_hbd = vg.GridHBDonors(self.ms)
+        if sm.DO_SMIF_HBD:
+            pg_hbd = sm.GridHBDonors(self.ms)
             pg_hbd.run(trim_large)
 
-        if vg.DO_SMIF_HYDROPHOBIC:
-            pg_hbphob = vg.GridHydrophobic(self.ms)
+        if sm.DO_SMIF_HYDROPHOBIC:
+            pg_hbphob = sm.GridHydrophobic(self.ms)
             pg_hbphob.run(trim_large)
 
-        if vg.DO_SMIF_HYDROPHILIC:
-            pg_hphil = vg.GridHydrophilic(self.ms)
+        if sm.DO_SMIF_HYDROPHILIC:
+            pg_hphil = sm.GridHydrophilic(self.ms)
             pg_hphil.run(trim_small)
 
-        if vg.DO_SMIF_APBS:
-            pg_apbs = vg.GridAPBS(self.ms)
+        if sm.DO_SMIF_APBS:
+            pg_apbs = sm.GridAPBS(self.ms)
             pg_apbs.run(trim_large)
 
         ### Calculate additional grids
-        if vg.DO_SMIF_LOG_APBS:
+        if sm.DO_SMIF_LOG_APBS:
             pg_apbs.apply_logabs_transform()
 
-        if vg.DO_SMIF_HYDRODIFF:
+        if sm.DO_SMIF_HYDRODIFF:
             vg.Grid.grid_diff(pg_hbphob, pg_hphil, "hydrodiff")
 
 
