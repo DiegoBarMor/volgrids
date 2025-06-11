@@ -4,7 +4,7 @@ import volgrids.smiffer as sm
 # //////////////////////////////////////////////////////////////////////////////
 class GridHydro(vg.Grid):
     def iter_particles(self):
-        for atom in self.ms.get_relevant_atoms():
+        for atom in self.ms.relevant_atoms:
             # atom is part of a protein
             if not self.ms.isNucleic:
                 mul_factor = sm.ww_scale[atom.resname]

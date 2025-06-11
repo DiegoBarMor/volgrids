@@ -25,7 +25,7 @@ class GridTrimmer(ABC, vg.Grid):
     def _trim_occupancy(self, radius):
         sk = vg.KernelSphere(radius, self.ms.deltas, bool)
         sk.link_to_grid(self.grid, self.ms.minCoords)
-        for a in self.ms.get_relevant_atoms_broad(radius):
+        for a in self.ms.relevant_atoms:
             sk.stamp(a.position)
 
     @abstractmethod

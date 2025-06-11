@@ -30,7 +30,7 @@ USE_FIXED_DELTAS = True # whether to use fixed dx,dy,dz and le xres,yres,zres ch
 from .args import ArgsParser
 from .grid import Grid
 from .kernel import Kernel
-from .systems import MolecularSystem, MSPocketSphere, MSWhole
+from .systems import MolecularSystem
 
 from .kernels.boolean import \
     KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut

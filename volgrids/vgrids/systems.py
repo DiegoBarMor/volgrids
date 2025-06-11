@@ -13,18 +13,35 @@ class MolecularSystem:
         self.isNucleic = meta.mode == "rna" # [WIP]
         self.macro_query = f"{meta.moltype} and not (name H*)" # [WIP]
 
-        args =  (meta.path_in, meta.path_traj) if meta.do_traj else (meta.path_in, )
-        self.system = mda.Universe(*args)
+        ###############################
+        if meta.do_traj:
+            self.system = mda.Universe(meta.path_in, meta.path_traj)
+            self.frame = 0
+        else:
+            self.system = mda.Universe(meta.path_in)
+            self.frame = None
 
-        self.frame = 0
 
         ###############################
-        self.radius : np.array
-        self.cog : np.array
-        self.minCoords : np.array
-        self.maxCoords : np.array
-        self.set_box_properties()
+        if meta.do_ps:
+            radius,xcog,ycog,zcog = self.meta.ps_info
+            self.cog = np.array([xcog, ycog, zcog])
+            self.minCoords = self.cog - radius
+            self.maxCoords = self.cog + radius
+            self.radius = radius
+            self.relevant_atoms = self.system.select_atoms(
+                f"{self.macro_query} and point {xcog} {ycog} {zcog} {radius}"
+            )
 
+        else:
+            self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
+            self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
+            self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
+            self.cog = (self.maxCoords + self.minCoords) / 2
+            self.relevant_atoms = self.system.select_atoms(self.macro_query)
+
+
+        ###############################
         box_size = self.maxCoords - self.minCoords
         if vg.USE_FIXED_DELTAS:
             self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
@@ -35,10 +52,10 @@ class MolecularSystem:
 
 
         ###############################
-        grid_size = np.prod(self.resolution)
+        rx, ry, rz = self.resolution
+        grid_size = rx*ry*rz
         if grid_size > vg.WARNING_GRID_SIZE:
             print()
-            rx, ry, rz = self.resolution
             while True:
                 choice = input(f">>> WARNING: resulting ({rx}x{ry}x{rz}) grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n").upper()
                 if choice == 'Y': break
@@ -51,52 +68,6 @@ class MolecularSystem:
     #         "rna": False,
     #         "meta": folder_out / f"{path_pdb.stem}.meta.json",
     #     })
-
-    ######################### SPECIFIC METHODS (OVERRIDE TO USE)
-    def set_box_properties(self): return
-    def get_relevant_atoms(self): return
-    def get_relevant_atoms_broad(self, trimming_dist): return
-
-
-# //////////////////////////////////////////////////////////////////////////////
-class MSPocketSphere(MolecularSystem):
-    def set_box_properties(self):
-        r,x,y,z = self.meta.ps_info
-        self.cog = np.array([x, y, z])
-        self.radius = r
-        self.minCoords = self.cog - self.radius
-        self.maxCoords = self.cog + self.radius
-
-
-    def get_relevant_atoms(self):
-        xcog, ycog, zcog = self.cog
-        return self.system.select_atoms(
-            f"{self.macro_query} and point {xcog} {ycog} {zcog} {self.radius}"
-        )
-
-
-    def get_relevant_atoms_broad(self, trimming_dist):
-        xcog, ycog, zcog = self.cog
-        return self.system.select_atoms(
-            f"{self.macro_query} and point {xcog} {ycog} {zcog} {self.radius + trimming_dist}"
-        )
-
-
-# //////////////////////////////////////////////////////////////////////////////
-class MSWhole(MolecularSystem):
-    def set_box_properties(self):
-        self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
-        self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
-        self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
-        self.cog = (self.maxCoords + self.minCoords) / 2
-
-
-    def get_relevant_atoms(self):
-        return self.system.select_atoms(self.macro_query)
-
-
-    def get_relevant_atoms_broad(self, trimming_dist):
-        return self.system.select_atoms(self.macro_query)
 
 
 # //////////////////////////////////////////////////////////////////////////////

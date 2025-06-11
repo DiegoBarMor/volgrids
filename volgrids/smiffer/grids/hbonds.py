@@ -18,7 +18,7 @@ class GridHBonds(vg.Grid):
 
 
     def iter_particles(self):
-        atoms = self.ms.get_relevant_atoms()
+        atoms = self.ms.relevant_atoms
         for res in atoms.residues:
             res_atoms = atoms.select_atoms(f"segid {res.segid} and resid {res.resid} and resname {res.resname}")
             hbond_pairs = self.table_hbond.get(res.resname)
@@ -56,7 +56,7 @@ class GridHBAccepts(GridHBonds):
 
     def select_antecedent(self, res, res_atoms, name_antecedent, name_hbond_atom):
         assert isinstance(name_antecedent, tuple)
-        atoms = self.ms.get_relevant_atoms()
+        atoms = self.ms.relevant_atoms
 
         ##### standard antecedents
         if len(name_antecedent) == 1:
@@ -92,7 +92,7 @@ class GridHBDonors(GridHBonds):
 
     def select_antecedent(self, res, res_atoms, name_antecedent, name_hbond_atom):
         assert isinstance(name_antecedent, tuple)
-        atoms = self.ms.get_relevant_atoms()
+        atoms = self.ms.relevant_atoms
 
         ##### pseudo-antecedents
         if len(name_antecedent) == 2:
