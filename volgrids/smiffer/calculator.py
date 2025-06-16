@@ -6,7 +6,7 @@ class SmifferCalculator:
     def __init__(self, meta: "sm.SmifferArgsParser"):
         self.meta = meta
         self.meta.save_metadata()
-        self.ms = vg.MolecularSystem(meta)
+        self.ms = sm.SmifferMolecularSystem(meta)
 
         str_mode = "PocketSphere" if meta.do_ps else "Whole"
         self.timer = vg.Timer(

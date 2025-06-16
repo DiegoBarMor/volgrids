@@ -41,9 +41,6 @@ SIGMA_HYDROPHOBIC = 1.5
 MU_HYDROPHILIC = 3.0
 SIGMA_HYDROPHILIC = 0.15
 
-HPHOB_RNA_SUGAR = -0.13
-HPHOB_RNA_PHOSPHATE = -2.02
-
 MU_ANGLE_HBA = 129.9
 MU_ANGLE_HBD = 109.0
 MU_DIST_HBOND = 2.93
@@ -97,11 +94,9 @@ from .grids.hydro import GridHydrophilic, GridHydrophobic
 from .grids.stacking import GridStacking
 
 from .args import SmifferArgsParser
-from .tables import \
-    planar_prot, planar_rna, ww_scale, \
-    nucleic_backbone_phosphate, nucleic_backbone_sugar, \
-    nucleic_bases, prot_hba, prot_hbd, rna_hba, rna_hbd
+from .tables import ChemTable
 from .trimmers import GridTrimmer
+from .systems import SmifferMolecularSystem
 
 
 from .calculator import SmifferCalculator

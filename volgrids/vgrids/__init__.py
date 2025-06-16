@@ -45,7 +45,7 @@ from .utils.math import \
 from .utils.io import \
     read_dx, read_mrc, read_cmap, \
     write_dx, write_mrc, write_cmap, \
-    read_auto, get_cmap_keys
+    read_auto, get_cmap_keys, resolve_path
 from .utils.timer import Timer
 
 

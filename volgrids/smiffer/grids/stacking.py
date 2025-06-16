@@ -26,14 +26,13 @@ class GridStacking(vg.Grid):
 
     def iter_particles(self):
         resname_to_ids = defaultdict(set)
-        aromatic_dict = sm.planar_rna if self.ms.isNucleic else sm.planar_prot
         atoms = self.ms.relevant_atoms
 
         for a in atoms:
             resname_to_ids[a.resname.upper()].add((a.resid, a.chainID))
 
         for resname,res_infos in resname_to_ids.items():
-            aromatic_atoms = aromatic_dict.get(resname)
+            aromatic_atoms = self.ms.chemtable.get_names_stacking(resname)
             if aromatic_atoms is None: continue
 
             for resid,chain in res_infos:

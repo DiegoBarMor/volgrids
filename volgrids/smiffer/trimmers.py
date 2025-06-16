@@ -4,7 +4,7 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridTrimmer(vg.Grid):
-    def __init__(self, ms: "vg.MolecularSystem", trimming_dist):
+    def __init__(self, ms: "sm.SmifferMolecularSystem", trimming_dist):
         super().__init__(ms, dtype = bool)
 
         if sm.DO_TRIMMING_OCCUPANCY:

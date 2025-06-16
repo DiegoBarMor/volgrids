@@ -5,25 +5,16 @@ import volgrids.smiffer as sm
 class GridHydro(vg.Grid):
     def iter_particles(self):
         for atom in self.ms.relevant_atoms:
-            # atom is part of a protein
-            if not self.ms.isNucleic:
-                mul_factor = sm.ww_scale[atom.resname]
+            factor_res  = self.ms.chemtable.get_residue_hphob(atom)
+            factor_atom = self.ms.chemtable.get_atom_hphob(atom)
 
-            # atom is in the nitrogenous base (RNA)
-            elif atom.name in sm.nucleic_bases[atom.resname]:
-                mul_factor = sm.ww_scale[atom.resname]
+            if (factor_res is None) and (factor_atom is None):
+                continue # skip atoms with unknown name and resname
 
-            # atom is part of the phosphate backbone (RNA)
-            elif atom.name in sm.nucleic_backbone_phosphate:
-                mul_factor = sm.HPHOB_RNA_PHOSPHATE
+            if factor_res  is None: factor_res  = 1
+            if factor_atom is None: factor_atom = 1
 
-            # atom is part of the sugar (RNA)
-            elif atom.name in sm.nucleic_backbone_sugar:
-                mul_factor = sm.HPHOB_RNA_SUGAR
-
-            else: continue # unknown atom type
-
-            yield atom, mul_factor
+            yield atom, factor_res * factor_atom
 
 
 # //////////////////////////////////////////////////////////////////////////////

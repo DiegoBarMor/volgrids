@@ -1,252 +1,135 @@
-planar_prot = {
-    "ARG" : "CZ NE NH1 NH2",
-    "HIS" : "CD2 CE1 CG ND1 NE2",
-    "PHE" : "CD1 CD2 CE1 CE2 CG CZ",
-    "TRP" : "CD1 CD2 CE2 CE3 CG CH2 CZ2 CZ3 NE1",
-    "TYR" : "CD1 CD2 CE1 CE2 CG CZ",
-}
+import re
+from collections import defaultdict
 
-planar_rna = {
-    "U" : "N1 C2 N3 C4 C5 C6",
-    "C" : "N1 C2 N3 C4 C5 C6",
-    "A" : "N1 C2 N3 C4 C5 C6 N7 C8 N9",
-    "G" : "N1 C2 N3 C4 C5 C6 N7 C8 N9",
-}
+############################### PARSING UTILITIES ##############################
+# ------------------------------------------------------------------------------
+def _match_substr_between(superstr: str, regex0: str, regex1: str) -> str:
+    _,i0 = re.search(regex0, superstr).span()
+    superstr = superstr[i0:]
+    i1,_ = re.search(regex1, superstr).span()
+    return superstr[i1:].strip(), superstr[:i1].strip()
 
-ww_scale = {
-    "ASP" : -1.23, "GLU" : -2.02, "SER" : -0.13, "THR" : -0.14, "ASN" : -0.42,
-    "GLN" : -0.58, "CYS" :  0.24, "PRO" : -0.45, "ALA" : -0.17, "VAL" : -0.07,
-    "ILE" :  0.31, "LEU" :  0.56, "MET" :  0.23, "PHE" :  1.13, "TYR" :  0.94,
-    "TRP" :  1.85, "HIS" : -0.96, "LYS" : -0.99, "ARG" : -0.81, "GLY" : -0.01,
-    "U"   :  1.13, "C"   :  1.13, "A"   :  1.85, "G"   :  1.85, # RNA uses analogous protein values
-}
 
-nucleic_backbone_phosphate = ["O5'", "P", "OP1", "OP2", "O3'"]
-nucleic_backbone_sugar = ["C1'", "C2'", "C3'", "C4'", "C5'", "O2'", "O4'"]
-nucleic_bases = {
-    "U" : ["N1", "C2", "N3", "C4", "C5", "C6", "O2", "O4"],
-    "C" : ["N1", "C2", "N3", "C4", "C5", "C6", "O2", "N4"],
-    "A" : ["N1", "C2", "N3", "C4", "C5", "C6", "N7", "C8", "N9", "N6"],
-    "G" : ["N1", "C2", "N3", "C4", "C5", "C6", "N7", "C8", "N9", "N2", "O6"],
-}
+# ------------------------------------------------------------------------------
+def _split_line(line: str) -> tuple[str, str]:
+    line = line.split('#')[0].strip() # Remove comments
+    pair = tuple(map(str.strip, line.split(':')))
+    if len(pair) != 2:
+        raise ValueError(f"Line '{line}' does not contain ':'")
+    return pair
 
-prot_hba = {
-    "ALA": [ ### https://chemistry.stackexchange.com/questions/42085/can-an-amide-nitrogen-be-a-hydrogen-bond-acceptor
-        [("C",), "O"]
-    ],
-    "ARG": [
-        [("C",), "O"],
-    ],
-    "ASN": [
-        [("C",), "O"],
-        [("CG",), "OD1"]
-    ],
-    "ASP": [
-        [("C",), "O"],
-        [("CG",), "OD1"],
-        [("CG",), "OD2"]
-    ],
-    "CYS": [
-        [("C",), "O"],
-        [("CB",), "SG"]
-    ],
-    "GLU": [
-        [("C",), "O"],
-        [("CD",), "OE1"],
-        [("CD",), "OE2"]
-    ],
-    "GLN": [
-        [("C",), "O"],
-        [("CD",), "OE1"]
-    ],
-    "GLY": [
-        [("C",), "O"]
-    ],
-    "HIS": [
-        [("C",), "O"],
-        [("CE1", "CG",), "ND1"], # pseudo-antecedent
-    ],
-    "ILE": [
-        [("C",), "O"]
-    ],
-    "LEU": [
-        [("C",), "O"]
-    ],
-    "LYS": [
-        [("C",), "O"],
-    ],
-    "MET": [
-        [("C",), "O"],
-        [("CG",), "SD"]
-    ],
-    "PHE": [
-        [("C",), "O"]
-    ],
-    "PRO": [
-        [("C",), "O"]
-    ],
-    "SER": [
-        [("C",), "O"],
-        [("CB",), "OG"]
-    ],
-    "THR": [
-        [("C",), "O"],
-        [("CB",), "OG1"]
-    ],
-    "TRP": [
-        [("C",), "O"],
-    ],
-    "TYR": [
-        [("C",), "O"],
-        [("CZ",), "OH"]
-    ],
-    "VAL": [
-        [("C",), "O"]
-    ]
-}
 
-prot_hbd = {
-    "ALA": [
-        [("CA",), "N"]
-    ],
-    "ARG": [
-        [("CA",), "N"],
-        [("CD", "CZ",), "NE"], # pseudo-antecedent
-        [("CZ",), "NH1"],
-        [("CZ",), "NH2"]
-    ],
-    "ASN": [
-        [("CA",), "N"],
-        [("CG",), "ND2"]
-    ],
-    "ASP": [
-        [("CA",), "N"]
-    ],
-    "CYS": [
-        [("CA",), "N"],
-        [("CB",), "SG"]
-    ],
-    "GLU": [
-        [("CA",), "N"]
-    ],
-    "GLN": [
-        [("CA",), "N"],
-        [("CD",), "NE2"]
-    ],
-    "GLY": [
-        [("CA",), "N"]
-    ],
-    "HIS": [
-        [("CA",), "N"],
-        [("CD2", "CE1",), "NE2"] # pseudo-antecedent
-    ],
-    "ILE": [
-        [("CA",), "N"]
-    ],
-    "LEU": [
-        [("CA",), "N"]
-    ],
-    "LYS": [
-        [("CA",), "N"],
-        [("CE",), "NZ"]
-    ],
-    "MET": [
-        [("CA",), "N"]
-    ],
-    "PHE": [
-        [("CA",), "N"]
-    ],
-    "PRO": [],
-    "SER": [
-        [("CA",), "N"],
-        [("CB",), "OG"]
-    ],
-    "THR": [
-        [("CA",), "N"],
-        [("CB",), "OG1"]
-    ],
-    "TRP": [
-        [("CA",), "N"],
-        [("CD1", "CE2",), "NE1"] # pseudo-antecedent
-    ],
-    "TYR": [
-        [("CA",), "N"],
-        [("CZ",), "OH"]
-    ],
-    "VAL": [
-        [("CA",), "N"]
-    ]
-}
+# ------------------------------------------------------------------------------
+def _is_empty_line(line: str) -> bool:
+    return not line.strip() or line.startswith('#')
 
-rna_hba = { # https://onlinelibrary.wiley.com/iucr/itc/Fa/ch22o2v0001/sec22o2o4.pdf
-    "U": [
-        [("C2'",), "O2'"],
-        [("C3'", "P",), "O3'"], # pseudo-antecedent (special case)
-        [("C1'", "C4'",), "O4'"], # pseudo-antecedent
-        [("C5'", "P",), "O5'"], # pseudo-antecedent
-        [("P",), "OP1"],
-        [("P",), "OP2"],
-        [("C2",), "O2"],
-        [("C4",), "O4"]
-    ],
-    "C": [
-        [("C2'",), "O2'"],
-        [("C3'", "P",), "O3'"], # pseudo-antecedent (special case)
-        [("C1'", "C4'",), "O4'"], # pseudo-antecedent
-        [("C5'", "P",), "O5'"], # pseudo-antecedent
-        [("P",), "OP1"],
-        [("P",), "OP2"],
-        [("C2",), "O2"],
-        [("C2", "C4",), "N3"], # pseudo-antecedent
-    ],
-    "A": [
-        [("C2'",), "O2'"],
-        [("C3'", "P",), "O3'"], # pseudo-antecedent (special case)
-        [("C1'", "C4'",), "O4'"], # pseudo-antecedent
-        [("C5'", "P",), "O5'"], # pseudo-antecedent
-        [("P",), "OP1"],
-        [("P",), "OP2"],
-        [("C2", "C6",), "N1"], # pseudo-antecedent
-        [("C2", "C4",), "N3"], # pseudo-antecedent
-        [("C5", "C8",), "N7"], # pseudo-antecedent
-    ],
-    "G": [
-        [("C2'",), "O2'"],
-        [("C3'", "P",), "O3'"], # pseudo-antecedent (special case)
-        [("C1'", "C4'",), "O4'"], # pseudo-antecedent
-        [("C5'", "P",), "O5'"], # pseudo-antecedent
-        [("P",), "OP1"],
-        [("P",), "OP2"],
-        [("C2", "C4",), "N3"], # pseudo-antecedent
-        [("C5", "C8",), "N7"], # pseudo-antecedent
-        [("C6",), "O6"]
-    ]
-}
 
-rna_hbd = {
-    "U": [
-        [("C2'",), "O2'"],
-        [("C3'",), "O3'"], # (special case)
-        [("C5'",), "O5'"], # (special case)
-        [("C2", "C4",), "N3"] # pseudo-antecedent
-    ],
-    "C": [
-        [("C2'",), "O2'"],
-        [("C3'",), "O3'"], # (special case)
-        [("C5'",), "O5'"], # (special case)
-        [("C4",), "N4"]
-    ],
-    "A": [
-        [("C2'",), "O2'"],
-        [("C3'",), "O3'"], # (special case)
-        [("C5'",), "O5'"], # (special case)
-        [("C6",), "N6"]
-    ],
-    "G": [
-        [("C2'",), "O2'"],
-        [("C3'",), "O3'"], # (special case)
-        [("C5'",), "O5'"], # (special case)
-        [("C2", "C6",), "N1"], # pseudo-antecedent
-        [("C2",), "N2"]
-    ]
-}
+# ------------------------------------------------------------------------------
+def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str]:
+    try:
+        str_antecedents, interactor = triplet.split('-')
+        antecedents = str_antecedents.split('.')
+        a0 = antecedents[0].strip()
+        a1 = antecedents[1].strip() if len(antecedents) > 1 else ''
+        return a0, a1, interactor.strip()
+    except ValueError as e:
+        raise ValueError(f"Triplet '{triplet}' is not in the expected formats 'A-X' or 'A.B-X'") from e
+
+
+# //////////////////////////////////////////////////////////////////////////////
+class ChemTable:
+    def __init__(self, path_table):
+        self._residues_hphob: dict[str, float] = {}
+        self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
+        self._names_stk: dict[str, str] = {}
+        self._names_hba: dict[str, list[tuple[str, str, str]]] = {}
+        self._names_hbd: dict[str, list[tuple[str, str, str]]] = {}
+        self._parse_table(path_table)
+
+
+    # --------------------------------------------------------------------------
+    def get_residue_hphob(self, atom):
+        return self._residues_hphob.get(atom.resname)
+
+
+    # --------------------------------------------------------------------------
+    def get_atom_hphob(self, atom):
+        dict_resid = self._atoms_hphob.get(atom.resname)
+        if dict_resid is None: return None
+        return dict_resid.get(atom.name)
+
+
+    # --------------------------------------------------------------------------
+    def get_names_stacking(self, resname: str):
+        return self._names_stk.get(resname)
+
+
+    # --------------------------------------------------------------------------
+    def get_names_hba(self, resname: str):
+        return self._names_hba.get(resname)
+
+
+    # --------------------------------------------------------------------------
+    def get_names_hbd(self, resname: str):
+        return self._names_hbd.get(resname)
+
+
+    # --------------------------------------------------------------------------
+    def _parse_table(self, path_table):
+        with open(path_table, 'r') as file:
+            raw_table = file.read()
+
+        ### separate raw string into sections
+        raw_table,raw_residues_hphob = _match_substr_between(
+            raw_table, r"\[RES_HPHOBICITY\]", r"\[ATOM_HPHOBICITY\]"
+        )
+        raw_table,raw_atoms_hphob = _match_substr_between(
+            raw_table, r"\[ATOM_HPHOBICITY\]", r"\[NAMES_STACKING\]"
+        )
+        raw_table,raw_names_stk = _match_substr_between(
+            raw_table, r"\[NAMES_STACKING\]", r"\[NAMES_HBACCEPTORS\]"
+        )
+        raw_table,raw_names_hba = _match_substr_between(
+            raw_table, r"\[NAMES_HBACCEPTORS\]", r"\[NAMES_HBDONORS\]"
+        )
+        raw_names_hbd = raw_table.lstrip("[NAMES_HBDONORS]").strip()
+
+        ### extract values from the lines
+        for line in raw_residues_hphob.splitlines():
+            if _is_empty_line(line): continue
+            resname, value = _split_line(line)
+            self._residues_hphob[resname] = float(value)
+
+        for line in raw_atoms_hphob.splitlines():
+            if _is_empty_line(line): continue
+            names, value = _split_line(line)
+            resname, atomname = names.split('/')
+            self._atoms_hphob[resname][atomname] = float(value)
+
+        for line in raw_names_stk.splitlines():
+            if _is_empty_line(line): continue
+            resname, atomnames = _split_line(line)
+            self._names_stk[resname] = atomnames
+
+        for line in raw_names_hba.splitlines():
+            if _is_empty_line(line): continue
+            resname, str_triplets = _split_line(line)
+            triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
+            self._names_hba[resname] = triplets
+
+        for line in raw_names_hbd.splitlines():
+            if _is_empty_line(line): continue
+            resname, str_triplets = _split_line(line)
+            triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
+            self._names_hbd[resname] = triplets
+
+        ### expand the atoms declared with the '*' wildcard to all residues (hydrophobicity)
+        hphob_wildcard = self._atoms_hphob.get('*')
+        if hphob_wildcard is None: return
+
+        del self._atoms_hphob['*']
+        for res_dict in self._atoms_hphob.values():
+            res_dict.update(hphob_wildcard)
+
+
+# //////////////////////////////////////////////////////////////////////////////

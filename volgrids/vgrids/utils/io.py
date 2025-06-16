@@ -1,4 +1,4 @@
-import os, h5py
+import sys, os, h5py
 import numpy as np
 import gridData as gd
 from pathlib import Path
@@ -185,6 +185,13 @@ def read_auto(path_grid: Path) -> tuple[str, "vg.Grid"]:
 def get_cmap_keys(path_cmap) -> list[str]:
     with h5py.File(path_cmap, 'r') as h5:
         return list(h5["Chimera"].keys())
+
+# ------------------------------------------------------------------------------
+def resolve_path(path: Path):
+    # [WIP] improve
+    path_py = Path(sys.argv[0])
+    project_root = path_py.parent
+    return project_root / path
 
 
 # ------------------------------------------------------------------------------

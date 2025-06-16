@@ -4,6 +4,8 @@ import volgrids.vgrids as vg
 # //////////////////////////////////////////////////////////////////////////////
 class Grid:
     def __init__(self, data, init_grid = True, dtype = None):
+        self.ms: vg.MolecularSystem
+
         if isinstance(data, vg.MolecularSystem):
             self.ms = data
             self.xres, self.yres, self.zres = data.resolution

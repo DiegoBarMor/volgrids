@@ -1,0 +1,70 @@
+[RES_HPHOBICITY]
+
+[ATOM_HPHOBICITY]
+*/O5': -2.02 # phosphate ~ GLU
+*/P: -2.02
+*/OP1: -2.02
+*/OP2: -2.02
+*/O3': -2.02
+*/C1': -0.13 # sugar ~ SER
+*/C2': -0.13
+*/C3': -0.13
+*/C4': -0.13
+*/C5': -0.13
+*/O2': -0.13
+*/O4': -0.13
+U/N1: 1.13 # URA ~ PHE
+U/C2: 1.13
+U/N3: 1.13
+U/C4: 1.13
+U/C5: 1.13
+U/C6: 1.13
+U/O2: 1.13
+U/O4: 1.13
+C/N1: 1.13 # CYT ~ PHE
+C/C2: 1.13
+C/N3: 1.13
+C/C4: 1.13
+C/C5: 1.13
+C/C6: 1.13
+C/O2: 1.13
+C/N4: 1.13
+A/N1: 1.85 # ADE ~ TRP
+A/C2: 1.85
+A/N3: 1.85
+A/C4: 1.85
+A/C5: 1.85
+A/C6: 1.85
+A/N7: 1.85
+A/C8: 1.85
+A/N9: 1.85
+A/N6: 1.85
+G/N1: 1.85 # GUA ~ TRP
+G/C2: 1.85
+G/N3: 1.85
+G/C4: 1.85
+G/C5: 1.85
+G/C6: 1.85
+G/N7: 1.85
+G/C8: 1.85
+G/N9: 1.85
+G/N2: 1.85
+G/O6: 1.85
+
+[NAMES_STACKING]
+U: N1 C2 N3 C4 C5 C6
+C: N1 C2 N3 C4 C5 C6
+A: N1 C2 N3 C4 C5 C6 N7 C8 N9
+G: N1 C2 N3 C4 C5 C6 N7 C8 N9
+
+[NAMES_HBACCEPTORS]
+U: C2'-O2' C3'.P-O3' C1'.C4'-O4' C5'.P-O5' P-OP1 P-OP2 C2-O2 C4-O4 # https://onlinelibrary.wiley.com/iucr/itc/Fa/ch22o2v0001/sec22o2o4.pdf
+C: C2'-O2' C3'.P-O3' C1'.C4'-O4' C5'.P-O5' P-OP1 P-OP2 C2-O2 C2.C4-N3
+A: C2'-O2' C3'.P-O3' C1'.C4'-O4' C5'.P-O5' P-OP1 P-OP2 C2.C6-N1 C2.C4-N3 C5.C8-N7
+G: C2'-O2' C3'.P-O3' C1'.C4'-O4' C5'.P-O5' P-OP1 P-OP2 C2.C4-N3 C5.C8-N7 C6-O6
+
+[NAMES_HBDONORS]
+U: C2'-O2' C3'-O3' C5'-O5' C2.C4-N3
+C: C2'-O2' C3'-O3' C5'-O5' C4-N4
+A: C2'-O2' C3'-O3' C5'-O5' C6-N6
+G: C2'-O2' C3'-O3' C5'-O5' C2.C6-N1 C2-N2
