@@ -1,24 +1,52 @@
-# Volumetric Potentials Calculator
-This is the alpha version of the SMIFFER package. New features are first tested here before being implemented in the main package.
+# Volumetric Grids
+This is a framework for volumetric calculations, with emphasis in biological molecular systems. A custom implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method is also included.
+
+
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- -------------------------------- SETUP -------------------------------- -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+# Setup
+## Requirements
+This framework only has 2 Python dependencies:
+- **MDAnalysis** for parsing structure and trajectories data. Installing this should also install **NumPy**, also needed by volgrids.
+- **h5py** for parsing CMAP files.
+
 
 <!-- ----------------------------------------------------------------------- -->
-## Setup
-### Requirements
-- Numpy
-- Scipy
-- MDAnalysis
-- h5py
-
-### Installing with conda
+## Option 1: Setting up a Conda environment
+### Automatic
 ```
-conda env create -f environment.yml
+conda env create -f environment/conda.yml
 conda activate volgrids
 ```
 
+### Manual
+```
+conda create --name volgrids -y
+conda activate volgrids
+conda install python -y
+conda install -c conda-forge mdanalysis -y
+```
+
 
 <!-- ----------------------------------------------------------------------- -->
+## Option 2: Simple setup with PIP
+### Automatic
+```
+pip install -r environment/requirements.txt
+```
+
+### Manual
+```
+pip install mdanalysis h5py
+```
+
+
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- ------------------------------- SMIFFER ------------------------------- -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+# SMIFFER calculator
 ## Usage
-### SMIFFER calculator
 Run `python3 smiffer.py [mode] [path_input] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `prot` or `rna` according to the structure of interest.
   - replace `[path_input]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
@@ -28,37 +56,29 @@ Run `python3 smiffer.py [mode] [path_input] [options...]` and provide the parame
     - `-a [path_apbs]` where `[path_apbs]` is the path to the output of APBS. An *OpenDX* file is expected. This grid will be interpolated into the shape of the other grids.
     - `-rxyz [r] [x] [y] [z]` where `[r]`, `[x]`, `[y]` and `[z]` are the float values for the radius and X,Y,Z coordinates of a sphere in space, respectively. This activates "pocket sphere" mode, where the SMIFs will only be calculated inside the sphere provided.
 
-### Volgrid Tools
-
-- TODO
-
 
 <!-- ----------------------------------------------------------------------- -->
 ## Commands examples
-### APBS
+- Sample commands to obtain the electrostatic grids from [pdb2pqr](https://pdb2pqr.readthedocs.io/en/latest/) and [APBS](https://apbs.readthedocs.io/en/latest/)
 ```
 pdb2pqr --ff=AMBER data/pdb/1iqj.pdb data/pqr/1iqj.pqr --apbs-input data/apbs/1iqj.in
 apbs data/apbs/1iqj.in
 ```
 
-### SMIFFER
-- Perform a simple pocket sphere mode (`-rxyz`) in a protein system (`prot`).
+- Calculate SMIFs for a pocket sphere (`-rxyz`) in a protein system (`prot`).
 ```
 python3 smiffer.py prot data/pdb/1iqj.pdb -o data/smifs -rxyz 14.675 4.682 21.475 7.161
 ```
 
-- Perform a whole mode in an RNA system (`rna`) considering APBS data (`-a`).
+- Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```
 python3 smiffer.py rna data/pdb/5bjo.pdb -a data/apbs/5bjo.pqr.dx -o data/smifs
 ```
 
-- Perform a trajectory mode (`-t`) in an RNA system (`rna`). Note that this is only implemented for whole mode at the moment.
+- Calculate SMIFs for a trajectory (`-t`) of an RNA system (`rna`). Note that this is only implemented for "whole" mode at the moment.
 ```
 python3 smiffer.py rna data/tests/04-traj/7vki.pdb -t data/tests/04-traj/7vki.xtc -o data/tests/04-traj
 ```
-
-### Volgrid Tools
-- TODO
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -79,7 +99,7 @@ A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [thi
 | HB Donors       | Violet     | 0.7,0,1    | 179,0,255  | B300FF |
 
 ### Visualizing CMAP trajectories in Chimera
-Follow this instructions to visualize the atomic and SMIF trajectories simultaneously in Chimera. ChimeraX is recommended.
+Follow these instructions to visualize the atomic and SMIF trajectories simultaneously in Chimera. ChimeraX is recommended.
 1) Open the PDB and load the atom trajectory into it (in ChimeraX, simply drag the files into the window).
 2) Open the CMAP file in a similar way.
 3) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
@@ -111,14 +131,31 @@ Follow this instructions to visualize the atomic and SMIF trajectories simultane
 Note that this time, the morph can be paused manually with the slider button (is there a command equivalent?)
 
 
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- ---------------------------- VOLGRID TOOLS ---------------------------- -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+# Volgrid Tools
+## Usage
+TODO
+
+
 <!-- ----------------------------------------------------------------------- -->
-## TODO
+## Commands examples
+TODO
+
+
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- ----------------------------------------------------------------------- -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+# TODO
 * fix concept behind hbonds that shouldn't be allowed to rotate
   * protein_backbone
   * TRP PRO HIS ARG ASN GLN
   * U C A G
 * check kernel bug when running tiny systems
-* making the format for the molecule params
 * check what happens if performing "fix-cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
 * implement: raise an error if a format file is opened with the wrong function
+
+
+<!-- ----------------------------------------------------------------------- -->

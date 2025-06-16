@@ -3,11 +3,20 @@ from collections import defaultdict
 
 ############################### PARSING UTILITIES ##############################
 # ------------------------------------------------------------------------------
-def _match_substr_between(superstr: str, regex0: str, regex1: str) -> str:
-    _,i0 = re.search(regex0, superstr).span()
-    superstr = superstr[i0:]
-    i1,_ = re.search(regex1, superstr).span()
-    return superstr[i1:].strip(), superstr[:i1].strip()
+def _extract_section_between_markers(superstr: str, start_regex: str, end_regex: str) -> str:
+    match_start = re.search(start_regex, superstr)
+    if match_start is None:
+        raise ValueError(f"Start marker '{start_regex}' not found in the string.")
+
+    _,i0 = match_start.span()
+    sliced_str = superstr[i0:]
+
+    match_end = re.search(end_regex, sliced_str)
+    if match_end is None:
+        return sliced_str.strip()
+
+    i1,_ = match_end.span()
+    return sliced_str[:i1].strip()
 
 
 # ------------------------------------------------------------------------------
@@ -80,19 +89,21 @@ class ChemTable:
             raw_table = file.read()
 
         ### separate raw string into sections
-        raw_table,raw_residues_hphob = _match_substr_between(
-            raw_table, r"\[RES_HPHOBICITY\]", r"\[ATOM_HPHOBICITY\]"
+        raw_residues_hphob = _extract_section_between_markers(
+            raw_table, r"\[RES_HPHOBICITY\]", r"\[\w*\]"
         )
-        raw_table,raw_atoms_hphob = _match_substr_between(
-            raw_table, r"\[ATOM_HPHOBICITY\]", r"\[NAMES_STACKING\]"
+        raw_atoms_hphob = _extract_section_between_markers(
+            raw_table, r"\[ATOM_HPHOBICITY\]", r"\[\w*\]"
         )
-        raw_table,raw_names_stk = _match_substr_between(
-            raw_table, r"\[NAMES_STACKING\]", r"\[NAMES_HBACCEPTORS\]"
+        raw_names_stk = _extract_section_between_markers(
+            raw_table, r"\[NAMES_STACKING\]", r"\[\w*\]"
         )
-        raw_table,raw_names_hba = _match_substr_between(
-            raw_table, r"\[NAMES_HBACCEPTORS\]", r"\[NAMES_HBDONORS\]"
+        raw_names_hba = _extract_section_between_markers(
+            raw_table, r"\[NAMES_HBACCEPTORS\]", r"\[\w*\]"
         )
-        raw_names_hbd = raw_table.lstrip("[NAMES_HBDONORS]").strip()
+        raw_names_hbd = _extract_section_between_markers(
+            raw_table, r"\[NAMES_HBDONORS\]", r"\[\w*\]"
+        )
 
         ### extract values from the lines
         for line in raw_residues_hphob.splitlines():
