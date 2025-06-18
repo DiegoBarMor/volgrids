@@ -1,3 +1,6 @@
+[SELECTION_QUERY]
+protein and not (name H*)
+
 [RES_HPHOBICITY]
 ASP: -1.23 # WW hydrophobicity scale
 GLU: -2.02 # negative means hydrophilic

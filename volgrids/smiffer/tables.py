@@ -48,6 +48,7 @@ def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str]:
 # //////////////////////////////////////////////////////////////////////////////
 class ChemTable:
     def __init__(self, path_table):
+        self.selection_query: str = ''
         self._residues_hphob: dict[str, float] = {}
         self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
         self._names_stk: dict[str, str] = {}
@@ -89,6 +90,9 @@ class ChemTable:
             raw_table = file.read()
 
         ### separate raw string into sections
+        raw_selection_query = _extract_section_between_markers(
+            raw_table, r"\[SELECTION_QUERY\]", r"\[\w*\]"
+        )
         raw_residues_hphob = _extract_section_between_markers(
             raw_table, r"\[RES_HPHOBICITY\]", r"\[\w*\]"
         )
@@ -106,6 +110,8 @@ class ChemTable:
         )
 
         ### extract values from the lines
+        self.selection_query = raw_selection_query.strip()
+
         for line in raw_residues_hphob.splitlines():
             if _is_empty_line(line): continue
             resname, value = _split_line(line)

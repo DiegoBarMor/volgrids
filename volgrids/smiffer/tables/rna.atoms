@@ -1,3 +1,6 @@
+[SELECTION_QUERY]
+nucleic and not (name H*)
+
 [RES_HPHOBICITY]
 
 [ATOM_HPHOBICITY]

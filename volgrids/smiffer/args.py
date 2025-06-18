@@ -1,6 +1,7 @@
 import os, json
 from pathlib import Path
 import volgrids.vgrids as vg
+import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifferArgsParser(vg.ArgsParser):
@@ -19,24 +20,24 @@ class SmifferArgsParser(vg.ArgsParser):
             "Running 'python3 smiffer.py' without a valid mode will display this help message.",
         ))
 
+        self.moltype: sm.MolType = sm.MolType.NONE # type of the molecule, e.g. PROT, RNA, LIGAND
 
         self.path_in: Path = None # "path/input/struct.pdb" SMIFFER
                                   # "path/input/grid.dx"    SMIFF Tools
         self.name: str = None     # name of the input file without extension, e.g. "1abc" for "1abc.pdb"
 
         ##### SMIFFER
-        self.moltype:   str  = None  # protein | nucleic
-        self.path_out:  Path = None  # "folder/output/"
-        self.path_apbs: Path = None  # "path/input/apbs.pqr.dx"
-        self.ps_info: tuple[float, float, float, float] = None
-                                     # [radius, x, y, z]
-        self.path_traj: Path = None  # "path/input/traj.xtc"
-        self.path_meta: Path = None  # automatically set to path_out / f"{self.name}.meta.json"
+        self.ps_info: tuple[float, float, float, float] = None # [radius, x, y, z]
+        self.path_out:   Path = None # "folder/output/"
+        self.path_apbs:  Path = None # "path/input/apbs.pqr.dx"
+        self.path_traj:  Path = None # "path/input/traj.xtc"
+        self.path_table: Path = None # "path/input/table.atoms" [WIP]
+        self.path_meta:  Path = None # automatically set to path_out / f"{self.name}.meta.json"
 
-        self.do_ps:     bool = False # PS mode
-        self.do_traj:   bool = False # TRAJ mode
+        self.do_ps:   bool = False # PS mode
+        self.do_traj: bool = False # TRAJ mode
 
-        self.debug_vars: dict = {}   # global variables can be overriden from the command line
+        self.debug_vars: dict = {} # global variables can be overriden from the command line
 
         ##### SMIF Tools
         ### Convert
@@ -58,12 +59,12 @@ class SmifferArgsParser(vg.ArgsParser):
 
 
         if self.mode == "prot": # SMIFFER
-            self.moltype = "protein"
+            self.moltype = sm.MolType.PROT
             self._parse_smiffer_calc()
             return
 
         if self.mode == "rna": # SMIFFER
-            self.moltype = "nucleic"
+            self.moltype = sm.MolType.RNA
             self._parse_smiffer_calc()
             return
 

@@ -10,8 +10,6 @@ class MolecularSystem:
         self.deltas    : np.array = np.zeros(3)
         self.meta: "vg.ArgsParser" = meta
 
-        self.isNucleic = meta.mode == "rna" # [WIP]
-        self.macro_query = f"{meta.moltype} and not (name H*)" # [WIP]
 
         ###############################
         if meta.do_traj:
@@ -24,21 +22,17 @@ class MolecularSystem:
 
         ###############################
         if meta.do_ps:
-            radius,xcog,ycog,zcog = self.meta.ps_info
+            radius,xcog,ycog,zcog = meta.ps_info
             self.cog = np.array([xcog, ycog, zcog])
             self.minCoords = self.cog - radius
             self.maxCoords = self.cog + radius
             self.radius = radius
-            self.relevant_atoms = self.system.select_atoms(
-                f"{self.macro_query} and point {xcog} {ycog} {zcog} {radius}"
-            )
 
         else:
             self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
             self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
             self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
-            self.cog = (self.maxCoords + self.minCoords) / 2
-            self.relevant_atoms = self.system.select_atoms(self.macro_query)
+            self.cog = (self.minCoords + self.maxCoords) / 2
 
 
         ###############################
