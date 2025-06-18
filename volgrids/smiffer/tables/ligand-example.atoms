@@ -1,0 +1,30 @@
+[SELECTION_QUERY]
+resname IPH
+
+[RES_HPHOBICITY]
+IPH: 0.94 # global residue scale, in this example approximated with IPH ~ TYR (prot)
+
+[ATOM_HPHOBICITY]
+IPH/C1:  1.01 # atom scales of the format resname/atomname
+IPH/C2:  1.05 # in this example they're arbitrary just to show their syntax
+*/C3:    1.05 # you can also use the * wildcard to apply for any resname (in case the selection query covers multiple residues)
+IPH/C4:  1.10
+IPH/C5:  1.05
+IPH/C6:  1.05
+IPH/O1: -0.05
+
+[NAMES_STACKING]
+IPH: C1 C2 C3 C4 C5 C6 # the SMIF will be placed in their center of geometry
+
+[NAMES_HBACCEPTORS]
+IPH: C1-O1 # formatted as antecedent-acceptor
+
+### in the case of multiple antecedents (think of the O in furane),
+### you can place both antecedents in the format: a1.a2-acceptor
+### then a "pseudo-antecedent" will be considered in the point between the 'a1' and 'a2' antecedents
+### and used to calculate the axis of rotation for the gaussian
+
+[NAMES_HBDONORS]
+IPH: C1-O1 # formatted as antecedent-donor
+
+### same format rule of a1.a2-donor can be used here for complicated cases

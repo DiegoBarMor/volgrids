@@ -186,11 +186,11 @@ def get_cmap_keys(path_cmap) -> list[str]:
     with h5py.File(path_cmap, 'r') as h5:
         return list(h5["Chimera"].keys())
 
+
 # ------------------------------------------------------------------------------
 def resolve_path(path: Path):
-    # [WIP] improve
-    path_py = Path(sys.argv[0])
-    project_root = path_py.parent
+    """Resolve the path to the project root directory."""
+    project_root = Path(__file__).resolve().parent.parent.parent
     return project_root / path
 
 

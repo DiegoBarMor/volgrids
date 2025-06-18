@@ -31,7 +31,7 @@ class SmifferMolecularSystem(vg.MolecularSystem):
     def _get_path_table(self, meta: "sm.SmifferArgsParser") -> Path:
         if meta.path_table: return meta.path_table
 
-        folder_default_tables = Path("volgrids/smiffer/tables")
+        folder_default_tables = Path("smiffer/tables")
 
         if meta.moltype == MolType.PROT:
             return vg.resolve_path(folder_default_tables / "prot.atoms")

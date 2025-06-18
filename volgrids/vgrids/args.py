@@ -12,6 +12,7 @@ class ArgsParser:
     def __init__(self):
         self.args = sys.argv[1:]
         self.mode = self._next_arg().lower()
+        self.debug_vars: dict = {} # global variables can be overriden from the command line
 
 
     # --------------------------------------------------------------------------

@@ -48,7 +48,7 @@ if __name__ == "__main__":
             print(f"Warning: {name} is not a valid volgrids variable. Skipping.")
             continue
 
-    if meta.mode in ["prot", "rna"]:
+    if meta.mode in ["prot", "rna", "ligand"]: # [WIP]
         sm.SmifferCalculator(meta).run()
     else:
         vg.VGTools(meta).run()
