@@ -1,6 +1,6 @@
 from pathlib import Path
 from enum import Enum, auto
-import volgrids.vgrids as vg
+import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////

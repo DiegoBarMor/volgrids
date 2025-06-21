@@ -1,5 +1,5 @@
 import numpy as np
-import volgrids.vgrids as vg
+import volgrids as vg
 import volgrids.smiffer as sm
 from collections import defaultdict
 

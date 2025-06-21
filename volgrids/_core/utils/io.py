@@ -2,7 +2,7 @@ import sys, os, h5py
 import numpy as np
 import gridData as gd
 from pathlib import Path
-import volgrids.vgrids as vg
+import volgrids as vg
 
 ################################################################################
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS

@@ -1,5 +1,5 @@
 import numpy as np
-import volgrids.vgrids as vg
+import volgrids as vg
 from scipy import interpolate
 
 ################################################################################

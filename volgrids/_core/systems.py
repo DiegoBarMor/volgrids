@@ -1,6 +1,6 @@
 import numpy as np
 import MDAnalysis as mda
-import volgrids.vgrids as vg
+import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class MolecularSystem:

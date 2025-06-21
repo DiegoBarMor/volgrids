@@ -1,6 +1,6 @@
 import os, json
 from pathlib import Path
-import volgrids.vgrids as vg
+import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////

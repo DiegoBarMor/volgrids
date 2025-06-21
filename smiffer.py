@@ -1,5 +1,6 @@
-import volgrids.vgrids as vg
+import volgrids as vg
 import volgrids.smiffer as sm
+import volgrids.vgtools as vgt
 
 ################################################################################
 if __name__ == "__main__":
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     if meta.mode in ["prot", "rna", "ligand"]: # [WIP]
         sm.SmifferCalculator(meta).run()
     else:
-        vg.VGTools(meta).run()
+        vgt.VGTools(meta).run()
 
 
 ################################################################################
