@@ -57,7 +57,7 @@ Run `python3 smiffer.py [mode] [path_input] [options...]` and provide the parame
     - `-t [path_traj]`  where `[path_traj]` is the path to a trajectory file (e.g. XTC) supported by MDAnalysis. This activates "traj" mode, where SMIFs are calculated for all the frames of the trajectory and saved in a CMAP-series file.
     - `-a [path_apbs]` where `[path_apbs]` is the path to the output of APBS. An *OpenDX* file is expected. This grid will be interpolated into the shape of the other grids.
     - `-rxyz [r] [x] [y] [z]` where `[r]`, `[x]`, `[y]` and `[z]` are the float values for the radius and X,Y,Z coordinates of a sphere in space, respectively. This activates "pocket sphere" mode, where the SMIFs will only be calculated inside the sphere provided.
-    - `-b [path_table]` where `[path_table]` is the path to an *.atoms* table file to use for ligand mode, or to override the default macromolecules' tables. This flag is mandatory for "ligand" mode.
+    - `-b [path_table]` where `[path_table]` is the path to a *.chem* table file to use for ligand mode, or to override the default macromolecules' tables. This flag is mandatory for "ligand" mode.
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -161,7 +161,8 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * check what happens if performing "fix-cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
 * implement: raise an error if a format file is opened with the wrong function
-* read the global variables from a fixed parameter file
+* read the global variables from a default .config file
+  * or from a user-provided one
 
 
 <!-- ----------------------------------------------------------------------- -->

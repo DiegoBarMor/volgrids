@@ -1,4 +1,5 @@
 import re
+import numpy as np
 
 # //////////////////////////////////////////////////////////////////////////////
 class IniParser:
@@ -9,19 +10,43 @@ class IniParser:
 
 
     # --------------------------------------------------------------------------
-    @classmethod
-    def is_empty_line(cls, line: str) -> bool:
+    @staticmethod
+    def is_empty_line(line: str) -> bool:
         return not line.strip() or line.startswith('#')
 
 
     # ------------------------------------------------------------------------------
-    @classmethod
-    def split_line(cls, line: str, sep: str = '=') -> tuple[str, str]:
+    @staticmethod
+    def split_line(line: str, sep: str = '=') -> tuple[str, str]:
         line = line.split('#')[0].strip() # Remove comments
         pair = tuple(map(str.strip, line.split(sep)))
         if len(pair) != 2:
             raise ValueError(f"Line '{line}' does not contain '{sep}'")
         return pair
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def parse_str(str_value: str):
+        if str_value.startswith("np."):
+            key = str_value[3:]
+            return np.__dict__.get(key, key)
+        if str_value.isdigit():
+            return int(str_value)
+        if str_value.lower() in ["true", "false"]:
+            return str_value.lower() == "true"
+        try:
+            return float(str_value)
+        except ValueError:
+            return str_value.strip('"').strip("'")
+
+
+    # --------------------------------------------------------------------------
+    def has(self, key: str) -> bool:
+        """
+        Checks if the given key exists in the sections.
+        """
+        return key in self._ini_sections.keys()
 
 
     # --------------------------------------------------------------------------

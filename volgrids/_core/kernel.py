@@ -30,9 +30,9 @@ class Kernel:
 
         ##### initizalize auxiliary kernel of distance values
         self.center = np.floor(self.kernel_res / 2) * self.deltas
-        self.coords = vg.get_coords_array(self.kernel_res, self.deltas)
+        self.coords = vg.Math.get_coords_array(self.kernel_res, self.deltas)
         self.shifted_coords = self.coords - self.center
-        self.dist = vg.get_norm(self.shifted_coords)
+        self.dist = vg.Math.get_norm(self.shifted_coords)
 
         ##### set operation
         self.operation: callable[np.array, np.array]

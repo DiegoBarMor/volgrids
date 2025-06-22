@@ -34,7 +34,7 @@ COG_CUBE_RADIUS = 3
 APBS_MIN_CUTOFF = -2
 APBS_MAX_CUTOFF =  3
 
-######################## PARAMETERS FOR THE STATISTICAL ENERGY FUNCTIONS MODELS
+######################## SMIF MODEL PARAMETERS
 MU_HYDROPHOBIC = 4.0
 SIGMA_HYDROPHOBIC = 1.5
 
@@ -75,8 +75,7 @@ COV_INV_STACKING = _np.linalg.inv(COV_STACKING)
 
 
 ### square root of the DIST contribution to COV_STACKING,
-### calculated with _np.sqrt(COV_STACKING[1,1])
-SIGMA_DIST_STACKING = 0.6092937058594976
+SIGMA_DIST_STACKING = _np.sqrt(COV_STACKING[1,1])
 
 ######################## KERNEL_PARAMETERS
 
@@ -93,8 +92,9 @@ from .grids.hbonds import GridHBAccepts, GridHBDonors
 from .grids.hydro import GridHydrophilic, GridHydrophobic
 from .grids.stacking import GridStacking
 
-from .args import SmifferArgsParser
-from .tables import ChemTable
+from .parsers.args_parser import SmifferArgsParser
+from .parsers.chem_table import ChemTable
+
 from .trimmers import GridTrimmer
 from .systems import MolType, SmifferMolecularSystem
 

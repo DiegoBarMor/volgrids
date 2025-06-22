@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-folder_data="data/tests"
+folder_data="testdata/tests"
 folder00="$folder_data/0-pocket_sphere"
 folder01="$folder_data/1-whole"
 folder02="$folder_data/2-traj"

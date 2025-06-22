@@ -11,22 +11,13 @@ class GridAPBS(vg.Grid):
 
     # --------------------------------------------------------------------------
     def populate_grid(self):
-        xmin1, ymin1, zmin1 = self.ms.minCoords
-        xmax1, ymax1, zmax1 = self.ms.maxCoords
-        xres1, yres1, zres1 = self.ms.resolution
         _,apbs = vg.read_auto(self.ms.meta.path_apbs)
-
-        self.grid = vg.interpolate_3d(
-            x0 = np.linspace(apbs.xmin, apbs.xmax, apbs.xres),
-            y0 = np.linspace(apbs.ymin, apbs.ymax, apbs.yres),
-            z0 = np.linspace(apbs.zmin, apbs.zmax, apbs.zres),
-            data_0 = apbs.grid,
-            new_coords = np.mgrid[
-                xmin1 : xmax1 : complex(0, xres1),
-                ymin1 : ymax1 : complex(0, yres1),
-                zmin1 : zmax1 : complex(0, zres1),
-            ].T
-        ).astype(vg.FLOAT_DTYPE)
+        apbs.reshape(
+            new_min = (self.xmin, self.ymin, self.zmin),
+            new_max = (self.xmax, self.ymax, self.zmax),
+            new_res = (self.xres, self.yres, self.zres)
+        )
+        self.grid = apbs.grid
 
 
     # --------------------------------------------------------------------------

@@ -12,7 +12,7 @@ class GridHBonds(vg.Grid):
         gk = vg.KernelGaussianMultivariate(self.radius, self.ms.deltas, vg.FLOAT_DTYPE)
         gk.link_to_grid(self.grid, self.ms.minCoords)
         for pos_antecedent, pos_atom_hbond in self.iter_particles():
-            direction = vg.normalize(pos_atom_hbond - pos_antecedent)
+            direction = vg.Math.normalize(pos_atom_hbond - pos_antecedent)
             gk.recalculate_kernel(direction, **self.kernel_args)
             gk.stamp(pos_atom_hbond)
 

@@ -1,8 +1,8 @@
 import os, h5py
 import numpy as np
 import gridData as gd
-from pathlib import Path
 import volgrids as vg
+from pathlib import Path
 
 ################################################################################
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
@@ -185,13 +185,6 @@ def read_auto(path_grid: Path) -> tuple[str, "vg.Grid"]:
 def get_cmap_keys(path_cmap) -> list[str]:
     with h5py.File(path_cmap, 'r') as h5:
         return list(h5["Chimera"].keys())
-
-
-# ------------------------------------------------------------------------------
-def resolve_path(path: Path):
-    """Resolve the path to the project root directory."""
-    project_root = Path(__file__).resolve().parent.parent.parent
-    return project_root / path
 
 
 # ------------------------------------------------------------------------------

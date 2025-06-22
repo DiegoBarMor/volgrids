@@ -12,7 +12,7 @@ class SmifferArgsParser(vg.ArgsParser):
             "Available modes:",
             "  prot     - Calculate SMIFs for protein structures.",
             "  rna      - Calculate SMIFs for RNA structures.",
-            "  ligand   - Calculate SMIFs for ligand structures. An .atoms table must be provided.",
+            "  ligand   - Calculate SMIFs for ligand structures. A .chem table must be provided.",
             "Run 'python3 smiffer.py [mode] --help' for more details on each mode.",
             "Running 'python3 smiffer.py' without a valid mode will display this help message.",
         ))
@@ -25,7 +25,7 @@ class SmifferArgsParser(vg.ArgsParser):
         self.path_out:   Path = None # "folder/output/"
         self.path_apbs:  Path = None # "path/input/apbs.pqr.dx"
         self.path_traj:  Path = None # "path/input/traj.xtc"
-        self.path_table: Path = None # "path/input/table.atoms"
+        self.path_table: Path = None # "path/input/table.chem"
         self.path_meta:  Path = None # automatically set to path_out / f"{self.name}.meta.json"
 
         self.do_ps:   bool = False # PS mode
@@ -78,7 +78,7 @@ class SmifferArgsParser(vg.ArgsParser):
             "-t, --traj                       Path to a trajectory file (e.g. XTC) supported by MDAnalysis. Activates 'traj' mode: calculate SMIFs for all the frames and save them as a CMAP-series file.",
             "-a, --apbs                       Path to the output of APBS for the respective structure file (this must be done before). An OpenDX file is expected.",
             "-rxyz", "-ps", "--pocket-sphere  Activate 'pocket sphere' mode by providing the sphere radius and the X, Y, Z coordinates for its center. If not provided, 'whole' mode is assumed.",
-            "-b, --table                      Path to an .atoms table file to use for ligand mode, or to override the default macromolecules' tables.",
+            "-b, --table                      Path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
         ))
 
         fdict = self._get_flags_dict({
@@ -143,7 +143,7 @@ class SmifferArgsParser(vg.ArgsParser):
                 self.print_exit(-1, f"{help_string}\nError: The specified trajectory file '{self.path_traj}' does not exist.")
 
         if (self.moltype == sm.MolType.LIGAND) and not options_table:
-            self.print_exit(-1, f"{help_string}\nError: No table file provided for ligand mode. Use -b or --table to specify the path to the .atoms table file.")
+            self.print_exit(-1, f"{help_string}\nError: No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file.")
 
         if options_table:
             self.path_table = Path(options_table[0])

@@ -31,13 +31,13 @@ class SmifferMolecularSystem(vg.MolecularSystem):
     def _get_path_table(self, meta: "sm.SmifferArgsParser") -> Path:
         if meta.path_table: return meta.path_table
 
-        folder_default_tables = Path("smiffer/tables")
+        folder_default_tables = Path("volgrids/smiffer/tables")
 
         if meta.moltype == MolType.PROT:
-            return vg.resolve_path(folder_default_tables / "prot.atoms")
+            return vg.resolve_path(folder_default_tables / "prot.chem")
 
         if meta.moltype == MolType.RNA:
-            return vg.resolve_path(folder_default_tables / "rna.atoms")
+            return vg.resolve_path(folder_default_tables / "rna.chem")
 
         raise ValueError(f"No default table for the specified molecular type '{meta.moltype}'. Please provide a path to a custom table.")
 

@@ -25,26 +25,21 @@ EXTRA_BOX_SIZE = 5 # only applies to whole mode
 USE_FIXED_DELTAS = True # whether to use fixed dx,dy,dz and le xres,yres,zres change (or the opposite)
 
 
-#################################################################
-
-from ._core.args import ArgsParser
 from ._core.grid import Grid
 from ._core.kernel import Kernel
 from ._core.systems import MolecularSystem
+from ._core.math import Math
+from ._core.utils import Timer, \
+    format_vector_str, resolve_path
 
 from ._core.kernels.boolean import \
     KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut
 from ._core.kernels.gaussian import \
     KernelGaussianUnivariate, KernelGaussianMultivariate
 
-from ._core.utils.math import \
-    normalize, dot_product, get_norm, get_angle, \
-    get_projection, get_projection_height, \
-    univariate_gaussian, multivariate_gaussian, \
-    interpolate_3d, format_vector_str, get_coords_array
-from ._core.utils.ini_parser import IniParser
-from ._core.utils.io import \
+from ._core.parsers.args_parser import ArgsParser
+from ._core.parsers.ini_parser import IniParser
+from ._core.parsers.grid_formats import \
     read_dx, read_mrc, read_cmap, \
     write_dx, write_mrc, write_cmap, \
-    read_auto, get_cmap_keys, resolve_path
-from ._core.utils.timer import Timer
+    read_auto, get_cmap_keys

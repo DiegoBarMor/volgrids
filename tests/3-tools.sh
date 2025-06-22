@@ -4,7 +4,7 @@ set -eu
 echo
 echo ">>> TEST 3: Conversions between MRC,DX,CMAP formats; packing; unpacking"
 
-folder=data/tests/3-tools
+folder=testdata/tests/3-tools
 fc="$folder/converting"
 fp="$folder/packing"
 fu="$folder/unpacking"

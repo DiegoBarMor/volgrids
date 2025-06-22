@@ -36,25 +36,34 @@ class Grid:
         return np.all(self.grid == 0)
 
     # --------------------------------------------------------------------------
-    def reshape(self, new_xres, new_yres, new_zres):
-        self.grid = vg.interpolate_3d(
+    def reshape(self, new_min: tuple[float], new_max: tuple[float], new_res: tuple[float]):
+        new_xmin, new_ymin, new_zmin = new_min
+        new_xmax, new_ymax, new_zmax = new_max
+        new_xres, new_yres, new_zres = new_res
+
+        self.grid = vg.Math.interpolate_3d(
             x0 = np.linspace(self.xmin, self.xmax, self.xres),
             y0 = np.linspace(self.ymin, self.ymax, self.yres),
             z0 = np.linspace(self.zmin, self.zmax, self.zres),
             data_0 = self.grid,
             new_coords = np.mgrid[
-                self.xmin : self.xmax : complex(0, new_xres),
-                self.ymin : self.ymax : complex(0, new_yres),
-                self.zmin : self.zmax : complex(0, new_zres),
+                new_xmin : new_xmax : complex(0, new_xres),
+                new_ymin : new_ymax : complex(0, new_yres),
+                new_zmin : new_zmax : complex(0, new_zres),
             ].T
         ).astype(vg.FLOAT_DTYPE)
-        self.xres = new_xres
-        self.yres = new_yres
-        self.zres = new_zres
+
+        self.xmin, self.ymin, self.zmin = new_xmin, new_ymin, new_zmin
+        self.xmax, self.ymax, self.zmax = new_xmax, new_ymax, new_zmax
+        self.xres, self.yres, self.zres = new_xres, new_yres, new_zres
+        self.dx = (self.xmax - self.xmin) / (self.xres - 1)
+        self.dy = (self.ymax - self.ymin) / (self.yres - 1)
+        self.dz = (self.zmax - self.zmin) / (self.zres - 1)
+
 
     # --------------------------------------------------------------------------
-    @classmethod
-    def substract(cls, grid_0: "Grid", grid_1: "Grid") -> "Grid":
+    @staticmethod
+    def substract(grid_0: "Grid", grid_1: "Grid") -> "Grid":
         grid = grid_0.copy()
         grid.grid = grid_0.grid - grid_1.grid
         return grid

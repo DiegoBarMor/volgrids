@@ -16,9 +16,9 @@ class GridStacking(vg.Grid):
         for res_atoms in self.iter_particles():
             cog = res_atoms.center_of_geometry()
             a,b,c = res_atoms.positions[:3]
-            u = vg.normalize(b - a)
-            v = vg.normalize(c - a)
-            normal = vg.normalize(np.cross(u, v))
+            u = vg.Math.normalize(b - a)
+            v = vg.Math.normalize(c - a)
+            normal = vg.Math.normalize(np.cross(u, v))
 
             gk.recalculate_kernel(normal, sm.MU_STACKING, sm.COV_INV_STACKING, isStacking = True)
             gk.stamp(cog)

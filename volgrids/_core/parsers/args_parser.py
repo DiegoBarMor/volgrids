@@ -1,4 +1,5 @@
 import sys
+import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class ArgsParser:
@@ -56,20 +57,9 @@ class ArgsParser:
     def _get_debug_vars(self, options: list[str]) -> None:
         """Parse the command line arguments for debug variables.
         Debug variables are specified as --debug <var_name>=<value>."""
-
-        def parse_str(str_value: str):
-            if str_value.isdigit():
-                return int(str_value)
-            if str_value.lower() in ["true", "false"]:
-                return str_value.lower() == "true"
-            try:
-                return float(str_value)
-            except ValueError:
-                return str_value.strip('"').strip("'")
-
         for option in options:
             name, str_value = option.split('=', 1)
-            self.debug_vars[name] = parse_str(str_value)
+            self.debug_vars[name] = vg.IniParser.parse_str(str_value)
 
 
 

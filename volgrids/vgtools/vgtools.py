@@ -94,10 +94,13 @@ class VGTools:
         print(f">>> Fixing CMAP file: {path_in}")
         for key in keys:
             grid = vg.read_cmap(path_in, key)
+
+            minCoords = (grid.xmin, grid.ymin, grid.zmin)
+            maxCoords = (grid.xmax, grid.ymax, grid.zmax)
             if resolution is None:
                 resolution = (grid.xres, grid.yres, grid.zres)
 
-            grid.reshape(*resolution)
+            grid.reshape(minCoords, maxCoords, resolution)
             vg.write_cmap(path_out, grid, key)
 
 
