@@ -98,5 +98,4 @@ from .tables import ChemTable
 from .trimmers import GridTrimmer
 from .systems import MolType, SmifferMolecularSystem
 
-
-from .calculator import SmifferCalculator
+from .smiffer import SmifferCalculator

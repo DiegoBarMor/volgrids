@@ -2,7 +2,7 @@
 set -eu
 
 fpdb="data/pdb"
-ftests="data/tests/03-tools"
+ftests="data/tests/3-tools"
 fc="$ftests/converting"
 fp="$ftests/packing"
 fu="$ftests/unpacking"
@@ -42,11 +42,11 @@ mv $fp/2esj.stacking.mrc    $fp/2esj.stk.mrc
 python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fu -rxyz 14.675 4.682 21.475 7.161 --debug $args_smifs
 
 cd $fu
-python3 ../../../../smiffer.py pack -i 1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc -o 1iqj.cmap
+python3 ../../../../vgtools.py pack -i 1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc -o 1iqj.cmap
 cd ../../../..
 
 rm -f $fu/1iqj.meta.json $fu/1iqj.*.mrc
 
 
 ############################# FIX CMAP
-python3 smiffer.py pack -i $ff/_frames/smiffer_126.hbdonors.cmap $ff/_frames/smiffer_142.hbdonors.cmap $ff/_frames/smiffer_3.hbdonors.cmap $ff/_frames/smiffer_127.hbdonors.cmap $ff/_frames/smiffer_32.hbdonors.cmap $ff/_frames/smiffer_50.hbdonors.cmap -o $ff/hbdonors.issue.cmap
+python3 vgtools.py pack -i $ff/_frames/smiffer_126.hbdonors.cmap $ff/_frames/smiffer_142.hbdonors.cmap $ff/_frames/smiffer_3.hbdonors.cmap $ff/_frames/smiffer_127.hbdonors.cmap $ff/_frames/smiffer_32.hbdonors.cmap $ff/_frames/smiffer_50.hbdonors.cmap -o $ff/hbdonors.issue.cmap

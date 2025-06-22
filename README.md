@@ -1,5 +1,5 @@
 # Volumetric Grids
-This is a framework for volumetric calculations, with emphasis in biological molecular systems. A custom implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method is also included.
+This is a framework for volumetric calculations, with emphasis in biological molecular systems. Two tools are also provided: **SMIF Calculator** (`smiffer.py`) and **Volgrid Tools** (`vgtools.py`). You can read more in their respective sections.
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -45,7 +45,9 @@ pip install mdanalysis h5py
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- ------------------------------- SMIFFER ------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-# SMIFFER calculator
+# SMIF Calculator
+A custom implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method is provided as `smiffer.py`.
+
 ## Usage
 Run `python3 smiffer.py [mode] [path_input] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `prot`, `rna` or `ligand` according to the structure of interest.
@@ -105,14 +107,13 @@ Follow these instructions to visualize the atomic and SMIF trajectories simultan
 2) Open the CMAP file in a similar way.
 3) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
 ```
-  coordset #1; vseries play #2
-  coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5
-  coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5; vseries play #3 pauseFrames 5
-
+coordset #1; vseries play #2
+coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5
+coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5; vseries play #3 pauseFrames 5
 ```
 4) Use this Chimera command to stop the playback. The ids used must match the previous command.
 ```
-  coordset stop #1; vseries stop #2
+coordset stop #1; vseries stop #2
 ```
 
 #### Smooth Trajectories
@@ -121,13 +122,13 @@ Follow these instructions to visualize the atomic and SMIF trajectories simultan
 3) (Optional) Open the `smooth_md.py` script.
 4) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
 ```
-  coordset #1 pauseFrames 10; vop morph #2 playStep 0.0005 frames 2000 modelId 3
-  coordset #1 pauseFrames 20; vop morph #2 playStep 0.00025 frames 4000 modelId 3
-  coordset #1 pauseFrames 20; vop morph #2 playStep 0.00025 frames 4000 modelId 4; vop morph #3 playStep 0.00025 frames 4000 modelId 5
+coordset #1 pauseFrames 10; vop morph #2 playStep 0.0005 frames 2000 modelId 3
+coordset #1 pauseFrames 20; vop morph #2 playStep 0.00025 frames 4000 modelId 3
+coordset #1 pauseFrames 20; vop morph #2 playStep 0.00025 frames 4000 modelId 4; vop morph #3 playStep 0.00025 frames 4000 modelId 5
 ```
 4) Use this Chimera command to stop the playback. The ids used must match the previous command.
 ```
-  coordset stop #1; vseries stop #2
+coordset stop #1; vseries stop #2
 ```
 Note that this time, the morph can be paused manually with the slider button (is there a command equivalent?)
 
@@ -136,13 +137,16 @@ Note that this time, the morph can be paused manually with the slider button (is
 <!-- ---------------------------- VOLGRID TOOLS ---------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Volgrid Tools
+Collection of utilities for manipulating DX, MRC and CMAP grids.
+
 ## Usage
-TODO
-
-
-<!-- ----------------------------------------------------------------------- -->
-## Commands examples
-TODO
+Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the calculation via arguments.
+  - Replace `[mode]` with `convert`, `pack`, `unpack` or `fix-cmap`. Available modes:
+    - `convert`: Convert grid files between formats.
+    - `pack`: Pack multiple grid files into a single CMAP series-file.
+    - `unpack`: Unpack a CMAP series-file into multiple grid files.
+    - `fix-cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
+  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 vgtools.py [mode]` with no more arguments).
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -158,7 +162,6 @@ TODO
 * check what happens if performing "fix-cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
 * implement: raise an error if a format file is opened with the wrong function
-* separate smiffer and vgtools properly
 * read the global variables from a fixed parameter file
 
 

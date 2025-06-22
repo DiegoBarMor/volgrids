@@ -2,11 +2,11 @@
 set -eu
 
 echo
-echo ">>> TEST 00: Benchmark, Pocket Sphere mode"
+echo ">>> TEST 0: Benchmark, Pocket Sphere mode"
 
 fapbs="data/apbs"
 fpdb="data/pdb"
-fout="data/tests/00-pocket_sphere"
+fout="data/tests/0-pocket_sphere"
 mkdir -p $fout
 
 python3 -W ignore smiffer.py rna  $fpdb/1akx.pdb  -o $fout -a $fapbs/1akx.pqr.dx  -rxyz  9.698   -2.677  -4.466   -0.020
@@ -35,7 +35,7 @@ rm -f $fout/*.json $fout/*.pdb
 names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
 for name in "${names[@]}"; do
     mapfile -t paths_grids < <(ls "$fout/$name".*) # get the list of files corresponding to the pdb
-    python3 smiffer.py pack -i "${paths_grids[@]}" -o "$fout/$name.cmap"  # pack them into a single CMAP file
+    python3 vgtools.py pack -i "${paths_grids[@]}" -o "$fout/$name.cmap"  # pack them into a single CMAP file
     rm -f "${paths_grids[@]}" # remove the individual grid files
     cp "$fpdb/$name.pdb" "$fout/$name.pdb"
 done

@@ -2,9 +2,9 @@
 set -eu
 
 echo
-echo ">>> TEST 03: Conversions between MRC,DX,CMAP formats; packing; unpacking"
+echo ">>> TEST 3: Conversions between MRC,DX,CMAP formats; packing; unpacking"
 
-folder=data/tests/03-tools
+folder=data/tests/3-tools
 fc="$folder/converting"
 fp="$folder/packing"
 fu="$folder/unpacking"
@@ -27,9 +27,9 @@ path_cmap_to_dx="$fc/cmap2dx.dx"
 path_cmap_to_mrc="$fc/cmap2mrc.mrc"
 path_cmap_to_cmap="$fc/cmap2cmap.cmap"
 
-python3 smiffer.py convert "$path_dx_input"   --dx "$path_dx_to_dx"   --mrc "$path_dx_to_mrc"   --cmap "$path_dx_to_cmap"
-python3 smiffer.py convert "$path_mrc_input"  --dx "$path_mrc_to_dx"  --mrc "$path_mrc_to_mrc"  --cmap "$path_mrc_to_cmap"
-python3 smiffer.py convert "$path_cmap_input" --dx "$path_cmap_to_dx" --mrc "$path_cmap_to_mrc" --cmap "$path_cmap_to_cmap"
+python3 vgtools.py convert "$path_dx_input"   --dx "$path_dx_to_dx"   --mrc "$path_dx_to_mrc"   --cmap "$path_dx_to_cmap"
+python3 vgtools.py convert "$path_mrc_input"  --dx "$path_mrc_to_dx"  --mrc "$path_mrc_to_mrc"  --cmap "$path_mrc_to_cmap"
+python3 vgtools.py convert "$path_cmap_input" --dx "$path_cmap_to_dx" --mrc "$path_cmap_to_mrc" --cmap "$path_cmap_to_cmap"
 
 
 ############################# PACKING
@@ -37,15 +37,15 @@ paths_in="$fp/2esj.hba.mrc $fp/2esj.hbd.mrc $fp/2esj.phi.mrc $fp/2esj.pho.mrc $f
 path_out="$fp/2esj.cmap"
 
 # shellcheck disable=SC2086
-python3 smiffer.py pack -i $paths_in -o "$path_out"
+python3 vgtools.py pack -i $paths_in -o "$path_out"
 
 
 ############################# UNPACKING
 path_in="$fu/1iqj.cmap"
-python3 smiffer.py unpack -i "$path_in"
+python3 vgtools.py unpack -i "$path_in"
 
 
 ############################# FIX CMAP
 path_in="$ff/hbdonors.issue.cmap"
 path_out="$ff/hbdonors.fixed.cmap"
-python3 smiffer.py fix-cmap -i "$path_in" -o "$path_out"
+python3 vgtools.py fix-cmap -i "$path_in" -o "$path_out"

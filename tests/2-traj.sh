@@ -2,8 +2,8 @@
 set -eu
 
 echo
-echo ">>> TEST 02: Trajectory mode"
+echo ">>> TEST 2: Trajectory mode"
 
-folder=data/tests/02-traj
+folder=data/tests/2-traj
 python3 smiffer.py rna $folder/7vki.pdb -o $folder -t $folder/7vki.xtc
 rm -f $folder/.[!.]*.npz $folder/.[!.]*.lock

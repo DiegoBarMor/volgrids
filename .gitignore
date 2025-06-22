@@ -2,6 +2,6 @@ desktop.ini
 __pycache__/
 .vscode/
 
-data/
+testdata/
 
 debug.sh

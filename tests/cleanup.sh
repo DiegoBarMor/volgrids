@@ -2,11 +2,11 @@
 set -eu
 
 folder_data="data/tests"
-folder00="$folder_data/00-pocket_sphere"
-folder01="$folder_data/01-whole"
-folder02="$folder_data/02-traj"
-folder03="$folder_data/03-tools"
-folder05="$folder_data/05-ligand"
+folder00="$folder_data/0-pocket_sphere"
+folder01="$folder_data/1-whole"
+folder02="$folder_data/2-traj"
+folder03="$folder_data/3-tools"
+folder05="$folder_data/5-ligand"
 
 folder03c="$folder03/converting"
 folder03p="$folder03/packing"

@@ -1,6 +1,5 @@
 import volgrids as vg
 import volgrids.smiffer as sm
-import volgrids.vgtools as vgt
 
 ################################################################################
 if __name__ == "__main__":
@@ -49,10 +48,7 @@ if __name__ == "__main__":
             print(f"Warning: {name} is not a valid volgrids variable. Skipping.")
             continue
 
-    if meta.mode in ["prot", "rna", "ligand"]: # [WIP]
-        sm.SmifferCalculator(meta).run()
-    else:
-        vgt.VGTools(meta).run()
+    sm.SmifferCalculator(meta).run()
 
 
 ################################################################################
