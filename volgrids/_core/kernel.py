@@ -61,7 +61,7 @@ class Kernel:
             g_i1 = g_rx
             k_i1 = g_rx - g_i0
 
-        if g_j0 < 0 and g_j1 >= g_rx: # when the big grid is smaller than the kernel
+        if g_j0 < 0 and g_j1 >= g_ry: # when the big grid is smaller than the kernel
             k_j0 = -g_j0
             k_j1 = k_j0 + g_ry
             g_j0 = 0
@@ -73,7 +73,7 @@ class Kernel:
             g_j1 = g_ry
             k_j1 = g_ry - g_j0
 
-        if g_k0 < 0 and g_k1 >= g_rx: # when the big grid is smaller than the kernel
+        if g_k0 < 0 and g_k1 >= g_rz: # when the big grid is smaller than the kernel
             k_k0 = -g_k0
             k_k1 = k_k0 + g_rz
             g_k0 = 0
