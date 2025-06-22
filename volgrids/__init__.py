@@ -42,6 +42,7 @@ from ._core.utils.math import \
     get_projection, get_projection_height, \
     univariate_gaussian, multivariate_gaussian, \
     interpolate_3d, format_vector_str, get_coords_array
+from ._core.utils.ini_parser import IniParser
 from ._core.utils.io import \
     read_dx, read_mrc, read_cmap, \
     write_dx, write_mrc, write_cmap, \
