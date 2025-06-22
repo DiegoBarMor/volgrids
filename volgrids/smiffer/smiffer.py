@@ -5,6 +5,8 @@ import volgrids.smiffer as sm
 class SmifferCalculator:
     def __init__(self, meta: "sm.SmifferArgsParser"):
         self.meta = meta
+        self._apply_custom_config()
+
         self.meta.save_metadata()
         self.ms = sm.SmifferMolecularSystem(meta)
 
@@ -103,6 +105,23 @@ class SmifferCalculator:
 
         grid_apbs.apply_logabs_transform()
         grid_apbs.save_data(override_prefix = "apbslog")
+
+
+    # --------------------------------------------------------------------------
+    def _apply_custom_config(self) -> None:
+        if self.meta.path_config is None: return
+
+        config = vg.ConfigParser(self.meta.path_config)
+        if config.has("VOLGRIDS"): config.apply_config(
+            key = "VOLGRIDS", globs = vg.__dict__,
+            valid_configs = set(vg.__annotations__.keys()),
+            all_configs_mandatory = False
+        )
+        if config.has("SMIFFER"): config.apply_config(
+            key = "SMIFFER", globs = sm.__dict__,
+            valid_configs = set(sm.__annotations__.keys()),
+            all_configs_mandatory = False
+        )
 
 
 # //////////////////////////////////////////////////////////////////////////////

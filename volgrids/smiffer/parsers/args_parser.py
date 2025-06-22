@@ -22,11 +22,12 @@ class SmifferArgsParser(vg.ArgsParser):
         self.name: str = None     # name of the input file without extension, e.g. "1abc" for "1abc.pdb"
 
         self.ps_info: tuple[float, float, float, float] = None # [radius, x, y, z]
-        self.path_out:   Path = None # "folder/output/"
-        self.path_apbs:  Path = None # "path/input/apbs.pqr.dx"
-        self.path_traj:  Path = None # "path/input/traj.xtc"
-        self.path_table: Path = None # "path/input/table.chem"
-        self.path_meta:  Path = None # automatically set to path_out / f"{self.name}.meta.json"
+        self.path_out:    Path = None # "folder/output/"
+        self.path_apbs:   Path = None # "path/input/apbs.pqr.dx"
+        self.path_traj:   Path = None # "path/input/traj.xtc"
+        self.path_table:  Path = None # "path/input/table.chem"
+        self.path_config: Path = None # "path/input/globals.config"
+        self.path_meta:   Path = None # automatically set to path_out / f"{self.name}.meta.json"
 
         self.do_ps:   bool = False # PS mode
         self.do_traj: bool = False # TRAJ mode
@@ -79,6 +80,7 @@ class SmifferArgsParser(vg.ArgsParser):
             "-a, --apbs                       Path to the output of APBS for the respective structure file (this must be done before). An OpenDX file is expected.",
             "-rxyz", "-ps", "--pocket-sphere  Activate 'pocket sphere' mode by providing the sphere radius and the X, Y, Z coordinates for its center. If not provided, 'whole' mode is assumed.",
             "-b, --table                      Path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
+            "--config                         Path to a configuration file with global settings, to override the default settings from vgrids.config.",
         ))
 
         fdict = self._get_flags_dict({
@@ -88,19 +90,20 @@ class SmifferArgsParser(vg.ArgsParser):
             "apbs" : ("-a", "--apbs"),
             "ps"   : ("-rxyz", "-ps", "--pocket-sphere"),
             "table": ("-b", "--table"),
+            "config": ("--config",)
             # "cav": ("-c", "--cavities"), # [TODO] not implemented yet
-            "debug": ("--debug",)
         })
 
         if fdict.get("help") is not None:
             self.print_exit(0, help_string)
 
-        options_in    = fdict.get(None)
-        options_out   = fdict.get("out")
-        options_traj  = fdict.get("traj")
-        options_apbs  = fdict.get("apbs")
-        options_ps    = fdict.get("ps")
-        options_table = fdict.get("table")
+        options_in     = fdict.get(None)
+        options_out    = fdict.get("out")
+        options_traj   = fdict.get("traj")
+        options_apbs   = fdict.get("apbs")
+        options_ps     = fdict.get("ps")
+        options_table  = fdict.get("table")
+        options_config = fdict.get("config")
 
         if not options_in:
             self.print_exit(-1, f"{help_string}\nError: No input structure file provided. Provide a path to the structure file as first positional argument.")
@@ -150,10 +153,12 @@ class SmifferArgsParser(vg.ArgsParser):
             if not self.path_table.exists():
                 self.print_exit(-1, f"{help_string}\nError: The specified table file '{self.path_table}' does not exist.")
 
-        self.path_meta = self.path_out / f"{self.name}.meta.json"
+        if options_config:
+            self.path_config = Path(options_config[0])
+            if not self.path_config.exists():
+                self.print_exit(-1, f"{help_string}\nError: The specified config file '{self.path_config}' does not exist.")
 
-        if fdict.get("debug"):
-            self._get_debug_vars(fdict["debug"])
+        self.path_meta = self.path_out / f"{self.name}.meta.json"
 
 
 # //////////////////////////////////////////////////////////////////////////////

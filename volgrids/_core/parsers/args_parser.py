@@ -13,7 +13,6 @@ class ArgsParser:
     def __init__(self):
         self.args = sys.argv[1:]
         self.mode = self._next_arg().lower()
-        self.debug_vars: dict = {} # global variables can be overriden from the command line
 
 
     # --------------------------------------------------------------------------
@@ -51,16 +50,6 @@ class ArgsParser:
                 flags_dict[current_name].append(arg)
 
         return flags_dict
-
-
-    # --------------------------------------------------------------------------
-    def _get_debug_vars(self, options: list[str]) -> None:
-        """Parse the command line arguments for debug variables.
-        Debug variables are specified as --debug <var_name>=<value>."""
-        for option in options:
-            name, str_value = option.split('=', 1)
-            self.debug_vars[name] = vg.IniParser.parse_str(str_value)
-
 
 
 # //////////////////////////////////////////////////////////////////////////////
