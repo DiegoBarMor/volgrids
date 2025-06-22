@@ -1,4 +1,4 @@
-import sys, os, h5py
+import os, h5py
 import numpy as np
 import gridData as gd
 from pathlib import Path
