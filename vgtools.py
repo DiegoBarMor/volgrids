@@ -2,8 +2,7 @@ import volgrids.vgtools as vgt
 
 ################################################################################
 if __name__ == "__main__":
-    meta = vgt.VGToolsArgsParser()
-    vgt.VGTools(meta).run()
+    vgt.VGTools(vgt.VGToolsArgsParser()).run()
 
 
 ################################################################################

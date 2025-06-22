@@ -1,53 +1,75 @@
-################################################################################
-############################### GLOBAL VARIABLES ###############################
-################################################################################
+from .grids.apbs import GridAPBS
+# from .grids.cavities import GridCavities
+from .grids.hbonds import GridHBAccepts, GridHBDonors
+from .grids.hydro import GridHydrophilic, GridHydrophobic
+from .grids.stacking import GridStacking
+
+from .parsers.args_parser import SmifferArgsParser
+from .parsers.chem_table import ChemTable
+
+from .trimmers import GridTrimmer
+from .systems import MolType, SmifferMolecularSystem
+
+from .smiffer import SmifferCalculator
+
+
+DO_SMIF_STACKING: bool
+DO_SMIF_HBA: bool
+DO_SMIF_HBD: bool
+DO_SMIF_HYDROPHOBIC: bool
+DO_SMIF_HYDROPHILIC: bool
+DO_SMIF_APBS: bool
+
+DO_SMIF_LOG_APBS: bool
+DO_SMIF_HYDRODIFF: bool
+
+DO_TRIMMING_SPHERE: bool
+DO_TRIMMING_OCCUPANCY: bool
+DO_TRIMMING_RNDS: bool
+SAVE_CACHED_MASK: bool
+
+TRIMMING_DIST_LARGE: float
+TRIMMING_DIST_SMALL: float
+
+MAX_RNDS_DIST: float
+COG_CUBE_RADIUS: int
+
+APBS_MIN_CUTOFF: int
+APBS_MAX_CUTOFF: int
+
+MU_HYDROPHOBIC: float
+SIGMA_HYDROPHOBIC: float
+
+MU_HYDROPHILIC: float
+SIGMA_HYDROPHILIC: float
+
+MU_ANGLE_HBA: float
+MU_ANGLE_HBD: float
+MU_DIST_HBOND: float
+
+SIGMA_DIST_HBOND: float
+SIGMA_ANGLE_HBA: float
+SIGMA_ANGLE_HBD: float
+
+MU_ANGLE_STACKING: float
+MU_DIST_STACKING: float
+
+COV_STACKING_00: float
+COV_STACKING_01: float
+COV_STACKING_10: float
+COV_STACKING_11: float
+
+GAUSSIAN_KERNEL_SIGMAS: int
+
+
 import numpy as _np
+import volgrids as _vg
 
-######################## TOGGLES
-### GRIDS
-DO_SMIF_STACKING = True
-DO_SMIF_HBA = True
-DO_SMIF_HBD = True
-DO_SMIF_HYDROPHOBIC = True
-DO_SMIF_HYDROPHILIC = True
-DO_SMIF_APBS = True
-
-DO_SMIF_LOG_APBS = False
-DO_SMIF_HYDRODIFF = False
-
-### TRIMMING
-DO_TRIMMING_SPHERE = True
-DO_TRIMMING_OCCUPANCY = True
-DO_TRIMMING_RNDS = False
-SAVE_CACHED_MASK = False # saves the logical inverse of the trimming mask
-
-######################## TRIMMING
-### OCCUPANCY TRIMMING
-TRIMMING_DIST_LARGE = 3.0
-TRIMMING_DIST_SMALL = 2.5
-
-### RANDOM SEARCH TRIMMING
-MAX_RNDS_DIST = _np.inf
-COG_CUBE_RADIUS = 3
-
-######################## LOG_ABS(APBS)
-APBS_MIN_CUTOFF = -2
-APBS_MAX_CUTOFF =  3
-
-######################## SMIF MODEL PARAMETERS
-MU_HYDROPHOBIC = 4.0
-SIGMA_HYDROPHOBIC = 1.5
-
-MU_HYDROPHILIC = 3.0
-SIGMA_HYDROPHILIC = 0.15
-
-MU_ANGLE_HBA = 129.9
-MU_ANGLE_HBD = 109.0
-MU_DIST_HBOND = 2.93
-
-SIGMA_DIST_HBOND = 0.21
-SIGMA_ANGLE_HBA = 20.0 # 29.3 originally (given precisely)
-SIGMA_ANGLE_HBD = 20.0 # 20.0 originally (inferred from .figure)
+_vg.ConfigParser(_vg.resolve_path("vgrids.config")).apply_config(
+    key = "SMIFFER",
+    globs = globals(),
+    valid_configs = set(__annotations__.keys())
+)
 
 
 MU_HBA = _np.array([MU_ANGLE_HBA, MU_DIST_HBOND])
@@ -66,36 +88,13 @@ COV_HBD =  _np.array(
 COV_INV_HBD = _np.linalg.inv(COV_HBD)
 
 
-MU_STACKING = _np.array([29.97767535, 4.1876158])
+MU_STACKING = _np.array([MU_ANGLE_STACKING, MU_DIST_STACKING])
 COV_STACKING = _np.array(
-    [[169.9862228 , 6.62318852],
-     [  6.62318852, 0.37123882]]
+    [[COV_STACKING_00, COV_STACKING_01],
+     [COV_STACKING_10, COV_STACKING_11]]
 )
 COV_INV_STACKING = _np.linalg.inv(COV_STACKING)
 
 
 ### square root of the DIST contribution to COV_STACKING,
-SIGMA_DIST_STACKING = _np.sqrt(COV_STACKING[1,1])
-
-######################## KERNEL_PARAMETERS
-
-GAUSSIAN_KERNEL_SIGMAS = 4 # how many sigmas of width should the precalculated gaussians have?
-
-
-################################################################################
-################################### MODULES ####################################
-################################################################################
-
-from .grids.apbs import GridAPBS
-# from .grids.cavities import GridCavities
-from .grids.hbonds import GridHBAccepts, GridHBDonors
-from .grids.hydro import GridHydrophilic, GridHydrophobic
-from .grids.stacking import GridStacking
-
-from .parsers.args_parser import SmifferArgsParser
-from .parsers.chem_table import ChemTable
-
-from .trimmers import GridTrimmer
-from .systems import MolType, SmifferMolecularSystem
-
-from .smiffer import SmifferCalculator
+SIGMA_DIST_STACKING = _np.sqrt(COV_STACKING_11)
