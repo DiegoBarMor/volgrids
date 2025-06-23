@@ -29,19 +29,19 @@ class VGTools:
 
     # --------------------------------------------------------------------------
     def _run_convert(self):
-        kind, grid = vg.read_auto(self.meta.path_in)
+        kind, grid = vg.GridIO.read_auto(self.meta.path_in)
 
         if self.meta.path_dx is not None:
-            print(f">>> Converting {kind} file to DX: {self.meta.path_dx}")
-            vg.write_dx(self.meta.path_dx, grid)
+            print(f">>> Converting {kind.name} file to DX: {self.meta.path_dx}")
+            vg.GridIO.write_dx(self.meta.path_dx, grid)
 
         if self.meta.path_mrc is not None:
-            print(f">>> Converting {kind} file to MRC: {self.meta.path_mrc}")
-            vg.write_mrc(self.meta.path_mrc, grid)
+            print(f">>> Converting {kind.name} file to MRC: {self.meta.path_mrc}")
+            vg.GridIO.write_mrc(self.meta.path_mrc, grid)
 
         if self.meta.path_cmap is not None:
-            print(f">>> Converting {kind} file to CMAP: {self.meta.path_cmap}")
-            vg.write_cmap(self.meta.path_cmap, grid, self.meta.path_in.stem)
+            print(f">>> Converting {kind.name} file to CMAP: {self.meta.path_cmap}")
+            vg.GridIO.write_cmap(self.meta.path_cmap, grid, self.meta.path_in.stem)
 
 
     # --------------------------------------------------------------------------
@@ -56,7 +56,7 @@ class VGTools:
                 print("...>>> Skipping non-existing file:", path_in)
                 continue
 
-            _, grid = vg.read_auto(path_in)
+            _, grid = vg.GridIO.read_auto(path_in)
             if resolution is None:
                 resolution = (grid.xres, grid.yres, grid.zres)
 
@@ -68,7 +68,7 @@ class VGTools:
                     "Use `smiffer.py fix-cmap` if you want to fix this."
                 )
             key = str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
-            vg.write_cmap(path_out, grid, key)
+            vg.GridIO.write_cmap(path_out, grid, key)
 
 
     # --------------------------------------------------------------------------
@@ -76,12 +76,12 @@ class VGTools:
         path_in = self.meta.path_unpack_in
         folder_out = self.meta.path_unpack_out
 
-        keys = vg.get_cmap_keys(path_in)
+        keys = vg.GridIO.get_cmap_keys(path_in)
         print(f">>> Unpacking {keys} from '{path_in}' into '{folder_out}'")
         for key in keys:
             path_out = folder_out / f"{key}.cmap"
-            grid = vg.read_cmap(path_in, key)
-            vg.write_cmap(path_out, grid, key)
+            grid = vg.GridIO.read_cmap(path_in, key)
+            vg.GridIO.write_cmap(path_out, grid, key)
 
 
     # --------------------------------------------------------------------------
@@ -90,10 +90,10 @@ class VGTools:
         path_out = self.meta.path_fixcmap_out
 
         resolution = None
-        keys = vg.get_cmap_keys(path_in)
+        keys = vg.GridIO.get_cmap_keys(path_in)
         print(f">>> Fixing CMAP file: {path_in}")
         for key in keys:
-            grid = vg.read_cmap(path_in, key)
+            grid = vg.GridIO.read_cmap(path_in, key)
 
             minCoords = (grid.xmin, grid.ymin, grid.zmin)
             maxCoords = (grid.xmax, grid.ymax, grid.zmax)
@@ -101,7 +101,7 @@ class VGTools:
                 resolution = (grid.xres, grid.yres, grid.zres)
 
             grid.reshape(minCoords, maxCoords, resolution)
-            vg.write_cmap(path_out, grid, key)
+            vg.GridIO.write_cmap(path_out, grid, key)
 
 
 # //////////////////////////////////////////////////////////////////////////////

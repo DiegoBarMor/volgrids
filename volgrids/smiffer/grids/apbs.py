@@ -11,7 +11,7 @@ class GridAPBS(vg.Grid):
 
     # --------------------------------------------------------------------------
     def populate_grid(self):
-        _,apbs = vg.read_auto(self.ms.meta.path_apbs)
+        _,apbs = vg.GridIO.read_auto(self.ms.meta.path_apbs)
         apbs.reshape(
             new_min = (self.xmin, self.ymin, self.zmin),
             new_max = (self.xmax, self.ymax, self.zmax),

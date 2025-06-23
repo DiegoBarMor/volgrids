@@ -76,12 +76,12 @@ class Grid:
 
         if self.ms.meta.do_traj:
             ### ignore the OUTPUT flags, CMAP is the only format that supports multiple frames
-            vg.write_cmap(f"{path_prefix}.cmap", self, f"{name}.{self.ms.frame:04}")
+            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, f"{name}.{self.ms.frame:04}")
             return
 
-        if vg.DO_OUTPUT_DX:   vg.write_dx  (f"{path_prefix}.dx",   self)
-        if vg.DO_OUTPUT_MRC:  vg.write_mrc (f"{path_prefix}.mrc",  self)
-        if vg.DO_OUTPUT_CMAP: vg.write_cmap(f"{path_prefix}.cmap", self, name)
+        if vg.DO_OUTPUT_DX:   vg.GridIO.write_dx  (f"{path_prefix}.dx",   self)
+        if vg.DO_OUTPUT_MRC:  vg.GridIO.write_mrc (f"{path_prefix}.mrc",  self)
+        if vg.DO_OUTPUT_CMAP: vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, name)
 
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)
