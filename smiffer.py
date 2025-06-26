@@ -1,8 +1,3 @@
+if __name__ != "__main__": exit(0)
 import volgrids.smiffer as sm
-
-################################################################################
-if __name__ == "__main__":
-    sm.SmifferCalculator(sm.SmifferArgsParser()).run()
-
-
-################################################################################
+sm.SmifferCalculator().run()

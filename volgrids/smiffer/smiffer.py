@@ -3,16 +3,16 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifferCalculator:
-    def __init__(self, meta: "sm.SmifferArgsParser"):
-        self.meta = meta
+    def __init__(self):
+        self.meta = sm.SmifferArgsParser()
         self._apply_custom_config()
 
         self.meta.save_metadata()
-        self.ms = sm.SmifferMolecularSystem(meta)
+        self.ms = sm.SmifferMolecularSystem(self.meta)
 
-        str_mode = "PocketSphere" if meta.do_ps else "Whole"
+        str_mode = "PocketSphere" if self.meta.do_ps else "Whole"
         self.timer = vg.Timer(
-            f">>> Now processing '{meta.name}' ({meta.mode}) in '{str_mode}' mode"
+            f">>> Now processing '{self.meta.name}' ({self.meta.mode}) in '{str_mode}' mode"
         )
 
 
@@ -122,6 +122,8 @@ class SmifferCalculator:
             valid_configs = set(sm.__annotations__.keys()),
             all_configs_mandatory = False
         )
+
+        vg.OUTPUT_FORMAT = vg.GridFormat.from_str(vg.OUTPUT_FORMAT) # [TODO] improve IniParser.parse_str to avoid this
 
 
 # //////////////////////////////////////////////////////////////////////////////

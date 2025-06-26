@@ -162,6 +162,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * check what happens if performing "fix-cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
 * implement: raise an error if a format file is opened with the wrong function
-
+* remove saving of metadata
+* improve IniParser.parse_str
 
 <!-- ----------------------------------------------------------------------- -->

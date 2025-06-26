@@ -75,13 +75,27 @@ class Grid:
         path_prefix = self.ms.meta.path_out / f"{name}.{prefix}"
 
         if self.ms.meta.do_traj:
-            ### ignore the OUTPUT flags, CMAP is the only format that supports multiple frames
+            ### ignore the OUTPUT flag, CMAP is the only format that supports multiple frames
             vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, f"{name}.{self.ms.frame:04}")
             return
 
-        if vg.DO_OUTPUT_DX:   vg.GridIO.write_dx  (f"{path_prefix}.dx",   self)
-        if vg.DO_OUTPUT_MRC:  vg.GridIO.write_mrc (f"{path_prefix}.mrc",  self)
-        if vg.DO_OUTPUT_CMAP: vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, name)
+        if vg.OUTPUT_FORMAT == vg.GridFormat.DX:
+            vg.GridIO.write_dx(f"{path_prefix}.dx", self)
+            return
+
+        if vg.OUTPUT_FORMAT == vg.GridFormat.MRC:
+            vg.GridIO.write_mrc(f"{path_prefix}.mrc", self)
+            return
+
+        if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP:
+            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, name)
+            return
+
+        if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP_PACKED:
+            vg.GridIO.write_cmap(self.ms.meta.path_out / f"{name}.cmap", self, f"{name}.{prefix}")
+            return
+
+        raise ValueError(f"Unknown output format: {vg.OUTPUT_FORMAT}.")
 
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)

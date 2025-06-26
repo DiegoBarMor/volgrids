@@ -11,12 +11,6 @@ class IniParser:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def is_empty_line(line: str) -> bool:
-        return not line.strip() or line.startswith('#')
-
-
-    # ------------------------------------------------------------------------------
-    @staticmethod
     def split_line(line: str, sep: str = '=') -> tuple[str, str]:
         line = line.split('#')[0].strip() # Remove comments
         pair = tuple(map(str.strip, line.split(sep)))
@@ -28,6 +22,7 @@ class IniParser:
     # --------------------------------------------------------------------------
     @staticmethod
     def parse_str(str_value: str):
+        # [TODO] improve this function
         if str_value.startswith("np."):
             key = str_value[3:]
             return np.__dict__.get(key, key)
@@ -64,7 +59,8 @@ class IniParser:
         Yields each line that is not empty or a comment.
         """
         for line in self._ini_sections.get(key, []):
-            if self.is_empty_line(line): continue
+            line = line.strip()
+            if not line or line.startswith('#'): continue
             yield line
 
 

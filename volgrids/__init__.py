@@ -16,9 +16,7 @@ from ._core.parsers.config_parser import ConfigParser
 from ._core.parsers.grid_io import GridFormat, GridIO
 
 
-DO_OUTPUT_DX: bool
-DO_OUTPUT_MRC: bool
-DO_OUTPUT_CMAP: bool
+OUTPUT_FORMAT: GridFormat
 
 GZIP_COMPRESSION: int
 FLOAT_DTYPE: type
@@ -41,3 +39,5 @@ ConfigParser(resolve_path("vgrids.config")).apply_config(
     globs = globals(),
     valid_configs = set(__annotations__.keys())
 )
+
+OUTPUT_FORMAT = GridFormat.from_str(OUTPUT_FORMAT) # [TODO] improve IniParser.parse_str to avoid this

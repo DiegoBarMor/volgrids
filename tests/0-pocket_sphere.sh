@@ -30,12 +30,9 @@ python3 -W ignore smiffer.py rna  $fpdb/7oax0.pdb -o $fout -a $fapbs/7oax0.pqr.d
 python3 -W ignore smiffer.py rna  $fpdb/7oax1.pdb -o $fout -a $fapbs/7oax1.pqr.dx -rxyz 14.835   10.243  -5.151   -8.194
 python3 -W ignore smiffer.py rna  $fpdb/8eyv.pdb  -o $fout -a $fapbs/8eyv.pqr.dx  -rxyz 11.998   -1.612  -8.183   18.333
 
-rm -f $fout/*.json $fout/*.pdb
+rm -f $fout/*.json
 
 names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
 for name in "${names[@]}"; do
-    mapfile -t paths_grids < <(ls "$fout/$name".*) # get the list of files corresponding to the pdb
-    python3 vgtools.py pack -i "${paths_grids[@]}" -o "$fout/$name.cmap"  # pack them into a single CMAP file
-    rm -f "${paths_grids[@]}" # remove the individual grid files
     cp "$fpdb/$name.pdb" "$fout/$name.pdb"
 done

@@ -1,9 +1,10 @@
 import volgrids as vg
+import volgrids.vgtools as vgt
 
 # //////////////////////////////////////////////////////////////////////////////
 class VGTools:
-    def __init__(self, meta: "vg.ArgsParser"):
-        self.meta = meta
+    def __init__(self):
+        self.meta = vgt.VGToolsArgsParser()
 
 
     # --------------------------------------------------------------------------

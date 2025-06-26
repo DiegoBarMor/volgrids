@@ -11,14 +11,36 @@ ff="$ftests/fix_cmap"
 mkdir -p $fc $fp $fu $ff
 rm -f $fc/* $fp/* $fu/*  $ff/*.cmap
 
-tmp_config_formats=$ftests/formats.config
+tmp_config_dx=$ftests/dx.config
+tmp_config_mrc=$ftests/mrc.config
+tmp_config_cmap=$ftests/cmap.config
 tmp_config_smifs=$ftests/smifs.config
 
-cat > $tmp_config_formats <<- EOM
+cat > $tmp_config_dx <<- EOM
 [VOLGRIDS]
-DO_OUTPUT_DX=True
-DO_OUTPUT_MRC=True
-DO_OUTPUT_CMAP=True
+OUTPUT_FORMAT=DX
+[SMIFFER]
+DO_SMIF_HBA=False
+DO_SMIF_HBD=False
+DO_SMIF_HYDROPHOBIC=False
+DO_SMIF_HYDROPHILIC=False
+DO_SMIF_APBS=False
+EOM
+
+cat > $tmp_config_mrc <<- EOM
+[VOLGRIDS]
+OUTPUT_FORMAT=MRC
+[SMIFFER]
+DO_SMIF_HBA=False
+DO_SMIF_HBD=False
+DO_SMIF_HYDROPHOBIC=False
+DO_SMIF_HYDROPHILIC=False
+DO_SMIF_APBS=False
+EOM
+
+cat > $tmp_config_cmap <<- EOM
+[VOLGRIDS]
+OUTPUT_FORMAT=CMAP
 [SMIFFER]
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
@@ -29,9 +51,7 @@ EOM
 
 cat > $tmp_config_smifs <<- EOM
 [VOLGRIDS]
-DO_OUTPUT_DX=False
-DO_OUTPUT_MRC=True
-DO_OUTPUT_CMAP=False
+OUTPUT_FORMAT=MRC
 [SMIFFER]
 DO_SMIF_HBA=True
 DO_SMIF_HBD=True
@@ -44,7 +64,9 @@ EOM
 
 ############################# CONVERSIONS
 # shellcheck disable=SC2086
-python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_formats
+python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_dx
+python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_mrc
+python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_cmap
 
 rm -f $fc/1iqj.meta.json
 mv $fc/1iqj.stacking.dx $fc/1iqj.stk.dx
@@ -80,4 +102,4 @@ python3 vgtools.py pack -i $ff/_frames/smiffer_126.hbdonors.cmap $ff/_frames/smi
 
 
 ############################# Cleanup
-rm -f $tmp_config_formats $tmp_config_smifs
+rm -f $tmp_config_dx $tmp_config_mrc $tmp_config_cmap $tmp_config_smifs
