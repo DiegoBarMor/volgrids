@@ -1,17 +1,17 @@
 #!/bin/bash
 set -eu
 
-folder_data="testdata/tests"
-folder00="$folder_data/0-pocket_sphere"
-folder01="$folder_data/1-whole"
-folder02="$folder_data/2-traj"
-folder03="$folder_data/3-tools"
-folder05="$folder_data/5-ligand"
+folder_smiffer="testdata/smiffer"
+folder_vgtools="testdata/vgtools"
 
-folder03c="$folder03/converting"
-folder03p="$folder03/packing"
-folder03u="$folder03/unpacking"
-folder03f="$folder03/fix_cmap"
+folder00="$folder_smiffer/pocket_sphere"
+folder01="$folder_smiffer/whole"
+folder02="$folder_smiffer/traj"
+folder03c="$folder_vgtools/converting"
+folder03p="$folder_vgtools/packing"
+folder03u="$folder_vgtools/unpacking"
+folder03f="$folder_vgtools/fix_cmap"
+folder04="$folder_smiffer/ligand"
 
 rm -rf $folder00 $folder01
 rm  -f $folder02/*.cmap $folder02/*.json
@@ -21,6 +21,6 @@ rm -f $folder03p/2esj.cmap
 rm -f $folder03u/1iqj.*.cmap
 rm -f $folder03f/hbdonors.fixed.cmap
 
-rm -f $folder05/*.cmap $folder05/*.json
+rm -f $folder04/*.cmap $folder04/*.json
 
 clear

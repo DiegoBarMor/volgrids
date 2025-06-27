@@ -1,10 +1,10 @@
 #!/bin/bash
 set -eu
 
-tests/0-pocket_sphere.sh
-tests/1-whole.sh
-tests/2-traj.sh
-tests/3-tools.sh
-tests/4-ligand.sh
+tests/smiffer/pocket_sphere.sh
+tests/smiffer/whole.sh
+tests/smiffer/traj.sh
+tests/smiffer/ligand.sh
+tests/vgtools/tools.sh
 
 echo "All tests completed successfully."

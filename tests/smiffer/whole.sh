@@ -4,9 +4,9 @@ set -eu
 echo
 echo ">>> TEST 1: Benchmark, Whole mode"
 
-fapbs="testdata/apbs"
-fpdb="testdata/pdb"
-fout="testdata/tests/1-whole"
+fapbs="testdata/_input/apbs"
+fpdb="testdata/_input/pdb"
+fout="testdata/smiffer/whole"
 mkdir -p $fout
 
 python3 -W ignore smiffer.py rna  $fpdb/1akx.pdb  -o $fout -a $fapbs/1akx.pqr.dx

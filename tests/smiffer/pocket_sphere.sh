@@ -4,9 +4,9 @@ set -eu
 echo
 echo ">>> TEST 0: Benchmark, Pocket Sphere mode"
 
-fapbs="testdata/apbs"
-fpdb="testdata/pdb"
-fout="testdata/tests/0-pocket_sphere"
+fapbs="testdata/_input/apbs"
+fpdb="testdata/_input/pdb"
+fout="testdata/smiffer/pocket_sphere"
 mkdir -p $fout
 
 python3 -W ignore smiffer.py rna  $fpdb/1akx.pdb  -o $fout -a $fapbs/1akx.pqr.dx  -rxyz  9.698   -2.677  -4.466   -0.020

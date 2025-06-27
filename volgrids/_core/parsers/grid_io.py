@@ -192,13 +192,14 @@ class GridIO:
         """Detect the format of the grid file based on its extension and then read it."""
         ext = path_grid.suffix.lower()
 
+        # [TODO] improve the format detection?
         if ext == ".dx":
             return GridFormat.DX, GridIO.read_dx(path_grid)
 
         if ext == ".mrc":
             return GridFormat.MRC, GridIO.read_mrc(path_grid)
 
-        elif ext == ".cmap":
+        if ext == ".cmap":
             keys = GridIO.get_cmap_keys(path_grid)
             if not keys: raise ValueError(f"Empty cmap file: {path_grid}")
             return GridFormat.CMAP, GridIO.read_cmap(path_grid, keys[0])
