@@ -2,7 +2,7 @@
 set -eu
 
 echo
-echo ">>> TEST 4: Ligands"
+echo ">>> TEST SMIFFER 3: Ligands"
 
 folder=testdata/smiffer/ligand
 

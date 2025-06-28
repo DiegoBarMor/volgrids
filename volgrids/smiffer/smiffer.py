@@ -4,14 +4,14 @@ import volgrids.smiffer as sm
 # //////////////////////////////////////////////////////////////////////////////
 class SmifferCalculator:
     def __init__(self):
-        self.meta = sm.SmifferArgsParser()
+        sm.SmifferArgsParser()
         self._apply_custom_config()
 
-        self.ms = sm.SmifferMolecularSystem(self.meta)
+        self.ms = sm.SmifferMolecularSystem()
 
-        str_mode = "PocketSphere" if self.meta.do_ps else "Whole"
+        str_mode = "PocketSphere" if self.ms.do_ps else "Whole"
         self.timer = vg.Timer(
-            f">>> Now processing '{self.meta.name}' ({self.meta.mode}) in '{str_mode}' mode"
+            f">>> Now processing '{vg.CURRENT_MOLNAME}' ({vg.USER_MODE}) in '{str_mode}' mode"
         )
 
 
@@ -19,8 +19,8 @@ class SmifferCalculator:
     def run(self):
         self.timer.start()
 
-        if self.meta.do_traj: # TRAJECTORY MODE
-            if self.meta.do_ps:
+        if self.ms.do_traj: # TRAJECTORY MODE
+            if self.ms.do_ps:
                 raise NotImplementedError("PocketSphere not implemented yet for trajectory mode. Use -w flag")
 
             print()
@@ -95,7 +95,7 @@ class SmifferCalculator:
 
     # --------------------------------------------------------------------------
     def _process_apbs(self, trimmer: "sm.GridTrimmer"):
-        if self.meta.path_apbs is None: return
+        if sm.PATH_APBS is None: return
 
         grid_apbs = sm.GridAPBS(self.ms)
         self._calc_smif(grid_apbs, trimmer)
@@ -108,9 +108,9 @@ class SmifferCalculator:
 
     # --------------------------------------------------------------------------
     def _apply_custom_config(self) -> None:
-        if self.meta.path_config is None: return
+        if sm.PATH_CONFIG is None: return
 
-        config = vg.ConfigParser(self.meta.path_config)
+        config = vg.ConfigParser(sm.PATH_CONFIG)
         if config.has("VOLGRIDS"): config.apply_config(
             key = "VOLGRIDS", globs = vg.__dict__,
             valid_configs = set(vg.__annotations__.keys()),

@@ -58,37 +58,37 @@ Run `python3 smiffer.py [mode] [path_structure] [options...]` and provide the pa
     - `-a [path_apbs]` where `[path_apbs]` is the path to the output of APBS. An *OpenDX* file is expected. This grid will be interpolated into the shape of the other grids.
     - `-rxyz [r] [x] [y] [z]` where `[r]`, `[x]`, `[y]` and `[z]` are the float values for the radius and X,Y,Z coordinates of a sphere in space, respectively. This activates "pocket sphere" mode, where the SMIFs will only be calculated inside the sphere provided.
     - `-b [path_table]` where `[path_table]` is the path to a *.chem* table file to use for ligand mode, or to override the default macromolecules' tables. This flag is mandatory for "ligand" mode.
-    - `--config [path_config]` where `[path_config]` is the path to a configuration file with global settings, to override the default settings from `vgrids.config`.
+    - `-c [path_config]` where `[path_config]` is the path to a configuration file with global settings, to override the default settings from `vgrids.config`.
 
 
 <!-- ----------------------------------------------------------------------- -->
 ## Commands examples
 - Sample commands to obtain the electrostatic grids from [pdb2pqr](https://pdb2pqr.readthedocs.io/en/latest/) and [APBS](https://apbs.readthedocs.io/en/latest/)
 ```
-pdb2pqr --ff=AMBER data/pdb/1iqj.pdb data/pqr/1iqj.pqr --apbs-input data/apbs/1iqj.in
-apbs data/apbs/1iqj.in
+pdb2pqr --ff=AMBER testdata/_input/pdb/1iqj.pdb testdata/_input/pqr/1iqj.pqr --apbs-input testdata/_input/1iqj.in
+apbs testdata/_input/1iqj.in
 ```
 
-- Calculate SMIFs for a pocket sphere (`-rxyz`) in a protein system (`prot`).
+- Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-rxyz`).
 ```
-python3 smiffer.py prot data/pdb/1iqj.pdb -o data/smifs -rxyz 14.675 4.682 21.475 7.161
+python3 smiffer.py prot testdata/_input/pdb/1iqj.pdb -rxyz 14.675 4.682 21.475 7.161
 ```
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```
-python3 smiffer.py rna data/pdb/5bjo.pdb -a data/apbs/5bjo.pqr.dx -o data/smifs
+python3 smiffer.py rna testdata/_input/pdb/5bjo.pdb -a testdata/_input/apbs/5bjo.pqr.dx
 ```
 
-- Calculate SMIFs for a trajectory (`-t`) of an RNA system (`rna`). Note that this is only implemented for "whole" mode at the moment.
+- Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that this is only implemented for "whole" mode at the moment.
 ```
-python3 smiffer.py rna data/tests/04-traj/7vki.pdb -t data/tests/04-traj/7vki.xtc -o data/tests/04-traj
+python3 smiffer.py rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
 ```
 
 
 <!-- ----------------------------------------------------------------------- -->
 ## Benchmark
 A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [this location](https://drive.google.com/file/d/1o1jR4RhXlIL0Jg3m0twrpbiTV7eIGZ38/view?usp=sharing), in the form of PDB and PQR input files.
-
+<!-- TODO: update this with a new link to the testdata folder -->
 
 <!-- ----------------------------------------------------------------------- -->
 ## Visualization
@@ -118,9 +118,9 @@ coordset stop #1; vseries stop #2
 ```
 
 #### Smooth Trajectories
-1) Open the PDB and load the atom trajectory into it (in ChimeraX, simply drag the files into the window).
-2) Open the CMAP file in a similar way.
-3) (Optional) Open the `smooth_md.py` script.
+1) Load the PDB and the trajectory files into it Chimera (in ChimeraX, simply drag the files into the window).
+2) Load the CMAP file in a similar way.
+3) (Optional) Load the `smooth_md.py` script (again, can be done by dragging it into ChimeraX).
 4) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
 ```
 coordset #1 pauseFrames 10; vop morph #2 playStep 0.0005 frames 2000 modelId 3
@@ -162,8 +162,8 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
 * implement: raise an error if a format file is opened with the wrong function
 * improve IniParser.parse_str
-* replace ArgsParser attribute with global module variables (similar to what ConfigParser does)
 * provide download links for the testdata folder
+* add annotations, docstrings and overall cleaning
 
 
 <!-- ----------------------------------------------------------------------- -->

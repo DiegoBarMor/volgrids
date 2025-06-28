@@ -13,6 +13,7 @@ from .systems import MolType, SmifferMolecularSystem
 from .smiffer import SmifferCalculator
 
 
+############################# CONFIG FILE GLOBALS ##############################
 DO_SMIF_STACKING: bool
 DO_SMIF_HBA: bool
 DO_SMIF_HBD: bool
@@ -72,6 +73,7 @@ _vg.ConfigParser(_vg.resolve_path("vgrids.config")).apply_config(
 )
 
 
+############################### NUMERIC GLOBALS ################################
 MU_HBA = _np.array([MU_ANGLE_HBA, MU_DIST_HBOND])
 COV_HBA = _np.array(
     [[SIGMA_ANGLE_HBA**2, 0],
@@ -98,3 +100,16 @@ COV_INV_STACKING = _np.linalg.inv(COV_STACKING)
 
 ### square root of the DIST contribution to COV_STACKING,
 SIGMA_DIST_STACKING = _np.sqrt(COV_STACKING_11)
+
+
+######################## COMMAND LINE ARGUMENTS GLOBALS ########################
+### These are global variables that are to be set by
+### an instance of ArgsParser (or its inherited classes)
+
+from pathlib import Path
+PATH_APBS:   Path = None # "path/input/apbs.pqr.dx"
+PATH_TABLE:  Path = None # "path/input/table.chem"
+PATH_CONFIG: Path = None # "path/input/globals.config"
+
+PS_INFO: tuple[float, float, float, float] = None # pocket sphere info: [radius, x, y, z]
+CURRENT_MOLTYPE: MolType = MolType.NONE           # type of the current molecule

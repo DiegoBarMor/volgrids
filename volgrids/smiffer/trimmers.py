@@ -10,10 +10,10 @@ class GridTrimmer(vg.Grid):
         if sm.DO_TRIMMING_OCCUPANCY:
             self._trim_occupancy(trimming_dist)
 
-        if sm.DO_TRIMMING_SPHERE and ms.meta.do_ps:
+        if sm.DO_TRIMMING_SPHERE and ms.do_ps:
             self._trim_sphere()
 
-        if sm.DO_TRIMMING_RNDS and ms.meta.do_ps:
+        if sm.DO_TRIMMING_RNDS and ms.do_ps:
             self._trim_rnds()
 
         if sm.SAVE_CACHED_MASK:

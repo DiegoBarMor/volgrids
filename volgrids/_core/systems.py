@@ -4,19 +4,19 @@ import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class MolecularSystem:
-    def __init__(self, meta: "vg.ArgsParser"):
+    def __init__(self):
         self.resolution: np.array = np.zeros(3, dtype = int)
         self.minCoords : np.array = np.zeros(3)
         self.deltas    : np.array = np.zeros(3)
-        self.meta: "vg.ArgsParser" = meta
 
+        self.do_traj = vg.PATH_TRAJECTORY is not None
 
         ###############################
-        if meta.do_traj:
-            self.system = mda.Universe(meta.path_structure, meta.path_traj)
+        if self.do_traj:
+            self.system = mda.Universe(vg.PATH_STRUCTURE, vg.PATH_TRAJECTORY)
             self.frame = 0
         else:
-            self.system = mda.Universe(meta.path_structure)
+            self.system = mda.Universe(vg.PATH_STRUCTURE)
             self.frame = None
 
 

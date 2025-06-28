@@ -15,14 +15,14 @@ class MolType(Enum):
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifferMolecularSystem(vg.MolecularSystem):
-    def __init__(self, meta: "sm.SmifferArgsParser"):
-        super().__init__(meta)
+    def __init__(self):
+        self.do_ps = sm.PS_INFO is not None
+        self.chemtable = sm.ChemTable(self._get_path_table())
 
-        self.meta: "sm.SmifferArgsParser"
-        self.chemtable = sm.ChemTable(self._get_path_table(meta))
+        super().__init__()
 
-        if meta.do_ps:
-            radius,xcog,ycog,zcog = meta.ps_info
+        if self.do_ps:
+            radius,xcog,ycog,zcog = sm.PS_INFO
             self.relevant_atoms = self.system.select_atoms(
                 f"{self.chemtable.selection_query} and point {xcog} {ycog} {zcog} {radius}"
             )
@@ -32,8 +32,8 @@ class SmifferMolecularSystem(vg.MolecularSystem):
 
     # --------------------------------------------------------------------------
     def _init_box_attributes(self):
-        if self.meta.do_ps:
-            radius,xcog,ycog,zcog = self.meta.ps_info
+        if self.do_ps:
+            radius,xcog,ycog,zcog = sm.PS_INFO
             self.cog = np.array([xcog, ycog, zcog])
             self.minCoords = self.cog - radius
             self.maxCoords = self.cog + radius
@@ -44,18 +44,18 @@ class SmifferMolecularSystem(vg.MolecularSystem):
 
 
     # --------------------------------------------------------------------------
-    def _get_path_table(self, meta: "sm.SmifferArgsParser") -> Path:
-        if meta.path_table: return meta.path_table
+    def _get_path_table(self) -> Path:
+        if sm.PATH_TABLE: return sm.PATH_TABLE
 
         folder_default_tables = Path("volgrids/smiffer/tables")
 
-        if meta.moltype == MolType.PROT:
+        if sm.CURRENT_MOLTYPE == MolType.PROT:
             return vg.resolve_path(folder_default_tables / "prot.chem")
 
-        if meta.moltype == MolType.RNA:
+        if sm.CURRENT_MOLTYPE == MolType.RNA:
             return vg.resolve_path(folder_default_tables / "rna.chem")
 
-        raise ValueError(f"No default table for the specified molecular type '{meta.moltype}'. Please provide a path to a custom table.")
+        raise ValueError(f"No default table for the specified molecular type '{sm.CURRENT_MOLTYPE}'. Please provide a path to a custom table.")
 
 
 # //////////////////////////////////////////////////////////////////////////////

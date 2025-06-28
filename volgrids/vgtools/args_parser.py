@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import volgrids as vg
+import volgrids.vgtools as vgt
 
 # //////////////////////////////////////////////////////////////////////////////
 class VGToolsArgsParser(vg.ArgsParser):
@@ -17,37 +18,20 @@ class VGToolsArgsParser(vg.ArgsParser):
             "Running 'python3 vgtools.py' without a valid mode will display this help message.",
         ))
 
-        ### Convert
-        self.path_dx:   Path = None # "path/input/grid.dx"
-        self.path_mrc:  Path = None # "path/output/grid.mrc"
-        self.path_cmap: Path = None # "path/output/grid.cmap"
-
-        ### Pack
-        self.paths_pack_in: list[Path] = None # list of paths to input grids for packing
-        self.path_pack_out: Path = None # "path/output/packed.cmap"
-
-        ### Unpack
-        self.path_unpack_in:  Path = None # "path/input/packed.cmap"
-        self.path_unpack_out: Path = None # folder where to unpack the grids
-
-        ### Fix CMAP
-        self.path_fixcmap_in:  Path = None # "path/input/fix.cmap"
-        self.path_fixcmap_out: Path = None # "path/output/fix.cmap"
-
-
-        if self.mode == "convert":
+        mode = vg.USER_MODE.lower()
+        if mode == "convert":
             self._parse_convert()
             return
 
-        if self.mode == "pack":
+        if mode == "pack":
             self._parse_pack()
             return
 
-        if self.mode == "unpack":
+        if mode == "unpack":
             self._parse_unpack()
             return
 
-        if self.mode == "fix-cmap":
+        if mode == "fix-cmap":
             self._parse_fix_cmap()
             return
 
@@ -57,7 +41,7 @@ class VGToolsArgsParser(vg.ArgsParser):
     # --------------------------------------------------------------------------
     def _parse_convert(self) -> None:
         help_string = '\n'.join((
-            "usage: python3 vgtools.py convert path/input/grid.dx [options...]",
+            "usage: python3 vgtools.py convert [path/input/grid.dx] [options...]",
             "Available options:",
             "-h, --help  Show this help message and exit.",
             "-d, --dx    Path where to save the converted grid in DX format.",
@@ -83,21 +67,21 @@ class VGToolsArgsParser(vg.ArgsParser):
         if not options_in:
             self.print_exit(-1, f"{help_string}\nError: No input grid file provided. Provide a path to the grid file as first positional argument.")
 
-        self.path_in = Path(options_in[0])
-        if not self.path_in.exists():
-            self.print_exit(-1, f"{help_string}\nError: The specified grid file '{self.path_in}' does not exist.")
+        vgt.PATH_CONVERT_IN = Path(options_in[0])
+        if not vgt.PATH_CONVERT_IN.exists():
+            self.print_exit(-1, f"{help_string}\nError: The specified grid file '{vgt.PATH_CONVERT_IN}' does not exist.")
 
         if options_dx:
-            self.path_dx = Path(options_dx[0])
-            os.makedirs(self.path_dx.parent, exist_ok = True)
+            vgt.PATH_CONVERT_DX = Path(options_dx[0])
+            os.makedirs(vgt.PATH_CONVERT_DX.parent, exist_ok = True)
 
         if options_mrc:
-            self.path_mrc = Path(options_mrc[0])
-            os.makedirs(self.path_mrc.parent, exist_ok = True)
+            vgt.PATH_CONVERT_MRC = Path(options_mrc[0])
+            os.makedirs(vgt.PATH_CONVERT_MRC.parent, exist_ok = True)
 
         if options_cmap:
-            self.path_cmap = Path(options_cmap[0])
-            os.makedirs(self.path_cmap.parent, exist_ok = True)
+            vgt.PATH_CONVERT_CMAP = Path(options_cmap[0])
+            os.makedirs(vgt.PATH_CONVERT_CMAP.parent, exist_ok = True)
 
 
     # --------------------------------------------------------------------------
@@ -125,8 +109,8 @@ class VGToolsArgsParser(vg.ArgsParser):
         if not options_in or not options_out:
             self.print_exit(-1, f"{help_string}\nError: Input grids and output path must be provided.")
 
-        self.paths_pack_in = [Path(path) for path in options_in]
-        self.path_pack_out = Path(options_out[0])
+        vgt.PATHS_PACK_IN = [Path(path) for path in options_in]
+        vgt.PATH_PACK_OUT = Path(options_out[0])
 
 
     # --------------------------------------------------------------------------
@@ -154,13 +138,13 @@ class VGToolsArgsParser(vg.ArgsParser):
         if not options_in:
             self.print_exit(-1, f"{help_string}\nError: Input packed file must be provided.")
 
-        self.path_unpack_in = Path(options_in[0])
-        if not self.path_unpack_in.exists():
-            self.print_exit(-1, f"{help_string}\nError: The specified packed file '{self.path_unpack_in}' does not exist.")
+        vgt.PATH_UNPACK_IN = Path(options_in[0])
+        if not vgt.PATH_UNPACK_IN.exists():
+            self.print_exit(-1, f"{help_string}\nError: The specified packed file '{vgt.PATH_UNPACK_IN}' does not exist.")
 
-        self.path_unpack_out = Path(options_out[0]) if options_out else self.path_unpack_in.parent
-        if self.path_unpack_out.is_file():
-            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{self.path_unpack_out}' is a file, not a directory.")
+        vgt.PATH_UNPACK_OUT = Path(options_out[0]) if options_out else vgt.PATH_UNPACK_IN.parent
+        if vgt.PATH_UNPACK_OUT.is_file():
+            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{vgt.PATH_UNPACK_OUT}' is a file, not a directory.")
 
 
     # --------------------------------------------------------------------------
@@ -191,12 +175,12 @@ class VGToolsArgsParser(vg.ArgsParser):
         if not options_out:
             self.print_exit(-1, f"{help_string}\nError: No output path provided for the fixed CMAP file.")
 
-        self.path_fixcmap_in  = Path(options_in[0])
-        if not self.path_fixcmap_in.exists():
-            self.print_exit(-1, f"{help_string}\nError: The specified CMAP file '{self.path_fixcmap_in}' does not exist.")
+        vgt.PATH_FIXCMAP_IN  = Path(options_in[0])
+        if not vgt.PATH_FIXCMAP_IN.exists():
+            self.print_exit(-1, f"{help_string}\nError: The specified CMAP file '{vgt.PATH_FIXCMAP_IN}' does not exist.")
 
-        self.path_fixcmap_out = Path(options_out[0])
-        os.makedirs(self.path_fixcmap_out.parent, exist_ok = True)
+        vgt.PATH_FIXCMAP_OUT = Path(options_out[0])
+        os.makedirs(vgt.PATH_FIXCMAP_OUT.parent, exist_ok = True)
 
 
 # //////////////////////////////////////////////////////////////////////////////

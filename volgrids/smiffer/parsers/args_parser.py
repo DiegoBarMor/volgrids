@@ -17,33 +17,19 @@ class SmifferArgsParser(vg.ArgsParser):
             "Running 'python3 smiffer.py' without a valid mode will display this help message.",
         ))
 
-        self.moltype: sm.MolType = sm.MolType.NONE # type of the molecule, e.g. PROT, RNA, LIGAND
-        self.path_structure: Path = None # "path/input/struct.pdb"
-        self.name: str = None     # name of the input file without extension, e.g. "1abc" for "1abc.pdb"
-
-        self.ps_info: tuple[float, float, float, float] = None # [radius, x, y, z]
-        self.folder_out:    Path = None # "folder/output/"
-        self.path_apbs:   Path = None # "path/input/apbs.pqr.dx"
-        self.path_traj:   Path = None # "path/input/traj.xtc"
-        self.path_table:  Path = None # "path/input/table.chem"
-        self.path_config: Path = None # "path/input/globals.config"
-
-        self.do_ps:   bool = False # PS mode
-        self.do_traj: bool = False # TRAJ mode
-
-
-        if self.mode == "prot":
-            self.moltype = sm.MolType.PROT
+        mode = vg.USER_MODE.lower()
+        if mode == "prot":
+            sm.CURRENT_MOLTYPE = sm.MolType.PROT
             self._parse_smiffer_calc()
             return
 
-        if self.mode == "rna":
-            self.moltype = sm.MolType.RNA
+        if mode == "rna":
+            sm.CURRENT_MOLTYPE = sm.MolType.RNA
             self._parse_smiffer_calc()
             return
 
-        if self.mode == "ligand":
-            self.moltype = sm.MolType.LIGAND
+        if mode == "ligand":
+            sm.CURRENT_MOLTYPE = sm.MolType.LIGAND
             self._parse_smiffer_calc()
             return
 
@@ -53,7 +39,7 @@ class SmifferArgsParser(vg.ArgsParser):
     # --------------------------------------------------------------------------
     def _parse_smiffer_calc(self) -> None:
         help_string = '\n'.join((
-            f"usage: python3 smiffer.py {self.mode} path/input/struct.pdb [options...]",
+            f"usage: python3 smiffer.py {vg.USER_MODE} [path/input/struct.pdb] [options...]",
             "Available options:",
             "-h, --help                       Show this help message and exit.",
             "-o, --output                     Path to the folder where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
@@ -65,13 +51,13 @@ class SmifferArgsParser(vg.ArgsParser):
         ))
 
         fdict = self._get_flags_dict({
-            "help" : ("-h", "--help"),
-            "out"  : ("-o", "--output"),
-            "traj" : ("-t", "--traj"),
-            "apbs" : ("-a", "--apbs"),
-            "ps"   : ("-rxyz", "-ps", "--pocket-sphere"),
-            "table": ("-b", "--table"),
-            "config": ("--config",)
+            "help"  : ("-h", "--help"),
+            "out"   : ("-o", "--output"),
+            "traj"  : ("-t", "--traj"),
+            "apbs"  : ("-a", "--apbs"),
+            "ps"    : ("-rxyz", "-ps", "--pocket-sphere"),
+            "table" : ("-b", "--table"),
+            "config": ("-c", "--config",)
             # "cav": ("-c", "--cavities"), # [TODO] not implemented yet
         })
 
@@ -89,22 +75,22 @@ class SmifferArgsParser(vg.ArgsParser):
         if not options_struct:
             self.print_exit(-1, f"{help_string}\nError: No input structure file provided. Provide a path to the structure file as first positional argument.")
 
-        self.path_structure = Path(options_struct[0])
-        self.name = self.path_structure.stem
+        vg.PATH_STRUCTURE  = Path(options_struct[0])
+        vg.CURRENT_MOLNAME = vg.PATH_STRUCTURE.stem
 
-        if not self.path_structure.exists():
-            self.print_exit(-1, f"{help_string}\nError: The specified structure file '{self.path_structure}' does not exist.")
+        if not vg.PATH_STRUCTURE.exists():
+            self.print_exit(-1, f"{help_string}\nError: The specified structure file '{vg.PATH_STRUCTURE}' does not exist.")
 
-        self.folder_out = Path(options_out[0]) if options_out else self.path_structure.parent
-        if self.folder_out.is_file():
-            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{self.folder_out}' is a file, not a directory.")
+        vg.FOLDER_OUT = Path(options_out[0]) if options_out else vg.PATH_STRUCTURE.parent
+        if vg.FOLDER_OUT.is_file():
+            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{vg.FOLDER_OUT}' is a file, not a directory.")
 
-        os.makedirs(self.folder_out, exist_ok = True)
+        os.makedirs(vg.FOLDER_OUT, exist_ok = True)
 
         if options_apbs:
-            self.path_apbs = Path(options_apbs[0])
-            if not self.path_apbs.exists():
-                self.print_exit(-1, f"{help_string}\nError: The specified APBS file '{self.path_apbs}' does not exist.")
+            sm.PATH_APBS = Path(options_apbs[0])
+            if not sm.PATH_APBS.exists():
+                self.print_exit(-1, f"{help_string}\nError: The specified APBS file '{sm.PATH_APBS}' does not exist.")
 
         if options_ps is not None:
             if len(options_ps) != 4:
@@ -116,28 +102,25 @@ class SmifferArgsParser(vg.ArgsParser):
                 z_cog = float(options_ps[3])
             except ValueError:
                 self.print_exit(-1, f"{help_string}\nError: Pocket sphere options must be numeric values.")
-
-            self.do_ps = True
-            self.ps_info = (radius, x_cog, y_cog, z_cog)
+            sm.PS_INFO = (radius, x_cog, y_cog, z_cog)
 
         if options_traj:
-            self.do_traj = True
-            self.path_traj = Path(options_traj[0])
-            if not self.path_traj.exists():
-                self.print_exit(-1, f"{help_string}\nError: The specified trajectory file '{self.path_traj}' does not exist.")
+            vg.PATH_TRAJECTORY = Path(options_traj[0])
+            if not vg.PATH_TRAJECTORY.exists():
+                self.print_exit(-1, f"{help_string}\nError: The specified trajectory file '{vg.PATH_TRAJECTORY}' does not exist.")
 
-        if (self.moltype == sm.MolType.LIGAND) and not options_table:
+        if (sm.CURRENT_MOLTYPE == sm.MolType.LIGAND) and not options_table:
             self.print_exit(-1, f"{help_string}\nError: No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file.")
 
         if options_table:
-            self.path_table = Path(options_table[0])
-            if not self.path_table.exists():
-                self.print_exit(-1, f"{help_string}\nError: The specified table file '{self.path_table}' does not exist.")
+            sm.PATH_TABLE = Path(options_table[0])
+            if not sm.PATH_TABLE.exists():
+                self.print_exit(-1, f"{help_string}\nError: The specified table file '{sm.PATH_TABLE}' does not exist.")
 
         if options_config:
-            self.path_config = Path(options_config[0])
-            if not self.path_config.exists():
-                self.print_exit(-1, f"{help_string}\nError: The specified config file '{self.path_config}' does not exist.")
+            sm.PATH_CONFIG = Path(options_config[0])
+            if not sm.PATH_CONFIG.exists():
+                self.print_exit(-1, f"{help_string}\nError: The specified config file '{sm.PATH_CONFIG}' does not exist.")
 
 
 # //////////////////////////////////////////////////////////////////////////////

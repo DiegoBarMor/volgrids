@@ -70,13 +70,12 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def save_data(self, override_prefix = None):
-        name = self.ms.meta.name
         prefix = self.get_type() if override_prefix is None else override_prefix
-        path_prefix = self.ms.meta.folder_out / f"{name}.{prefix}"
+        path_prefix = vg.FOLDER_OUT / f"{vg.CURRENT_MOLNAME}.{prefix}"
 
-        if self.ms.meta.do_traj:
+        if self.ms.do_traj:
             ### ignore the OUTPUT flag, CMAP is the only format that supports multiple frames
-            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, f"{name}.{self.ms.frame:04}")
+            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, f"{vg.CURRENT_MOLNAME}.{self.ms.frame:04}")
             return
 
         if vg.OUTPUT_FORMAT == vg.GridFormat.DX:
@@ -88,11 +87,11 @@ class Grid:
             return
 
         if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP:
-            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, name)
+            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, vg.CURRENT_MOLNAME)
             return
 
         if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP_PACKED:
-            vg.GridIO.write_cmap(self.ms.meta.folder_out / f"{name}.cmap", self, f"{name}.{prefix}")
+            vg.GridIO.write_cmap(vg.FOLDER_OUT / f"{vg.CURRENT_MOLNAME}.cmap", self, f"{vg.CURRENT_MOLNAME}.{prefix}")
             return
 
         raise ValueError(f"Unknown output format: {vg.OUTPUT_FORMAT}.")

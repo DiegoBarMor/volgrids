@@ -4,51 +4,52 @@ import volgrids.vgtools as vgt
 # //////////////////////////////////////////////////////////////////////////////
 class VGTools:
     def __init__(self):
-        self.meta = vgt.VGToolsArgsParser()
+        vgt.VGToolsArgsParser()
 
 
     # --------------------------------------------------------------------------
     def run(self):
-        if self.meta.mode == "convert":
+        mode = vg.USER_MODE.lower()
+        if mode == "convert":
             self._run_convert()
             return
 
-        if self.meta.mode == "pack":
+        if mode == "pack":
             self._run_pack()
             return
 
-        if self.meta.mode == "unpack":
+        if mode == "unpack":
             self._run_unpack()
             return
 
-        if self.meta.mode == "fix-cmap":
+        if mode == "fix-cmap":
             self._run_fix_cmap()
             return
 
-        raise ValueError(f"Unknown mode: {self.meta.mode}")
+        raise ValueError(f"Unknown mode: {mode}")
 
 
     # --------------------------------------------------------------------------
     def _run_convert(self):
-        kind, grid = vg.GridIO.read_auto(self.meta.path_in)
+        kind, grid = vg.GridIO.read_auto(vgt.PATH_CONVERT_IN)
 
-        if self.meta.path_dx is not None:
-            print(f">>> Converting {kind.name} file to DX: {self.meta.path_dx}")
-            vg.GridIO.write_dx(self.meta.path_dx, grid)
+        if vgt.PATH_CONVERT_DX is not None:
+            print(f">>> Converting {kind.name} file to DX: {vgt.PATH_CONVERT_DX}")
+            vg.GridIO.write_dx(vgt.PATH_CONVERT_DX, grid)
 
-        if self.meta.path_mrc is not None:
-            print(f">>> Converting {kind.name} file to MRC: {self.meta.path_mrc}")
-            vg.GridIO.write_mrc(self.meta.path_mrc, grid)
+        if vgt.PATH_CONVERT_MRC is not None:
+            print(f">>> Converting {kind.name} file to MRC: {vgt.PATH_CONVERT_MRC}")
+            vg.GridIO.write_mrc(vgt.PATH_CONVERT_MRC, grid)
 
-        if self.meta.path_cmap is not None:
-            print(f">>> Converting {kind.name} file to CMAP: {self.meta.path_cmap}")
-            vg.GridIO.write_cmap(self.meta.path_cmap, grid, self.meta.path_in.stem)
+        if vgt.PATH_CONVERT_CMAP is not None:
+            print(f">>> Converting {kind.name} file to CMAP: {vgt.PATH_CONVERT_CMAP}")
+            vg.GridIO.write_cmap(vgt.PATH_CONVERT_CMAP, grid, vgt.PATH_CONVERT_IN.stem)
 
 
     # --------------------------------------------------------------------------
     def _run_pack(self):
-        paths_in = self.meta.paths_pack_in
-        path_out = self.meta.path_pack_out
+        paths_in = vgt.PATHS_PACK_IN
+        path_out = vgt.PATH_PACK_OUT
 
         resolution = None
         print(f">>> Packing {len(paths_in)} grids into '{path_out}'")
@@ -74,8 +75,8 @@ class VGTools:
 
     # --------------------------------------------------------------------------
     def _run_unpack(self):
-        path_in = self.meta.path_unpack_in
-        folder_out = self.meta.path_unpack_out
+        path_in    = vgt.PATH_UNPACK_IN
+        folder_out = vgt.PATH_UNPACK_OUT
 
         keys = vg.GridIO.get_cmap_keys(path_in)
         print(f">>> Unpacking {keys} from '{path_in}' into '{folder_out}'")
@@ -87,8 +88,8 @@ class VGTools:
 
     # --------------------------------------------------------------------------
     def _run_fix_cmap(self):
-        path_in = self.meta.path_fixcmap_in
-        path_out = self.meta.path_fixcmap_out
+        path_in  = vgt.PATH_FIXCMAP_IN
+        path_out = vgt.PATH_FIXCMAP_OUT
 
         resolution = None
         keys = vg.GridIO.get_cmap_keys(path_in)

@@ -16,6 +16,7 @@ from ._core.parsers.config_parser import ConfigParser
 from ._core.parsers.grid_io import GridFormat, GridIO
 
 
+############################# CONFIG FILE GLOBALS ##############################
 OUTPUT_FORMAT: GridFormat
 
 GZIP_COMPRESSION: int
@@ -41,3 +42,16 @@ ConfigParser(resolve_path("vgrids.config")).apply_config(
 )
 
 OUTPUT_FORMAT = GridFormat.from_str(OUTPUT_FORMAT) # [TODO] improve IniParser.parse_str to avoid this
+
+
+######################## COMMAND LINE ARGUMENTS GLOBALS ########################
+### These are global variables that are to be set by
+### an instance of ArgsParser (or its inherited classes)
+
+from pathlib import Path
+PATH_STRUCTURE:  Path = None # "path/input/struct.pdb"
+PATH_TRAJECTORY: Path = None # "path/input/traj.xtc"
+FOLDER_OUT:      Path = None # "folder/output/"
+
+USER_MODE:       str = '' # mode of the application, e.g. "prot", "rna", "ligand", "convert", "pack", "unpack"...
+CURRENT_MOLNAME: str = '' # name of the input file without extension, e.g. "1abc" for "1abc.pdb"

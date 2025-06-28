@@ -2,7 +2,7 @@
 set -eu
 
 echo
-echo ">>> TEST 3: Conversions between MRC,DX,CMAP formats; packing; unpacking"
+echo ">>> TEST VGTOOLS 0: Conversions between MRC,DX,CMAP formats; packing; unpacking"
 
 folder=testdata/vgtools
 fc="$folder/converting"

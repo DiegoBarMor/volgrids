@@ -2,7 +2,7 @@
 set -eu
 
 echo
-echo ">>> TEST 0: Benchmark, Pocket Sphere mode"
+echo ">>> TEST SMIFFER 0: Benchmark, Pocket Sphere mode"
 
 fapbs="testdata/_input/apbs"
 fpdb="testdata/_input/pdb"

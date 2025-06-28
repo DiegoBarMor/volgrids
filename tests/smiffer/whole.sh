@@ -2,7 +2,7 @@
 set -eu
 
 echo
-echo ">>> TEST 1: Benchmark, Whole mode"
+echo ">>> TEST SMIFFER 1: Benchmark, Whole mode"
 
 fapbs="testdata/_input/apbs"
 fpdb="testdata/_input/pdb"
