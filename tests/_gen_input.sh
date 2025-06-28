@@ -68,7 +68,6 @@ python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.47
 python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_mrc
 python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_cmap
 
-rm -f $fc/1iqj.meta.json
 mv $fc/1iqj.stacking.dx $fc/1iqj.stk.dx
 mv $fc/1iqj.stacking.mrc $fc/1iqj.stk.mrc
 mv $fc/1iqj.stacking.cmap $fc/1iqj.stk.cmap
@@ -78,7 +77,6 @@ mv $fc/1iqj.stacking.cmap $fc/1iqj.stk.cmap
 # shellcheck disable=SC2086
 python3 -W ignore smiffer.py rna $fpdb/2esj.pdb -o $fp -rxyz 15.708 21.865 -6.397 16.946 --config $tmp_config_smifs
 
-rm -f $fp/2esj.meta.json
 mv $fp/2esj.hbacceptors.mrc $fp/2esj.hba.mrc
 mv $fp/2esj.hbdonors.mrc    $fp/2esj.hbd.mrc
 mv $fp/2esj.hydrophilic.mrc $fp/2esj.phi.mrc
@@ -94,7 +92,7 @@ cd $fu
 python3 ../../../vgtools.py pack -i 1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc -o 1iqj.cmap
 cd ../../..
 
-rm -f $fu/1iqj.meta.json $fu/1iqj.*.mrc
+rm -f $fu/1iqj.*.mrc
 
 
 ############################# FIX CMAP

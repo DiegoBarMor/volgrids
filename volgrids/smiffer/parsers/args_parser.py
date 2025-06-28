@@ -1,4 +1,4 @@
-import os, json
+import os
 from pathlib import Path
 import volgrids as vg
 import volgrids.smiffer as sm
@@ -18,16 +18,15 @@ class SmifferArgsParser(vg.ArgsParser):
         ))
 
         self.moltype: sm.MolType = sm.MolType.NONE # type of the molecule, e.g. PROT, RNA, LIGAND
-        self.path_in: Path = None # "path/input/struct.pdb"
+        self.path_structure: Path = None # "path/input/struct.pdb"
         self.name: str = None     # name of the input file without extension, e.g. "1abc" for "1abc.pdb"
 
         self.ps_info: tuple[float, float, float, float] = None # [radius, x, y, z]
-        self.path_out:    Path = None # "folder/output/"
+        self.folder_out:    Path = None # "folder/output/"
         self.path_apbs:   Path = None # "path/input/apbs.pqr.dx"
         self.path_traj:   Path = None # "path/input/traj.xtc"
         self.path_table:  Path = None # "path/input/table.chem"
         self.path_config: Path = None # "path/input/globals.config"
-        self.path_meta:   Path = None # automatically set to path_out / f"{self.name}.meta.json"
 
         self.do_ps:   bool = False # PS mode
         self.do_traj: bool = False # TRAJ mode
@@ -49,24 +48,6 @@ class SmifferArgsParser(vg.ArgsParser):
             return
 
         self.print_exit(-1, help_string)
-
-
-    # --------------------------------------------------------------------------
-    def save_metadata(self):
-        if self.path_meta is None:
-            print("No metadata path specified. Metadata will not be saved.")
-            return
-
-        with open(self.path_meta, 'w') as file:
-            file.write(json.dumps({
-                "mode": self.mode,
-                "input":  str(self.path_in),
-                "output": str(self.path_out),
-                "apbs":   str(self.path_apbs),
-                "pocket_sphere": self.ps_info,
-                "trajectory": str(self.path_traj),
-                "table": str(self.path_table),
-            }))
 
 
     # --------------------------------------------------------------------------
@@ -97,7 +78,7 @@ class SmifferArgsParser(vg.ArgsParser):
         if fdict.get("help") is not None:
             self.print_exit(0, help_string)
 
-        options_in     = fdict.get(None)
+        options_struct = fdict.get(None)
         options_out    = fdict.get("out")
         options_traj   = fdict.get("traj")
         options_apbs   = fdict.get("apbs")
@@ -105,20 +86,20 @@ class SmifferArgsParser(vg.ArgsParser):
         options_table  = fdict.get("table")
         options_config = fdict.get("config")
 
-        if not options_in:
+        if not options_struct:
             self.print_exit(-1, f"{help_string}\nError: No input structure file provided. Provide a path to the structure file as first positional argument.")
 
-        self.path_in = Path(options_in[0])
-        self.name = self.path_in.stem
+        self.path_structure = Path(options_struct[0])
+        self.name = self.path_structure.stem
 
-        if not self.path_in.exists():
-            self.print_exit(-1, f"{help_string}\nError: The specified structure file '{self.path_in}' does not exist.")
+        if not self.path_structure.exists():
+            self.print_exit(-1, f"{help_string}\nError: The specified structure file '{self.path_structure}' does not exist.")
 
-        self.path_out = Path(options_out[0]) if options_out else self.path_in.parent
-        if self.path_out.is_file():
-            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{self.path_out}' is a file, not a directory.")
+        self.folder_out = Path(options_out[0]) if options_out else self.path_structure.parent
+        if self.folder_out.is_file():
+            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{self.folder_out}' is a file, not a directory.")
 
-        os.makedirs(self.path_out, exist_ok = True)
+        os.makedirs(self.folder_out, exist_ok = True)
 
         if options_apbs:
             self.path_apbs = Path(options_apbs[0])
@@ -157,8 +138,6 @@ class SmifferArgsParser(vg.ArgsParser):
             self.path_config = Path(options_config[0])
             if not self.path_config.exists():
                 self.print_exit(-1, f"{help_string}\nError: The specified config file '{self.path_config}' does not exist.")
-
-        self.path_meta = self.path_out / f"{self.name}.meta.json"
 
 
 # //////////////////////////////////////////////////////////////////////////////

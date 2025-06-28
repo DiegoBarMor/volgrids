@@ -13,26 +13,19 @@ class MolecularSystem:
 
         ###############################
         if meta.do_traj:
-            self.system = mda.Universe(meta.path_in, meta.path_traj)
+            self.system = mda.Universe(meta.path_structure, meta.path_traj)
             self.frame = 0
         else:
-            self.system = mda.Universe(meta.path_in)
+            self.system = mda.Universe(meta.path_structure)
             self.frame = None
 
 
         ###############################
-        if meta.do_ps:
-            radius,xcog,ycog,zcog = meta.ps_info
-            self.cog = np.array([xcog, ycog, zcog])
-            self.minCoords = self.cog - radius
-            self.maxCoords = self.cog + radius
-            self.radius = radius
-
-        else:
-            self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
-            self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
-            self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
-            self.cog = (self.minCoords + self.maxCoords) / 2
+        self.minCoords: np.array
+        self.maxCoords: np.array
+        self.radius: float
+        self.cog: np.array
+        self._init_box_attributes()
 
 
         ###############################
@@ -55,12 +48,18 @@ class MolecularSystem:
                 if choice == 'Y': break
                 if choice == 'N': exit()
 
+    # --------------------------------------------------------------------------
+    def _init_box_attributes(self):
+        self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
+        self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
+        self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
+        self.cog = (self.minCoords + self.maxCoords) / 2
+
     # @classmethod
     # def simple_init(cls, path_pdb: Path, folder_out: Path):
     #     return cls(metadata = {
     #         "pdb": path_pdb, "out": folder_out, "apbs": '',
     #         "rna": False,
-    #         "meta": folder_out / f"{path_pdb.stem}.meta.json",
     #     })
 
 

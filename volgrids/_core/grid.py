@@ -72,7 +72,7 @@ class Grid:
     def save_data(self, override_prefix = None):
         name = self.ms.meta.name
         prefix = self.get_type() if override_prefix is None else override_prefix
-        path_prefix = self.ms.meta.path_out / f"{name}.{prefix}"
+        path_prefix = self.ms.meta.folder_out / f"{name}.{prefix}"
 
         if self.ms.meta.do_traj:
             ### ignore the OUTPUT flag, CMAP is the only format that supports multiple frames
@@ -92,7 +92,7 @@ class Grid:
             return
 
         if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP_PACKED:
-            vg.GridIO.write_cmap(self.ms.meta.path_out / f"{name}.cmap", self, f"{name}.{prefix}")
+            vg.GridIO.write_cmap(self.ms.meta.folder_out / f"{name}.cmap", self, f"{name}.{prefix}")
             return
 
         raise ValueError(f"Unknown output format: {vg.OUTPUT_FORMAT}.")

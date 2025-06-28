@@ -14,13 +14,13 @@ folder03f="$folder_vgtools/fix_cmap"
 folder04="$folder_smiffer/ligand"
 
 rm -rf $folder00 $folder01
-rm  -f $folder02/*.cmap $folder02/*.json
+rm  -f $folder02/*.cmap
 
 rm -f $folder03c/dx* $folder03c/mrc* $folder03c/cmap*
 rm -f $folder03p/2esj.cmap
 rm -f $folder03u/1iqj.*.cmap
 rm -f $folder03f/hbdonors.fixed.cmap
 
-rm -f $folder04/*.cmap $folder04/*.json
+rm -f $folder04/*.cmap
 
 clear

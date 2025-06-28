@@ -7,7 +7,6 @@ class SmifferCalculator:
         self.meta = sm.SmifferArgsParser()
         self._apply_custom_config()
 
-        self.meta.save_metadata()
         self.ms = sm.SmifferMolecularSystem(self.meta)
 
         str_mode = "PocketSphere" if self.meta.do_ps else "Whole"

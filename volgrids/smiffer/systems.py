@@ -1,5 +1,7 @@
+import numpy as np
 from pathlib import Path
 from enum import Enum, auto
+
 import volgrids as vg
 import volgrids.smiffer as sm
 
@@ -16,6 +18,7 @@ class SmifferMolecularSystem(vg.MolecularSystem):
     def __init__(self, meta: "sm.SmifferArgsParser"):
         super().__init__(meta)
 
+        self.meta: "sm.SmifferArgsParser"
         self.chemtable = sm.ChemTable(self._get_path_table(meta))
 
         if meta.do_ps:
@@ -25,6 +28,19 @@ class SmifferMolecularSystem(vg.MolecularSystem):
             )
         else:
             self.relevant_atoms = self.system.select_atoms(self.chemtable.selection_query)
+
+
+    # --------------------------------------------------------------------------
+    def _init_box_attributes(self):
+        if self.meta.do_ps:
+            radius,xcog,ycog,zcog = self.meta.ps_info
+            self.cog = np.array([xcog, ycog, zcog])
+            self.minCoords = self.cog - radius
+            self.maxCoords = self.cog + radius
+            self.radius = radius
+
+        else:
+            super()._init_box_attributes()
 
 
     # --------------------------------------------------------------------------
