@@ -47,7 +47,7 @@ class SmifferArgsParser(vg.ArgsParser):
             "-a, --apbs                       Path to the output of APBS for the respective structure file (this must be done before). An OpenDX file is expected.",
             "-rxyz", "-ps", "--pocket-sphere  Activate 'pocket sphere' mode by providing the sphere radius and the X, Y, Z coordinates for its center. If not provided, 'whole' mode is assumed.",
             "-b, --table                      Path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
-            "--config                         Path to a configuration file with global settings, to override the default settings from vgrids.config.",
+            "--config                         Path to a configuration file with global settings, to override the default settings from config.ini.",
         ))
 
         fdict = self._get_flags_dict({
@@ -75,17 +75,16 @@ class SmifferArgsParser(vg.ArgsParser):
         if not options_struct:
             self.print_exit(-1, f"{help_string}\nError: No input structure file provided. Provide a path to the structure file as first positional argument.")
 
-        vg.PATH_STRUCTURE  = Path(options_struct[0])
-        vg.CURRENT_MOLNAME = vg.PATH_STRUCTURE.stem
+        sm.PATH_STRUCTURE  = Path(options_struct[0])
 
-        if not vg.PATH_STRUCTURE.exists():
-            self.print_exit(-1, f"{help_string}\nError: The specified structure file '{vg.PATH_STRUCTURE}' does not exist.")
+        if not sm.PATH_STRUCTURE.exists():
+            self.print_exit(-1, f"{help_string}\nError: The specified structure file '{sm.PATH_STRUCTURE}' does not exist.")
 
-        vg.FOLDER_OUT = Path(options_out[0]) if options_out else vg.PATH_STRUCTURE.parent
-        if vg.FOLDER_OUT.is_file():
-            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{vg.FOLDER_OUT}' is a file, not a directory.")
+        sm.FOLDER_OUT = Path(options_out[0]) if options_out else sm.PATH_STRUCTURE.parent
+        if sm.FOLDER_OUT.is_file():
+            self.print_exit(-1, f"{help_string}\nError: The specified output folder '{sm.FOLDER_OUT}' is a file, not a directory.")
 
-        os.makedirs(vg.FOLDER_OUT, exist_ok = True)
+        os.makedirs(sm.FOLDER_OUT, exist_ok = True)
 
         if options_apbs:
             sm.PATH_APBS = Path(options_apbs[0])
@@ -105,9 +104,9 @@ class SmifferArgsParser(vg.ArgsParser):
             sm.PS_INFO = (radius, x_cog, y_cog, z_cog)
 
         if options_traj:
-            vg.PATH_TRAJECTORY = Path(options_traj[0])
-            if not vg.PATH_TRAJECTORY.exists():
-                self.print_exit(-1, f"{help_string}\nError: The specified trajectory file '{vg.PATH_TRAJECTORY}' does not exist.")
+            sm.PATH_TRAJECTORY = Path(options_traj[0])
+            if not sm.PATH_TRAJECTORY.exists():
+                self.print_exit(-1, f"{help_string}\nError: The specified trajectory file '{sm.PATH_TRAJECTORY}' does not exist.")
 
         if (sm.CURRENT_MOLTYPE == sm.MolType.LIGAND) and not options_table:
             self.print_exit(-1, f"{help_string}\nError: No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file.")

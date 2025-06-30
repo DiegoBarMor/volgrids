@@ -1,22 +1,25 @@
 import numpy as np
 import MDAnalysis as mda
+from pathlib import Path
+
 import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class MolecularSystem:
-    def __init__(self):
+    def __init__(self, path_structure: Path, path_trajectory: Path = None):
         self.resolution: np.array = np.zeros(3, dtype = int)
         self.minCoords : np.array = np.zeros(3)
         self.deltas    : np.array = np.zeros(3)
 
-        self.do_traj = vg.PATH_TRAJECTORY is not None
+        self.molname: str = path_structure.stem
+        self.do_traj = path_trajectory is not None
 
         ###############################
         if self.do_traj:
-            self.system = mda.Universe(vg.PATH_STRUCTURE, vg.PATH_TRAJECTORY)
+            self.system = mda.Universe(path_structure, path_trajectory)
             self.frame = 0
         else:
-            self.system = mda.Universe(vg.PATH_STRUCTURE)
+            self.system = mda.Universe(path_structure)
             self.frame = None
 
 

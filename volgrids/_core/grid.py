@@ -1,4 +1,6 @@
 import numpy as np
+from pathlib import Path
+
 import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -69,13 +71,12 @@ class Grid:
         return grid
 
     # --------------------------------------------------------------------------
-    def save_data(self, override_prefix = None):
-        prefix = self.get_type() if override_prefix is None else override_prefix
-        path_prefix = vg.FOLDER_OUT / f"{vg.CURRENT_MOLNAME}.{prefix}"
+    def save_data(self, folder_out: Path, title: str):
+        path_prefix = folder_out / f"{self.ms.molname}.{title}"
 
         if self.ms.do_traj:
             ### ignore the OUTPUT flag, CMAP is the only format that supports multiple frames
-            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, f"{vg.CURRENT_MOLNAME}.{self.ms.frame:04}")
+            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.molname}.{self.ms.frame:04}")
             return
 
         if vg.OUTPUT_FORMAT == vg.GridFormat.DX:
@@ -87,18 +88,17 @@ class Grid:
             return
 
         if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP:
-            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, vg.CURRENT_MOLNAME)
+            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, self.ms.molname)
             return
 
         if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP_PACKED:
-            vg.GridIO.write_cmap(vg.FOLDER_OUT / f"{vg.CURRENT_MOLNAME}.cmap", self, f"{vg.CURRENT_MOLNAME}.{prefix}")
+            vg.GridIO.write_cmap(folder_out / f"{self.ms.molname}.cmap", self, f"{self.ms.molname}.{title}")
             return
 
         raise ValueError(f"Unknown output format: {vg.OUTPUT_FORMAT}.")
 
 
     ######################### SPECIFIC METHODS (OVERRIDE TO USE)
-    def get_type(self): return
     def populate_grid(self): return
 
 

@@ -46,9 +46,6 @@ class GridHBonds(vg.Grid):
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridHBAccepts(GridHBonds):
-    def get_type(self):
-        return "hbacceptors"
-
     def populate_grid(self):
         self.radius = sm.MU_HBA[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBOND
         self.kernel_args = dict(mu = sm.MU_HBA, cov_inv = sm.COV_INV_HBA, isStacking = False)
@@ -78,9 +75,6 @@ class GridHBAccepts(GridHBonds):
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridHBDonors(GridHBonds):
-    def get_type(self):
-        return "hbdonors"
-
     def populate_grid(self):
         self.radius = sm.MU_HBD[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBOND
         self.kernel_args = dict(mu = sm.MU_HBD, cov_inv = sm.COV_INV_HBD, isStacking = False)

@@ -35,7 +35,7 @@ EXTRA_BOX_SIZE: int
 USE_FIXED_DELTAS: bool
 
 
-ConfigParser(resolve_path("vgrids.config")).apply_config(
+ConfigParser(resolve_path("volgrids/config.ini")).apply_config(
     key = "VOLGRIDS",
     globs = globals(),
     valid_configs = set(__annotations__.keys())
@@ -47,11 +47,4 @@ OUTPUT_FORMAT = GridFormat.from_str(OUTPUT_FORMAT) # [TODO] improve IniParser.pa
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by
 ### an instance of ArgsParser (or its inherited classes)
-
-from pathlib import Path
-PATH_STRUCTURE:  Path = None # "path/input/struct.pdb"
-PATH_TRAJECTORY: Path = None # "path/input/traj.xtc"
-FOLDER_OUT:      Path = None # "folder/output/"
-
-USER_MODE:       str = '' # mode of the application, e.g. "prot", "rna", "ligand", "convert", "pack", "unpack"...
-CURRENT_MOLNAME: str = '' # name of the input file without extension, e.g. "1abc" for "1abc.pdb"
+USER_MODE: str = '' # mode of the application, e.g. "prot", "rna", "ligand", "convert", "pack", "unpack"...

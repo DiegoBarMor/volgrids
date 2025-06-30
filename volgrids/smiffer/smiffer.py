@@ -7,11 +7,11 @@ class SmifferCalculator:
         sm.SmifferArgsParser()
         self._apply_custom_config()
 
-        self.ms = sm.SmifferMolecularSystem()
+        self.ms = sm.SmifferMolecularSystem(sm.PATH_STRUCTURE, sm.PATH_TRAJECTORY)
 
         str_mode = "PocketSphere" if self.ms.do_ps else "Whole"
         self.timer = vg.Timer(
-            f">>> Now processing '{vg.CURRENT_MOLNAME}' ({vg.USER_MODE}) in '{str_mode}' mode"
+            f">>> Now processing '{self.ms.molname}' ({vg.USER_MODE}) in '{str_mode}' mode"
         )
 
 
@@ -61,21 +61,21 @@ class SmifferCalculator:
 
         ### Calculate standard SMIF grids
         if sm.DO_SMIF_STACKING:
-            self._calc_smif(sm.GridStacking(self.ms), trim_large)
+            self._calc_smif(sm.GridStacking(self.ms), trim_large, "stacking")
 
         if sm.DO_SMIF_HBA:
-            self._calc_smif(sm.GridHBAccepts(self.ms), trim_large)
+            self._calc_smif(sm.GridHBAccepts(self.ms), trim_large, "hbacceptors")
 
         if sm.DO_SMIF_HBD:
-            self._calc_smif(sm.GridHBDonors(self.ms), trim_large)
+            self._calc_smif(sm.GridHBDonors(self.ms), trim_large, "hbdonors")
 
         if sm.DO_SMIF_HYDROPHOBIC:
             grid_hphob = sm.GridHydrophobic(self.ms)
-            self._calc_smif(grid_hphob, trim_large)
+            self._calc_smif(grid_hphob, trim_large, "hydrophobic")
 
         if sm.DO_SMIF_HYDROPHILIC:
             grid_hphil = sm.GridHydrophilic(self.ms)
-            self._calc_smif(grid_hphil, trim_small)
+            self._calc_smif(grid_hphil, trim_small, "hydrophilic")
 
         if sm.DO_SMIF_APBS:
             self._process_apbs(trim_large)
@@ -83,14 +83,14 @@ class SmifferCalculator:
         ### Calculate additional grids
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
             grid_hpdiff = vg.Grid.substract(grid_hphob, grid_hphil)
-            grid_hpdiff.save_data(override_prefix = "hydrodiff")
+            grid_hpdiff.save_data(sm.FOLDER_OUT, "hydrodiff")
 
 
     # --------------------------------------------------------------------------
-    def _calc_smif(self, grid: "vg.Grid", trimmer: "sm.GridTrimmer"):
+    def _calc_smif(self, grid: "vg.Grid", trimmer: "sm.GridTrimmer", title: str):
         grid.populate_grid()
         trimmer.apply_trimming(grid)
-        grid.save_data()
+        grid.save_data(sm.FOLDER_OUT, title)
 
 
     # --------------------------------------------------------------------------
@@ -98,12 +98,12 @@ class SmifferCalculator:
         if sm.PATH_APBS is None: return
 
         grid_apbs = sm.GridAPBS(self.ms)
-        self._calc_smif(grid_apbs, trimmer)
+        self._calc_smif(grid_apbs, trimmer, "apbs")
 
         if not sm.DO_SMIF_LOG_APBS: return
 
         grid_apbs.apply_logabs_transform()
-        grid_apbs.save_data(override_prefix = "apbslog")
+        grid_apbs.save_data(sm.FOLDER_OUT, "apbslog")
 
 
     # --------------------------------------------------------------------------

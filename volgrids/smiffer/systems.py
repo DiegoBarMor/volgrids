@@ -15,11 +15,11 @@ class MolType(Enum):
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifferMolecularSystem(vg.MolecularSystem):
-    def __init__(self):
+    def __init__(self, path_structure: Path, path_trajectory: Path):
         self.do_ps = sm.PS_INFO is not None
         self.chemtable = sm.ChemTable(self._get_path_table())
 
-        super().__init__()
+        super().__init__(path_structure, path_trajectory)
 
         if self.do_ps:
             radius,xcog,ycog,zcog = sm.PS_INFO

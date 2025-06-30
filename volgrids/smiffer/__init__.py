@@ -66,7 +66,7 @@ GAUSSIAN_KERNEL_SIGMAS: int
 import numpy as _np
 import volgrids as _vg
 
-_vg.ConfigParser(_vg.resolve_path("vgrids.config")).apply_config(
+_vg.ConfigParser(_vg.resolve_path("volgrids/config.ini")).apply_config(
     key = "SMIFFER",
     globs = globals(),
     valid_configs = set(__annotations__.keys())
@@ -107,9 +107,12 @@ SIGMA_DIST_STACKING = _np.sqrt(COV_STACKING_11)
 ### an instance of ArgsParser (or its inherited classes)
 
 from pathlib import Path
-PATH_APBS:   Path = None # "path/input/apbs.pqr.dx"
-PATH_TABLE:  Path = None # "path/input/table.chem"
-PATH_CONFIG: Path = None # "path/input/globals.config"
+PATH_STRUCTURE:  Path = None # "path/input/struct.pdb"
+PATH_TRAJECTORY: Path = None # "path/input/traj.xtc"
+PATH_APBS:       Path = None # "path/input/apbs.pqr.dx"
+PATH_TABLE:      Path = None # "path/input/table.chem"
+PATH_CONFIG:     Path = None # "path/input/globals.ini"
+FOLDER_OUT:      Path = None # "folder/output/"
 
 PS_INFO: tuple[float, float, float, float] = None # pocket sphere info: [radius, x, y, z]
 CURRENT_MOLTYPE: MolType = MolType.NONE           # type of the current molecule

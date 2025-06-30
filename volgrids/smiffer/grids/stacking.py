@@ -5,9 +5,6 @@ from collections import defaultdict
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridStacking(vg.Grid):
-    def get_type(self):
-        return "stacking"
-
     def populate_grid(self):
         radius = sm.MU_STACKING[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_STACKING
         gk = vg.KernelGaussianMultivariate(radius, self.ms.deltas, vg.FLOAT_DTYPE)

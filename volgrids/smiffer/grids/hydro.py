@@ -19,9 +19,6 @@ class GridHydro(vg.Grid):
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridHydrophilic(GridHydro):
-    def get_type(self):
-        return "hydrophilic"
-
     def populate_grid(self):
         radius_hphil = sm.MU_HYDROPHILIC + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_HYDROPHILIC
         gk_hphil = vg.KernelGaussianUnivariate(
@@ -37,9 +34,6 @@ class GridHydrophilic(GridHydro):
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridHydrophobic(GridHydro):
-    def get_type(self):
-        return "hydrophobic"
-
     def populate_grid(self):
         radius_hphob = sm.MU_HYDROPHOBIC + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_HYDROPHOBIC
         gk_hphob = vg.KernelGaussianUnivariate(

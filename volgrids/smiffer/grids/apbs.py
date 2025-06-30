@@ -5,11 +5,6 @@ import volgrids.smiffer as sm
 # //////////////////////////////////////////////////////////////////////////////
 class GridAPBS(vg.Grid):
     # --------------------------------------------------------------------------
-    def get_type(self):
-        return "apbs"
-
-
-    # --------------------------------------------------------------------------
     def populate_grid(self):
         _,apbs = vg.GridIO.read_auto(sm.PATH_APBS)
         apbs.reshape(
