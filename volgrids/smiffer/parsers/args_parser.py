@@ -83,7 +83,6 @@ class SmifferArgsParser(vg.ArgsParser):
         sm.FOLDER_OUT = Path(options_out[0]) if options_out else sm.PATH_STRUCTURE.parent
         if sm.FOLDER_OUT.is_file():
             self.print_exit(-1, f"{help_string}\nError: The specified output folder '{sm.FOLDER_OUT}' is a file, not a directory.")
-
         os.makedirs(sm.FOLDER_OUT, exist_ok = True)
 
         if options_apbs:

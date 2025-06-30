@@ -1,5 +1,5 @@
 # Volumetric Grids
-This is a framework for volumetric calculations, with emphasis in biological molecular systems. Two tools are also provided: **SMIF Calculator** (`smiffer.py`) and **Volgrid Tools** (`vgtools.py`). You can read more in their respective sections.
+This is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`smiffer.py`), **Volumetric Energy INSpector (VEINS)** (`veins.py`) and **Volgrid Tools** (`vgtools.py`). You can read more in their respective sections.
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -42,10 +42,11 @@ pip install mdanalysis h5py
 ```
 
 
+
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- ------------------------------- SMIFFER ------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-# SMIF Calculator
+# Statistical Molecular Interaction Fields (SMIF) Calculator
 A custom implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method is provided as `smiffer.py`.
 
 ## Usage
@@ -89,6 +90,7 @@ python3 smiffer.py rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7
 ## Benchmark
 A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [this location](https://drive.google.com/file/d/1o1jR4RhXlIL0Jg3m0twrpbiTV7eIGZ38/view?usp=sharing), in the form of PDB and PQR input files.
 <!-- TODO: update this with a new link to the testdata folder -->
+
 
 <!-- ----------------------------------------------------------------------- -->
 ## Visualization
@@ -134,6 +136,27 @@ coordset stop #1; vseries stop #2
 Note that this time, the morph can be paused manually with the slider button (is there a command equivalent?)
 
 
+
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- -------------------------------- VEINS -------------------------------- -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+# Volumetric Energy INSpector (VEINS)
+## Usage
+Run `python3 veins.py [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
+  - replace `[mode]` with `energies`.
+  - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
+  - replace `[path_csv]` with the path to the energies CSV file. Mandatory positional argument. It must contain the following rows:
+    - **kind**: Name of the interaction kind. All rows with the same *kind* will be used to calculate a single grid with its name.
+    - **npoints**: Number of particles involved in the interaction.
+    - **idxs**: Group of 0-based indices joined by `-`. These are the indices of the particles involved in the interaction. This group must contain *npoints* indices.
+    - **idxs_are_residues**: Whether the indices correspond to the molecule's residues (`true`) or atoms (`false`).
+    - **energy**: Value of the interaction's energy.
+  - Optionally, replace `[options...]` with any combination of the following:
+    - `-o [folder_out]` where `[folder_out]` is the folder where the output SMIFs should be stored. if not provided, the parent folder of the input file will be used.
+    `-c [cutoff]` where `[cutoff]` is a float number. Energies below this cutoff will be ignored. Default value: 1e-3.
+
+
+
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- ---------------------------- VOLGRID TOOLS ---------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -150,6 +173,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
   - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 vgtools.py [mode]` with no more arguments).
 
 
+
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- ----------------------------------------------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -164,6 +188,12 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * improve IniParser.parse_str
 * provide download links for the testdata folder
 * add annotations, docstrings and overall cleaning
-
+* make a common App class
+  * move the ArgsParser instantation out of them?
+improve the ArgsParser classes (could avoid some code repetition)
+* VEINS
+  * implement "forces" mode
+  * implement "trajectory" mode
+  * move Grid's static fields into config.ini
 
 <!-- ----------------------------------------------------------------------- -->

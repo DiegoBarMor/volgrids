@@ -10,7 +10,7 @@ from .parsers.chem_table import ChemTable
 from .trimmers import GridTrimmer
 from .systems import MolType, SmifferMolecularSystem
 
-from .smiffer import SmifferCalculator
+from .smiffer import SmifferApp
 
 
 ############################# CONFIG FILE GLOBALS ##############################

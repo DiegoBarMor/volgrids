@@ -2,7 +2,7 @@ import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
-class SmifferCalculator:
+class SmifferApp:
     def __init__(self):
         sm.SmifferArgsParser()
         self._apply_custom_config()

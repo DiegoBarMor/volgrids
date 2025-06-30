@@ -8,7 +8,7 @@ class VGToolsArgsParser(vg.ArgsParser):
     def __init__(self):
         super().__init__()
         help_string = '\n'.join((
-            "usage: python3 vgtools.py [prot|rna|convert|pack|unpack] [options...]",
+            "usage: python3 vgtools.py [convert|pack|unpack|fix-cmap] [options...]",
             "Available modes:",
             "  convert  - Convert grid files between formats.",
             "  pack     - Pack multiple grid files into a single CMAP series-file.",
