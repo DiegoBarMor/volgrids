@@ -190,14 +190,13 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
   * move the ArgsParser instantation out of them?
 * improve the ArgsParser classes (could avoid some code repetition)
 * standard ini files use ; instead of # for comments
+* CCP4 format
 
 ## SMIFFER
-* fix concept behind hbonds that shouldn't be allowed to rotate
-  * ARG ASN GLN
-  * U C A G
 * provide download links for the testdata folder
 * add flag for considering the structure's hydrogen atoms when calculating HBD smifs
 * bring back relevant_atoms_broad
+* document the .chem tables
 
 ## VEINS
 * implement "forces" mode
@@ -209,6 +208,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 ## VGTools
 * check what happens if performing "fix-cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
+* mode to compare grids
 
 
 <!-- ----------------------------------------------------------------------- -->

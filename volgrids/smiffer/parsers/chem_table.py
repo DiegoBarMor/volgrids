@@ -1,16 +1,26 @@
+import re
 import volgrids as vg
 from collections import defaultdict
 
 # ------------------------------------------------------------------------------
-def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str]:
-    try:
-        str_antecedents, interactor = triplet.split('-')
-        antecedents = str_antecedents.split('.')
-        a0 = antecedents[0].strip()
-        a1 = antecedents[1].strip() if len(antecedents) > 1 else ''
-        return a0, a1, interactor.strip()
-    except ValueError as e:
-        raise ValueError(f"Triplet '{triplet}' is not in the expected formats 'A-X' or 'A.B-X'") from e
+def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, bool]:
+    error_message = f"Triplet '{triplet}' is not in the expected formats 'A-X' or 'A.B-X'."
+
+    if '-' not in triplet: raise ValueError(error_message)
+
+    substrings = re.split(r"[\-\.>]", triplet)
+    a0 = substrings[0].strip()
+
+    if len(substrings) == 2:
+        a1 = ''
+        interactor = substrings[1].strip()
+    elif len(substrings) == 3:
+        a1 = substrings[1].strip()
+        interactor = substrings[2].strip()
+    else:
+        raise ValueError(error_message)
+
+    return a0, a1, interactor, '>' in triplet
 
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -21,9 +31,9 @@ class ChemTable():
         self._residues_hphob: dict[str, float] = {}
         self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
         self._names_stk: dict[str, str] = {}
-        self._names_hba: dict[str, list[tuple[str, str, str]]] = {}
-        self._names_hbd: dict[str, list[tuple[str, str, str]]] = {}
-        self._names_hbd_fixed: dict[str, list[tuple[str, str, str]]] = {}
+        self._names_hba: dict[str, list[tuple[str, str, str, bool]]] = {}
+        self._names_hbd: dict[str, list[tuple[str, str, str, bool]]] = {}
+        self._names_hbd_fixed: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._parse_table()
 
 

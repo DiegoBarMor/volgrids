@@ -3,6 +3,21 @@ import volgrids as vg
 import volgrids.smiffer as sm
 from abc import ABC, abstractmethod
 
+def _str_prev_residue(res):
+    return f"segid {res.segid} and resid {res.resid - 1}"
+
+def _str_this_residue(res):
+    return f"segid {res.segid} and resid {res.resid} and resname {res.resname}"
+
+def _str_next_residue(res):
+    return f"segid {res.segid} and resid {res.resid + 1}"
+
+def _safe_return_coords(atomgroup, sel_string):
+    atoms = atomgroup.select_atoms(sel_string)
+    if len(atoms) == 0: return None
+    return atoms.center_of_geometry()
+
+
 # //////////////////////////////////////////////////////////////////////////////
 class GridHBonds(vg.Grid, ABC):
     def populate_grid(self):
@@ -21,7 +36,7 @@ class GridHBonds(vg.Grid, ABC):
     def iter_particles(self):
         atoms = self.ms.relevant_atoms
         for res in atoms.residues:
-            res_atoms = atoms.select_atoms(f"segid {res.segid} and resid {res.resid} and resname {res.resname}")
+            res_atoms = atoms.select_atoms(_str_this_residue(res))
             hbond_triplets = self.hbond_getter(self.ms.chemtable, res.resname)
             if hbond_triplets is None: continue # skip weird residues
 
@@ -30,19 +45,18 @@ class GridHBonds(vg.Grid, ABC):
 
                 name_hbond_atom = hbond_triplet[2]
 
-                sel_antecedent = self.select_antecedent(res, res_atoms, hbond_triplet)
+                antecedent_pos = self.select_antecedent(res, res_atoms, hbond_triplet)
                 sel_hbond_atom = res_atoms.select_atoms(f"name {name_hbond_atom}")
-                if sel_antecedent is None: continue # skip special cases
+                if antecedent_pos is None: continue # skip special cases
 
-                if not sel_hbond_atom or not sel_antecedent: continue # skip residue artifacts
-                antecedent_pos = np.mean(sel_antecedent.positions, axis = 0)
+                if not sel_hbond_atom or len(antecedent_pos) == 0: continue # skip residue artifacts
                 hbond_atom_pos = sel_hbond_atom[0].position
 
                 yield antecedent_pos, hbond_atom_pos
 
 
     @abstractmethod
-    def select_antecedent(self, res, res_atoms, hbond_triplet):
+    def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
         return
 
 
@@ -53,53 +67,66 @@ class GridHBonds(vg.Grid, ABC):
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridHBAccepts(GridHBonds, ABC):
-    def select_antecedent(self, res, res_atoms, hbond_triplet):
-        name_antecedent_0, name_antecedent_1, name_hbond_atom = hbond_triplet
+    def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
+        name_antecedent_0, name_antecedent_1, name_hbond_atom, _ = hbond_triplet
         atoms = self.ms.relevant_atoms
 
         ##### standard antecedents
         if not name_antecedent_1:
-            return res_atoms.select_atoms(f"name {name_antecedent_0}")
+            return _safe_return_coords(res_atoms, f"name {name_antecedent_0}")
 
         ##### pseudo-antecedents
         ### special case for RNA, needs to check next residue
         if name_hbond_atom == "O3'":
-            return atoms.select_atoms(
-                f"(segid {res.segid} and resid {res.resid} and resname {res.resname} and name {name_antecedent_0}) or" +\
-                f"(segid {res.segid} and resid {res.resid + 1} " +                 f"and name {name_antecedent_1})"
+            return _safe_return_coords(atoms,
+                f"({_str_this_residue(res)} and name {name_antecedent_0}) or" +\
+                f"({_str_next_residue(res)} and name {name_antecedent_1})"
             )
 
         ### other pseudo-antecedent cases
-        return res_atoms.select_atoms(f"name {name_antecedent_0} {name_antecedent_1}")
+        return _safe_return_coords(res_atoms, f"name {name_antecedent_0} {name_antecedent_1}")
 
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridHBDonors(GridHBonds, ABC):
-    def select_antecedent(self, res, res_atoms, hbond_triplet):
-        name_antecedent_0, name_antecedent_1, name_hbond_atom = hbond_triplet
+    def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
+        name_antecedent_0, name_antecedent_1, name_hbond_atom, do_infer_H = hbond_triplet
         atoms = self.ms.relevant_atoms
 
         ##### pseudo-antecedents
         if name_antecedent_1:
-            return res_atoms.select_atoms(f"name {name_antecedent_0} {name_antecedent_1}")
+            ### special case for terminal aminoacids
+            if hbond_triplet == ("C", "CA", "N", False):
+                return _safe_return_coords(atoms,
+                    f"({_str_prev_residue(res)} and name C ) or " +\
+                    f"({_str_this_residue(res)} and name CA)"
+                )
+
+            if do_infer_H:
+                atom_ref        = res_atoms.select_atoms(f"name {name_antecedent_0}")
+                atom_antecedent = res_atoms.select_atoms(f"name {name_antecedent_1}")
+                atom_hbond      = res_atoms.select_atoms(f"name {name_hbond_atom  }")
+                if len(atom_ref) != 1 or len(atom_antecedent) != 1 or len(atom_hbond) != 1:
+                    return
+
+                direction = atom_antecedent[0].position - atom_ref[0].position
+                return atom_hbond[0].position - direction
+
+            return _safe_return_coords(res_atoms, f"name {name_antecedent_0} {name_antecedent_1}")
 
         ##### standard antecedents
         ## special case for RNA, it's a donor only if there is no next residue
         if name_hbond_atom == "O3'":
-            sel_next_res = atoms.select_atoms(
-                f"segid {res.segid} and resid {res.resid + 1}"
-            )
+            sel_next_res = atoms.select_atoms(_str_next_residue(res))
             if len(sel_next_res) > 0: return
 
         ## special case for RNA, it's a donor only if there is no previous residue
         if name_hbond_atom == "O5'":
-            sel_prev_res = atoms.select_atoms(
-                f"segid {res.segid} and resid {res.resid - 1}"
-            )
+            sel_prev_res = atoms.select_atoms(_str_prev_residue(res))
             if len(sel_prev_res) > 0: return
 
         ## other standard antecedent cases
-        return res_atoms.select_atoms(f"name {name_antecedent_0}")
+        return _safe_return_coords(res_atoms, f"name {name_antecedent_0}")
 
 
 # //////////////////////////////////////////////////////////////////////////////
