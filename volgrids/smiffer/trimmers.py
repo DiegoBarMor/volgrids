@@ -6,6 +6,7 @@ import volgrids.smiffer as sm
 class GridTrimmer(vg.Grid):
     def __init__(self, ms: "sm.SmifferMolecularSystem", trimming_dist):
         super().__init__(ms, dtype = bool)
+        self.ms: "sm.SmifferMolecularSystem"
 
         if sm.DO_TRIMMING_OCCUPANCY:
             self._trim_occupancy(trimming_dist)
@@ -29,7 +30,7 @@ class GridTrimmer(vg.Grid):
     def _trim_occupancy(self, radius):
         sk = vg.KernelSphere(radius, self.ms.deltas, bool)
         sk.link_to_grid(self.grid, self.ms.minCoords)
-        for a in self.ms.relevant_atoms:
+        for a in self.ms.get_relevant_atoms_broad(radius):
             sk.stamp(a.position)
 
 

@@ -31,6 +31,17 @@ class SmifferMolecularSystem(vg.MolecularSystem):
 
 
     # --------------------------------------------------------------------------
+    def get_relevant_atoms_broad(self, trimming_dist):
+        if not self.do_ps:
+            return self.relevant_atoms
+
+        xcog, ycog, zcog = self.cog
+        return self.system.select_atoms(
+            f"{self.chemtable.selection_query} and point {xcog} {ycog} {zcog} {self.radius + trimming_dist}"
+        )
+
+
+    # --------------------------------------------------------------------------
     def _init_box_attributes(self):
         if self.do_ps:
             radius,xcog,ycog,zcog = sm.PS_INFO

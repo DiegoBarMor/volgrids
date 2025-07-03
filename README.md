@@ -195,7 +195,6 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 ## SMIFFER
 * provide download links for the testdata folder
 * add flag for considering the structure's hydrogen atoms when calculating HBD smifs
-* bring back relevant_atoms_broad
 * document the .chem tables
 
 ## VEINS
