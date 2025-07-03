@@ -33,23 +33,26 @@ class VeinsArgsParser(vg.ArgsParser):
         help_string = '\n'.join((
             "usage: python3 veins.py energy [path/input/structure.pdb] [path/input/energies.csv] [options...]",
             "Available options:",
-            "-h, --help    Show this help message and exit.",
-            "-o, --output  Path to the folder where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
-            "-c, --cutoff  Energies below this cutoff will be ignored. Default value: 1e-3.",
+            "-h, --help       Show this help message and exit.",
+            "-o, --output     Path to the folder where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
+            "-t, --trajectory Path to a trajectory file (e.g. XTC) supported by MDAnalysis. In this case, the energies CSV file contains an energy column for each frame. The header of such columns must start with 'frame'.",
+            "-c, --cutoff     Energies below this cutoff will be ignored. Default value: 1e-3.",
         ))
 
         fdict = self._get_flags_dict({
             "help" : ("-h", "--help"),
             "out"  : ("-o", "--output"),
-            "cuto" : ("-c", "--cutoff"),
+            "traj" : ("-t", "--trajectory"),
+            "cut"  : ("-c", "--cutoff"),
         })
 
         if fdict.get("help") is not None:
             self.print_exit(0, help_string)
 
-        options_in  = fdict.get(None)
-        options_out = fdict.get("out")
-        options_cut = fdict.get("cut")
+        options_in   = fdict.get(None)
+        options_out  = fdict.get("out")
+        options_cut  = fdict.get("cut")
+        options_traj = fdict.get("traj")
 
         if len(options_in) < 2:
             self.print_exit(-1, f"{help_string}\nError: You must provide both the input structure file and the energies CSV file.")
@@ -66,6 +69,11 @@ class VeinsArgsParser(vg.ArgsParser):
         if ve.FOLDER_OUT.is_file():
             self.print_exit(-1, f"{help_string}\nError: The specified output folder '{ve.FOLDER_OUT}' is a file, not a directory.")
         os.makedirs(ve.FOLDER_OUT, exist_ok = True)
+
+        if options_traj:
+            ve.PATH_TRAJECTORY = Path(options_traj[0])
+            if not ve.PATH_TRAJECTORY.exists():
+                self.print_exit(-1, f"Error: The trajectory file '{ve.PATH_TRAJECTORY}' does not exist.")
 
         if options_cut:
             try:

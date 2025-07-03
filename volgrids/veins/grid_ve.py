@@ -19,6 +19,7 @@ class GridVolumetricEnergy(vg.Grid):
     # --------------------------------------------------------------------------
     def populate_grid(self):
         for _,row in self.df.iterrows():
+            if   row["energy"]  == 0: continue
             if   row["npoints"] == 2: self._process_2p_interaction(row)
             elif row["npoints"] == 3: self._process_3p_interaction(row)
             elif row["npoints"] == 4: self._process_4p_interaction(row)
@@ -26,13 +27,10 @@ class GridVolumetricEnergy(vg.Grid):
 
     # --------------------------------------------------------------------------
     def _process_2p_interaction(self, row):
-        ##### kernel is placed at the center of the two particles
         a,b = self._get_positions(row)
-        pos = (a + b) / 2
 
-        ##### get the direction vector between two particles
-        a,b = self._get_positions(row)
-        direction = b - a
+        pos = (a + b) / 2  # kernel is placed at the center of the two particles
+        direction = b - a  # get the direction vector between two particles
 
         ##### perform kernel operations
         radius = np.linalg.norm(direction) * self.RADIUS_FIX
@@ -45,28 +43,16 @@ class GridVolumetricEnergy(vg.Grid):
 
     # --------------------------------------------------------------------------
     def _process_3p_interaction(self, row):
-        ##### kernel is placed at the vertix B of the triangle ABC
-        _,b,_ = self._get_positions(row)
-        pos = b
-
-        ##### given a triangle ABC, get the direction vector
-        ##### that bisects the angle between the two sides AB and BC
         a, b, c = self._get_positions(row)
         u = vg.Math.normalize(a - b)
         v = vg.Math.normalize(c - b)
-        direction = (u + v) / np.linalg.norm(u + v)
+        p = vg.Math.normalize(b - a)
+        q = vg.Math.normalize(c - a)
 
-        ##### get the normal vector perpendicular to the plane ABC
-        a, b, c = self._get_positions(row)
-        u = vg.Math.normalize(b - a)
-        v = vg.Math.normalize(c - a)
-        normal = np.cross(u, v)
-
-        ##### given a triangle ABC, get the angle between the two sides AB and BC
-        a, b, c = self._get_positions(row)
-        u = vg.Math.normalize(a - b)
-        v = vg.Math.normalize(c - b)
-        angle = np.arccos(np.dot(u, v))
+        pos = b                                     # kernel is placed at the vertix B of the triangle ABC
+        direction = (u + v) / np.linalg.norm(u + v) # get the direction vector that bisects the angle between the two sides AB and BC
+        angle = np.arccos(np.dot(u, v))             # get the angle between the two sides AB and BC
+        normal = np.cross(p, q)                     # get the normal vector perpendicular to the plane ABC
 
         ##### perform kernel operations
         kernel = vg.KernelDiskConecut(
@@ -79,17 +65,11 @@ class GridVolumetricEnergy(vg.Grid):
 
     # --------------------------------------------------------------------------
     def _process_4p_interaction(self, row):
-        ##### kernel is placed at the center of the four particles
         a,b,c,d = self._get_positions(row)
-        pos = (a + b + c + d) / 4
 
-        ##### get the direction vector between the first two non-adjacent particles
-        a, _, c, _ = self._get_positions(row)
-        direction = a - c
-
-        ##### get the direction vector between the first two non-adjacent particles
-        _, b, _, d = self._get_positions(row)
-        normal = b - d
+        pos = (a + b + c + d) / 4 # kernel is placed at the center of the four particles
+        direction = a - c         # get the direction vector between the first  two non-adjacent particles
+        normal = b - d            # get the direction vector between the second two non-adjacent particles
 
         ##### perform kernel operations
         radius0 = np.linalg.norm(direction) * self.RADIUS_FIX
@@ -108,8 +88,8 @@ class GridVolumetricEnergy(vg.Grid):
 
     # ------------------------------------------------------------------------------
     def _get_positions(self, row: pd.Series):
+        ### idxs are expected to be 0-based
         def _split_idx_group(str_idxs: str) -> list[int]:
-            # idxs are expected to be 0-based
             return [int(idx) for idx in str_idxs.split('-')]
 
         if row["idxs_are_residues"]:

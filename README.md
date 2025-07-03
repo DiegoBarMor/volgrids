@@ -141,6 +141,8 @@ Note that this time, the morph can be paused manually with the slider button (is
 <!-- -------------------------------- VEINS -------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Volumetric Energy INSpector (VEINS)
+This tool allows to visualize interaction energies in space by portraying them as a volumetric grid. Apart from the usual structure/trajectory files (PDB, XTC...), a CSV with energy values and the indices of the atoms/residues involved must be given. Interactions between 2, 3 and 4 particles are supported and represented accordingly
+
 ## Usage
 Run `python3 veins.py [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `energies`.
@@ -178,22 +180,34 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 <!-- ----------------------------------------------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # TODO
+* add annotations, docstrings and overall cleaning
+
+## _CORE
+* implement: raise an error if a format file is opened with the wrong function
+* improve IniParser.parse_str
+* make a common App class
+  * move the ArgsParser instantation out of them?
+* improve the ArgsParser classes (could avoid some code repetition)
+
+## SMIFFER
 * fix concept behind hbonds that shouldn't be allowed to rotate
   * protein_backbone
   * TRP PRO HIS ARG ASN GLN
   * U C A G
+* provide download links for the testdata folder
+* add flag for considering the structure's hydrogen atoms when calculating HBD smifs
+* bring back relevant_atoms_broad
+
+## VEINS
+* implement "forces" mode
+* implement "trajectory" mode
+* add a flagto apply absolute value to the grid's points
+* move Grid's static fields into config.ini
+* add tests
+
+## VGTools
 * check what happens if performing "fix-cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
-* implement: raise an error if a format file is opened with the wrong function
-* improve IniParser.parse_str
-* provide download links for the testdata folder
-* add annotations, docstrings and overall cleaning
-* make a common App class
-  * move the ArgsParser instantation out of them?
-improve the ArgsParser classes (could avoid some code repetition)
-* VEINS
-  * implement "forces" mode
-  * implement "trajectory" mode
-  * move Grid's static fields into config.ini
+
 
 <!-- ----------------------------------------------------------------------- -->
