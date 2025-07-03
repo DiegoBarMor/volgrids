@@ -58,7 +58,6 @@ class SmifferArgsParser(vg.ArgsParser):
             "ps"    : ("-rxyz", "-ps", "--pocket-sphere"),
             "table" : ("-b", "--table"),
             "config": ("-c", "--config",)
-            # "cav": ("-c", "--cavities"), # [TODO] not implemented yet
         })
 
         if fdict.get("help") is not None:

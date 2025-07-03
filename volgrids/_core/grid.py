@@ -28,8 +28,22 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def __add__(self, other: "Grid|float|int") -> "Grid":
+        grid_out = self.copy()
+        # grid_out = Grid(self.ms, init_grid = False) ### [WIP] ms could be None
+        if isinstance(other, Grid):
+            grid_out.grid = self.grid + other.grid
+            return grid_out
+        try:
+            grid_out.grid = self.grid + other
+            return grid_out
+        except TypeError:
+            raise TypeError(f"Cannot add {type(other)} to Grid. Use another Grid or a numeric value.")
+
+
+    # --------------------------------------------------------------------------
     def copy(self):
-        vg = Grid(self.ms)
+        vg = Grid(self.ms) ### [WIP] ms could be None
         vg.grid = np.copy(self.grid)
         return vg
 

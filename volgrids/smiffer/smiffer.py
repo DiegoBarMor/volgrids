@@ -39,22 +39,14 @@ class SmifferApp:
 
     # --------------------------------------------------------------------------
     def _process_grids(self):
-        # do_cavities = self.meta.do_cavities
-
         ### Only trim if needed
         if (
             sm.DO_SMIF_STACKING or
             sm.DO_SMIF_HBA or sm.DO_SMIF_HBD or
             sm.DO_SMIF_HYDROPHOBIC or sm.DO_SMIF_APBS or
-            sm.SAVE_CACHED_MASK # or do_cavities
+            sm.SAVE_CACHED_MASK
         ):
             trim_large = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_LARGE)
-
-        # if self.meta.do_cavities:
-        #     pg_pocket = sm.GridCavities(self.ms)
-        #     pg_pocket.radius_pocket = float(self.meta.cavities) # [WIP] improve
-        #     pg_pocket.run(trim_large)
-        #     return  # Exit after running the pocket finder
 
         if sm.DO_SMIF_HYDROPHILIC:
             trim_small = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_SMALL)
@@ -64,10 +56,17 @@ class SmifferApp:
             self._calc_smif(sm.GridStacking(self.ms), trim_large, "stacking")
 
         if sm.DO_SMIF_HBA:
-            self._calc_smif(sm.GridHBAccepts(self.ms), trim_large, "hbacceptors")
+            self._calc_smif(sm.GridHBARing(self.ms), trim_large, "hbacceptors")
 
         if sm.DO_SMIF_HBD:
-            self._calc_smif(sm.GridHBDonors(self.ms), trim_large, "hbdonors")
+            grid_hbdring = sm.GridHBDRing(self.ms)
+            grid_hbdcone = sm.GridHBDCone(self.ms)
+            grid_hbdring.populate_grid()
+            grid_hbdcone.populate_grid()
+            grid_hbd = grid_hbdring + grid_hbdcone
+            # grid_hbd = grid_hbdcone
+            trim_large.apply_trimming(grid_hbd)
+            grid_hbd.save_data(sm.FOLDER_OUT, "hbdonors")
 
         if sm.DO_SMIF_HYDROPHOBIC:
             grid_hphob = sm.GridHydrophobic(self.ms)

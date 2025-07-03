@@ -1,6 +1,5 @@
 from .grids.apbs import GridAPBS
-# from .grids.cavities import GridCavities
-from .grids.hbonds import GridHBAccepts, GridHBDonors
+from .grids.hbonds import GridHBARing, GridHBDRing, GridHBDCone
 from .grids.hydro import GridHydrophilic, GridHydrophobic
 from .grids.stacking import GridStacking
 
@@ -14,51 +13,57 @@ from .smiffer import SmifferApp
 
 
 ############################# CONFIG FILE GLOBALS ##############################
-DO_SMIF_STACKING: bool
-DO_SMIF_HBA: bool
-DO_SMIF_HBD: bool
+DO_SMIF_STACKING:    bool
+DO_SMIF_HBA:         bool
+DO_SMIF_HBD:         bool
 DO_SMIF_HYDROPHOBIC: bool
 DO_SMIF_HYDROPHILIC: bool
-DO_SMIF_APBS: bool
+DO_SMIF_APBS:        bool
 
-DO_SMIF_LOG_APBS: bool
+DO_SMIF_LOG_APBS:  bool
 DO_SMIF_HYDRODIFF: bool
 
-DO_TRIMMING_SPHERE: bool
+DO_TRIMMING_SPHERE:    bool
 DO_TRIMMING_OCCUPANCY: bool
-DO_TRIMMING_RNDS: bool
-SAVE_CACHED_MASK: bool
+DO_TRIMMING_RNDS:      bool
+SAVE_CACHED_MASK:      bool
 
 TRIMMING_DIST_LARGE: float
 TRIMMING_DIST_SMALL: float
 
-MAX_RNDS_DIST: float
+MAX_RNDS_DIST:   float
 COG_CUBE_RADIUS: int
 
 APBS_MIN_CUTOFF: int
 APBS_MAX_CUTOFF: int
 
-MU_HYDROPHOBIC: float
+MU_HYDROPHOBIC:    float
 SIGMA_HYDROPHOBIC: float
 
-MU_HYDROPHILIC: float
+MU_HYDROPHILIC:    float
 SIGMA_HYDROPHILIC: float
 
-MU_ANGLE_HBA: float
-MU_ANGLE_HBD: float
-MU_DIST_HBOND: float
-
-SIGMA_DIST_HBOND: float
+MU_ANGLE_HBA:    float
+MU_DIST_HBA:     float
 SIGMA_ANGLE_HBA: float
+SIGMA_DIST_HBA:  float
+
+MU_ANGLE_HBD:    float
+MU_DIST_HBD:     float
 SIGMA_ANGLE_HBD: float
+SIGMA_DIST_HBD:  float
+
+MU_ANGLE_HBD_FIXED:    float
+MU_DIST_HBD_FIXED:     float
+SIGMA_ANGLE_HBD_FIXED: float
+SIGMA_DIST_HBD_FIXED:  float
 
 MU_ANGLE_STACKING: float
-MU_DIST_STACKING: float
-
-COV_STACKING_00: float
-COV_STACKING_01: float
-COV_STACKING_10: float
-COV_STACKING_11: float
+MU_DIST_STACKING:  float
+COV_STACKING_00:   float
+COV_STACKING_01:   float
+COV_STACKING_10:   float
+COV_STACKING_11:   float
 
 GAUSSIAN_KERNEL_SIGMAS: int
 
@@ -74,20 +79,28 @@ _vg.ConfigParser(_vg.resolve_path("volgrids/config.ini")).apply_config(
 
 
 ############################### NUMERIC GLOBALS ################################
-MU_HBA = _np.array([MU_ANGLE_HBA, MU_DIST_HBOND])
+MU_HBA = _np.array([MU_ANGLE_HBA, MU_DIST_HBA])
 COV_HBA = _np.array(
     [[SIGMA_ANGLE_HBA**2, 0],
-    [0, SIGMA_DIST_HBOND**2]]
+     [0,  SIGMA_DIST_HBA**2]]
 )
 COV_INV_HBA = _np.linalg.inv(COV_HBA)
 
 
-MU_HBD = _np.array([MU_ANGLE_HBD, MU_DIST_HBOND])
+MU_HBD = _np.array([MU_ANGLE_HBD, MU_DIST_HBD])
 COV_HBD =  _np.array(
     [[SIGMA_ANGLE_HBD**2, 0],
-    [0, SIGMA_DIST_HBOND**2]]
+     [0,  SIGMA_DIST_HBD**2]]
 )
 COV_INV_HBD = _np.linalg.inv(COV_HBD)
+
+
+MU_HBD_FIXED = _np.array([MU_ANGLE_HBD_FIXED, MU_DIST_HBD_FIXED])
+COV_HBD_FIXED =  _np.array(
+    [[SIGMA_ANGLE_HBD_FIXED**2, 0],
+     [0,  SIGMA_DIST_HBD_FIXED**2]]
+)
+COV_INV_HBD_FIXED = _np.linalg.inv(COV_HBD_FIXED)
 
 
 MU_STACKING = _np.array([MU_ANGLE_STACKING, MU_DIST_STACKING])

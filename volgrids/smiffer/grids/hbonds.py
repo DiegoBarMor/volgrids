@@ -1,20 +1,21 @@
 import numpy as np
 import volgrids as vg
 import volgrids.smiffer as sm
+from abc import ABC, abstractmethod
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBonds(vg.Grid):
+class GridHBonds(vg.Grid, ABC):
     def populate_grid(self):
-        self.radius: float
-        self.hbond_getter: callable
+        self.kernel: vg.Kernel
         self.kernel_args: dict
+        self.hbond_getter: callable
+        self.init_kernel()
 
-        gk = vg.KernelGaussianMultivariate(self.radius, self.ms.deltas, vg.FLOAT_DTYPE)
-        gk.link_to_grid(self.grid, self.ms.minCoords)
+        self.kernel.link_to_grid(self.grid, self.ms.minCoords)
         for pos_antecedent, pos_atom_hbond in self.iter_particles():
             direction = vg.Math.normalize(pos_atom_hbond - pos_antecedent)
-            gk.recalculate_kernel(direction, **self.kernel_args)
-            gk.stamp(pos_atom_hbond)
+            self.kernel.recalculate_kernel(direction, **self.kernel_args)
+            self.kernel.stamp(pos_atom_hbond)
 
 
     def iter_particles(self):
@@ -40,18 +41,18 @@ class GridHBonds(vg.Grid):
                 yield antecedent_pos, hbond_atom_pos
 
 
+    @abstractmethod
     def select_antecedent(self, res, res_atoms, hbond_triplet):
-        return # override to use
+        return
+
+
+    @abstractmethod
+    def init_kernel(self):
+        return
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBAccepts(GridHBonds):
-    def populate_grid(self):
-        self.radius = sm.MU_HBA[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBOND
-        self.kernel_args = dict(mu = sm.MU_HBA, cov_inv = sm.COV_INV_HBA, isStacking = False)
-        self.hbond_getter = sm.ChemTable.get_names_hba
-        super().populate_grid()
-
+class GridHBAccepts(GridHBonds, ABC):
     def select_antecedent(self, res, res_atoms, hbond_triplet):
         name_antecedent_0, name_antecedent_1, name_hbond_atom = hbond_triplet
         atoms = self.ms.relevant_atoms
@@ -72,15 +73,8 @@ class GridHBAccepts(GridHBonds):
         return res_atoms.select_atoms(f"name {name_antecedent_0} {name_antecedent_1}")
 
 
-
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBDonors(GridHBonds):
-    def populate_grid(self):
-        self.radius = sm.MU_HBD[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBOND
-        self.kernel_args = dict(mu = sm.MU_HBD, cov_inv = sm.COV_INV_HBD, isStacking = False)
-        self.hbond_getter = sm.ChemTable.get_names_hbd
-        super().populate_grid()
-
+class GridHBDonors(GridHBonds, ABC):
     def select_antecedent(self, res, res_atoms, hbond_triplet):
         name_antecedent_0, name_antecedent_1, name_hbond_atom = hbond_triplet
         atoms = self.ms.relevant_atoms
@@ -106,6 +100,36 @@ class GridHBDonors(GridHBonds):
 
         ## other standard antecedent cases
         return res_atoms.select_atoms(f"name {name_antecedent_0}")
+
+
+# //////////////////////////////////////////////////////////////////////////////
+class GridHBARing(GridHBAccepts):
+    def init_kernel(self):
+        kernel_radius = sm.MU_HBA[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA
+        self.kernel = vg.KernelGaussianMultivariate(kernel_radius, self.ms.deltas, vg.FLOAT_DTYPE)
+
+        self.kernel_args = dict(mu = sm.MU_HBA, cov_inv = sm.COV_INV_HBA, isStacking = False)
+        self.hbond_getter = sm.ChemTable.get_names_hba
+
+
+# //////////////////////////////////////////////////////////////////////////////
+class GridHBDRing(GridHBDonors):
+    def init_kernel(self):
+        kernel_radius = sm.MU_HBD[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD
+        self.kernel = vg.KernelGaussianMultivariate(kernel_radius, self.ms.deltas, vg.FLOAT_DTYPE)
+
+        self.kernel_args = dict(mu = sm.MU_HBD, cov_inv = sm.COV_INV_HBD, isStacking = False)
+        self.hbond_getter = sm.ChemTable.get_names_hbd
+
+
+# //////////////////////////////////////////////////////////////////////////////
+class GridHBDCone(GridHBDonors):
+    def init_kernel(self):
+        kernel_radius = sm.MU_HBD_FIXED[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FIXED
+        self.kernel = vg.KernelGaussianMultivariate(kernel_radius, self.ms.deltas, vg.FLOAT_DTYPE)
+
+        self.kernel_args = dict(mu = sm.MU_HBD_FIXED, cov_inv = sm.COV_INV_HBD_FIXED, isStacking = False)
+        self.hbond_getter = sm.ChemTable.get_names_hbd_fixed
 
 
 # //////////////////////////////////////////////////////////////////////////////

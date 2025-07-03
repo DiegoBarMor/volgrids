@@ -23,6 +23,7 @@ class ChemTable():
         self._names_stk: dict[str, str] = {}
         self._names_hba: dict[str, list[tuple[str, str, str]]] = {}
         self._names_hbd: dict[str, list[tuple[str, str, str]]] = {}
+        self._names_hbd_fixed: dict[str, list[tuple[str, str, str]]] = {}
         self._parse_table()
 
 
@@ -54,6 +55,11 @@ class ChemTable():
 
 
     # --------------------------------------------------------------------------
+    def get_names_hbd_fixed(self, resname: str):
+        return self._names_hbd_fixed.get(resname)
+
+
+    # --------------------------------------------------------------------------
     def _parse_table(self):
         ### extract values from the lines
         query = self.ini_parser.get("SELECTION_QUERY")
@@ -77,6 +83,10 @@ class ChemTable():
         for resname, str_triplets in self.ini_parser.iter_splitted_lines("NAMES_HBDONORS", sep = ':'):
             triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
             self._names_hbd[resname] = triplets
+
+        for resname, str_triplets in self.ini_parser.iter_splitted_lines("NAMES_HBD_FIXED", sep = ':'):
+            triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
+            self._names_hbd_fixed[resname] = triplets
 
         ### expand the atoms declared with the '*' wildcard to all residues (hydrophobicity)
         hphob_wildcard = self._atoms_hphob.get('*')

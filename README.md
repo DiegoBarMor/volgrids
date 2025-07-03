@@ -181,6 +181,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # TODO
 * add annotations, docstrings and overall cleaning
+* try out cavities-finder ideas
 
 ## _CORE
 * implement: raise an error if a format file is opened with the wrong function
@@ -188,11 +189,11 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * make a common App class
   * move the ArgsParser instantation out of them?
 * improve the ArgsParser classes (could avoid some code repetition)
+* standard ini files use ; instead of # for comments
 
 ## SMIFFER
 * fix concept behind hbonds that shouldn't be allowed to rotate
-  * protein_backbone
-  * TRP PRO HIS ARG ASN GLN
+  * ARG ASN GLN
   * U C A G
 * provide download links for the testdata folder
 * add flag for considering the structure's hydrogen atoms when calculating HBD smifs
