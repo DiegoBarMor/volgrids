@@ -104,7 +104,16 @@ A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [thi
 | HB Acceptors    | Orange     | 1,0.5,0    | 255,128,0  | FF8000 |
 | HB Donors       | Violet     | 0.7,0,1    | 179,0,255  | B300FF |
 
-### Visualizing CMAP trajectories in Chimera
+### MRC/CCP4 data in Chimera
+Use this command when visualizing MRC/CCP4 data with negative values in Chimera (replace `1` with the actual number of the model).
+```
+volume #1 capFaces false
+```
+
+**IMPORTANT**: It seems that Chimera expects CCP4 data to always use the (`nxstart`, `nystart`, `nzstart`) integer values for drawing the origin, while MRC uses the `origin` float vector. For consistency with other formats and for numerical precision, the Volgrids parser uses only the `origin` float vector to save CCP4 grids' origin. This means that, for now, opening a Volgrid's CCP4 file in Chimera will have a wrong offset, despite having the correct origin stored in the file's header. VMD doesn't have this problem, as it infers the kind of origin to use depending on the header. Tested on ChimeraX 1.10rc202505150242 (2025-05-15).
+
+
+### CMAP trajectories in Chimera
 Follow these instructions to visualize the atomic and SMIF trajectories simultaneously in Chimera. ChimeraX is recommended.
 1) Open the PDB and load the atom trajectory into it (in ChimeraX, simply drag the files into the window).
 2) Open the CMAP file in a similar way.
@@ -118,6 +127,7 @@ coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5; vseries play #3 pauseF
 ```
 coordset stop #1; vseries stop #2
 ```
+
 
 #### Smooth Trajectories
 1) Load the PDB and the trajectory files into it Chimera (in ChimeraX, simply drag the files into the window).
@@ -190,7 +200,6 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
   * move the ArgsParser instantation out of them?
 * improve the ArgsParser classes (could avoid some code repetition)
 * standard ini files use ; instead of # for comments
-* CCP4 format
 
 ## SMIFFER
 * provide download links for the testdata folder
@@ -199,8 +208,6 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 
 ## VEINS
 * implement "forces" mode
-* implement "trajectory" mode
-* add a flagto apply absolute value to the grid's points
 * move Grid's static fields into config.ini
 * add tests
 
@@ -208,6 +215,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * check what happens if performing "fix-cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
 * mode to compare grids
+* mode to perform operations on grids: abs, sum, diff, mask...
 
 
 <!-- ----------------------------------------------------------------------- -->

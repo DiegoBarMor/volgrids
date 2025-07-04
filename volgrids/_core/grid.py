@@ -101,6 +101,10 @@ class Grid:
             vg.GridIO.write_mrc(f"{path_prefix}.mrc", self)
             return
 
+        if vg.OUTPUT_FORMAT == vg.GridFormat.CCP4:
+            vg.GridIO.write_ccp4(f"{path_prefix}.ccp4", self)
+            return
+
         if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP:
             vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, self.ms.molname)
             return

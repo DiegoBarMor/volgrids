@@ -41,6 +41,10 @@ class VGToolsApp:
             print(f">>> Converting {kind.name} file to MRC: {vgt.PATH_CONVERT_MRC}")
             vg.GridIO.write_mrc(vgt.PATH_CONVERT_MRC, grid)
 
+        if vgt.PATH_CONVERT_CCP4 is not None:
+            print(f">>> Converting {kind.name} file to CCP4: {vgt.PATH_CONVERT_CCP4}")
+            vg.GridIO.write_ccp4(vgt.PATH_CONVERT_CCP4, grid)
+
         if vgt.PATH_CONVERT_CMAP is not None:
             print(f">>> Converting {kind.name} file to CMAP: {vgt.PATH_CONVERT_CMAP}")
             vg.GridIO.write_cmap(vgt.PATH_CONVERT_CMAP, grid, vgt.PATH_CONVERT_IN.stem)

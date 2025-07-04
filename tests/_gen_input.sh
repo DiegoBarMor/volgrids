@@ -13,6 +13,7 @@ rm -f $fc/* $fp/* $fu/*  $ff/*.cmap
 
 tmp_config_dx=$ftests/dx.config
 tmp_config_mrc=$ftests/mrc.config
+tmp_config_ccp4=$ftests/ccp4.config
 tmp_config_cmap=$ftests/cmap.config
 tmp_config_smifs=$ftests/smifs.config
 
@@ -30,6 +31,17 @@ EOM
 cat > $tmp_config_mrc <<- EOM
 [VOLGRIDS]
 OUTPUT_FORMAT=MRC
+[SMIFFER]
+DO_SMIF_HBA=False
+DO_SMIF_HBD=False
+DO_SMIF_HYDROPHOBIC=False
+DO_SMIF_HYDROPHILIC=False
+DO_SMIF_APBS=False
+EOM
+
+cat > $tmp_config_ccp4 <<- EOM
+[VOLGRIDS]
+OUTPUT_FORMAT=CCP4
 [SMIFFER]
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
@@ -66,10 +78,12 @@ EOM
 # shellcheck disable=SC2086
 python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_dx
 python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_mrc
+python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_ccp4
 python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_cmap
 
 mv $fc/1iqj.stacking.dx $fc/1iqj.stk.dx
 mv $fc/1iqj.stacking.mrc $fc/1iqj.stk.mrc
+mv $fc/1iqj.stacking.ccp4 $fc/1iqj.stk.ccp4
 mv $fc/1iqj.stacking.cmap $fc/1iqj.stk.cmap
 
 
@@ -100,4 +114,4 @@ python3 vgtools.py pack -i $ff/_frames/smiffer_126.hbdonors.cmap $ff/_frames/smi
 
 
 ############################# Cleanup
-rm -f $tmp_config_dx $tmp_config_mrc $tmp_config_cmap $tmp_config_smifs
+rm -f $tmp_config_dx $tmp_config_mrc $tmp_config_ccp4 $tmp_config_cmap $tmp_config_smifs

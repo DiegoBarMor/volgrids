@@ -12,6 +12,7 @@ from pathlib import Path
 PATH_CONVERT_IN:   Path = None # "path/input/grid.dx" or "path/input/grid.mrc" or "path/input/grid.cmap"
 PATH_CONVERT_DX:   Path = None # "path/input/grid.dx"
 PATH_CONVERT_MRC:  Path = None # "path/output/grid.mrc"
+PATH_CONVERT_CCP4: Path = None # "path/output/grid.ccp4"
 PATH_CONVERT_CMAP: Path = None # "path/output/grid.cmap"
 
 ### Pack

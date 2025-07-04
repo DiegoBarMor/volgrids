@@ -46,6 +46,7 @@ class VGToolsArgsParser(vg.ArgsParser):
             "-h, --help  Show this help message and exit.",
             "-d, --dx    Path where to save the converted grid in DX format.",
             "-m, --mrc   Path where to save the converted grid in MRC format.",
+            "-p, --ccp4  Path where to save the converted grid in CCP4 format.",
             "-c, --cmap  Path where to save the converted grid in CMAP format. The stem of the input file will be used as the CMAP key.",
         ))
 
@@ -53,6 +54,7 @@ class VGToolsArgsParser(vg.ArgsParser):
             "help" : ("-h", "--help"),
             "dx"   : ("-d", "--dx"),
             "mrc"  : ("-m", "--mrc"),
+            "ccp4" : ("-p", "--ccp4"),
             "cmap" : ("-c", "--cmap"),
         })
 
@@ -62,6 +64,7 @@ class VGToolsArgsParser(vg.ArgsParser):
         options_in   = fdict.get(None)
         options_dx   = fdict.get("dx")
         options_mrc  = fdict.get("mrc")
+        options_ccp4 = fdict.get("ccp4")
         options_cmap = fdict.get("cmap")
 
         if not options_in:
@@ -78,6 +81,10 @@ class VGToolsArgsParser(vg.ArgsParser):
         if options_mrc:
             vgt.PATH_CONVERT_MRC = Path(options_mrc[0])
             os.makedirs(vgt.PATH_CONVERT_MRC.parent, exist_ok = True)
+
+        if options_ccp4:
+            vgt.PATH_CONVERT_CCP4 = Path(options_ccp4[0])
+            os.makedirs(vgt.PATH_CONVERT_CCP4.parent, exist_ok = True)
 
         if options_cmap:
             vgt.PATH_CONVERT_CMAP = Path(options_cmap[0])

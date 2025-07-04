@@ -9,6 +9,7 @@ from enum import Enum, auto
 class GridFormat(Enum):
     DX = auto()
     MRC = auto()
+    CCP4 = auto()
     CMAP = auto()
     CMAP_PACKED = auto()
 
@@ -26,47 +27,85 @@ class GridIO:
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
     @staticmethod
     def read_dx(path_dx) -> "vg.Grid":
-        grid_dx = gd.Grid(path_dx)
-        grid_vg = vg.Grid(**_grid_init_metadata(
-            resolution = grid_dx.grid.shape,
-            origin = grid_dx.origin,
-            delta = grid_dx.delta
+        parser_dx = gd.Grid(path_dx)
+        obj = vg.Grid(**_grid_init_metadata(
+            resolution = parser_dx.grid.shape,
+            origin = parser_dx.origin,
+            delta = parser_dx.delta
         ))
-        grid_vg.grid = grid_dx.grid
-        return grid_vg
+        obj.grid = parser_dx.grid
+        return obj
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def read_mrc(path_mrc) -> "vg.Grid":
-        with gd.mrc.mrcfile.open(path_mrc) as grid_mrc:
-            vsize = np.array(grid_mrc.voxel_size)
-            origin = np.array(grid_mrc.header["origin"])
+        with gd.mrc.mrcfile.open(path_mrc) as parser_mrc:
+            # machine_stamp = parser_mrc.header.machst
+            ### [68 68 0 0] or [68 65 0 0] for little-endian <--- tested
+            ### [17 17 0 0] for big-endian <--- what happens in these cases?
 
-            grid_vg = vg.Grid(**_grid_init_metadata(
-                resolution = np.array(grid_mrc.data.shape),
-                origin = np.array([origin["x"], origin["y"], origin["z"]], dtype = vg.FLOAT_DTYPE),
-                delta = np.array([vsize["x"], vsize["y"], vsize["z"]], dtype = vg.FLOAT_DTYPE)
-            ))
-            grid_vg.grid = grid_mrc.data.transpose(2,1,0)
-        return grid_vg
+            axes_correspondance =\
+                parser_mrc.header.mapc, parser_mrc.header.mapr, parser_mrc.header.maps
+
+            vsize = np.array([
+                parser_mrc.voxel_size['x'],
+                parser_mrc.voxel_size['y'],
+                parser_mrc.voxel_size['z'],
+            ], dtype = vg.FLOAT_DTYPE)
+
+            origin = np.array([
+                parser_mrc.header["origin"]['x'] + vsize[0] * parser_mrc.header["nxstart"],
+                parser_mrc.header["origin"]['y'] + vsize[1] * parser_mrc.header["nystart"],
+                parser_mrc.header["origin"]['z'] + vsize[2] * parser_mrc.header["nzstart"],
+            ], dtype = vg.FLOAT_DTYPE)
+
+            if axes_correspondance == (1, 2, 3):
+                obj = vg.Grid(**_grid_init_metadata(
+                    resolution = np.array([parser_mrc.header.mx, parser_mrc.header.my, parser_mrc.header.mz]),
+                    origin = origin.copy(),
+                    delta = vsize.copy()
+                ))
+                obj.grid = parser_mrc.data.transpose(2,1,0)
+
+            elif axes_correspondance == (3, 2, 1):
+                obj = vg.Grid(**_grid_init_metadata(
+                    resolution = np.array([parser_mrc.header.mz, parser_mrc.header.my, parser_mrc.header.mx]),
+                    origin = origin[::-1],
+                    delta = vsize[::-1]
+                ))
+                obj.grid = parser_mrc.data.copy()
+
+            else:
+                raise NotImplementedError(
+                    f"Unsupported axes correspondence in MRC file: {axes_correspondance}. "
+                    "Expected (1, 2, 3) or (3, 2, 1)."
+                )
+
+        return obj
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def read_ccp4(path_ccp4) -> "vg.Grid":
+        return GridIO.read_mrc(path_ccp4)
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def read_cmap(path_cmap, key) -> "vg.Grid":
-        with h5py.File(path_cmap, 'r') as h5:
-            frame = h5["Chimera"][key]
+        with h5py.File(path_cmap, 'r') as parser_cmap:
+            frame = parser_cmap["Chimera"][key]
             rz, ry, rx = frame["data_zyx"].shape
             ox, oy, oz = frame.attrs["origin"]
             dz, dy, dx = frame.attrs["step"]
-            grid_vg = vg.Grid(**_grid_init_metadata(
+            obj = vg.Grid(**_grid_init_metadata(
                 resolution = np.array([rx, ry, rz]),
                 origin = np.array([ox, oy, oz]),
                 delta = np.array([dx, dy, dz])
             ))
-            grid_vg.grid = frame["data_zyx"][()].transpose(2,1,0)
-        return grid_vg
+            obj.grid = frame["data_zyx"][()].transpose(2,1,0)
+        return obj
 
 
     # --------------------------------------------------------------------------
@@ -148,6 +187,12 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def write_ccp4(path_ccp4, data: "vg.Grid"):
+        GridIO.write_mrc(path_ccp4, data)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def write_cmap(path_cmap, data: "vg.Grid", key):
         ### imitate the Chimera cmap format, as "specified" in this sample:
         ### https://github.com/RBVI/ChimeraX/blob/develop/testdata/cell15_timeseries.cmap
@@ -198,6 +243,9 @@ class GridIO:
 
         if ext == ".mrc":
             return GridFormat.MRC, GridIO.read_mrc(path_grid)
+
+        if ext == ".ccp4":
+            return GridFormat.CCP4, GridIO.read_ccp4(path_grid)
 
         if ext == ".cmap":
             keys = GridIO.get_cmap_keys(path_grid)
