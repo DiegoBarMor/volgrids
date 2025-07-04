@@ -110,8 +110,6 @@ Use this command when visualizing MRC/CCP4 data with negative values in Chimera 
 volume #1 capFaces false
 ```
 
-**IMPORTANT**: It seems that Chimera expects CCP4 data to always use the (`nxstart`, `nystart`, `nzstart`) integer values for drawing the origin, while MRC uses the `origin` float vector. For consistency with other formats and for numerical precision, the Volgrids parser uses only the `origin` float vector to save CCP4 grids' origin. This means that, for now, opening a Volgrid's CCP4 file in Chimera will have a wrong offset, despite having the correct origin stored in the file's header. VMD doesn't have this problem, as it infers the kind of origin to use depending on the header. Tested on ChimeraX 1.10rc202505150242 (2025-05-15).
-
 
 ### CMAP trajectories in Chimera
 Follow these instructions to visualize the atomic and SMIF trajectories simultaneously in Chimera. ChimeraX is recommended.

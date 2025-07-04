@@ -40,62 +40,39 @@ class GridIO:
     # --------------------------------------------------------------------------
     @staticmethod
     def read_mrc(path_mrc) -> "vg.Grid":
-        with gd.mrc.mrcfile.open(path_mrc) as parser_mrc:
-            # machine_stamp = parser_mrc.header.machst
-            ### [68 68 0 0] or [68 65 0 0] for little-endian <--- tested
-            ### [17 17 0 0] for big-endian <--- what happens in these cases?
+        with gd.mrc.mrcfile.open(path_mrc) as parser:
+            ##### assume that MRC always follows the origin follows the "real space" MRC convention
+            orig = parser.header["origin"]
+            used_origin = np.array([orig['x'], orig['y'], orig['z']])
 
-            axes_correspondance =\
-                parser_mrc.header.mapc, parser_mrc.header.mapr, parser_mrc.header.maps
-
-            vsize = np.array([
-                parser_mrc.voxel_size['x'],
-                parser_mrc.voxel_size['y'],
-                parser_mrc.voxel_size['z'],
-            ], dtype = vg.FLOAT_DTYPE)
-
-            origin = np.array([
-                parser_mrc.header["origin"]['x'] + vsize[0] * parser_mrc.header["nxstart"],
-                parser_mrc.header["origin"]['y'] + vsize[1] * parser_mrc.header["nystart"],
-                parser_mrc.header["origin"]['z'] + vsize[2] * parser_mrc.header["nzstart"],
-            ], dtype = vg.FLOAT_DTYPE)
-
-            if axes_correspondance == (1, 2, 3):
-                obj = vg.Grid(**_grid_init_metadata(
-                    resolution = np.array([parser_mrc.header.mx, parser_mrc.header.my, parser_mrc.header.mz]),
-                    origin = origin.copy(),
-                    delta = vsize.copy()
-                ))
-                obj.grid = parser_mrc.data.transpose(2,1,0)
-
-            elif axes_correspondance == (3, 2, 1):
-                obj = vg.Grid(**_grid_init_metadata(
-                    resolution = np.array([parser_mrc.header.mz, parser_mrc.header.my, parser_mrc.header.mx]),
-                    origin = origin[::-1],
-                    delta = vsize[::-1]
-                ))
-                obj.grid = parser_mrc.data.copy()
-
-            else:
-                raise NotImplementedError(
-                    f"Unsupported axes correspondence in MRC file: {axes_correspondance}. "
-                    "Expected (1, 2, 3) or (3, 2, 1)."
-                )
-
-        return obj
+        return _read_mrc_ccp4(path_mrc, used_origin)
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def read_ccp4(path_ccp4) -> "vg.Grid":
-        return GridIO.read_mrc(path_ccp4)
+        with gd.mrc.mrcfile.open(path_ccp4) as parser:
+            orig = parser.header["origin"]
+            if (orig['x'] == 0.0 and orig['y'] == 0.0 and orig['z'] == 0.0):
+                ##### assume the origin follows the "integer offset" CCP4 convention, so use that one
+                ##### https://mail.cgl.ucsf.edu/mailman/archives/list/chimera-users@cgl.ucsf.edu/thread/GLP62Q2WIBJ6ZU4H6BWXWVXETYSXVIWS/
+                used_origin = np.array([
+                    parser.voxel_size['x'] * parser.header["nxstart"],
+                    parser.voxel_size['y'] * parser.header["nystart"],
+                    parser.voxel_size['z'] * parser.header["nzstart"],
+                ])
+            else:
+                ##### assume the origin follows the "real space" MRC convention, so use that one
+                used_origin = np.array([orig['x'], orig['y'], orig['z']])
+
+        return _read_mrc_ccp4(path_ccp4, used_origin)
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def read_cmap(path_cmap, key) -> "vg.Grid":
-        with h5py.File(path_cmap, 'r') as parser_cmap:
-            frame = parser_cmap["Chimera"][key]
+        with h5py.File(path_cmap, 'r') as parser:
+            frame = parser["Chimera"][key]
             rz, ry, rx = frame["data_zyx"].shape
             ox, oy, oz = frame.attrs["origin"]
             dz, dy, dx = frame.attrs["step"]
@@ -175,20 +152,30 @@ class GridIO:
     # --------------------------------------------------------------------------
     @staticmethod
     def write_mrc(path_mrc, data: "vg.Grid"):
-        with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as grid_mrc:
-            grid_mrc.set_data(data.grid.transpose(2,1,0))
-            grid_mrc.voxel_size = [data.dx, data.dy, data.dz]
-            grid_mrc.header["origin"]['x'] = data.xmin
-            grid_mrc.header["origin"]['y'] = data.ymin
-            grid_mrc.header["origin"]['z'] = data.zmin
-            grid_mrc.update_header_from_data()
-            grid_mrc.update_header_stats()
+        with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as parser:
+            parser.set_data(data.grid.transpose(2,1,0))
+            parser.voxel_size = [data.dx, data.dy, data.dz]
+            parser.header["origin"]['x'] = data.xmin # MRC convention
+            parser.header["origin"]['y'] = data.ymin
+            parser.header["origin"]['z'] = data.zmin
+            parser.update_header_from_data()
+            parser.update_header_stats()
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def write_ccp4(path_ccp4, data: "vg.Grid"):
-        GridIO.write_mrc(path_ccp4, data)
+        with gd.mrc.mrcfile.new(path_ccp4, overwrite = True) as parser:
+            parser.set_data(data.grid.transpose(2,1,0))
+            parser.voxel_size = [data.dx, data.dy, data.dz]
+            parser.header["origin"]['x'] = data.xmin # MRC convention
+            parser.header["origin"]['y'] = data.ymin
+            parser.header["origin"]['z'] = data.zmin
+            parser.header["nxstart"] = int(data.xmin / data.dx) # CCP4 convention
+            parser.header["nystart"] = int(data.ymin / data.dy)
+            parser.header["nzstart"] = int(data.zmin / data.dz)
+            parser.update_header_from_data()
+            parser.update_header_stats()
 
 
     # --------------------------------------------------------------------------
@@ -196,7 +183,7 @@ class GridIO:
     def write_cmap(path_cmap, data: "vg.Grid", key):
         ### imitate the Chimera cmap format, as "specified" in this sample:
         ### https://github.com/RBVI/ChimeraX/blob/develop/testdata/cell15_timeseries.cmap
-        def add_generic_attrs(group, c = "GROUP"):
+        def _add_generic_attrs(group, c = "GROUP"):
             group.attrs["CLASS"] = np.bytes_(c)
             group.attrs["TITLE"] = np.bytes_("")
             group.attrs["VERSION"] = np.bytes_("1.0")
@@ -204,31 +191,31 @@ class GridIO:
         if not os.path.exists(path_cmap):
             with h5py.File(path_cmap, 'w') as h5:
                 h5.attrs["PYTABLES_FORMAT_VERSION"] = np.bytes_("2.0")
-                add_generic_attrs(h5)
+                _add_generic_attrs(h5)
 
                 chim = h5.create_group("Chimera")
-                add_generic_attrs(chim)
+                _add_generic_attrs(chim)
 
-        with h5py.File(path_cmap, 'a') as h5:
-            chim = h5["Chimera"]
+        with h5py.File(path_cmap, 'a') as parser:
+            chim = parser["Chimera"]
             if key in chim.keys():
                 frame = chim[key]
                 if "data_zyx" in frame.keys():
                     del frame["data_zyx"]
             else:
-                frame = h5.create_group(f"/Chimera/{key}")
+                frame = parser.create_group(f"/Chimera/{key}")
                 frame.attrs["chimera_map_version"] = np.int64(1)
                 frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
                 frame.attrs["name"] = np.bytes_(key)
                 frame.attrs["origin"] = np.array([data.xmin, data.ymin, data.zmin], dtype = vg.FLOAT_DTYPE)
                 frame.attrs["step"] = np.array([data.dz, data.dy, data.dx], dtype = vg.FLOAT_DTYPE)
-                add_generic_attrs(frame)
+                _add_generic_attrs(frame)
 
             framedata = frame.create_dataset(
                 "data_zyx", data = data.grid.transpose(2,1,0), dtype = vg.FLOAT_DTYPE,
                 compression = "gzip", compression_opts = vg.GZIP_COMPRESSION
             )
-            add_generic_attrs(framedata, "CARRAY")
+            _add_generic_attrs(framedata, "CARRAY")
 
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ OTHER I/O UTILITIES
@@ -265,7 +252,7 @@ class GridIO:
 # //////////////////////////////////////////////////////////////////////////////
 
 # ------------------------------------------------------------------------------
-def _grid_init_metadata(resolution: np.array, origin: np.array, delta: np.array)-> dict:
+def _grid_init_metadata(resolution: np.ndarray, origin: np.ndarray, delta: np.ndarray)-> dict:
     return dict(
         data = {
             "resolution": resolution,
@@ -275,6 +262,51 @@ def _grid_init_metadata(resolution: np.array, origin: np.array, delta: np.array)
         },
         init_grid = False
     )
+
+
+# ------------------------------------------------------------------------------
+def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
+    with gd.mrc.mrcfile.open(path_mrc) as parser:
+        # machine_stamp = parser.header.machst
+        ### [68 68 0 0] or [68 65 0 0] for little-endian <--- tested
+        ### [17 17 0 0] for big-endian <--- what happens in these cases?
+
+        vsize = np.array([
+            parser.voxel_size['x'],
+            parser.voxel_size['y'],
+            parser.voxel_size['z'],
+        ], dtype = vg.FLOAT_DTYPE)
+
+        res = np.array([
+            parser.header["mx"],
+            parser.header["my"],
+            parser.header["mz"],
+        ], dtype = int)
+
+        data: np.ndarray = parser.data.astype(vg.FLOAT_DTYPE)
+        origin = origin.astype(vg.FLOAT_DTYPE)
+
+        axes_correspondance =\
+            parser.header.mapc, parser.header.mapr, parser.header.maps
+
+        if axes_correspondance == (1, 2, 3):
+            obj = vg.Grid(**_grid_init_metadata(
+                resolution = res.copy(), origin = origin.copy(), delta = vsize.copy()
+            ))
+            obj.grid = data.transpose(2,1,0)
+            return obj
+
+        if axes_correspondance == (3, 2, 1):
+            obj = vg.Grid(**_grid_init_metadata(
+                resolution = res[::-1], origin = origin[::-1], delta = vsize[::-1]
+            ))
+            obj.grid = data
+            return obj
+
+        raise NotImplementedError(
+            f"Unsupported axes correspondence in MRC file: {axes_correspondance}. "
+            "Expected (1, 2, 3) or (3, 2, 1)."
+        )
 
 
 # ------------------------------------------------------------------------------
