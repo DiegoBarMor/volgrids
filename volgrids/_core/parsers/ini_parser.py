@@ -20,23 +20,6 @@ class IniParser:
 
 
     # --------------------------------------------------------------------------
-    @staticmethod
-    def parse_str(str_value: str):
-        # [TODO] improve this function
-        if str_value.startswith("np."):
-            key = str_value[3:]
-            return np.__dict__.get(key, key)
-        if str_value.isdigit():
-            return int(str_value)
-        if str_value.lower() in ["true", "false"]:
-            return str_value.lower() == "true"
-        try:
-            return float(str_value)
-        except ValueError:
-            return str_value.strip('"').strip("'")
-
-
-    # --------------------------------------------------------------------------
     def has(self, key: str) -> bool:
         """
         Checks if the given key exists in the sections.

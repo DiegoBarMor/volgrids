@@ -47,7 +47,7 @@ class SmifferArgsParser(vg.ArgsParser):
             "-a, --apbs                       Path to the output of APBS for the respective structure file (this must be done before). An OpenDX file is expected.",
             "-rxyz", "-ps", "--pocket-sphere  Activate 'pocket sphere' mode by providing the sphere radius and the X, Y, Z coordinates for its center. If not provided, 'whole' mode is assumed.",
             "-b, --table                      Path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
-            "--config                         Path to a configuration file with global settings, to override the default settings from config.ini.",
+            "-c, --config                     Path to a configuration file with global settings, to override the default settings from config.ini.",
         ))
 
         fdict = self._get_flags_dict({

@@ -111,17 +111,15 @@ class SmifferApp:
 
         config = vg.ConfigParser(sm.PATH_CONFIG)
         if config.has("VOLGRIDS"): config.apply_config(
-            key = "VOLGRIDS", globs = vg.__dict__,
+            key = "VOLGRIDS", scope = vg.__dict__,
             valid_configs = set(vg.__annotations__.keys()),
             all_configs_mandatory = False
         )
         if config.has("SMIFFER"): config.apply_config(
-            key = "SMIFFER", globs = sm.__dict__,
+            key = "SMIFFER", scope = sm.__dict__,
             valid_configs = set(sm.__annotations__.keys()),
             all_configs_mandatory = False
         )
-
-        vg.OUTPUT_FORMAT = vg.GridFormat.from_str(vg.OUTPUT_FORMAT) # [TODO] improve IniParser.parse_str to avoid this
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -193,8 +193,8 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 
 ## _CORE
 * implement: raise an error if a format file is opened with the wrong function
-* improve IniParser.parse_str
 * make a common App class
+  * make them responsible of calling ConfigParser.apply_config
   * move the ArgsParser instantation out of them?
 * improve the ArgsParser classes (could avoid some code repetition)
 * standard ini files use ; instead of # for comments

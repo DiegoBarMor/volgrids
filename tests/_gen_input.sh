@@ -2,6 +2,7 @@
 set -eu
 
 fpdb="testdata/_input/pdb"
+fframes="testdata/_input/_example_frames"
 ftests="testdata/vgtools"
 fc="$ftests/converting"
 fp="$ftests/packing"
@@ -81,8 +82,8 @@ python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.47
 python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_ccp4
 python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_cmap
 
-mv $fc/1iqj.stacking.dx $fc/1iqj.stk.dx
-mv $fc/1iqj.stacking.mrc $fc/1iqj.stk.mrc
+mv $fc/1iqj.stacking.dx   $fc/1iqj.stk.dx
+mv $fc/1iqj.stacking.mrc  $fc/1iqj.stk.mrc
 mv $fc/1iqj.stacking.ccp4 $fc/1iqj.stk.ccp4
 mv $fc/1iqj.stacking.cmap $fc/1iqj.stk.cmap
 
@@ -103,14 +104,20 @@ mv $fp/2esj.stacking.mrc    $fp/2esj.stk.mrc
 python3 -W ignore smiffer.py prot $fpdb/1iqj.pdb -o $fu -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_smifs
 
 cd $fu
-python3 ../../../vgtools.py pack -i 1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc -o 1iqj.cmap
+python3 ../../../vgtools.py pack \
+    -i 1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc \
+    -o 1iqj.cmap
 cd ../../..
 
 rm -f $fu/1iqj.*.mrc
 
 
 ############################# FIX CMAP
-python3 vgtools.py pack -i $ff/_frames/smiffer_126.hbdonors.cmap $ff/_frames/smiffer_142.hbdonors.cmap $ff/_frames/smiffer_3.hbdonors.cmap $ff/_frames/smiffer_127.hbdonors.cmap $ff/_frames/smiffer_32.hbdonors.cmap $ff/_frames/smiffer_50.hbdonors.cmap -o $ff/hbdonors.issue.cmap
+python3 vgtools.py pack -i \
+    $fframes/smiffer_126.hbdonors.cmap $fframes/smiffer_142.hbdonors.cmap \
+    $fframes/smiffer_3.hbdonors.cmap   $fframes/smiffer_127.hbdonors.cmap \
+    $fframes/smiffer_32.hbdonors.cmap  $fframes/smiffer_50.hbdonors.cmap  \
+    -o $ff/hbdonors.issue.cmap
 
 
 ############################# Cleanup

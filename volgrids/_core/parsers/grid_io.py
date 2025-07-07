@@ -13,14 +13,6 @@ class GridFormat(Enum):
     CMAP = auto()
     CMAP_PACKED = auto()
 
-    @classmethod
-    def from_str(cls, value: str) -> "GridFormat":
-        """Parse a string to a GridFormat enum."""
-        k = value.upper()
-        if k not in cls.__members__:
-            raise ValueError(f"Invalid output format: {k}. Valid options are: {list(cls.__members__.keys())}")
-        return cls[k]
-
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridIO:

@@ -71,9 +71,10 @@ GAUSSIAN_KERNEL_SIGMAS: int
 import numpy as _np
 import volgrids as _vg
 
+import numpy as np # [TODO] move these lines
+import volgrids as vg
 _vg.ConfigParser(_vg.resolve_path("volgrids/config.ini")).apply_config(
-    key = "SMIFFER",
-    globs = globals(),
+    key = "SMIFFER", scope = globals(),
     valid_configs = set(__annotations__.keys())
 )
 

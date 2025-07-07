@@ -35,13 +35,11 @@ EXTRA_BOX_SIZE: int
 USE_FIXED_DELTAS: bool
 
 
+import numpy as np  # [TODO] move these lines
 ConfigParser(resolve_path("volgrids/config.ini")).apply_config(
-    key = "VOLGRIDS",
-    globs = globals(),
+    key = "VOLGRIDS", scope = globals(),
     valid_configs = set(__annotations__.keys())
 )
-
-OUTPUT_FORMAT = GridFormat.from_str(OUTPUT_FORMAT) # [TODO] improve IniParser.parse_str to avoid this
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
