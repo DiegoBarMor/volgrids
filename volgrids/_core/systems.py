@@ -6,42 +6,97 @@ import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class MolecularSystem:
-    def __init__(self, path_structure: Path, path_trajectory: Path = None):
-        self.resolution: np.array = np.zeros(3, dtype = int)
-        self.minCoords : np.array = np.zeros(3)
-        self.deltas    : np.array = np.zeros(3)
+    def __init__(self,
+        path_struct: Path = None, path_traj: Path = None,
+        box_data: dict = None
+    ):
+        self.minCoords  : np.ndarray[float]   # minimum coordinates of the bounding box
+        self.maxCoords  : np.ndarray[float]   # maximum coordinates of the bounding box
+        self.resolution : np.ndarray[int]     # number of grid points in each dimension
+        self.deltas     : np.ndarray[float]   # size of each grid point in each dimension
+        self.cog        : np.ndarray[float]   # center of geometry of the bounding box
+        self.radius     : float               # (maximum) radius of the bounding box
+        self.molname    : str                 # name of the molecule
+        self.do_traj    : None | bool         # whether this is a trajectory or a single structure (None if no structure is provided)
+        self.system     : None | mda.Universe # MDAnalysis Universe object for the molecular system
+        self.frame      : None | int          # current frame number (if trajectory is used)
 
-        self.molname: str = path_structure.stem
-        self.do_traj = path_trajectory is not None
+        if path_struct is not None:
+            ### molecular system with a molecular structure (optionally a trajectory)
+            ### the bounding box values are calculated from the structure
+            self._init_attrs_from_molecules(path_struct, path_traj)
 
-        ###############################
+        else:
+            ### simple molecular system with no molecular structure
+            ### the bounding box values are to be expected instead
+            if box_data is None:
+                raise ValueError("Either 'path_struct' or 'box_data' must be provided.")
+            self._init_attrs_from_box_data(box_data)
+
+
+
+    # --------------------------------------------------------------------------
+    def _init_attrs_from_molecules(self, path_struct: Path, path_traj: Path = None):
+        self.molname = path_struct.stem
+        self.do_traj = path_traj is not None
+
         if self.do_traj:
-            self.system = mda.Universe(path_structure, path_trajectory)
+            self.system = mda.Universe(str(path_struct), str(path_traj))
             self.frame = 0
         else:
-            self.system = mda.Universe(path_structure)
+            self.system = mda.Universe(str(path_struct))
             self.frame = None
 
+        self._infer_box_attributes()
 
-        ###############################
-        self.minCoords: np.array
-        self.maxCoords: np.array
-        self.radius: float
-        self.cog: np.array
-        self._init_box_attributes()
-
-
-        ###############################
         box_size = self.maxCoords - self.minCoords
         if vg.USE_FIXED_DELTAS:
             self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
             self.resolution = np.round(box_size / self.deltas).astype(int)
         else:
-            self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES])
+            self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES], dtype = int)
             self.deltas = box_size / self.resolution
 
+        self._warning_big_grid()
 
-        ###############################
+
+    # --------------------------------------------------------------------------
+    def _init_attrs_from_box_data(self, box_data: dict):
+        self.molname = box_data.get("molname", default = "grid")
+        self.do_traj = False
+
+        self.system  = None
+        self.frame   = None
+
+        keys_box_data = set(box_data.keys())
+        required_keys = {"minCoords", "maxCoords", "resolution", "deltas"}
+        if not keys_box_data.issuperset(required_keys):
+            raise ValueError(f"Box data must contain the keys: {required_keys}. Provided keys: {keys_box_data}")
+
+        self.minCoords  = np.array(box_data["minCoords"],  dtype = float)
+        self.maxCoords  = np.array(box_data["maxCoords"],  dtype = float)
+        self.resolution = np.array(box_data["resolution"], dtype = int  )
+        self.deltas     = np.array(box_data["deltas"],     dtype = float)
+        self._calc_radius_and_cog()
+
+        self._warning_big_grid()
+
+
+    # --------------------------------------------------------------------------
+    def _infer_box_attributes(self):
+        self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
+        self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
+        self._calc_radius_and_cog()
+
+
+    # --------------------------------------------------------------------------
+    def _calc_radius_and_cog(self):
+        self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
+        self.cog = (self.minCoords + self.maxCoords) / 2
+
+
+    # --------------------------------------------------------------------------
+    def _warning_big_grid(self):
         rx, ry, rz = self.resolution
         grid_size = rx*ry*rz
         if grid_size > vg.WARNING_GRID_SIZE:
@@ -50,20 +105,6 @@ class MolecularSystem:
                 choice = input(f">>> WARNING: resulting ({rx}x{ry}x{rz}) grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n").upper()
                 if choice == 'Y': break
                 if choice == 'N': exit()
-
-    # --------------------------------------------------------------------------
-    def _init_box_attributes(self):
-        self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
-        self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
-        self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
-        self.cog = (self.minCoords + self.maxCoords) / 2
-
-    # @classmethod
-    # def simple_init(cls, path_pdb: Path, folder_out: Path):
-    #     return cls(metadata = {
-    #         "pdb": path_pdb, "out": folder_out, "apbs": '',
-    #         "rna": False,
-    #     })
 
 
 # //////////////////////////////////////////////////////////////////////////////

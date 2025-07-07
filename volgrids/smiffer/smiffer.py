@@ -64,7 +64,6 @@ class SmifferApp:
             grid_hbdring.populate_grid()
             grid_hbdcone.populate_grid()
             grid_hbd = grid_hbdring + grid_hbdcone
-            # grid_hbd = grid_hbdcone
             trim_large.apply_trimming(grid_hbd)
             grid_hbd.save_data(sm.FOLDER_OUT, "hbdonors")
 
@@ -81,7 +80,7 @@ class SmifferApp:
 
         ### Calculate additional grids
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
-            grid_hpdiff = vg.Grid.substract(grid_hphob, grid_hphil)
+            grid_hpdiff = grid_hphob - grid_hphil
             grid_hpdiff.save_data(sm.FOLDER_OUT, "hydrodiff")
 
 

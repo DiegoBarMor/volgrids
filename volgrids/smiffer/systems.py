@@ -15,11 +15,11 @@ class MolType(Enum):
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifferMolecularSystem(vg.MolecularSystem):
-    def __init__(self, path_structure: Path, path_trajectory: Path):
+    def __init__(self, path_struct: Path, path_traj: Path = None):
         self.do_ps = sm.PS_INFO is not None
         self.chemtable = sm.ChemTable(self._get_path_table())
 
-        super().__init__(path_structure, path_trajectory)
+        self._init_attrs_from_molecules(path_struct, path_traj)
 
         if self.do_ps:
             radius,xcog,ycog,zcog = sm.PS_INFO
@@ -42,7 +42,7 @@ class SmifferMolecularSystem(vg.MolecularSystem):
 
 
     # --------------------------------------------------------------------------
-    def _init_box_attributes(self):
+    def _infer_box_attributes(self):
         if self.do_ps:
             radius,xcog,ycog,zcog = sm.PS_INFO
             self.cog = np.array([xcog, ycog, zcog])
@@ -51,7 +51,7 @@ class SmifferMolecularSystem(vg.MolecularSystem):
             self.radius = radius
 
         else:
-            super()._init_box_attributes()
+            super()._infer_box_attributes()
 
 
     # --------------------------------------------------------------------------

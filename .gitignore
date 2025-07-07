@@ -4,4 +4,4 @@ __pycache__/
 
 testdata/
 
-debug.sh
+build.sh

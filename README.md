@@ -1,4 +1,4 @@
-# Volumetric Grids
+# Volumetric Grids (VolGrids)
 This is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`smiffer.py`), **Volumetric Energy INSpector (VEINS)** (`veins.py`) and **Volgrid Tools** (`vgtools.py`). You can read more in their respective sections.
 
 
@@ -13,14 +13,14 @@ This framework only has 2 Python dependencies:
 
 
 <!-- ----------------------------------------------------------------------- -->
-## Option 1: Setting up a Conda environment
-### Automatic
+### Option 1: Setting up a Conda environment
+#### Automatic
 ```
 conda env create -f environment/conda.yml
 conda activate volgrids
 ```
 
-### Manual
+#### Manual
 ```
 conda create --name volgrids -y
 conda activate volgrids
@@ -30,24 +30,54 @@ conda install -c conda-forge mdanalysis -y
 
 
 <!-- ----------------------------------------------------------------------- -->
-## Option 2: Simple setup with PIP
-### Automatic
+### Option 2: Simple setup with PIP
+#### Automatic
 ```
 pip install -r environment/requirements.txt
 ```
 
-### Manual
+#### Manual
 ```
 pip install mdanalysis h5py
 ```
 
+
+<!-- ----------------------------------------------------------------------- -->
+## Usage
+### Without installing VolGrids
+You can use the tools provided by VolGrids without installing it, by calling any of the scripts in the root directory of this repository (it doesn't have to be the current directory, you can call them from anywhere). Leave `[options...]` empty to read more about the available options.
+
+- **SMIF Calculator:**
+```
+python3 smiffer.py [options...]
+```
+
+- **Volumetric Energy INSpector (VEINS):**
+```
+python3 veins.py [options...]
+```
+
+- **Volgrid Tools:**
+```
+python3 vgtools.py [options...]
+```
+
+
+<!-- ----------------------------------------------------------------------- -->
+### Using VolGrids as a package
+You can install VolGrids as a package and import it from your own scripts. For installing with pip:
+```
+# your current directory should be the root folder of this repository
+pip install .
+rm -rf build volgrids.egg-info # optional cleanup
+```
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- ------------------------------- SMIFFER ------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Statistical Molecular Interaction Fields (SMIF) Calculator
-A custom implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method is provided as `smiffer.py`.
+This is a custom implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
 
 ## Usage
 Run `python3 smiffer.py [mode] [path_structure] [options...]` and provide the parameters of the calculation via arguments:
@@ -185,7 +215,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- ----------------------------------------------------------------------- -->
+<!-- --------------------------------- TODO -------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # TODO
 * add annotations, docstrings and overall cleaning

@@ -42,14 +42,30 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def __sub__(self, other: "Grid|float|int") -> "Grid":
+        grid_out = self.copy()
+        # grid_out = Grid(self.ms, init_grid = False) ### [WIP] ms could be None
+        if isinstance(other, Grid):
+            grid_out.grid = self.grid - other.grid
+            return grid_out
+        try:
+            grid_out.grid = self.grid - other
+            return grid_out
+        except TypeError:
+            raise TypeError(f"Cannot substract {type(other)} from Grid. Use another Grid or a numeric value.")
+
+
+    # --------------------------------------------------------------------------
     def copy(self):
         vg = Grid(self.ms) ### [WIP] ms could be None
         vg.grid = np.copy(self.grid)
         return vg
 
+
     # --------------------------------------------------------------------------
     def is_empty(self):
         return np.all(self.grid == 0)
+
 
     # --------------------------------------------------------------------------
     def reshape(self, new_min: tuple[float], new_max: tuple[float], new_res: tuple[float]):
@@ -76,13 +92,6 @@ class Grid:
         self.dy = (self.ymax - self.ymin) / (self.yres - 1)
         self.dz = (self.zmax - self.zmin) / (self.zres - 1)
 
-
-    # --------------------------------------------------------------------------
-    @staticmethod
-    def substract(grid_0: "Grid", grid_1: "Grid") -> "Grid":
-        grid = grid_0.copy()
-        grid.grid = grid_0.grid - grid_1.grid
-        return grid
 
     # --------------------------------------------------------------------------
     def save_data(self, folder_out: Path, title: str):
