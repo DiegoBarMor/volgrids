@@ -5,61 +5,48 @@ import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class Grid:
-    def __init__(self, data, init_grid = True, dtype = None):
-        self.ms: vg.MolecularSystem
-
-        if isinstance(data, vg.MolecularSystem):
-            self.ms = data
-            self.xres, self.yres, self.zres = data.resolution
-            self.xmin, self.ymin, self.zmin = data.minCoords
-            self.xmax, self.ymax, self.zmax = data.maxCoords
-            self.dx, self.dy, self.dz = data.deltas
-
-        elif isinstance(data, dict):
-            self.ms = None
-            self.xres, self.yres, self.zres = data["resolution"]
-            self.xmin, self.ymin, self.zmin = data["minCoords"]
-            self.xmax, self.ymax, self.zmax = data["maxCoords"]
-            self.dx, self.dy, self.dz = data["deltas"]
+    def __init__(self, ms: "vg.MolecularSystem", init_grid = True, dtype = None):
+        self.ms = ms
+        self.xres, self.yres, self.zres = ms.resolution
+        self.xmin, self.ymin, self.zmin = ms.minCoords
+        self.xmax, self.ymax, self.zmax = ms.maxCoords
+        self.dx, self.dy, self.dz = ms.deltas
 
         if dtype is None: dtype = vg.FLOAT_DTYPE
-        self.grid = np.zeros((self.xres, self.yres, self.zres), dtype = dtype) \
-            if init_grid else None
+        self.grid = np.zeros(ms.resolution, dtype = dtype) if init_grid else None
 
 
     # --------------------------------------------------------------------------
     def __add__(self, other: "Grid|float|int") -> "Grid":
-        grid_out = self.copy()
-        # grid_out = Grid(self.ms, init_grid = False) ### [WIP] ms could be None
+        obj = Grid(self.ms, init_grid = False)
         if isinstance(other, Grid):
-            grid_out.grid = self.grid + other.grid
-            return grid_out
+            obj.grid = self.grid + other.grid
+            return obj
         try:
-            grid_out.grid = self.grid + other
-            return grid_out
+            obj.grid = self.grid + other
+            return obj
         except TypeError:
             raise TypeError(f"Cannot add {type(other)} to Grid. Use another Grid or a numeric value.")
 
 
     # --------------------------------------------------------------------------
     def __sub__(self, other: "Grid|float|int") -> "Grid":
-        grid_out = self.copy()
-        # grid_out = Grid(self.ms, init_grid = False) ### [WIP] ms could be None
+        obj = Grid(self.ms, init_grid = False)
         if isinstance(other, Grid):
-            grid_out.grid = self.grid - other.grid
-            return grid_out
+            obj.grid = self.grid - other.grid
+            return obj
         try:
-            grid_out.grid = self.grid - other
-            return grid_out
+            obj.grid = self.grid - other
+            return obj
         except TypeError:
             raise TypeError(f"Cannot substract {type(other)} from Grid. Use another Grid or a numeric value.")
 
 
     # --------------------------------------------------------------------------
     def copy(self):
-        vg = Grid(self.ms) ### [WIP] ms could be None
-        vg.grid = np.copy(self.grid)
-        return vg
+        obj = Grid(self.ms, init_grid = False)
+        obj.grid = np.copy(self.grid)
+        return obj
 
 
     # --------------------------------------------------------------------------
@@ -91,6 +78,11 @@ class Grid:
         self.dx = (self.xmax - self.xmin) / (self.xres - 1)
         self.dy = (self.ymax - self.ymin) / (self.yres - 1)
         self.dz = (self.zmax - self.zmin) / (self.zres - 1)
+
+        self.ms.minCoords = np.array([self.xmin, self.ymin, self.zmin])
+        self.ms.maxCoords = np.array([self.xmax, self.ymax, self.zmax])
+        self.ms.resolution = np.array([self.xres, self.yres, self.zres])
+        self.ms.deltas = np.array([self.dx, self.dy, self.dz])
 
 
     # --------------------------------------------------------------------------

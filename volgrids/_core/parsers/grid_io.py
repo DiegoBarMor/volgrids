@@ -20,11 +20,12 @@ class GridIO:
     @staticmethod
     def read_dx(path_dx) -> "vg.Grid":
         parser_dx = gd.Grid(path_dx)
-        obj = vg.Grid(**_grid_init_metadata(
+        ms = vg.MolecularSystem.from_box_data(
             resolution = parser_dx.grid.shape,
             origin = parser_dx.origin,
-            delta = parser_dx.delta
-        ))
+            deltas = parser_dx.delta
+        )
+        obj = vg.Grid(ms, init_grid = False)
         obj.grid = parser_dx.grid
         return obj
 
@@ -68,11 +69,12 @@ class GridIO:
             rz, ry, rx = frame["data_zyx"].shape
             ox, oy, oz = frame.attrs["origin"]
             dz, dy, dx = frame.attrs["step"]
-            obj = vg.Grid(**_grid_init_metadata(
+            ms = vg.MolecularSystem.from_box_data(
                 resolution = np.array([rx, ry, rz]),
                 origin = np.array([ox, oy, oz]),
-                delta = np.array([dx, dy, dz])
-            ))
+                deltas = np.array([dx, dy, dz])
+            )
+            obj = vg.Grid(ms, init_grid = False)
             obj.grid = frame["data_zyx"][()].transpose(2,1,0)
         return obj
 
@@ -244,19 +246,6 @@ class GridIO:
 # //////////////////////////////////////////////////////////////////////////////
 
 # ------------------------------------------------------------------------------
-def _grid_init_metadata(resolution: np.ndarray, origin: np.ndarray, delta: np.ndarray)-> dict:
-    return dict(
-        data = {
-            "resolution": resolution,
-            "minCoords": origin,
-            "maxCoords": origin + delta * resolution,
-            "deltas": delta
-        },
-        init_grid = False
-    )
-
-
-# ------------------------------------------------------------------------------
 def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
     with gd.mrc.mrcfile.open(path_mrc) as parser:
         # machine_stamp = parser.header.machst
@@ -282,16 +271,18 @@ def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
             parser.header.mapc, parser.header.mapr, parser.header.maps
 
         if axes_correspondance == (1, 2, 3):
-            obj = vg.Grid(**_grid_init_metadata(
-                resolution = res.copy(), origin = origin.copy(), delta = vsize.copy()
-            ))
+            ms = vg.MolecularSystem.from_box_data(
+                resolution = res.copy(), origin = origin.copy(), deltas = vsize.copy()
+            )
+            obj = vg.Grid(ms, init_grid = False)
             obj.grid = data.transpose(2,1,0)
             return obj
 
         if axes_correspondance == (3, 2, 1):
-            obj = vg.Grid(**_grid_init_metadata(
-                resolution = res[::-1], origin = origin[::-1], delta = vsize[::-1]
-            ))
+            ms = vg.MolecularSystem.from_box_data(
+                resolution = res[::-1], origin = origin[::-1], deltas = vsize[::-1]
+            )
+            obj = vg.Grid(ms, init_grid = False)
             obj.grid = data
             return obj
 

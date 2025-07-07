@@ -244,6 +244,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
 * mode to compare grids
 * mode to perform operations on grids: abs, sum, diff, mask...
+* when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 
 
 <!-- ----------------------------------------------------------------------- -->

@@ -34,6 +34,28 @@ class MolecularSystem:
             self._init_attrs_from_box_data(box_data)
 
 
+    # --------------------------------------------------------------------------
+    @classmethod
+    def from_box_data(cls,
+        resolution: np.ndarray, origin: np.ndarray, deltas: np.ndarray,
+        molname: str = "grid"
+    ) -> "MolecularSystem":
+        """
+        Create a MolecularSystem instance from box data. 'maxCoords' is inferred
+        :param resolution: The resolution of the grid (number of points in each dimension).
+        :param origin: The origin of the grid (minimum coordinates of the bounding box).
+        :param deltas: The size of each grid point in each dimension.
+        :param molname: The name of the molecule (default is "grid").
+        :return: An instance of MolecularSystem with the provided box data.
+        """
+        return cls(box_data = {
+            "resolution": resolution,
+            "minCoords": origin,
+            "maxCoords": origin + deltas * resolution,
+            "deltas": deltas,
+            "molname": molname
+        })
+
 
     # --------------------------------------------------------------------------
     def _init_attrs_from_molecules(self, path_struct: Path, path_traj: Path = None):
@@ -62,16 +84,16 @@ class MolecularSystem:
 
     # --------------------------------------------------------------------------
     def _init_attrs_from_box_data(self, box_data: dict):
-        self.molname = box_data.get("molname", default = "grid")
+        keys_box_data = set(box_data.keys())
+        required_keys = {"molname", "minCoords", "maxCoords", "resolution", "deltas"}
+        if not keys_box_data.issuperset(required_keys):
+            raise ValueError(f"Box data must contain the keys: {required_keys}. Provided keys: {keys_box_data}")
+
+        self.molname = box_data["molname"]
         self.do_traj = False
 
         self.system  = None
         self.frame   = None
-
-        keys_box_data = set(box_data.keys())
-        required_keys = {"minCoords", "maxCoords", "resolution", "deltas"}
-        if not keys_box_data.issuperset(required_keys):
-            raise ValueError(f"Box data must contain the keys: {required_keys}. Provided keys: {keys_box_data}")
 
         self.minCoords  = np.array(box_data["minCoords"],  dtype = float)
         self.maxCoords  = np.array(box_data["maxCoords"],  dtype = float)
