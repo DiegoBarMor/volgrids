@@ -96,18 +96,18 @@ Run `python3 smiffer.py [mode] [path_structure] [options...]` and provide the pa
 ## Commands examples
 - Sample commands to obtain the electrostatic grids from [pdb2pqr](https://pdb2pqr.readthedocs.io/en/latest/) and [APBS](https://apbs.readthedocs.io/en/latest/)
 ```
-pdb2pqr --ff=AMBER testdata/_input/pdb/1iqj.pdb testdata/_input/pqr/1iqj.pqr --apbs-input testdata/_input/1iqj.in
+pdb2pqr --ff=AMBER testdata/_input/pdb-nosolv/1iqj.pdb testdata/_input/pqr/1iqj.pqr --apbs-input testdata/_input/1iqj.in
 apbs testdata/_input/1iqj.in
 ```
 
 - Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-rxyz`).
 ```
-python3 smiffer.py prot testdata/_input/pdb/1iqj.pdb -rxyz 14.675 4.682 21.475 7.161
+python3 smiffer.py prot testdata/_input/pdb-nosolv/1iqj.pdb -rxyz 14.675 4.682 21.475 7.161
 ```
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```
-python3 smiffer.py rna testdata/_input/pdb/5bjo.pdb -a testdata/_input/apbs/5bjo.pqr.dx
+python3 smiffer.py rna testdata/_input/pdb-nosolv/5bjo.pdb -a testdata/_input/apbs/5bjo.pqr.dx
 ```
 
 - Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that this is only implemented for "whole" mode at the moment.
@@ -133,6 +133,8 @@ A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [thi
 | Hydrophilic (-) | Light Blue | 0.3,0.85,1 | 77,217,255 | 4DD9FF |
 | HB Acceptors    | Orange     | 1,0.5,0    | 255,128,0  | FF8000 |
 | HB Donors       | Violet     | 0.7,0,1    | 179,0,255  | B300FF |
+| Stacking        | Green      | 0,1,0      | 0,255,0    | 00FF00 |
+
 
 ### MRC/CCP4 data in Chimera
 Use this command when visualizing MRC/CCP4 data with negative values in Chimera (replace `1` with the actual number of the model).
@@ -230,7 +232,6 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * standard ini files use ; instead of # for comments
 
 ## SMIFFER
-* implement a mode for quickly calculating the apbs inputs (assuming both "pdb2pqr" and "apbs" are installed)
 * add a new trimming operation for pocket sphere: remove points that are very far away from any atom
 * provide download links for the testdata folder
 * add flag for considering the structure's hydrogen atoms when calculating HBD smifs
