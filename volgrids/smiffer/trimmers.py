@@ -17,9 +17,12 @@ class GridTrimmer(vg.Grid):
         if sm.DO_TRIMMING_RNDS and ms.do_ps:
             self._trim_rnds()
 
+        if sm.DO_TRIMMING_FARAWAY and ms.do_ps:
+            self._trim_faraway()
+
         if sm.SAVE_TRIMMING_MASK:
             self.grid = np.logical_not(self.grid)  # invert the mask to save the points that are NOT trimmed
-            self.save_data(sm.FOLDER_OUT, "trimming")
+            self.save_data(sm.FOLDER_OUT, f"trimming.{trimming_dist}")
             self.grid = np.logical_not(self.grid)  # revert the mask to the original state
 
 
@@ -63,6 +66,7 @@ class GridTrimmer(vg.Grid):
         search_dist = np.full(self.ms.resolution, np.inf)
         for point in cog_cube: search_dist[point] = 0
 
+        # exploration_steps = 0
         while queue:
             ### "random search" because popping from a set can be unpredictable
             i,j,k = node = queue.pop()
@@ -87,6 +91,19 @@ class GridTrimmer(vg.Grid):
                 queue.add(neigh)
 
         self.grid[np.logical_not(visited)] = True
+
+        # exploration_steps += 1
+
+
+    # --------------------------------------------------------------------------
+    def _trim_faraway(self):
+        mask = np.zeros_like(self.grid, dtype = bool)
+        sk = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.deltas, bool)
+        sk.link_to_grid(mask, self.ms.minCoords)
+        for a in self.ms.get_relevant_atoms_broad(sm.TRIM_FARAWAY_DIST):
+            sk.stamp(a.position)
+
+        self.grid[~mask] = True
 
 
 # //////////////////////////////////////////////////////////////////////////////

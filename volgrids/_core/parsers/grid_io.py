@@ -147,7 +147,7 @@ class GridIO:
     @staticmethod
     def write_mrc(path_mrc, data: "vg.Grid"):
         with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as parser:
-            parser.set_data(data.grid.transpose(2,1,0))
+            parser.set_data(data.grid.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
             parser.voxel_size = [data.dx, data.dy, data.dz]
             parser.header["origin"]['x'] = data.xmin # MRC convention
             parser.header["origin"]['y'] = data.ymin
@@ -160,7 +160,7 @@ class GridIO:
     @staticmethod
     def write_ccp4(path_ccp4, data: "vg.Grid"):
         with gd.mrc.mrcfile.new(path_ccp4, overwrite = True) as parser:
-            parser.set_data(data.grid.transpose(2,1,0))
+            parser.set_data(data.grid.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
             parser.voxel_size = [data.dx, data.dy, data.dz]
             parser.header["origin"]['x'] = data.xmin # MRC convention
             parser.header["origin"]['y'] = data.ymin

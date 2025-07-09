@@ -232,7 +232,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * standard ini files use ; instead of # for comments
 
 ## SMIFFER
-* add a new trimming operation for pocket sphere: remove points that are very far away from any atom
+* optimize the trimmers (specially RNDS)
 * provide download links for the testdata folder
 * add flag for considering the structure's hydrogen atoms when calculating HBD smifs
 * document the .chem tables
