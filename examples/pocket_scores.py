@@ -4,6 +4,38 @@ from pathlib import Path
 from collections import defaultdict
 import volgrids as vg
 
+# ------------------------------------------------------------------------------
+def visualize_scores(path_csv: Path):
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+
+    df = pd.read_csv(path_csv)
+    for i,row in df.iterrows():
+        total = sum(row[1:])
+        if total == 0: continue
+        df.iloc[i, 1:] = row[1:] / total
+
+    df["apbs-pos"]    += df["apbs-neg"]    # move every column "up"
+    df["hydrophilic"] += df["apbs-pos"]    # so that the consecutive barplots stack on top of each other
+    df["hydrophobic"] += df["hydrophilic"] # note that the barplots must be plotted in the reverse order
+    df["hbacceptors"] += df["hydrophobic"]
+    df["hbdonors"]    += df["hbacceptors"]
+    df["stacking"]    += df["hbdonors"]
+
+    sns.barplot(data = df, x = "pdb", y = "stacking",    color = "#00FF00", label = "stacking")
+    sns.barplot(data = df, x = "pdb", y = "hbdonors",    color = "#B300FF", label = "hbdonors")
+    sns.barplot(data = df, x = "pdb", y = "hbacceptors", color = "#FF8000", label = "hbacceptors")
+    sns.barplot(data = df, x = "pdb", y = "hydrophobic", color = "#FFFF00", label = "hydrophobic")
+    sns.barplot(data = df, x = "pdb", y = "hydrophilic", color = "#4DD9FF", label = "hydrophilic")
+    sns.barplot(data = df, x = "pdb", y = "apbs-pos",    color = "#0000FF", label = "apbs-pos")
+    sns.barplot(data = df, x = "pdb", y = "apbs-neg",    color = "#FF0000", label = "apbs-neg")
+
+    plt.xticks(rotation = 90)
+    plt.xlabel("PDB")
+    plt.ylabel("score / score_sum")
+    plt.show()
+
+
 # //////////////////////////////////////////////////////////////////////////////
 class PocketScoreCalculator:
     def __init__(self):
@@ -17,14 +49,15 @@ class PocketScoreCalculator:
             name_pdb = path_cmap.stem
             print(f"Processing {name_pdb}...")
 
-            key_mask = f"{name_pdb}.trimming"
             self.data_pdb.append(name_pdb)
 
             ### boolean grid, points in space that are part of the pocket are "True"
-            pocket = vg.GridIO.read_cmap(path_cmap, key_mask).grid.astype(bool)
+            pocket = vg.GridIO.read_cmap(path_cmap, f"{name_pdb}.trimming.3.0").grid.astype(bool)
 
-            keys = set(vg.GridIO.get_cmap_keys(path_cmap)) - {key_mask}
+            keys = set(vg.GridIO.get_cmap_keys(path_cmap))
             for key in keys:
+                if key.startswith(name_pdb + ".trimming"): continue
+
                 smif = vg.GridIO.read_cmap(path_cmap, key).grid
                 kind = key.split('.')[-1]
 
@@ -54,8 +87,7 @@ class PocketScoreCalculator:
         volume = len(pocket[pocket])    # the volume is given by the number of points in the pocket
         sum_smif = np.sum(smif[pocket]) # the sum of the smif values in the pocket
         if volume == 0:
-            print("Warning: Pocket is empty, no points in the pocket.")
-            return
+            raise ValueError("Warning: Pocket is empty, no points in the pocket.")
 
 
         ##### Option 0: SMIF integral without normalization
@@ -83,6 +115,8 @@ if __name__ == "__main__":
     psc = PocketScoreCalculator()
     psc.run(FOLDER_DATA)
     psc.save(PATH_CSV_OUT)
+
+    visualize_scores(PATH_CSV_OUT)
 
 
 ################################################################################
