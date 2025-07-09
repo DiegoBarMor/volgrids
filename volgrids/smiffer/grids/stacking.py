@@ -18,7 +18,7 @@ class GridStacking(vg.Grid):
             normal = vg.Math.normalize(np.cross(u, v))
 
             gk.recalculate_kernel(normal, sm.MU_STACKING, sm.COV_INV_STACKING, isStacking = True)
-            gk.stamp(cog)
+            gk.stamp(cog, multiplication_factor = sm.ENERGY_SCALE)
 
 
     def iter_particles(self):

@@ -9,6 +9,11 @@ fpdb="testdata/_input/pdb"
 fout="testdata/smiffer/whole"
 mkdir -p $fout
 
+names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
+for name in "${names[@]}"; do
+    cp "$fpdb/$name.pdb" "$fout/$name.pdb"
+done
+
 python3 -W ignore smiffer.py rna  $fpdb/1akx.pdb  -o $fout -a $fapbs/1akx.pqr.dx
 python3 -W ignore smiffer.py prot $fpdb/1bg0.pdb  -o $fout -a $fapbs/1bg0.pqr.dx
 python3 -W ignore smiffer.py prot $fpdb/1eby.pdb  -o $fout -a $fapbs/1eby.pqr.dx
@@ -29,8 +34,3 @@ python3 -W ignore smiffer.py rna  $fpdb/6tf3.pdb  -o $fout -a $fapbs/6tf3.pqr.dx
 python3 -W ignore smiffer.py rna  $fpdb/7oax0.pdb -o $fout -a $fapbs/7oax0.pqr.dx
 python3 -W ignore smiffer.py rna  $fpdb/7oax1.pdb -o $fout -a $fapbs/7oax1.pqr.dx
 python3 -W ignore smiffer.py rna  $fpdb/8eyv.pdb  -o $fout -a $fapbs/8eyv.pqr.dx
-
-names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
-for name in "${names[@]}"; do
-    cp "$fpdb/$name.pdb" "$fout/$name.pdb"
-done

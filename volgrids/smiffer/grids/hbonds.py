@@ -30,7 +30,7 @@ class GridHBonds(vg.Grid, ABC):
         for pos_antecedent, pos_atom_hbond in self.iter_particles():
             direction = vg.Math.normalize(pos_atom_hbond - pos_antecedent)
             self.kernel.recalculate_kernel(direction, **self.kernel_args)
-            self.kernel.stamp(pos_atom_hbond)
+            self.kernel.stamp(pos_atom_hbond, multiplication_factor = sm.ENERGY_SCALE)
 
 
     def iter_particles(self):

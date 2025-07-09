@@ -23,7 +23,7 @@ class VeinsApp:
         self.cols_frames: list = None
 
         if self.ms.do_traj:
-            _assert_df(self.df, *"kind", "npoints", "idxs", "idxs_are_residues")
+            _assert_df(self.df, "kind", "npoints", "idxs", "idxs_are_residues")
             self.cols_frames = sorted(filter(lambda x: x.startswith("frame"), self.df.columns))
             if not self.cols_frames:
                 raise ValueError(
@@ -35,7 +35,7 @@ class VeinsApp:
             self.df.loc[:, self.cols_frames] = mat
 
         else:
-            _assert_df(self.df, *"kind", "npoints", "idxs", "idxs_are_residues", "energy")
+            _assert_df(self.df, "kind", "npoints", "idxs", "idxs_are_residues", "energy")
             self.df = self.df[self.df["energy"].abs() > ve.ENERGY_CUTOFF]
 
         self.timer = vg.Timer(

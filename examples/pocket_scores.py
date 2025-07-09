@@ -17,13 +17,11 @@ class PocketScoreCalculator:
             name_pdb = path_cmap.stem
             print(f"Processing {name_pdb}...")
 
-            key_mask = f"{name_pdb}.mask"
+            key_mask = f"{name_pdb}.trimming"
             self.data_pdb.append(name_pdb)
 
             ### boolean grid, points in space that are part of the pocket are "True"
-            pocket = np.logical_not(
-                vg.GridIO.read_cmap(path_cmap, key_mask).grid.astype(bool)
-            )
+            pocket = vg.GridIO.read_cmap(path_cmap, key_mask).grid.astype(bool)
 
             keys = set(vg.GridIO.get_cmap_keys(path_cmap)) - {key_mask}
             for key in keys:

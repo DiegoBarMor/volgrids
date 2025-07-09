@@ -17,8 +17,10 @@ class GridTrimmer(vg.Grid):
         if sm.DO_TRIMMING_RNDS and ms.do_ps:
             self._trim_rnds()
 
-        if sm.SAVE_CACHED_MASK:
-            self.save_data(sm.FOLDER_OUT, "mask")
+        if sm.SAVE_TRIMMING_MASK:
+            self.grid = np.logical_not(self.grid)  # invert the mask to save the points that are NOT trimmed
+            self.save_data(sm.FOLDER_OUT, "trimming")
+            self.grid = np.logical_not(self.grid)  # revert the mask to the original state
 
 
     # --------------------------------------------------------------------------

@@ -14,7 +14,7 @@ class GridHydro(vg.Grid):
             if factor_res  is None: factor_res  = 1
             if factor_atom is None: factor_atom = 1
 
-            yield atom, factor_res * factor_atom
+            yield atom, factor_res * factor_atom #/ len(atom.residue.atoms)
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -17,6 +17,9 @@ class SmifferApp:
 
     # --------------------------------------------------------------------------
     def run(self):
+        if sm.PATH_APBS is None:
+            sm.DO_SMIF_APBS = False
+
         self.timer.start()
 
         if self.ms.do_traj: # TRAJECTORY MODE
@@ -40,68 +43,73 @@ class SmifferApp:
     # --------------------------------------------------------------------------
     def _process_grids(self):
         ### Only trim if needed
-        if (
-            sm.DO_SMIF_STACKING or
-            sm.DO_SMIF_HBA or sm.DO_SMIF_HBD or
-            sm.DO_SMIF_HYDROPHOBIC or sm.DO_SMIF_APBS or
-            sm.SAVE_CACHED_MASK
-        ):
-            trim_large = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_LARGE)
-
         if sm.DO_SMIF_HYDROPHILIC:
             trim_small = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_SMALL)
 
-        ### Calculate standard SMIF grids
-        if sm.DO_SMIF_STACKING:
-            self._calc_smif(sm.GridStacking(self.ms), trim_large, "stacking")
-
-        if sm.DO_SMIF_HBA:
-            self._calc_smif(sm.GridHBARing(self.ms), trim_large, "hbacceptors")
-
-        if sm.DO_SMIF_HBD:
-            grid_hbdring = sm.GridHBDRing(self.ms)
-            grid_hbdcone = sm.GridHBDCone(self.ms)
-            grid_hbdring.populate_grid()
-            grid_hbdcone.populate_grid()
-            grid_hbd = grid_hbdring + grid_hbdcone
-            trim_large.apply_trimming(grid_hbd)
-            grid_hbd.save_data(sm.FOLDER_OUT, "hbdonors")
-
-        if sm.DO_SMIF_HYDROPHOBIC:
-            grid_hphob = sm.GridHydrophobic(self.ms)
-            self._calc_smif(grid_hphob, trim_large, "hydrophobic")
-
-        if sm.DO_SMIF_HYDROPHILIC:
-            grid_hphil = sm.GridHydrophilic(self.ms)
-            self._calc_smif(grid_hphil, trim_small, "hydrophilic")
+        if (
+            sm.DO_SMIF_STACKING or
+            sm.DO_SMIF_HBA or sm.DO_SMIF_HBD or
+            sm.DO_SMIF_HYDROPHOBIC or sm.SAVE_TRIMMING_MASK
+        ):
+            trim_mid = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_MID)
 
         if sm.DO_SMIF_APBS:
-            self._process_apbs(trim_large)
+            trim_large = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_LARGE)
+
+
+        ### Calculate standard SMIF grids
+        if sm.DO_SMIF_STACKING:
+            self._calc_smif(sm.GridStacking, trim_mid, "stacking")
+
+        if sm.DO_SMIF_HBA:
+            self._calc_smif(sm.GridHBARing, trim_mid, "hbacceptors")
+
+        if sm.DO_SMIF_HBD:
+            self._process_hbdonors(trim_mid)
+
+        if sm.DO_SMIF_HYDROPHOBIC:
+            grid_hphob: sm.GridHydrophobic =\
+                self._calc_smif(sm.GridHydrophobic, trim_mid, "hydrophobic")
+
+        if sm.DO_SMIF_HYDROPHILIC:
+            grid_hphil: sm.GridHydrophilic =\
+                self._calc_smif(sm.GridHydrophilic, trim_small, "hydrophilic")
+
+        if sm.DO_SMIF_APBS:
+            grid_apbs: sm.GridAPBS =\
+                self._calc_smif(sm.GridAPBS, trim_large, "apbs")
+
 
         ### Calculate additional grids
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
             grid_hpdiff = grid_hphob - grid_hphil
             grid_hpdiff.save_data(sm.FOLDER_OUT, "hydrodiff")
 
+        if sm.DO_SMIF_LOG_APBS:
+            grid_apbs.apply_logabs_transform()
+            grid_apbs.save_data(sm.FOLDER_OUT, "apbslog")
+
 
     # --------------------------------------------------------------------------
-    def _calc_smif(self, grid: "vg.Grid", trimmer: "sm.GridTrimmer", title: str):
+    def _calc_smif(self,
+        cls_grid: type, trimmer: "sm.GridTrimmer", title: str
+    ) -> "vg.Grid":
+        grid: vg.Grid = cls_grid(self.ms)
         grid.populate_grid()
         trimmer.apply_trimming(grid)
         grid.save_data(sm.FOLDER_OUT, title)
+        return grid
 
 
     # --------------------------------------------------------------------------
-    def _process_apbs(self, trimmer: "sm.GridTrimmer"):
-        if sm.PATH_APBS is None: return
-
-        grid_apbs = sm.GridAPBS(self.ms)
-        self._calc_smif(grid_apbs, trimmer, "apbs")
-
-        if not sm.DO_SMIF_LOG_APBS: return
-
-        grid_apbs.apply_logabs_transform()
-        grid_apbs.save_data(sm.FOLDER_OUT, "apbslog")
+    def _process_hbdonors(self, trimmer: "sm.GridTrimmer"):
+        grid_hbdring = sm.GridHBDRing(self.ms)
+        grid_hbdcone = sm.GridHBDCone(self.ms)
+        grid_hbdring.populate_grid()
+        grid_hbdcone.populate_grid()
+        grid_hbd = grid_hbdring + grid_hbdcone
+        trimmer.apply_trimming(grid_hbd)
+        grid_hbd.save_data(sm.FOLDER_OUT, "hbdonors")
 
 
     # --------------------------------------------------------------------------
