@@ -5,7 +5,7 @@ echo
 echo ">>> TEST SMIFFER 1: Benchmark, Whole mode"
 
 fapbs="testdata/_input/apbs"
-fpdb="testdata/_input/pdb-nosolv"
+fpdb="testdata/_input/pdb-original"
 fout="testdata/smiffer/whole"
 mkdir -p $fout
 

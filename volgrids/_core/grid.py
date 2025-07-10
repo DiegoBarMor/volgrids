@@ -14,6 +14,7 @@ class Grid:
 
         if dtype is None: dtype = vg.FLOAT_DTYPE
         self.grid = np.zeros(ms.resolution, dtype = dtype) if init_grid else None
+        self.dtype = dtype
 
 
     # --------------------------------------------------------------------------
@@ -40,6 +41,18 @@ class Grid:
             return obj
         except TypeError:
             raise TypeError(f"Cannot substract {type(other)} from Grid. Use another Grid or a numeric value.")
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def reverse(cls, other: "Grid") -> "Grid":
+        """Return a new Grid with the reversed values of the other Grid.
+        For boolean grids, the reverse is the logical not.
+        For numeric grids, the reverse is the negation of the values.
+        """
+        obj = cls(other.ms, init_grid = False)
+        obj.grid = np.logical_not(other.grid) if (other.dtype == bool) else -other.grid
+        return obj
 
 
     # --------------------------------------------------------------------------

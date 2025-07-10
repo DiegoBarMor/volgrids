@@ -232,7 +232,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * standard ini files use ; instead of # for comments
 
 ## SMIFFER
-* optimize the trimmers (specially RNDS)
+* maybe: replace the RNDS trimming with a faster method
 * provide download links for the testdata folder
 * add flag for considering the structure's hydrogen atoms when calculating HBD smifs
 * document the .chem tables

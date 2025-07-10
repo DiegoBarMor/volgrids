@@ -8,6 +8,7 @@ class SmifferApp:
         self._apply_custom_config()
 
         self.ms = sm.SmifferMolecularSystem(sm.PATH_STRUCTURE, sm.PATH_TRAJECTORY)
+        self.trimmer: sm.GridTrimmer = None
 
         str_mode = "PocketSphere" if self.ms.do_ps else "Whole"
         self.timer = vg.Timer(
@@ -43,41 +44,49 @@ class SmifferApp:
     # --------------------------------------------------------------------------
     def _process_grids(self):
         ### Only trim if needed
+        trimming_dists = {}
         if sm.DO_SMIF_HYDROPHILIC:
-            trim_small = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_SMALL)
+            trimming_dists["small"] = sm.TRIMMING_DIST_SMALL
 
         if (
             sm.DO_SMIF_STACKING or
             sm.DO_SMIF_HBA or sm.DO_SMIF_HBD or
             sm.DO_SMIF_HYDROPHOBIC or sm.SAVE_TRIMMING_MASK
         ):
-            trim_mid = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_MID)
+            trimming_dists["mid"] = sm.TRIMMING_DIST_MID
 
         if sm.DO_SMIF_APBS:
-            trim_large = sm.GridTrimmer(self.ms, sm.TRIMMING_DIST_LARGE)
+            trimming_dists["large"] = sm.TRIMMING_DIST_LARGE
+
+        self.trimmer = sm.GridTrimmer(self.ms, **trimming_dists)
+
+        if sm.SAVE_TRIMMING_MASK:
+            mask = self.trimmer.get_mask("mid")
+            reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
+            reverse.save_data(sm.FOLDER_OUT, f"trimming")
 
 
         ### Calculate standard SMIF grids
         if sm.DO_SMIF_STACKING:
-            self._calc_smif(sm.GridStacking, trim_mid, "stacking")
+            self._calc_smif(sm.GridStacking, "mid", "stacking")
 
         if sm.DO_SMIF_HBA:
-            self._calc_smif(sm.GridHBARing, trim_mid, "hbacceptors")
+            self._calc_smif(sm.GridHBARing, "mid", "hbacceptors")
 
         if sm.DO_SMIF_HBD:
-            self._process_hbdonors(trim_mid)
+            self._process_hbdonors("mid")
 
         if sm.DO_SMIF_HYDROPHOBIC:
             grid_hphob: sm.GridHydrophobic =\
-                self._calc_smif(sm.GridHydrophobic, trim_mid, "hydrophobic")
+                self._calc_smif(sm.GridHydrophobic, "mid", "hydrophobic")
 
         if sm.DO_SMIF_HYDROPHILIC:
             grid_hphil: sm.GridHydrophilic =\
-                self._calc_smif(sm.GridHydrophilic, trim_small, "hydrophilic")
+                self._calc_smif(sm.GridHydrophilic, "small", "hydrophilic")
 
         if sm.DO_SMIF_APBS:
             grid_apbs: sm.GridAPBS =\
-                self._calc_smif(sm.GridAPBS, trim_large, "apbs")
+                self._calc_smif(sm.GridAPBS, "large", "apbs")
 
 
         ### Calculate additional grids
@@ -91,24 +100,22 @@ class SmifferApp:
 
 
     # --------------------------------------------------------------------------
-    def _calc_smif(self,
-        cls_grid: type, trimmer: "sm.GridTrimmer", title: str
-    ) -> "vg.Grid":
+    def _calc_smif(self, cls_grid: type, key_trimming: str, title: str) -> "vg.Grid":
         grid: vg.Grid = cls_grid(self.ms)
         grid.populate_grid()
-        trimmer.apply_trimming(grid)
+        self.trimmer.apply_trimming(grid, key_trimming)
         grid.save_data(sm.FOLDER_OUT, title)
         return grid
 
 
     # --------------------------------------------------------------------------
-    def _process_hbdonors(self, trimmer: "sm.GridTrimmer"):
+    def _process_hbdonors(self, key_trimming: str):
         grid_hbdring = sm.GridHBDRing(self.ms)
         grid_hbdcone = sm.GridHBDCone(self.ms)
         grid_hbdring.populate_grid()
         grid_hbdcone.populate_grid()
         grid_hbd = grid_hbdring + grid_hbdcone
-        trimmer.apply_trimming(grid_hbd)
+        self.trimmer.apply_trimming(grid_hbd, key_trimming)
         grid_hbd.save_data(sm.FOLDER_OUT, "hbdonors")
 
 

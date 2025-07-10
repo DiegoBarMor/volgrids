@@ -5,7 +5,7 @@ echo
 echo ">>> TEST SMIFFER 0: Benchmark, Pocket Sphere mode"
 
 fapbs="testdata/_input/apbs"
-fpdb="testdata/_input/pdb-nosolv"
+fpdb="testdata/_input/pdb-original"
 fout="testdata/smiffer/pocket_sphere"
 mkdir -p $fout
 

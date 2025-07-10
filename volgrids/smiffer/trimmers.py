@@ -3,40 +3,61 @@ import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridTrimmer(vg.Grid):
-    def __init__(self, ms: "sm.SmifferMolecularSystem", trimming_dist):
-        super().__init__(ms, dtype = bool)
-        self.ms: "sm.SmifferMolecularSystem"
+class GridTrimmer():
+    KEY_INIT_COMMON_MASK = "mid" # the common mask is initialized by copying this specific mask
+
+    def __init__(self, ms: "sm.SmifferMolecularSystem", **distances):
+        self.ms: "sm.SmifferMolecularSystem" = ms
+
+        self.distances = distances
+        self.common_mask: vg.Grid = None
+        self.specific_masks = {k : vg.Grid(ms, dtype = bool) for k in distances.keys()}
 
         if sm.DO_TRIMMING_OCCUPANCY:
-            self._trim_occupancy(trimming_dist)
+            self._trim_occupancies()
 
-        if sm.DO_TRIMMING_SPHERE and ms.do_ps:
-            self._trim_sphere()
+        if ms.do_ps:
+            self._run_common_mask_operations()
 
-        if sm.DO_TRIMMING_RNDS and ms.do_ps:
-            self._trim_rnds()
 
-        if sm.DO_TRIMMING_FARAWAY and ms.do_ps:
+    # --------------------------------------------------------------------------
+    def apply_trimming(self, smif: "vg.Grid", key: str):
+        mask = self.specific_masks[key]
+        smif.grid[mask.grid] = 0
+
+
+    # --------------------------------------------------------------------------
+    def get_mask(self, key: str) -> vg.Grid:
+        return self.specific_masks[key]
+
+
+    # --------------------------------------------------------------------------
+    def _run_common_mask_operations(self):
+        self.common_mask = self.specific_masks[self.KEY_INIT_COMMON_MASK].copy()
+
+        if sm.DO_TRIMMING_FARAWAY:
             self._trim_faraway()
 
-        if sm.SAVE_TRIMMING_MASK:
-            self.grid = np.logical_not(self.grid)  # invert the mask to save the points that are NOT trimmed
-            self.save_data(sm.FOLDER_OUT, f"trimming.{trimming_dist}")
-            self.grid = np.logical_not(self.grid)  # revert the mask to the original state
+        if sm.DO_TRIMMING_SPHERE:
+            self._trim_sphere()
+
+        if sm.DO_TRIMMING_RNDS:
+            self._trim_rnds()
+
+        for mask in self.specific_masks.values():
+            mask.grid |= self.common_mask.grid
+        self.common_mask = None
 
 
     # --------------------------------------------------------------------------
-    def apply_trimming(self, vgrid: "vg.Grid"):
-        vgrid.grid[self.grid] = 0
+    def _trim_occupancies(self):
+        for k,radius in self.distances.items():
+            mask = self.specific_masks[k]
+            kernel = vg.KernelSphere(radius, self.ms.deltas, bool)
+            kernel.link_to_grid(mask.grid, self.ms.minCoords)
 
-
-    # --------------------------------------------------------------------------
-    def _trim_occupancy(self, radius):
-        sk = vg.KernelSphere(radius, self.ms.deltas, bool)
-        sk.link_to_grid(self.grid, self.ms.minCoords)
-        for a in self.ms.get_relevant_atoms_broad(radius):
-            sk.stamp(a.position)
+            for a in self.ms.get_relevant_atoms_broad(radius):
+                kernel.stamp(a.position)
 
 
     # --------------------------------------------------------------------------
@@ -44,7 +65,7 @@ class GridTrimmer(vg.Grid):
         coords = vg.Math.get_coords_array(self.ms.resolution, self.ms.deltas, self.ms.minCoords)
         shifted_coords = coords - self.ms.cog
         dist_from_cog = vg.Math.get_norm(shifted_coords)
-        self.grid[dist_from_cog > self.ms.radius] = True
+        self.common_mask.grid[dist_from_cog > self.ms.radius] = True
 
 
     # --------------------------------------------------------------------------
@@ -66,7 +87,6 @@ class GridTrimmer(vg.Grid):
         search_dist = np.full(self.ms.resolution, np.inf)
         for point in cog_cube: search_dist[point] = 0
 
-        # exploration_steps = 0
         while queue:
             ### "random search" because popping from a set can be unpredictable
             i,j,k = node = queue.pop()
@@ -86,24 +106,24 @@ class GridTrimmer(vg.Grid):
                 search_dist[neigh] = min(search_dist[node] + 1, search_dist[neigh])
                 if search_dist[neigh] > sm.MAX_RNDS_DIST: continue
                 if visited[neigh]: continue
-                if self.grid[neigh]: continue
+                if self.common_mask.grid[neigh]: continue
 
                 queue.add(neigh)
 
-        self.grid[np.logical_not(visited)] = True
 
-        # exploration_steps += 1
+        self.common_mask.grid[np.logical_not(visited)] = True
+
 
 
     # --------------------------------------------------------------------------
     def _trim_faraway(self):
-        mask = np.zeros_like(self.grid, dtype = bool)
-        sk = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.deltas, bool)
-        sk.link_to_grid(mask, self.ms.minCoords)
+        arr = np.zeros_like(self.common_mask.grid, dtype = bool)
+        kernel = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.deltas, bool)
+        kernel.link_to_grid(arr, self.ms.minCoords)
         for a in self.ms.get_relevant_atoms_broad(sm.TRIM_FARAWAY_DIST):
-            sk.stamp(a.position)
+            kernel.stamp(a.position)
 
-        self.grid[~mask] = True
+        self.common_mask.grid[~arr] = True
 
 
 # //////////////////////////////////////////////////////////////////////////////
