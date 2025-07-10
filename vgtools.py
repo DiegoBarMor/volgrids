@@ -1,3 +1,6 @@
-if __name__ != "__main__": exit(0)
+import warnings
 import volgrids.vgtools as vgt
-vgt.VGToolsApp().run()
+
+if __name__ == "__main__":
+    warnings.filterwarnings("ignore", module = "MDAnalysis.*")
+    vgt.VGToolsApp().run()

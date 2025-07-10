@@ -1,3 +1,6 @@
-if __name__ != "__main__": exit(0)
+import warnings
 import volgrids.veins as ve
-ve.VeinsApp().run()
+
+if __name__ == "__main__":
+    warnings.filterwarnings("ignore", module = "MDAnalysis.*")
+    ve.VeinsApp().run()
