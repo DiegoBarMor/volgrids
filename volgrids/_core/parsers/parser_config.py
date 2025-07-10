@@ -1,7 +1,7 @@
 import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
-class ConfigParser(vg.IniParser):
+class ParserConfig(vg.ParserIni):
     def apply_config(self,
         key: str, scope: dict[str, ], valid_configs = set[str],
         all_configs_mandatory: bool = True

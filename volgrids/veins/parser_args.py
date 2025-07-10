@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
+
 import volgrids as vg
 import volgrids.veins as ve
 
 # //////////////////////////////////////////////////////////////////////////////
-class VeinsArgsParser(vg.ArgsParser):
+class ParserArgsVeins(vg.ParserArgs):
     def __init__(self):
         super().__init__()
         help_string = '\n'.join((

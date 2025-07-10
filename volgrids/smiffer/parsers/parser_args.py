@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
+
 import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
-class SmifferArgsParser(vg.ArgsParser):
+class ParserArgsSmiffer(vg.ParserArgs):
     def __init__(self):
         super().__init__()
         help_string = '\n'.join((

@@ -1,14 +1,5 @@
 import time
-import numpy as np
 from pathlib import Path
-
-# ------------------------------------------------------------------------------
-def format_vector_str(vector : np.array) -> str:
-    return '(' + (
-        ' '.join(vector.astype(str)) if vector.dtype == int else \
-        ' '.join(map(lambda n: f"{n:.3f}", vector))
-    ) + ')'
-
 
 # ------------------------------------------------------------------------------
 def resolve_path(path: Path):

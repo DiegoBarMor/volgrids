@@ -226,15 +226,16 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 ## _CORE
 * implement: raise an error if a format file is opened with the wrong function
 * make a common App class
-  * make them responsible of calling ConfigParser.apply_config
-  * move the ArgsParser instantation out of them?
-* improve the ArgsParser classes (could avoid some code repetition)
+  * make them responsible of calling ParserConfig.apply_config
+  * move the ParserArgs instantation out of them?
+* improve the ParserArgs classes (could avoid some code repetition)
 * standard ini files use ; instead of # for comments
 
 ## SMIFFER
 * maybe: replace the RNDS trimming with a faster method
 * provide download links for the testdata folder
 * add flag for considering the structure's hydrogen atoms when calculating HBD smifs
+* change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
 
 ## VEINS

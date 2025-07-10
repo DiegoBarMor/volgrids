@@ -1,13 +1,14 @@
 import numpy as np
+
 import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridTrimmer():
+class Trimmer():
     KEY_INIT_COMMON_MASK = "mid" # the common mask is initialized by copying this specific mask
 
-    def __init__(self, ms: "sm.SmifferMolecularSystem", **distances):
-        self.ms: "sm.SmifferMolecularSystem" = ms
+    def __init__(self, ms: "sm.MolSystemSmiffer", **distances):
+        self.ms: "sm.MolSystemSmiffer" = ms
 
         self.distances = distances
         self.common_mask: vg.Grid = None
@@ -110,9 +111,7 @@ class GridTrimmer():
 
                 queue.add(neigh)
 
-
         self.common_mask.grid[np.logical_not(visited)] = True
-
 
 
     # --------------------------------------------------------------------------

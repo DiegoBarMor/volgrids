@@ -1,13 +1,14 @@
-from .grids.apbs import GridAPBS
-from .grids.hbonds import GridHBARing, GridHBDRing, GridHBDCone
-from .grids.hydro import GridHydrophilic, GridHydrophobic
-from .grids.stacking import GridStacking
-
-from .parsers.args_parser import SmifferArgsParser
 from .parsers.chem_table import ChemTable
+from .parsers.parser_args import ParserArgsSmiffer
 
-from .trimmers import GridTrimmer
-from .systems import MolType, SmifferMolecularSystem
+from .smifs.smif import Smif
+from .smifs.apbs import SmifAPBS
+from .smifs.hbonds import SmifHBARing, SmifHBDRing, SmifHBDCone
+from .smifs.hydro import SmifHydrophilic, SmifHydrophobic
+from .smifs.stacking import SmifStacking
+
+from .mol_system import MolType, MolSystemSmiffer
+from .trimmer import Trimmer
 
 from .smiffer import SmifferApp
 
@@ -79,7 +80,7 @@ import volgrids as _vg
 
 import numpy as np # [TODO] move these lines
 import volgrids as vg
-_vg.ConfigParser(_vg.resolve_path("volgrids/config.ini")).apply_config(
+_vg.ParserConfig(_vg.resolve_path("volgrids/config.ini")).apply_config(
     key = "SMIFFER", scope = globals(),
     valid_configs = set(__annotations__.keys())
 )
@@ -124,7 +125,7 @@ SIGMA_DIST_STACKING = _np.sqrt(COV_STACKING_11)
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by
-### an instance of ArgsParser (or its inherited classes)
+### an instance of ParserArgs (or its inherited classes)
 
 from pathlib import Path
 PATH_STRUCTURE:  Path = None # "path/input/struct.pdb"

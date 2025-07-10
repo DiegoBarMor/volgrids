@@ -5,7 +5,7 @@ from pathlib import Path
 import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
-class MolecularSystem:
+class MolSystem:
     def __init__(self,
         path_struct: Path = None, path_traj: Path = None,
         box_data: dict = None
@@ -39,14 +39,14 @@ class MolecularSystem:
     def from_box_data(cls,
         resolution: np.ndarray, origin: np.ndarray, deltas: np.ndarray,
         molname: str = "grid"
-    ) -> "MolecularSystem":
+    ) -> "MolSystem":
         """
-        Create a MolecularSystem instance from box data. 'maxCoords' is inferred
+        Create a MolSystem instance from box data. 'maxCoords' is inferred
         :param resolution: The resolution of the grid (number of points in each dimension).
         :param origin: The origin of the grid (minimum coordinates of the bounding box).
         :param deltas: The size of each grid point in each dimension.
         :param molname: The name of the molecule (default is "grid").
-        :return: An instance of MolecularSystem with the provided box data.
+        :return: An instance of MolSystem with the provided box data.
         """
         return cls(box_data = {
             "resolution": resolution,

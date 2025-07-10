@@ -16,9 +16,9 @@ def _assert_df(df: pd.DataFrame, *cols_metadata):
 # //////////////////////////////////////////////////////////////////////////////
 class VeinsApp:
     def __init__(self):
-        ve.VeinsArgsParser()
+        ve.ParserArgsVeins()
 
-        self.ms = vg.MolecularSystem(ve.PATH_STRUCTURE, ve.PATH_TRAJECTORY)
+        self.ms = vg.MolSystem(ve.PATH_STRUCTURE, ve.PATH_TRAJECTORY)
         self.df = pd.read_csv(ve.PATH_ENERGIES_CSV).dropna(how = "any")
         self.cols_frames: list = None
 

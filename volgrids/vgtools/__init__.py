@@ -1,10 +1,11 @@
-from .args_parser import VGToolsArgsParser
+from .parser_args import ParserArgsVGTools
+
 from .vgtools import VGToolsApp
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by
-### an instance of ArgsParser (or its inherited classes)
+### an instance of ParserArgs (or its inherited classes)
 
 from pathlib import Path
 

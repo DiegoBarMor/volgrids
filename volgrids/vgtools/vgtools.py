@@ -4,7 +4,7 @@ import volgrids.vgtools as vgt
 # //////////////////////////////////////////////////////////////////////////////
 class VGToolsApp:
     def __init__(self):
-        vgt.VGToolsArgsParser()
+        vgt.ParserArgsVGTools()
 
 
     # --------------------------------------------------------------------------

@@ -1,8 +1,9 @@
 import sys
+
 import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
-class ArgsParser:
+class ParserArgs:
     """A class to parse command line arguments for the VolGrids-based applications.
     It assumes that the application is run with the following structure:\n
     `python3 app.py [mode] [options...]`\n

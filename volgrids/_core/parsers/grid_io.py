@@ -1,9 +1,10 @@
 import os, h5py
 import numpy as np
 import gridData as gd
-import volgrids as vg
 from pathlib import Path
 from enum import Enum, auto
+
+import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridFormat(Enum):
@@ -20,7 +21,7 @@ class GridIO:
     @staticmethod
     def read_dx(path_dx) -> "vg.Grid":
         parser_dx = gd.Grid(path_dx)
-        ms = vg.MolecularSystem.from_box_data(
+        ms = vg.MolSystem.from_box_data(
             resolution = parser_dx.grid.shape,
             origin = parser_dx.origin,
             deltas = parser_dx.delta
@@ -69,7 +70,7 @@ class GridIO:
             rz, ry, rx = frame["data_zyx"].shape
             ox, oy, oz = frame.attrs["origin"]
             dz, dy, dx = frame.attrs["step"]
-            ms = vg.MolecularSystem.from_box_data(
+            ms = vg.MolSystem.from_box_data(
                 resolution = np.array([rx, ry, rz]),
                 origin = np.array([ox, oy, oz]),
                 deltas = np.array([dx, dy, dz])
@@ -271,7 +272,7 @@ def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
             parser.header.mapc, parser.header.mapr, parser.header.maps
 
         if axes_correspondance == (1, 2, 3):
-            ms = vg.MolecularSystem.from_box_data(
+            ms = vg.MolSystem.from_box_data(
                 resolution = res.copy(), origin = origin.copy(), deltas = vsize.copy()
             )
             obj = vg.Grid(ms, init_grid = False)
@@ -279,7 +280,7 @@ def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
             return obj
 
         if axes_correspondance == (3, 2, 1):
-            ms = vg.MolecularSystem.from_box_data(
+            ms = vg.MolSystem.from_box_data(
                 resolution = res[::-1], origin = origin[::-1], deltas = vsize[::-1]
             )
             obj = vg.Grid(ms, init_grid = False)

@@ -5,7 +5,7 @@ import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class Grid:
-    def __init__(self, ms: "vg.MolecularSystem", init_grid = True, dtype = None):
+    def __init__(self, ms: "vg.MolSystem", init_grid = True, dtype = None):
         self.ms = ms
         self.xres, self.yres, self.zres = ms.resolution
         self.xmin, self.ymin, self.zmin = ms.minCoords

@@ -1,7 +1,8 @@
 import numpy as np
+from abc import ABC, abstractmethod
+
 import volgrids as vg
 import volgrids.smiffer as sm
-from abc import ABC, abstractmethod
 
 def _str_prev_residue(res):
     return f"segid {res.segid} and resid {res.resid - 1}"
@@ -19,7 +20,7 @@ def _safe_return_coords(atomgroup, sel_string):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBonds(vg.Grid, ABC):
+class SmifHBonds(sm.Smif, ABC):
     def populate_grid(self):
         self.kernel: vg.Kernel
         self.kernel_args: dict
@@ -66,7 +67,7 @@ class GridHBonds(vg.Grid, ABC):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBAccepts(GridHBonds, ABC):
+class SmifHBAccepts(SmifHBonds, ABC):
     def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
         name_antecedent_0, name_antecedent_1, name_hbond_atom, _ = hbond_triplet
         atoms = self.ms.relevant_atoms
@@ -88,7 +89,7 @@ class GridHBAccepts(GridHBonds, ABC):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBDonors(GridHBonds, ABC):
+class SmifHBDonors(SmifHBonds, ABC):
     def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
         name_antecedent_0, name_antecedent_1, name_hbond_atom, do_infer_H = hbond_triplet
         atoms = self.ms.relevant_atoms
@@ -130,7 +131,7 @@ class GridHBDonors(GridHBonds, ABC):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBARing(GridHBAccepts):
+class SmifHBARing(SmifHBAccepts):
     def init_kernel(self):
         kernel_radius = sm.MU_HBA[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA
         self.kernel = vg.KernelGaussianMultivariate(kernel_radius, self.ms.deltas, vg.FLOAT_DTYPE)
@@ -140,7 +141,7 @@ class GridHBARing(GridHBAccepts):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBDRing(GridHBDonors):
+class SmifHBDRing(SmifHBDonors):
     def init_kernel(self):
         kernel_radius = sm.MU_HBD[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD
         self.kernel = vg.KernelGaussianMultivariate(kernel_radius, self.ms.deltas, vg.FLOAT_DTYPE)
@@ -150,7 +151,7 @@ class GridHBDRing(GridHBDonors):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHBDCone(GridHBDonors):
+class SmifHBDCone(SmifHBDonors):
     def init_kernel(self):
         kernel_radius = sm.MU_HBD_FIXED[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FIXED
         self.kernel = vg.KernelGaussianMultivariate(kernel_radius, self.ms.deltas, vg.FLOAT_DTYPE)

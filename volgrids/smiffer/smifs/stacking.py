@@ -1,10 +1,11 @@
 import numpy as np
-import volgrids as vg
-import volgrids.smiffer as sm
 from collections import defaultdict
 
+import volgrids as vg
+import volgrids.smiffer as sm
+
 # //////////////////////////////////////////////////////////////////////////////
-class GridStacking(vg.Grid):
+class SmifStacking(sm.Smif):
     def populate_grid(self):
         radius = sm.MU_STACKING[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_STACKING
         gk = vg.KernelGaussianMultivariate(radius, self.ms.deltas, vg.FLOAT_DTYPE)

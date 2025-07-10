@@ -4,11 +4,11 @@ import volgrids.smiffer as sm
 # //////////////////////////////////////////////////////////////////////////////
 class SmifferApp:
     def __init__(self):
-        sm.SmifferArgsParser()
+        sm.ParserArgsSmiffer()
         self._apply_custom_config()
 
-        self.ms = sm.SmifferMolecularSystem(sm.PATH_STRUCTURE, sm.PATH_TRAJECTORY)
-        self.trimmer: sm.GridTrimmer = None
+        self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCTURE, sm.PATH_TRAJECTORY)
+        self.trimmer: sm.Trimmer = None
 
         str_mode = "PocketSphere" if self.ms.do_ps else "Whole"
         self.timer = vg.Timer(
@@ -58,7 +58,7 @@ class SmifferApp:
         if sm.DO_SMIF_APBS:
             trimming_dists["large"] = sm.TRIMMING_DIST_LARGE
 
-        self.trimmer = sm.GridTrimmer(self.ms, **trimming_dists)
+        self.trimmer = sm.Trimmer(self.ms, **trimming_dists)
 
         if sm.SAVE_TRIMMING_MASK:
             mask = self.trimmer.get_mask("mid")
@@ -68,25 +68,25 @@ class SmifferApp:
 
         ### Calculate standard SMIF grids
         if sm.DO_SMIF_STACKING:
-            self._calc_smif(sm.GridStacking, "mid", "stacking")
+            self._calc_smif(sm.SmifStacking, "mid", "stacking")
 
         if sm.DO_SMIF_HBA:
-            self._calc_smif(sm.GridHBARing, "mid", "hbacceptors")
+            self._calc_smif(sm.SmifHBARing, "mid", "hbacceptors")
 
         if sm.DO_SMIF_HBD:
             self._process_hbdonors("mid")
 
         if sm.DO_SMIF_HYDROPHOBIC:
-            grid_hphob: sm.GridHydrophobic =\
-                self._calc_smif(sm.GridHydrophobic, "mid", "hydrophobic")
+            grid_hphob: sm.SmifHydrophobic =\
+                self._calc_smif(sm.SmifHydrophobic, "mid", "hydrophobic")
 
         if sm.DO_SMIF_HYDROPHILIC:
-            grid_hphil: sm.GridHydrophilic =\
-                self._calc_smif(sm.GridHydrophilic, "small", "hydrophilic")
+            grid_hphil: sm.SmifHydrophilic =\
+                self._calc_smif(sm.SmifHydrophilic, "small", "hydrophilic")
 
         if sm.DO_SMIF_APBS:
-            grid_apbs: sm.GridAPBS =\
-                self._calc_smif(sm.GridAPBS, "large", "apbs")
+            grid_apbs: sm.SmifAPBS =\
+                self._calc_smif(sm.SmifAPBS, "large", "apbs")
 
 
         ### Calculate additional grids
@@ -110,8 +110,8 @@ class SmifferApp:
 
     # --------------------------------------------------------------------------
     def _process_hbdonors(self, key_trimming: str):
-        grid_hbdring = sm.GridHBDRing(self.ms)
-        grid_hbdcone = sm.GridHBDCone(self.ms)
+        grid_hbdring = sm.SmifHBDRing(self.ms)
+        grid_hbdcone = sm.SmifHBDCone(self.ms)
         grid_hbdring.populate_grid()
         grid_hbdcone.populate_grid()
         grid_hbd = grid_hbdring + grid_hbdcone
@@ -123,7 +123,7 @@ class SmifferApp:
     def _apply_custom_config(self) -> None:
         if sm.PATH_CONFIG is None: return
 
-        config = vg.ConfigParser(sm.PATH_CONFIG)
+        config = vg.ParserConfig(sm.PATH_CONFIG)
         if config.has("VOLGRIDS"): config.apply_config(
             key = "VOLGRIDS", scope = vg.__dict__,
             valid_configs = set(vg.__annotations__.keys()),

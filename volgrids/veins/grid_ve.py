@@ -10,7 +10,7 @@ class GridVolumetricEnergy(vg.Grid):
     HEIGHT_DISKS = 0.25
 
     # --------------------------------------------------------------------------
-    def __init__(self, ms: vg.MolecularSystem, df: pd.DataFrame, kind: str):
+    def __init__(self, ms: vg.MolSystem, df: pd.DataFrame, kind: str):
         super().__init__(ms)
         self.df = df[df["kind"] == kind].copy()
         self.kind = kind

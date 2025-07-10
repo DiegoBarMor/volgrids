@@ -1,8 +1,10 @@
+from abc import ABC
+
 import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHydro(vg.Grid):
+class SmifHydro(sm.Smif, ABC):
     def iter_particles(self):
         for atom in self.ms.relevant_atoms:
             factor_res  = self.ms.chemtable.get_residue_hphob(atom)
@@ -18,7 +20,7 @@ class GridHydro(vg.Grid):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHydrophilic(GridHydro):
+class SmifHydrophilic(SmifHydro):
     def populate_grid(self):
         radius_hphil = sm.MU_HYDROPHILIC + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_HYDROPHILIC
         gk_hphil = vg.KernelGaussianUnivariate(
@@ -33,7 +35,7 @@ class GridHydrophilic(GridHydro):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class GridHydrophobic(GridHydro):
+class SmifHydrophobic(SmifHydro):
     def populate_grid(self):
         radius_hphob = sm.MU_HYDROPHOBIC + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_HYDROPHOBIC
         gk_hphob = vg.KernelGaussianUnivariate(

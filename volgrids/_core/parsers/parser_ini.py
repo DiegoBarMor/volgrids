@@ -1,8 +1,7 @@
 import re
-import numpy as np
 
 # //////////////////////////////////////////////////////////////////////////////
-class IniParser:
+class ParserIni:
     def __init__(self, path_ini):
         self._ini_sections: dict[str, list[str]] = {}
         with open(path_ini, 'r') as file:
