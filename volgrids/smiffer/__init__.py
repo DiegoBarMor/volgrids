@@ -1,11 +1,12 @@
 from .parsers.chem_table import ChemTable
-from .parsers.parser_args import ParserArgsSmiffer
 
 from .smifs.smif import Smif
 from .smifs.apbs import SmifAPBS
 from .smifs.hbonds import SmifHBARing, SmifHBDRing, SmifHBDCone
 from .smifs.hydro import SmifHydrophilic, SmifHydrophobic
 from .smifs.stacking import SmifStacking
+
+from .ui.param_handler import ParamHandlerSmiffer
 
 from .mol_system import MolType, MolSystemSmiffer
 from .trimmer import Trimmer
@@ -125,7 +126,7 @@ SIGMA_DIST_STACKING = _np.sqrt(COV_STACKING_11)
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by
-### an instance of ParserArgs (or its inherited classes)
+### an instance of ParamHandler (or its inherited classes)
 
 from pathlib import Path
 PATH_STRUCTURE:  Path = None # "path/input/struct.pdb"

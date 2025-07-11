@@ -207,11 +207,11 @@ Collection of utilities for manipulating DX, MRC and CMAP grids.
 
 ## Usage
 Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the calculation via arguments.
-  - Replace `[mode]` with `convert`, `pack`, `unpack` or `fix-cmap`. Available modes:
+  - Replace `[mode]` with `convert`, `pack`, `unpack` or `fix_cmap`. Available modes:
     - `convert`: Convert grid files between formats.
     - `pack`: Pack multiple grid files into a single CMAP series-file.
     - `unpack`: Unpack a CMAP series-file into multiple grid files.
-    - `fix-cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
+    - `fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
   - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 vgtools.py [mode]` with no more arguments).
 
 
@@ -227,9 +227,9 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * implement: raise an error if a format file is opened with the wrong function
 * make a common App class
   * make them responsible of calling ParserConfig.apply_config
-  * move the ParserArgs instantation out of them?
-* improve the ParserArgs classes (could avoid some code repetition)
+  * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 * standard ini files use ; instead of # for comments
+* USER_MODE shouldn't be a global in _core, but defined instead by the other modules when needed
 
 ## SMIFFER
 * maybe: replace the RNDS trimming with a faster method
@@ -244,7 +244,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * add tests
 
 ## VGTools
-* check what happens if performing "fix-cmap" operation when cmap input and output are the same file
+* check what happens if performing "fix_cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
 * mode to compare grids
 * mode to perform operations on grids: abs, sum, diff, mask...

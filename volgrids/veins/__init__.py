@@ -1,12 +1,13 @@
+from .ui.param_handler import ParamHandlerVeins
+
 from .grid_ve import GridVolumetricEnergy
-from .parser_args import ParserArgsVeins
 
 from .veins import VeinsApp
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by
-### an instance of ParserArgs (or its inherited classes)
+### an instance of ParamHandler (or its inherited classes)
 
 from pathlib import Path
 PATH_STRUCTURE:    Path = None # "path/input/structure.pdb"

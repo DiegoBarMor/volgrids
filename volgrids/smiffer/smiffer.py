@@ -3,8 +3,9 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifferApp:
-    def __init__(self):
-        sm.ParserArgsSmiffer()
+    def __init__(self, *args, **kwargs):
+        handler = sm.ParamHandlerSmiffer(*args, **kwargs)
+        handler.assign_globals()
         self._apply_custom_config()
 
         self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCTURE, sm.PATH_TRAJECTORY)
@@ -14,6 +15,13 @@ class SmifferApp:
         self.timer = vg.Timer(
             f">>> Now processing '{self.ms.molname}' ({vg.USER_MODE}) in '{str_mode}' mode"
         )
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def from_cli(cls):
+        params_pos, params_kwd = sm.ParamHandlerSmiffer.parse_cli_args()
+        return cls(*params_pos, **params_kwd)
 
 
     # --------------------------------------------------------------------------

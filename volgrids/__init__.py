@@ -9,10 +9,11 @@ from ._core.kernels.boolean import \
 from ._core.kernels.gaussian import \
     KernelGaussianUnivariate, KernelGaussianMultivariate
 
-from ._core.parsers.parser_args import ParserArgs
 from ._core.parsers.parser_ini import ParserIni
 from ._core.parsers.parser_config import ParserConfig
 from ._core.parsers.grid_io import GridFormat, GridIO
+
+from ._core.ui.param_handler import ParamHandler
 
 
 ############################# CONFIG FILE GLOBALS ##############################
@@ -43,5 +44,5 @@ ParserConfig(resolve_path("volgrids/config.ini")).apply_config(
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by
-### an instance of ParserArgs (or its inherited classes)
+### an instance of ParamHandler (or its inherited classes)
 USER_MODE: str = '' # mode of the application, e.g. "prot", "rna", "ligand", "convert", "pack", "unpack"...

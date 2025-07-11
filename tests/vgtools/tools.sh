@@ -70,4 +70,4 @@ python3 vgtools.py unpack -i "$path_in"
 ############################# FIX CMAP
 path_in="$ff/hbdonors.issue.cmap"
 path_out="$ff/hbdonors.fixed.cmap"
-python3 vgtools.py fix-cmap -i "$path_in" -o "$path_out"
+python3 vgtools.py fix_cmap -i "$path_in" -o "$path_out"

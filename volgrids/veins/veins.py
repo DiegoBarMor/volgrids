@@ -15,8 +15,9 @@ def _assert_df(df: pd.DataFrame, *cols_metadata):
 
 # //////////////////////////////////////////////////////////////////////////////
 class VeinsApp:
-    def __init__(self):
-        ve.ParserArgsVeins()
+    def __init__(self, *args, **kwargs):
+        handler = ve.ParamHandlerVeins(*args, **kwargs)
+        handler.assign_globals()
 
         self.ms = vg.MolSystem(ve.PATH_STRUCTURE, ve.PATH_TRAJECTORY)
         self.df = pd.read_csv(ve.PATH_ENERGIES_CSV).dropna(how = "any")
@@ -41,6 +42,13 @@ class VeinsApp:
         self.timer = vg.Timer(
             f">>> Now processing '{self.ms.molname}' ({vg.USER_MODE})"
         )
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def from_cli(cls):
+        params_pos, params_kwd = ve.ParamHandlerVeins.parse_cli_args()
+        return cls(*params_pos, **params_kwd)
 
 
     # --------------------------------------------------------------------------

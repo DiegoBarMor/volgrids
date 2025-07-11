@@ -3,8 +3,16 @@ import volgrids.vgtools as vgt
 
 # //////////////////////////////////////////////////////////////////////////////
 class VGToolsApp:
-    def __init__(self):
-        vgt.ParserArgsVGTools()
+    def __init__(self, *args, **kwargs):
+        handler = vgt.ParamHandlerVGTools(*args, **kwargs)
+        handler.assign_globals()
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def from_cli(cls):
+        params_pos, params_kwd = vgt.ParamHandlerVGTools.parse_cli_args()
+        return cls(*params_pos, **params_kwd)
 
 
     # --------------------------------------------------------------------------
@@ -22,7 +30,7 @@ class VGToolsApp:
             self._run_unpack()
             return
 
-        if mode == "fix-cmap":
+        if mode == "fix_cmap":
             self._run_fix_cmap()
             return
 
@@ -71,7 +79,7 @@ class VGToolsApp:
                 print(
                     f">>> Warning: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\
                     "Chimera won't recognize it as a volume series and open every grid in a separate representation." +\
-                    "Use `smiffer.py fix-cmap` if you want to fix this."
+                    "Use `smiffer.py fix_cmap` if you want to fix this."
                 )
             key = str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
             vg.GridIO.write_cmap(path_out, grid, key)
