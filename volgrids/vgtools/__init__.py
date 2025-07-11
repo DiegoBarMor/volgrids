@@ -1,6 +1,5 @@
 from .ui.param_handler import ParamHandlerVGTools
-
-from .vgtools import VGToolsApp
+from .ui.app import AppVGTools
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################

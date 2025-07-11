@@ -2,18 +2,8 @@ import volgrids as vg
 import volgrids.vgtools as vgt
 
 # //////////////////////////////////////////////////////////////////////////////
-class VGToolsApp:
-    def __init__(self, *args, **kwargs):
-        handler = vgt.ParamHandlerVGTools(*args, **kwargs)
-        handler.assign_globals()
-
-
-    # --------------------------------------------------------------------------
-    @classmethod
-    def from_cli(cls):
-        params_pos, params_kwd = vgt.ParamHandlerVGTools.parse_cli_args()
-        return cls(*params_pos, **params_kwd)
-
+class AppVGTools(vg.App):
+    _CLASS_PARAM_HANDLER = vgt.ParamHandlerVGTools
 
     # --------------------------------------------------------------------------
     def run(self):

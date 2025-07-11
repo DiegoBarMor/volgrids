@@ -14,6 +14,7 @@ from ._core.parsers.parser_config import ParserConfig
 from ._core.parsers.grid_io import GridFormat, GridIO
 
 from ._core.ui.param_handler import ParamHandler
+from ._core.ui.app import App
 
 
 ############################# CONFIG FILE GLOBALS ##############################

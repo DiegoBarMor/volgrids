@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 
 # //////////////////////////////////////////////////////////////////////////////
 class ParamHandler(ABC):
-    _EXPECTED_CLI_FLAGS: dict[str, tuple[str]] = None # defined in subclasses
 
     def __init__(self, *params_pos: str, **params_kwd: list[str]):
         if not (params_pos or params_kwd):
@@ -19,6 +18,13 @@ class ParamHandler(ABC):
     @abstractmethod
     def assign_globals(self):
         return
+
+
+    # --------------------------------------------------------------------------
+    @property
+    @abstractmethod
+    def _EXPECTED_CLI_FLAGS() -> dict[str, tuple[str]]:
+        raise NotImplementedError()
 
 
     # --------------------------------------------------------------------------

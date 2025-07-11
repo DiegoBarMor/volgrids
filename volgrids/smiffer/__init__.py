@@ -7,11 +7,10 @@ from .smifs.hydro import SmifHydrophilic, SmifHydrophobic
 from .smifs.stacking import SmifStacking
 
 from .ui.param_handler import ParamHandlerSmiffer
+from .ui.app import AppSmiffer
 
 from .mol_system import MolType, MolSystemSmiffer
 from .trimmer import Trimmer
-
-from .smiffer import SmifferApp
 
 
 ############################# CONFIG FILE GLOBALS ##############################
