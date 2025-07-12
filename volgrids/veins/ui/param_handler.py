@@ -24,8 +24,8 @@ class ParamHandlerVeins(vg.ParamHandler):
         if self._has_param_kwds("help") and not self._has_params_pos():
             self._exit_with_help(0)
 
-        vg.USER_MODE = self._safe_get_param_pos(0)
-        func: callable = self._safe_map_value(vg.USER_MODE,
+        ve.MODE = self._safe_get_param_pos(0).lower()
+        func: callable = self._safe_map_value(ve.MODE,
             energies = self._parse_energies,
             forces   = self._parse_forces,
         )

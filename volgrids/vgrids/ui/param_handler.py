@@ -91,7 +91,7 @@ class ParamHandler(ABC):
 
     # --------------------------------------------------------------------------
     def _safe_map_value(self, key: str, **values):
-        value = values.get(key.lower(), None)
+        value = values.get(key, None)
         if value is None:
             self._exit_with_help(-1, f"Invalid parameter '{key}'. Expected one of the following: {', '.join(values.keys())}.")
         return value

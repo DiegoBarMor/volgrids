@@ -27,8 +27,8 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         if self._has_param_kwds("help") and not self._has_params_pos():
             self._exit_with_help(0)
 
-        vg.USER_MODE = self._safe_get_param_pos(0)
-        sm.CURRENT_MOLTYPE = self._safe_map_value(vg.USER_MODE,
+        mode = self._safe_get_param_pos(0)
+        sm.CURRENT_MOLTYPE = self._safe_map_value(mode.lower(),
             prot = sm.MolType.PROT,
             rna = sm.MolType.RNA,
             ligand = sm.MolType.LIGAND,
@@ -36,7 +36,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
 
 
         self._set_help_str(
-            f"usage: python3 smiffer.py {vg.USER_MODE} [path/input/struct.pdb] [options...]",
+            f"usage: python3 smiffer.py {mode} [path/input/struct.pdb] [options...]",
             "Available options:",
             "-h, --help                       Show this help message and exit.",
             "-o, --output                     Folder path where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",

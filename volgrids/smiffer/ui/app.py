@@ -15,7 +15,7 @@ class AppSmiffer(vg.App):
 
         str_mode = "PocketSphere" if self.ms.do_ps else "Whole"
         self.timer = vg.Timer(
-            f">>> Now processing '{self.ms.molname}' ({vg.USER_MODE}) in '{str_mode}' mode"
+            f">>> Now processing {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}' in '{str_mode}' mode"
         )
 
 

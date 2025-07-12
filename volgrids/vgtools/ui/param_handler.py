@@ -28,8 +28,8 @@ class ParamHandlerVGTools(vg.ParamHandler):
         if self._has_param_kwds("help") and not self._has_params_pos():
             self._exit_with_help(0)
 
-        vg.USER_MODE = self._safe_get_param_pos(0)
-        func: callable = self._safe_map_value(vg.USER_MODE,
+        vgt.OPERATION = self._safe_get_param_pos(0).lower()
+        func: callable = self._safe_map_value(vgt.OPERATION,
             convert  = self._parse_convert,
             pack     = self._parse_pack,
             unpack   = self._parse_unpack,

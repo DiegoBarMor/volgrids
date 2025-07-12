@@ -41,9 +41,3 @@ ParserConfig(resolve_path("volgrids/config.ini")).apply_config(
     key = "VOLGRIDS", scope = globals(),
     valid_configs = set(__annotations__.keys())
 )
-
-
-######################## COMMAND LINE ARGUMENTS GLOBALS ########################
-### These are global variables that are to be set by
-### an instance of ParamHandler (or its inherited classes)
-USER_MODE: str = '' # mode of the application, e.g. "prot", "rna", "ligand", "convert", "pack", "unpack"...

@@ -6,6 +6,8 @@ from .ui.app import AppVGTools
 ### These are global variables that are to be set by
 ### an instance of ParamHandler (or its inherited classes)
 
+OPERATION: str = '' # mode of the application, i.e. "convert", "pack", "unpack", "fix_cmap"
+
 from pathlib import Path
 
 ### Convert

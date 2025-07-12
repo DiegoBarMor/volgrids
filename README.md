@@ -223,13 +223,12 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * add annotations, docstrings and overall cleaning
 * try out cavities-finder ideas
 
-## _CORE
+## VGrids
 * implement: raise an error if a format file is opened with the wrong function
 * make a common App class
   * make them responsible of calling ParserConfig.apply_config
   * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 * standard ini files use ; instead of # for comments
-* USER_MODE shouldn't be a global in _core, but defined instead by the other modules when needed
 
 ## SMIFFER
 * maybe: replace the RNDS trimming with a faster method

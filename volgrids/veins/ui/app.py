@@ -42,7 +42,7 @@ class AppVeins(vg.App):
             self.df = self.df[self.df["energy"].abs() > ve.ENERGY_CUTOFF]
 
         self.timer = vg.Timer(
-            f">>> Now processing '{self.ms.molname}' ({vg.USER_MODE})"
+            f">>> Now processing '{self.ms.molname}' ({ve.MODE})"
         )
 
 

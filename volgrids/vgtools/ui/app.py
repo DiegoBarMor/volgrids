@@ -7,24 +7,23 @@ class AppVGTools(vg.App):
 
     # --------------------------------------------------------------------------
     def run(self):
-        mode = vg.USER_MODE.lower()
-        if mode == "convert":
+        if vgt.OPERATION == "convert":
             self._run_convert()
             return
 
-        if mode == "pack":
+        if vgt.OPERATION == "pack":
             self._run_pack()
             return
 
-        if mode == "unpack":
+        if vgt.OPERATION == "unpack":
             self._run_unpack()
             return
 
-        if mode == "fix_cmap":
+        if vgt.OPERATION == "fix_cmap":
             self._run_fix_cmap()
             return
 
-        raise ValueError(f"Unknown mode: {mode}")
+        raise ValueError(f"Unknown mode: {vgt.OPERATION}")
 
 
     # --------------------------------------------------------------------------

@@ -8,6 +8,8 @@ from .ui.app import AppVeins
 ### These are global variables that are to be set by
 ### an instance of ParamHandler (or its inherited classes)
 
+MODE: str = '' # mode of the application, i.e. "energies"
+
 from pathlib import Path
 PATH_STRUCTURE:    Path = None # "path/input/structure.pdb"
 PATH_ENERGIES_CSV: Path = None # "path/input/energies.csv"
