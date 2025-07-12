@@ -1,7 +1,7 @@
 import re
 from collections import defaultdict
 
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # ------------------------------------------------------------------------------
 def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, bool]:

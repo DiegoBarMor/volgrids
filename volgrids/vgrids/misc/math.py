@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import interpolate
 
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class Math:

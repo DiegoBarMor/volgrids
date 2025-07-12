@@ -1,7 +1,7 @@
+from .misc.grid_ve import GridVolumetricEnergy
+
 from .ui.param_handler import ParamHandlerVeins
 from .ui.app import AppVeins
-
-from .grid_ve import GridVolumetricEnergy
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################

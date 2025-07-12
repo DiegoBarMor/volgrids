@@ -4,7 +4,7 @@ import gridData as gd
 from pathlib import Path
 from enum import Enum, auto
 
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridFormat(Enum):

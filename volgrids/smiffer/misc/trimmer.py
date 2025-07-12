@@ -1,6 +1,6 @@
 import numpy as np
 
-import volgrids as vg
+import volgrids.vgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////

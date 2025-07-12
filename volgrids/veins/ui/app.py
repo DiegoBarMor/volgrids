@@ -1,6 +1,6 @@
 import pandas as pd
 
-import volgrids as vg
+import volgrids.vgrids as vg
 import volgrids.veins as ve
 
 # ------------------------------------------------------------------------------

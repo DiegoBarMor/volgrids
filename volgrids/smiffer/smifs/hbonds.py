@@ -1,7 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
-import volgrids as vg
+import volgrids.vgrids as vg
 import volgrids.smiffer as sm
 
 def _str_prev_residue(res):

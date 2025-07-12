@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from collections import defaultdict
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # ------------------------------------------------------------------------------
 def visualize_scores(path_csv: Path):

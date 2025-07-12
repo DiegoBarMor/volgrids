@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridVolumetricEnergy(vg.Grid):

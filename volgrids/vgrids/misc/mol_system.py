@@ -2,7 +2,7 @@ import numpy as np
 import MDAnalysis as mda
 from pathlib import Path
 
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class MolSystem:

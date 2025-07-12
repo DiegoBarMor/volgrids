@@ -1,6 +1,6 @@
 import numpy as np
 
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # ------------------------------------------------------------------------------
 def _clamp_indices(g_idx0, g_idx1, k_idx0, k_idx1, g_res, k_res):

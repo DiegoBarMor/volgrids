@@ -1,7 +1,7 @@
 import numpy as np
 from pathlib import Path
 
-import volgrids as vg
+import volgrids.vgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class Grid:

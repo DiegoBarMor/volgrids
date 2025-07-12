@@ -1,3 +1,6 @@
+from .misc.mol_system import MolType, MolSystemSmiffer
+from .misc.trimmer import Trimmer
+
 from .parsers.chem_table import ChemTable
 
 from .smifs.smif import Smif
@@ -8,9 +11,6 @@ from .smifs.stacking import SmifStacking
 
 from .ui.param_handler import ParamHandlerSmiffer
 from .ui.app import AppSmiffer
-
-from .mol_system import MolType, MolSystemSmiffer
-from .trimmer import Trimmer
 
 
 ############################# CONFIG FILE GLOBALS ##############################
@@ -76,10 +76,10 @@ GAUSSIAN_KERNEL_SIGMAS: int
 
 
 import numpy as _np
-import volgrids as _vg
+import volgrids.vgrids as _vg
 
 import numpy as np # [TODO] move these lines
-import volgrids as vg
+import volgrids.vgrids as vg
 _vg.ParserConfig(_vg.resolve_path("volgrids/config.ini")).apply_config(
     key = "SMIFFER", scope = globals(),
     valid_configs = set(__annotations__.keys())

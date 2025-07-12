@@ -1,20 +1,20 @@
-from ._core.grid import Grid
-from ._core.math import Math
-from ._core.mol_system import MolSystem
-from ._core.utils import Timer, resolve_path
-
-from ._core.kernels.kernel import Kernel
-from ._core.kernels.boolean import \
+from .kernels.kernel import Kernel
+from .kernels.boolean import \
     KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut
-from ._core.kernels.gaussian import \
+from .kernels.gaussian import \
     KernelGaussianUnivariate, KernelGaussianMultivariate
 
-from ._core.parsers.parser_ini import ParserIni
-from ._core.parsers.parser_config import ParserConfig
-from ._core.parsers.grid_io import GridFormat, GridIO
+from .misc.grid import Grid
+from .misc.math import Math
+from .misc.mol_system import MolSystem
+from .misc.utils import Timer, resolve_path
 
-from ._core.ui.param_handler import ParamHandler
-from ._core.ui.app import App
+from .parsers.parser_ini import ParserIni
+from .parsers.parser_config import ParserConfig
+from .parsers.grid_io import GridFormat, GridIO
+
+from .ui.param_handler import ParamHandler
+from .ui.app import App
 
 
 ############################# CONFIG FILE GLOBALS ##############################

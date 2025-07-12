@@ -2,7 +2,7 @@ import numpy as np
 from pathlib import Path
 from enum import Enum, auto
 
-import volgrids as vg
+import volgrids.vgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
