@@ -7,7 +7,7 @@ import volgrids.smiffer as sm
 class SmifAPBS(sm.Smif):
     # --------------------------------------------------------------------------
     def populate_grid(self):
-        _,apbs = vg.GridIO.read_auto(sm.PATH_APBS)
+        apbs = vg.GridIO.read_auto(sm.PATH_APBS)
         apbs.reshape(
             new_min = (self.xmin, self.ymin, self.zmin),
             new_max = (self.xmax, self.ymax, self.zmax),

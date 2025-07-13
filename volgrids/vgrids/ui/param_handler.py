@@ -6,9 +6,6 @@ from abc import ABC, abstractmethod
 class ParamHandler(ABC):
 
     def __init__(self, *params_pos: str, **params_kwd: list[str]):
-        if not (params_pos or params_kwd):
-            raise ValueError("No parameters have been provided to the ParamHandler.")
-
         self._params_pos = params_pos
         self._params_kwd = params_kwd
         self._help_str: str = ""
@@ -67,7 +64,8 @@ class ParamHandler(ABC):
 
     # --------------------------------------------------------------------------
     def _exit_with_help(self, exit_code: int, err_msg: str = '') -> None:
-        print(f"{self._help_str}\n\nError: {err_msg}")
+        error = f"\n\nError: {err_msg}" if err_msg else ''
+        print(f"{self._help_str}{error}")
         exit(exit_code)
 
 

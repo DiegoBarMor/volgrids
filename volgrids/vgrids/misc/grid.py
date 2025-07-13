@@ -15,6 +15,7 @@ class Grid:
         if dtype is None: dtype = vg.FLOAT_DTYPE
         self.grid = np.zeros(ms.resolution, dtype = dtype) if init_grid else None
         self.dtype = dtype
+        self.fmt: vg.GridFormat = None
 
 
     # --------------------------------------------------------------------------

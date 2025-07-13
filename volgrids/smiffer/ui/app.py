@@ -127,8 +127,8 @@ class AppSmiffer(vg.App):
         if sm.PATH_CONFIG is None: return
 
         config = vg.ParserConfig(sm.PATH_CONFIG)
-        if config.has("VOLGRIDS"): config.apply_config(
-            key = "VOLGRIDS", scope = vg.__dict__,
+        if config.has("VGRIDS"): config.apply_config(
+            key = "VGRIDS", scope = vg.__dict__,
             valid_configs = set(vg.__annotations__.keys()),
             all_configs_mandatory = False
         )

@@ -28,6 +28,7 @@ class GridIO:
         )
         obj = vg.Grid(ms, init_grid = False)
         obj.grid = parser_dx.grid
+        obj.fmt = vg.GridFormat.DX
         return obj
 
 
@@ -39,7 +40,9 @@ class GridIO:
             orig = parser.header["origin"]
             used_origin = np.array([orig['x'], orig['y'], orig['z']])
 
-        return _read_mrc_ccp4(path_mrc, used_origin)
+        obj = _read_mrc_ccp4(path_mrc, used_origin)
+        obj.fmt = vg.GridFormat.MRC
+        return obj
 
 
     # --------------------------------------------------------------------------
@@ -59,7 +62,9 @@ class GridIO:
                 ##### assume the origin follows the "real space" MRC convention, so use that one
                 used_origin = np.array([orig['x'], orig['y'], orig['z']])
 
-        return _read_mrc_ccp4(path_ccp4, used_origin)
+        obj = _read_mrc_ccp4(path_ccp4, used_origin)
+        obj.fmt = vg.GridFormat.CCP4
+        return obj
 
 
     # --------------------------------------------------------------------------
@@ -77,6 +82,10 @@ class GridIO:
             )
             obj = vg.Grid(ms, init_grid = False)
             obj.grid = frame["data_zyx"][()].transpose(2,1,0)
+
+            n_keys = len(parser["Chimera"].keys())
+            obj.fmt = vg.GridFormat.CMAP_PACKED \
+                if (n_keys > 1) else vg.GridFormat.CMAP
         return obj
 
 
@@ -215,24 +224,24 @@ class GridIO:
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ OTHER I/O UTILITIES
     @staticmethod
-    def read_auto(path_grid: Path) -> tuple[GridFormat, "vg.Grid"]:
+    def read_auto(path_grid: Path) -> "vg.Grid":
         """Detect the format of the grid file based on its extension and then read it."""
         ext = path_grid.suffix.lower()
 
         # [TODO] improve the format detection?
         if ext == ".dx":
-            return GridFormat.DX, GridIO.read_dx(path_grid)
+            return GridIO.read_dx(path_grid)
 
         if ext == ".mrc":
-            return GridFormat.MRC, GridIO.read_mrc(path_grid)
+            return GridIO.read_mrc(path_grid)
 
         if ext == ".ccp4":
-            return GridFormat.CCP4, GridIO.read_ccp4(path_grid)
+            return GridIO.read_ccp4(path_grid)
 
         if ext == ".cmap":
             keys = GridIO.get_cmap_keys(path_grid)
             if not keys: raise ValueError(f"Empty cmap file: {path_grid}")
-            return GridFormat.CMAP, GridIO.read_cmap(path_grid, keys[0])
+            return GridIO.read_cmap(path_grid, keys[0])
 
         raise ValueError(f"Unrecognized file format: {ext}")
 

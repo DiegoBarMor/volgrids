@@ -38,6 +38,6 @@ USE_FIXED_DELTAS: bool
 
 import numpy as np  # [TODO] move these lines
 ParserConfig(resolve_path("volgrids/config.ini")).apply_config(
-    key = "VOLGRIDS", scope = globals(),
+    key = "VGRIDS", scope = globals(),
     valid_configs = set(__annotations__.keys())
 )

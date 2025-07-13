@@ -1,6 +1,8 @@
 from .ui.param_handler import ParamHandlerVGTools
 from .ui.app import AppVGTools
 
+from .misc.operations import VGOperations
+
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by
