@@ -131,8 +131,8 @@ A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [thi
 | APBS -          | Red        | 1,0,0      | 255,0,0    | FF0000 |
 | Hydrophobic (+) | Yellow     | 1,1,0      | 255,255,0  | FFFF00 |
 | Hydrophilic (-) | Light Blue | 0.3,0.85,1 | 77,217,255 | 4DD9FF |
-| HB Acceptors    | Orange     | 1,0.5,0    | 255,128,0  | FF8000 |
-| HB Donors       | Violet     | 0.7,0,1    | 179,0,255  | B300FF |
+| HB Donors       | Orange     | 1,0.5,0    | 255,128,0  | FF8000 |
+| HB Acceptors    | Violet     | 0.7,0,1    | 179,0,255  | B300FF |
 | Stacking        | Green      | 0,1,0      | 0,255,0    | 00FF00 |
 
 

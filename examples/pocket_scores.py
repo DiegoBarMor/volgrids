@@ -15,6 +15,17 @@ def visualize_scores(path_csv: Path):
         if total == 0: continue
         df.iloc[i, 1:] = row[1:] / total
 
+    ##### sort the pdbs
+    prots = ["1bg0","1eby","1ehe","1h7l","1iqj","1ofz","3dd0","3ee4","5m9w","6e9a"]
+    nucls = ["1akx","1i9v","2esj","4f8u","5bjo","5kx9","6tf3","7oax0","7oax1","8eyv"]
+    def func_sort(pdb):
+        if pdb in prots: return (0, prots.index(pdb))
+        if pdb in nucls: return (1, nucls.index(pdb))
+        raise ValueError(f"Unknown PDB {pdb}")
+
+    df.sort_values(by = "pdb", key = lambda x: x.map(func_sort), inplace = True)
+
+    ###### create the barplot
     df["apbs-pos"]    += df["apbs-neg"]    # move every column "up"
     df["hydrophilic"] += df["apbs-pos"]    # so that the consecutive barplots stack on top of each other
     df["hydrophobic"] += df["hydrophilic"] # note that the barplots must be plotted in the reverse order
@@ -23,16 +34,27 @@ def visualize_scores(path_csv: Path):
     df["stacking"]    += df["hbdonors"]
 
     sns.barplot(data = df, x = "pdb", y = "stacking",    color = "#00FF00", label = "stacking")
-    sns.barplot(data = df, x = "pdb", y = "hbdonors",    color = "#B300FF", label = "hbdonors")
-    sns.barplot(data = df, x = "pdb", y = "hbacceptors", color = "#FF8000", label = "hbacceptors")
+    sns.barplot(data = df, x = "pdb", y = "hbdonors",    color = "#FF8000", label = "hbdonors")
+    sns.barplot(data = df, x = "pdb", y = "hbacceptors", color = "#B300FF", label = "hbacceptors")
     sns.barplot(data = df, x = "pdb", y = "hydrophobic", color = "#FFFF00", label = "hydrophobic")
     sns.barplot(data = df, x = "pdb", y = "hydrophilic", color = "#4DD9FF", label = "hydrophilic")
     sns.barplot(data = df, x = "pdb", y = "apbs-pos",    color = "#0000FF", label = "apbs-pos")
     sns.barplot(data = df, x = "pdb", y = "apbs-neg",    color = "#FF0000", label = "apbs-neg")
 
-    plt.xticks(rotation = 90)
-    plt.xlabel("PDB")
-    plt.ylabel("score / score_sum")
+    sns.move_legend(
+        plt.gca(), "upper left", bbox_to_anchor = (0., .98, 1., .102),
+        fontsize = 16, frameon = False, ncol = 7, mode = "expand",
+        # title = "SMIFs",
+    )
+    # plt.title("Pocket scores for different PDBs", fontsize = 18)
+    plt.xlabel("PDB", fontsize = 18)
+    plt.ylabel(r"$\frac{score_{smif}}{score_{total}}$", fontsize = 24)
+    plt.xticks(fontsize = 14, rotation = 90)
+    plt.yticks(fontsize = 14)
+
+    # plt.tight_layout()
+
+    # plt.savefig(path_csv.with_suffix(".png"))
     plt.show()
 
 
@@ -109,7 +131,7 @@ class PocketScoreCalculator:
         # score = np.abs(sum_ps) / (maximum_abs * volume) if maximum_abs > 0 else 0
 
         ##### Option 3: SMIF integral of the pocket normalized by the integral of the whole grid
-        score = np.abs(sum_ps) / np.abs(sum_wh) if np.abs(sum_wh) > 0 else 0
+        score = (np.abs(sum_ps) / np.abs(sum_wh)) if np.abs(sum_wh) > 0 else 0
 
 
         self.data_scores[smif_kind].append(score)
