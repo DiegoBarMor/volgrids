@@ -1,6 +1,7 @@
 #!/bin/bash
 set -eu
 
+folder_env="testdata/env"
 folder_smiffer="testdata/smiffer"
 folder_vgtools="testdata/vgtools"
 
@@ -14,7 +15,7 @@ folder04u="$folder_vgtools/unpacking"
 folder04f="$folder_vgtools/fix_cmap"
 folder05="$folder_smiffer/ligand"
 
-rm -rf $folder00 $folder01 $folder02
+rm -rf $folder_env $folder00 $folder01 $folder02
 rm  -f $folder03/*.cmap
 
 rm -f $folder04c/dx* $folder04c/mrc* $folder04c/ccp4* $folder04c/cmap*

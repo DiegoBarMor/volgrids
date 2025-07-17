@@ -36,19 +36,19 @@ path_cmap_to_mrc="$fc/cmap-mrc.mrc"
 path_cmap_to_ccp4="$fc/cmap-ccp4.ccp4"
 path_cmap_to_cmap="$fc/cmap-cmap.cmap"
 
-python3 vgtools.py convert "$path_dx_input"   \
+python3 run/vgtools.py convert "$path_dx_input"   \
     --dx "$path_dx_to_dx"       --mrc "$path_dx_to_mrc"   \
     --ccp4 "$path_dx_to_ccp4"   --cmap "$path_dx_to_cmap"
 
-python3 vgtools.py convert "$path_mrc_input"  \
+python3 run/vgtools.py convert "$path_mrc_input"  \
     --dx "$path_mrc_to_dx"      --mrc "$path_mrc_to_mrc"  \
     --ccp4 "$path_mrc_to_ccp4"  --cmap "$path_mrc_to_cmap"
 
-python3 vgtools.py convert "$path_ccp4_input" \
+python3 run/vgtools.py convert "$path_ccp4_input" \
     --dx "$path_ccp4_to_dx"     --mrc "$path_ccp4_to_mrc" \
     --ccp4 "$path_ccp4_to_ccp4" --cmap "$path_ccp4_to_cmap"
 
-python3 vgtools.py convert "$path_cmap_input" \
+python3 run/vgtools.py convert "$path_cmap_input" \
     --dx "$path_cmap_to_dx"     --mrc "$path_cmap_to_mrc" \
     --ccp4 "$path_cmap_to_ccp4" --cmap "$path_cmap_to_cmap"
 
@@ -59,15 +59,15 @@ paths_in="$fp/2esj.hba.mrc $fp/2esj.hbd.mrc $fp/2esj.phi.mrc $fp/2esj.pho.mrc $f
 path_out="$fp/2esj.cmap"
 
 # shellcheck disable=SC2086
-python3 vgtools.py pack -i $paths_in -o "$path_out"
+python3 run/vgtools.py pack -i $paths_in -o "$path_out"
 
 
 ############################# UNPACKING
 path_in="$fu/1iqj.cmap"
-python3 vgtools.py unpack -i "$path_in"
+python3 run/vgtools.py unpack -i "$path_in"
 
 
 ############################# FIX CMAP
 path_in="$ff/hbdonors.issue.cmap"
 path_out="$ff/hbdonors.fixed.cmap"
-python3 vgtools.py fix_cmap -i "$path_in" -o "$path_out"
+python3 run/vgtools.py fix_cmap -i "$path_in" -o "$path_out"

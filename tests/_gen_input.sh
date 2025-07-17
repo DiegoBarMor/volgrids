@@ -15,8 +15,8 @@ fframes="$fdata/_example_frames"
 rm -rf $fpdb_nosolv $fapbs
 mkdir -p $fpdb_nosolv $fapbs
 
-tmp_pyscript=$fdata/remove_solvent.tmp.py
-cat > $tmp_pyscript <<- EOM
+tmp_py=$fdata/remove_solvent.tmp.py
+cat > $tmp_py <<- EOM
 import sys
 import MDAnalysis as mda
 from pathlib import Path
@@ -28,12 +28,12 @@ for name in benchmark_prots: remove_solv(folder_in / f"{name}.pdb", folder_out /
 for name in benchmark_rnas:  remove_solv(folder_in / f"{name}.pdb", folder_out / f"{name}.pdb", "nucleic")
 EOM
 echo "Removing solvent from PDB files..."
-python3 -W ignore $tmp_pyscript $fpdb_orig $fpdb_nosolv
-rm -f $tmp_pyscript
+python3 -W ignore $tmp_py $fpdb_orig $fpdb_nosolv
+rm -f $tmp_py
 
 names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
 for name in "${names[@]}"; do
-    bash run_apbs.sh "$fpdb_nosolv/$name.pdb" $fapbs
+    bash run/apbs.sh "$fpdb_nosolv/$name.pdb" $fapbs
 done
 
 
@@ -59,7 +59,7 @@ tmp_config_smifs=$fvgtools/smifs.config
 
 cat > $tmp_config_dx <<- EOM
 [VGRIDS]
-OUTPUT_FORMAT=GridFormat.DX
+OUTPUT_FORMAT=vg.GridFormat.DX
 [SMIFFER]
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
@@ -71,7 +71,7 @@ EOM
 
 cat > $tmp_config_mrc <<- EOM
 [VGRIDS]
-OUTPUT_FORMAT=GridFormat.MRC
+OUTPUT_FORMAT=vg.GridFormat.MRC
 [SMIFFER]
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
@@ -83,7 +83,7 @@ EOM
 
 cat > $tmp_config_ccp4 <<- EOM
 [VGRIDS]
-OUTPUT_FORMAT=GridFormat.CCP4
+OUTPUT_FORMAT=vg.GridFormat.CCP4
 [SMIFFER]
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
@@ -95,7 +95,7 @@ EOM
 
 cat > $tmp_config_cmap <<- EOM
 [VGRIDS]
-OUTPUT_FORMAT=GridFormat.CMAP
+OUTPUT_FORMAT=vg.GridFormat.CMAP
 [SMIFFER]
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
@@ -107,7 +107,7 @@ EOM
 
 cat > $tmp_config_smifs <<- EOM
 [VGRIDS]
-OUTPUT_FORMAT=GridFormat.MRC
+OUTPUT_FORMAT=vg.GridFormat.MRC
 [SMIFFER]
 DO_SMIF_HBA=True
 DO_SMIF_HBD=True
@@ -121,10 +121,10 @@ EOM
 
 ############################# CONVERSIONS
 # shellcheck disable=SC2086
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_dx
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_mrc
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_ccp4
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_cmap
+python3 run/smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_dx
+python3 run/smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_mrc
+python3 run/smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_ccp4
+python3 run/smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_cmap
 
 mv $fc/1iqj.stacking.dx   $fc/1iqj.stk.dx
 mv $fc/1iqj.stacking.mrc  $fc/1iqj.stk.mrc
@@ -134,7 +134,7 @@ mv $fc/1iqj.stacking.cmap $fc/1iqj.stk.cmap
 
 ############################# PACKING
 # shellcheck disable=SC2086
-python3 smiffer.py rna $fpdb_nosolv/2esj.pdb -o $fp -rxyz 15.708 21.865 -6.397 16.946 --config $tmp_config_smifs
+python3 run/smiffer.py rna $fpdb_nosolv/2esj.pdb -o $fp -rxyz 15.708 21.865 -6.397 16.946 --config $tmp_config_smifs
 
 mv $fp/2esj.hbacceptors.mrc $fp/2esj.hba.mrc
 mv $fp/2esj.hbdonors.mrc    $fp/2esj.hbd.mrc
@@ -145,10 +145,10 @@ mv $fp/2esj.stacking.mrc    $fp/2esj.stk.mrc
 
 ############################# UNPACKING
 # shellcheck disable=SC2086
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fu -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_smifs
+python3 run/smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fu -rxyz 14.675 4.682 21.475 7.161 --config $tmp_config_smifs
 
 cd $fu
-python3 ../../../vgtools.py pack \
+python3 ../../../run/vgtools.py pack \
     -i 1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc \
     -o 1iqj.cmap
 cd ../../..
@@ -157,7 +157,7 @@ rm -f $fu/1iqj.*.mrc
 
 
 ############################# FIX CMAP
-python3 vgtools.py pack -i \
+python3 run/vgtools.py pack -i \
     $fframes/smiffer_126.hbdonors.cmap $fframes/smiffer_142.hbdonors.cmap \
     $fframes/smiffer_3.hbdonors.cmap   $fframes/smiffer_127.hbdonors.cmap \
     $fframes/smiffer_32.hbdonors.cmap  $fframes/smiffer_50.hbdonors.cmap  \

@@ -11,9 +11,10 @@ setup(
     author_email="diegobarmor42@gmail.com",
     url="https://github.com/diegobarmor/volgrids",
     license="MIT",
-    packages=find_packages(),
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
     package_data={
-        "volgrids": ["config.ini", "smiffer/tables/*"],
+        "volgrids": ["config.ini", "_data/*"],
     },
     install_requires=[],
     classifiers=[
