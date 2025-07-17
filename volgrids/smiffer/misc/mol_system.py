@@ -20,6 +20,9 @@ class MolSystemSmiffer(vg.MolSystem):
         self.chemtable = sm.ChemTable(self._get_path_table())
         self._init_attrs_from_molecules(path_struct, path_traj)
 
+        if sm.USE_STRUCTURE_HYDROGENS:
+            self.system.guess_TopologyAttrs(to_guess = ["bonds"])
+
 
     # --------------------------------------------------------------------------
     def get_relevant_atoms(self):

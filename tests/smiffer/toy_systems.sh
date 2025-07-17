@@ -12,7 +12,7 @@ cp "$fpdb"/*.pdb "$fout/"
 cp "$fpdb/ribose_gua.pdb" "$fout/ribose_gua_H.pdb"
 
 python3 smiffer.py prot $fout/peptide.pdb      -o $fout
-python3 smiffer.py prot $fout/peptide_H.pdb    -o $fout
+python3 smiffer.py prot $fout/peptide_H.pdb    -o $fout --protonated
 python3 smiffer.py rna  $fout/guanine.pdb      -o $fout
 python3 smiffer.py rna  $fout/ribose_gua.pdb   -o $fout
 python3 smiffer.py rna  $fout/ribose_gua_H.pdb -o $fout

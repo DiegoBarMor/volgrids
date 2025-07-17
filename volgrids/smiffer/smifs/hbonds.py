@@ -18,6 +18,9 @@ def _safe_return_coords(atomgroup, sel_string):
     if len(atoms) == 0: return None
     return atoms.center_of_geometry()
 
+def _get_direction_vector(vec_origin, vec_head):
+    return vg.Math.normalize(vec_head - vec_origin)
+
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBonds(sm.Smif, ABC):
@@ -28,10 +31,10 @@ class SmifHBonds(sm.Smif, ABC):
         self.init_kernel()
 
         self.kernel.link_to_grid(self.grid, self.ms.minCoords)
-        for pos_antecedent, pos_atom_hbond in self.iter_particles():
-            direction = vg.Math.normalize(pos_atom_hbond - pos_antecedent)
+        for pos_antecedent, pos_interactor in self.iter_particles():
+            direction = _get_direction_vector(vec_origin = pos_antecedent, vec_head = pos_interactor)
             self.kernel.recalculate_kernel(direction, **self.kernel_args)
-            self.kernel.stamp(pos_atom_hbond, multiplication_factor = sm.ENERGY_SCALE)
+            self.kernel.stamp(pos_interactor, multiplication_factor = sm.ENERGY_SCALE)
 
 
     def iter_particles(self):
@@ -44,16 +47,16 @@ class SmifHBonds(sm.Smif, ABC):
             for hbond_triplet in hbond_triplets:
                 if not hbond_triplet: continue  # skip residues without HBond pairs
 
-                name_hbond_atom = hbond_triplet[2]
+                name_interactor = hbond_triplet[2]
 
-                antecedent_pos = self.select_antecedent(res, res_atoms, hbond_triplet)
-                sel_hbond_atom = res_atoms.select_atoms(f"name {name_hbond_atom}")
-                if antecedent_pos is None: continue # skip special cases
+                pos_antecedent = self.select_antecedent(res, res_atoms, hbond_triplet)
+                sel_interactor = res_atoms.select_atoms(f"name {name_interactor}")
+                if pos_antecedent is None: continue # skip special cases
 
-                if not sel_hbond_atom or len(antecedent_pos) == 0: continue # skip residue artifacts
-                hbond_atom_pos = sel_hbond_atom[0].position
+                if not sel_interactor or len(pos_antecedent) == 0: continue # skip residue artifacts
+                pos_interactor = sel_interactor[0].position
 
-                yield antecedent_pos, hbond_atom_pos
+                yield pos_antecedent, pos_interactor
 
 
     @abstractmethod
@@ -69,7 +72,7 @@ class SmifHBonds(sm.Smif, ABC):
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBAccepts(SmifHBonds, ABC):
     def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
-        name_antecedent_0, name_antecedent_1, name_hbond_atom, _ = hbond_triplet
+        name_antecedent_0, name_antecedent_1, name_interactor, _ = hbond_triplet
         atoms = self.ms.get_relevant_atoms()
 
         ##### standard antecedents
@@ -78,7 +81,7 @@ class SmifHBAccepts(SmifHBonds, ABC):
 
         ##### pseudo-antecedents
         ### special case for RNA, needs to check next residue
-        if name_hbond_atom == "O3'":
+        if name_interactor == "O3'":
             return _safe_return_coords(atoms,
                 f"({_str_this_residue(res)} and name {name_antecedent_0}) or" +\
                 f"({_str_next_residue(res)} and name {name_antecedent_1})"
@@ -91,7 +94,7 @@ class SmifHBAccepts(SmifHBonds, ABC):
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBDonors(SmifHBonds, ABC):
     def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
-        name_antecedent_0, name_antecedent_1, name_hbond_atom, do_infer_H = hbond_triplet
+        name_antecedent_0, name_antecedent_1, name_interactor, do_infer_H = hbond_triplet
         atoms = self.ms.get_relevant_atoms()
 
         ##### pseudo-antecedents
@@ -106,7 +109,7 @@ class SmifHBDonors(SmifHBonds, ABC):
             if do_infer_H:
                 atom_ref        = res_atoms.select_atoms(f"name {name_antecedent_0}")
                 atom_antecedent = res_atoms.select_atoms(f"name {name_antecedent_1}")
-                atom_hbond      = res_atoms.select_atoms(f"name {name_hbond_atom  }")
+                atom_hbond      = res_atoms.select_atoms(f"name {name_interactor  }")
                 if len(atom_ref) != 1 or len(atom_antecedent) != 1 or len(atom_hbond) != 1:
                     return
 
@@ -117,12 +120,12 @@ class SmifHBDonors(SmifHBonds, ABC):
 
         ##### standard antecedents
         ## special case for RNA, it's a donor only if there is no next residue
-        if name_hbond_atom == "O3'":
+        if name_interactor == "O3'":
             sel_next_res = atoms.select_atoms(_str_next_residue(res))
             if len(sel_next_res) > 0: return
 
         ## special case for RNA, it's a donor only if there is no previous residue
-        if name_hbond_atom == "O5'":
+        if name_interactor == "O5'":
             sel_prev_res = atoms.select_atoms(_str_prev_residue(res))
             if len(sel_prev_res) > 0: return
 

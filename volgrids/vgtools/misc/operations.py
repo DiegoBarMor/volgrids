@@ -42,6 +42,7 @@ class VGOperations:
                 warned = True
 
             key = str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
+            # key = path_in.stem
             vg.GridIO.write_cmap(path_out, grid, key)
 
 
