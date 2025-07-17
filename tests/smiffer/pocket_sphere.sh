@@ -2,12 +2,12 @@
 set -eu
 
 echo
-echo ">>> TEST SMIFFER 0: Benchmark, Pocket Sphere mode"
+echo ">>> TEST SMIFFER 1: Benchmark, Pocket Sphere mode"
 
 fapbs="testdata/_input/apbs"
-fpdb="testdata/_input/pdb-original"
+fpdb="testdata/_input/pdb-nosolv"
 fout="testdata/smiffer/pocket_sphere"
-mkdir -p $fout
+rm -rf $fout; mkdir -p $fout
 
 names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
 for name in "${names[@]}"; do
@@ -34,3 +34,8 @@ python3 smiffer.py rna  $fpdb/6tf3.pdb  -o $fout -a $fapbs/6tf3.pdb.mrc  -rxyz 1
 python3 smiffer.py rna  $fpdb/7oax0.pdb -o $fout -a $fapbs/7oax0.pdb.mrc -rxyz 12.179  -16.980   7.444   -4.446
 python3 smiffer.py rna  $fpdb/7oax1.pdb -o $fout -a $fapbs/7oax1.pdb.mrc -rxyz 14.835   10.243  -5.151   -8.194
 python3 smiffer.py rna  $fpdb/8eyv.pdb  -o $fout -a $fapbs/8eyv.pdb.mrc  -rxyz 11.998   -1.612  -8.183   18.333
+
+# cp "$fpdb/2g5k.pdb" "$fout/"
+# cp "$fpdb/2o3v.pdb" "$fout/"
+# python3 smiffer.py rna $fpdb/2g5k.pdb -o $fout -rxyz 15.0 3.476 27.8915 66.1055
+# python3 smiffer.py rna $fpdb/2o3v.pdb -o $fout -rxyz 15.0 0.478 -7.3925 45.962
