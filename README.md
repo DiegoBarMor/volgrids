@@ -175,6 +175,12 @@ coordset stop #1; vseries stop #2
 ```
 Note that this time, the morph can be paused manually with the slider button (is there a command equivalent?)
 
+#### Other useful Chimera commands
+```
+volume level 0.5
+volume transparency 0.5
+```
+
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -203,7 +209,7 @@ Run `python3 veins.py [mode] [path_structure] [path_csv] [options...]` and provi
 <!-- ---------------------------- VOLGRID TOOLS ---------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Volgrid Tools
-Collection of utilities for manipulating DX, MRC and CMAP grids.
+Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
 
 ## Usage
 Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the calculation via arguments.
@@ -226,7 +232,6 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 ## VGrids
 * implement: raise an error if a format file is opened with the wrong function
 * make a common App class
-  * make them responsible of calling ParserConfig.apply_config
   * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 * standard ini files use ; instead of # for comments
 

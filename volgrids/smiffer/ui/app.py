@@ -1,16 +1,20 @@
+import numpy as np
+
 import volgrids.vgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.App):
+    CONFIG_MODULES = {"VGRIDS": vg, "SMIFFER": sm}
     _CLASS_PARAM_HANDLER = sm.ParamHandlerSmiffer
+
     _CLASS_TRIMMER = sm.Trimmer
     _CLASS_MOL_SYSTEM = sm.MolSystemSmiffer
 
     # --------------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._apply_custom_config()
+        self._init_globals()
 
         self.ms: sm.MolSystemSmiffer = self._CLASS_MOL_SYSTEM(sm.PATH_STRUCTURE, sm.PATH_TRAJECTORY)
         self.trimmer: sm.Trimmer = self._CLASS_TRIMMER.init_infer_dists(self.ms)
@@ -43,6 +47,45 @@ class AppSmiffer(vg.App):
             self._process_grids()
 
         self.timer.end()
+
+
+    # --------------------------------------------------------------------------
+    def _import_config_dependencies(self):
+        return {"np": np, "vg": vg}
+
+
+    # --------------------------------------------------------------------------
+    def _init_globals(self):
+        sm.MU_HBA = np.array([sm.MU_ANGLE_HBA, sm.MU_DIST_HBA])
+        sm.COV_HBA = np.array([
+            [sm.SIGMA_ANGLE_HBA**2, 0],
+            [0,  sm.SIGMA_DIST_HBA**2]
+        ])
+        sm.COV_INV_HBA = np.linalg.inv(sm.COV_HBA)
+
+        sm.MU_HBD = np.array([sm.MU_ANGLE_HBD, sm.MU_DIST_HBD])
+        sm.COV_HBD =  np.array([
+            [sm.SIGMA_ANGLE_HBD**2, 0],
+            [0,  sm.SIGMA_DIST_HBD**2]
+        ])
+        sm.COV_INV_HBD = np.linalg.inv(sm.COV_HBD)
+
+        sm.MU_HBD_FIXED = np.array([sm.MU_ANGLE_HBD_FIXED, sm.MU_DIST_HBD_FIXED])
+        sm.COV_HBD_FIXED =  np.array([
+            [sm.SIGMA_ANGLE_HBD_FIXED**2, 0],
+            [0,  sm.SIGMA_DIST_HBD_FIXED**2]
+        ])
+        sm.COV_INV_HBD_FIXED = np.linalg.inv(sm.COV_HBD_FIXED)
+
+        sm.MU_STACKING = np.array([sm.MU_ANGLE_STACKING, sm.MU_DIST_STACKING])
+        sm.COV_STACKING = np.array([
+            [sm.COV_STACKING_00, sm.COV_STACKING_01],
+            [sm.COV_STACKING_10, sm.COV_STACKING_11]
+        ])
+        sm.COV_INV_STACKING = np.linalg.inv(sm.COV_STACKING)
+
+        ### square root of the DIST contribution to sm.COV_STACKING,
+        sm.SIGMA_DIST_STACKING = np.sqrt(sm.COV_STACKING_11)
 
 
     # --------------------------------------------------------------------------
@@ -105,23 +148,6 @@ class AppSmiffer(vg.App):
         grid_hbd = grid_hbdring + grid_hbdcone
         self.trimmer.mask_grid(grid_hbd, key_trimming)
         grid_hbd.save_data(sm.FOLDER_OUT, "hbdonors")
-
-
-    # --------------------------------------------------------------------------
-    def _apply_custom_config(self) -> None:
-        if sm.PATH_CONFIG is None: return
-
-        config = vg.ParserConfig(sm.PATH_CONFIG)
-        if config.has("VGRIDS"): config.apply_config(
-            key = "VGRIDS", scope = vg.__dict__,
-            valid_configs = set(vg.__annotations__.keys()),
-            all_configs_mandatory = False
-        )
-        if config.has("SMIFFER"): config.apply_config(
-            key = "SMIFFER", scope = sm.__dict__,
-            valid_configs = set(sm.__annotations__.keys()),
-            all_configs_mandatory = False
-        )
 
 
 # //////////////////////////////////////////////////////////////////////////////

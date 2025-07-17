@@ -15,6 +15,7 @@ def _assert_df(df: pd.DataFrame, *cols_metadata):
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppVeins(vg.App):
+    CONFIG_MODULES = {"VGRIDS": vg}
     _CLASS_PARAM_HANDLER = ve.ParamHandlerVeins
 
     # --------------------------------------------------------------------------
@@ -65,6 +66,12 @@ class AppVeins(vg.App):
             self._process_grids()
 
         self.timer.end()
+
+
+    # --------------------------------------------------------------------------
+    def _import_config_dependencies(self):
+        import numpy as np
+        return {"np": np, "vg": vg}
 
 
     # --------------------------------------------------------------------------

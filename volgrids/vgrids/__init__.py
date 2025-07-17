@@ -35,9 +35,12 @@ GRID_ZRES: int
 EXTRA_BOX_SIZE: int
 USE_FIXED_DELTAS: bool
 
+__config_keys__ = set(__annotations__.keys())
 
-import numpy as np  # [TODO] move these lines
-ParserConfig(resolve_path("volgrids/config.ini")).apply_config(
-    key = "VGRIDS", scope = globals(),
-    valid_configs = set(__annotations__.keys())
-)
+
+######################## COMMAND LINE ARGUMENTS GLOBALS ########################
+### These are global variables that are to be set by
+### an instance of ParamHandler (or its inherited classes)
+
+import pathlib as _pathlib
+PATH_CUSTOM_CONFIG: _pathlib.Path = None # "path/input/globals.ini"

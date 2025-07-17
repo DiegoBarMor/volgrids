@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="volgrids",
     version="0.1.0",
-    description="Beta version of the SMIFFER tool",
+    description="Framework for volumetric calculations, with emphasis in biological molecular systems.",
     keywords="grid",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

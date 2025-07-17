@@ -3,6 +3,7 @@ import volgrids.vgtools as vgt
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppVGTools(vg.App):
+    CONFIG_MODULES = {"VGRIDS": vg}
     _CLASS_PARAM_HANDLER = vgt.ParamHandlerVGTools
 
     # --------------------------------------------------------------------------
@@ -27,6 +28,12 @@ class AppVGTools(vg.App):
             return
 
         raise ValueError(f"Unknown mode: {vgt.OPERATION}")
+
+
+    # --------------------------------------------------------------------------
+    def _import_config_dependencies(self):
+        import numpy as np
+        return {"np": np, "vg": vg}
 
 
     # --------------------------------------------------------------------------

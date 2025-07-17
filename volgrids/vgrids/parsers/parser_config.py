@@ -3,25 +3,25 @@ import volgrids.vgrids as vg
 # //////////////////////////////////////////////////////////////////////////////
 class ParserConfig(vg.ParserIni):
     def apply_config(self,
-        key: str, scope: dict[str, ], valid_configs = set[str],
-        all_configs_mandatory: bool = True
+        section: str, scope_module: dict[str, ], scope_dependencies: dict[str, ],
+        valid_config_keys: set[str], all_configs_mandatory: bool = True
     ) -> None:
         """
         Applies the configuration to the provided global dictionary.
         """
 
-        if not self.has(key):
-            raise ValueError(f"Configuration file does not contain [{key}] section (case sensitive).")
+        if not self.has(section):
+            raise ValueError(f"Configuration file does not contain [{section}] section (case sensitive).")
 
-        for k, value in self.iter_splitted_lines(key):
+        for k, value in self.iter_splitted_lines(section):
             k = k.upper()
-            if k not in valid_configs:
-                raise ValueError(f"Unknown configuration for [{key}]: {k}.")
-            scope[k.upper()] = self._parse_str(scope, value)
-            valid_configs.remove(k)
+            if k not in valid_config_keys:
+                raise ValueError(f"Unknown configuration for [{section}]: {k}.")
+            scope_module[k.upper()] = self._parse_str(scope_dependencies, value)
+            valid_config_keys.remove(k)
 
-        if all_configs_mandatory and valid_configs:
-            raise ValueError(f"Configuration keys not set: {', '.join(valid_configs)}.")
+        if all_configs_mandatory and valid_config_keys:
+            raise ValueError(f"Configuration keys not set: {', '.join(valid_config_keys)}.")
 
 
     # --------------------------------------------------------------------------

@@ -74,66 +74,42 @@ COV_STACKING_11:   float
 
 GAUSSIAN_KERNEL_SIGMAS: int
 
-
-import numpy as _np
-import volgrids.vgrids as _vg
-
-import numpy as np # [TODO] move these lines
-import volgrids.vgrids as vg
-_vg.ParserConfig(_vg.resolve_path("volgrids/config.ini")).apply_config(
-    key = "SMIFFER", scope = globals(),
-    valid_configs = set(__annotations__.keys())
-)
+__config_keys__ = set(__annotations__.keys())
 
 
 ############################### NUMERIC GLOBALS ################################
-MU_HBA = _np.array([MU_ANGLE_HBA, MU_DIST_HBA])
-COV_HBA = _np.array(
-    [[SIGMA_ANGLE_HBA**2, 0],
-     [0,  SIGMA_DIST_HBA**2]]
-)
-COV_INV_HBA = _np.linalg.inv(COV_HBA)
+import numpy as _np
+MU_HBA:      _np.ndarray[float, float]
+COV_HBA:     _np.ndarray
+COV_INV_HBA: _np.ndarray
 
+MU_HBD:      _np.ndarray[float, float]
+COV_HBD:     _np.ndarray
+COV_INV_HBD: _np.ndarray
 
-MU_HBD = _np.array([MU_ANGLE_HBD, MU_DIST_HBD])
-COV_HBD =  _np.array(
-    [[SIGMA_ANGLE_HBD**2, 0],
-     [0,  SIGMA_DIST_HBD**2]]
-)
-COV_INV_HBD = _np.linalg.inv(COV_HBD)
+MU_HBD_FIXED:      _np.ndarray[float, float]
+COV_HBD_FIXED:     _np.ndarray
+COV_INV_HBD_FIXED: _np.ndarray
 
+MU_STACKING:      _np.ndarray[float, float]
+COV_STACKING:     _np.ndarray
+COV_INV_STACKING: _np.ndarray
 
-MU_HBD_FIXED = _np.array([MU_ANGLE_HBD_FIXED, MU_DIST_HBD_FIXED])
-COV_HBD_FIXED =  _np.array(
-    [[SIGMA_ANGLE_HBD_FIXED**2, 0],
-     [0,  SIGMA_DIST_HBD_FIXED**2]]
-)
-COV_INV_HBD_FIXED = _np.linalg.inv(COV_HBD_FIXED)
-
-
-MU_STACKING = _np.array([MU_ANGLE_STACKING, MU_DIST_STACKING])
-COV_STACKING = _np.array(
-    [[COV_STACKING_00, COV_STACKING_01],
-     [COV_STACKING_10, COV_STACKING_11]]
-)
-COV_INV_STACKING = _np.linalg.inv(COV_STACKING)
-
-
-### square root of the DIST contribution to COV_STACKING,
-SIGMA_DIST_STACKING = _np.sqrt(COV_STACKING_11)
+SIGMA_DIST_STACKING: float
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by
 ### an instance of ParamHandler (or its inherited classes)
 
-from pathlib import Path
-PATH_STRUCTURE:  Path = None # "path/input/struct.pdb"
-PATH_TRAJECTORY: Path = None # "path/input/traj.xtc"
-PATH_APBS:       Path = None # "path/input/apbs.pqr.dx"
-PATH_TABLE:      Path = None # "path/input/table.chem"
-PATH_CONFIG:     Path = None # "path/input/globals.ini"
-FOLDER_OUT:      Path = None # "folder/output/"
+import pathlib as _pathlib
+PATH_STRUCTURE:  _pathlib.Path = None # "path/input/struct.pdb"
+PATH_TRAJECTORY: _pathlib.Path = None # "path/input/traj.xtc"
+PATH_APBS:       _pathlib.Path = None # "path/input/apbs.pqr.dx"
+PATH_TABLE:      _pathlib.Path = None # "path/input/table.chem"
+FOLDER_OUT:      _pathlib.Path = None # "folder/output/"
 
 PS_INFO: tuple[float, float, float, float] = None # pocket sphere info: [radius, x, y, z]
 CURRENT_MOLTYPE: MolType = MolType.NONE           # type of the current molecule
+
+USE_STRUCTURE_HYDROGENS = False # whether to use hydrogens from the structure to calculate hbond smifs

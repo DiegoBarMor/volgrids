@@ -8,7 +8,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         "output": ("-o", "--output"),
         "traj"  : ("-t", "--traj"),
         "apbs"  : ("-a", "--apbs"),
-        "pocket": ("-rxyz", "-ps", "--pocket-sphere"),
+        "pocket": ("-rxyz", "--pocket"),
         "table" : ("-b", "--table"),
         "config": ("-c", "--config"),
     }
@@ -38,13 +38,13 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         self._set_help_str(
             f"usage: python3 smiffer.py {mode} [path/input/struct.pdb] [options...]",
             "Available options:",
-            "-h, --help                       Show this help message and exit.",
-            "-o, --output                     Folder path where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
-            "-t, --traj                       File path to a trajectory file (e.g. XTC) supported by MDAnalysis. Activates 'traj' mode: calculate SMIFs for all the frames and save them as a CMAP-series file.",
-            "-a, --apbs                       File path to the output of APBS for the respective structure file (this must be done before). An OpenDX file is expected.",
-            "-b, --table                      File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
-            "-c, --config                     File path to a configuration file with global settings, to override the default settings from config.ini.",
-            "-rxyz", "-ps", "--pocket-sphere  Activate 'pocket sphere' mode by providing the sphere radius and the X, Y, Z coordinates for its center. If not provided, 'whole' mode is assumed.",
+            "-h, --help       Show this help message and exit.",
+            "-o, --output     Folder path where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
+            "-t, --traj       File path to a trajectory file (e.g. XTC) supported by MDAnalysis. Activates 'traj' mode: calculate SMIFs for all the frames and save them as a CMAP-series file.",
+            "-a, --apbs       File path to the output of APBS for the respective structure file (this must be done before). An OpenDX file is expected.",
+            "-b, --table      File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
+            "-c, --config     File path to a configuration file with global settings, to override the default settings from config.ini.",
+            "-rxyz, --pocket  Activate 'pocket sphere' mode by providing the sphere radius and the X, Y, Z coordinates for its center. If not provided, 'whole' mode is assumed.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help(0)
@@ -72,7 +72,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             self._exit_with_help(-1, "No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file.")
 
         if self._has_param_kwds("config"):
-            sm.PATH_CONFIG = self._safe_kwd_file_in("config")
+            vg.PATH_CUSTOM_CONFIG = self._safe_kwd_file_in("config")
 
         if self._has_param_kwds("pocket"):
             params_pocket = self._params_kwd["pocket"]
