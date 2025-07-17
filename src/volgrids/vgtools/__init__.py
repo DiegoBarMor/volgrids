@@ -1,7 +1,8 @@
-from .ui.param_handler import ParamHandlerVGTools
-from .ui.app import AppVGTools
+from ._core.operations import VGOperations
 
-from .misc.operations import VGOperations
+from ._ui.param_handler import ParamHandlerVGTools
+from ._ui.app import AppVGTools
+
 
 __config_keys__ = set(__annotations__.keys())
 

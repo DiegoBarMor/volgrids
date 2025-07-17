@@ -1,16 +1,16 @@
-from .misc.mol_system import MolType, MolSystemSmiffer
-from .misc.trimmer import Trimmer
+from ._core.mol_system import MolType, MolSystemSmiffer
+from ._core.trimmer import Trimmer
 
-from .parsers.chem_table import ChemTable
+from ._parsers.chem_table import ChemTable
 
-from .smifs.smif import Smif
-from .smifs.apbs import SmifAPBS
-from .smifs.hbonds import SmifHBARing, SmifHBDRing, SmifHBDCone
-from .smifs.hydro import SmifHydrophilic, SmifHydrophobic
-from .smifs.stacking import SmifStacking
+from ._smifs.smif import Smif
+from ._smifs.apbs import SmifAPBS
+from ._smifs.hbonds import SmifHBARing, SmifHBDRing, SmifHBDCone
+from ._smifs.hydro import SmifHydrophilic, SmifHydrophobic
+from ._smifs.stacking import SmifStacking
 
-from .ui.param_handler import ParamHandlerSmiffer
-from .ui.app import AppSmiffer
+from ._ui.param_handler import ParamHandlerSmiffer
+from ._ui.app import AppSmiffer
 
 
 ############################# CONFIG FILE GLOBALS ##############################

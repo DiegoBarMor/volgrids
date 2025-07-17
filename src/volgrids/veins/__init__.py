@@ -1,7 +1,7 @@
-from .misc.grid_ve import GridVolumetricEnergy
+from ._core.grid_ve import GridVolumetricEnergy
 
-from .ui.param_handler import ParamHandlerVeins
-from .ui.app import AppVeins
+from ._ui.param_handler import ParamHandlerVeins
+from ._ui.app import AppVeins
 
 __config_keys__ = set(__annotations__.keys())
 
