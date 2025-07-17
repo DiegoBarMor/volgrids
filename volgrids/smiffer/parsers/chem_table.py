@@ -25,7 +25,7 @@ def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, bool]:
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class ChemTable():
+class ChemTable:
     def __init__(self, path_table):
         self.parser_ini = vg.ParserIni(path_table)
         self.selection_query: str = ''

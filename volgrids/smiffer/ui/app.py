@@ -4,18 +4,19 @@ import volgrids.smiffer as sm
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.App):
     _CLASS_PARAM_HANDLER = sm.ParamHandlerSmiffer
+    _CLASS_TRIMMER = sm.Trimmer
+    _CLASS_MOL_SYSTEM = sm.MolSystemSmiffer
 
     # --------------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._apply_custom_config()
 
-        self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCTURE, sm.PATH_TRAJECTORY)
-        self.trimmer: sm.Trimmer = None
-
-        str_mode = "PocketSphere" if self.ms.do_ps else "Whole"
+        self.ms: sm.MolSystemSmiffer = self._CLASS_MOL_SYSTEM(sm.PATH_STRUCTURE, sm.PATH_TRAJECTORY)
+        self.trimmer: sm.Trimmer = self._CLASS_TRIMMER.init_infer_dists(self.ms)
         self.timer = vg.Timer(
-            f">>> Now processing {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}' in '{str_mode}' mode"
+            f">>> Now processing {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}'"+\
+            f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
         )
 
 
@@ -46,28 +47,12 @@ class AppSmiffer(vg.App):
 
     # --------------------------------------------------------------------------
     def _process_grids(self):
-        ### Only trim if needed
-        trimming_dists = {}
-        if sm.DO_SMIF_HYDROPHILIC:
-            trimming_dists["small"] = sm.TRIMMING_DIST_SMALL
-
-        if (
-            sm.DO_SMIF_STACKING or
-            sm.DO_SMIF_HBA or sm.DO_SMIF_HBD or
-            sm.DO_SMIF_HYDROPHOBIC or sm.SAVE_TRIMMING_MASK
-        ):
-            trimming_dists["mid"] = sm.TRIMMING_DIST_MID
-
-        if sm.DO_SMIF_APBS:
-            trimming_dists["large"] = sm.TRIMMING_DIST_LARGE
-
-        self.trimmer = sm.Trimmer(self.ms, **trimming_dists)
+        self.trimmer.trim()
 
         if sm.SAVE_TRIMMING_MASK:
             mask = self.trimmer.get_mask("mid")
             reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
             reverse.save_data(sm.FOLDER_OUT, f"trimming")
-
 
         ### Calculate standard SMIF grids
         if sm.DO_SMIF_STACKING:
@@ -106,7 +91,7 @@ class AppSmiffer(vg.App):
     def _calc_smif(self, cls_grid: type, key_trimming: str, title: str) -> "vg.Grid":
         grid: vg.Grid = cls_grid(self.ms)
         grid.populate_grid()
-        self.trimmer.apply_trimming(grid, key_trimming)
+        self.trimmer.mask_grid(grid, key_trimming)
         grid.save_data(sm.FOLDER_OUT, title)
         return grid
 
@@ -118,7 +103,7 @@ class AppSmiffer(vg.App):
         grid_hbdring.populate_grid()
         grid_hbdcone.populate_grid()
         grid_hbd = grid_hbdring + grid_hbdcone
-        self.trimmer.apply_trimming(grid_hbd, key_trimming)
+        self.trimmer.mask_grid(grid_hbd, key_trimming)
         grid_hbd.save_data(sm.FOLDER_OUT, "hbdonors")
 
 

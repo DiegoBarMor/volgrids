@@ -4,7 +4,7 @@ import volgrids.vgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
-class Trimmer():
+class Trimmer:
     KEY_INIT_COMMON_MASK = "mid" # the common mask is initialized by copying this specific mask
 
     def __init__(self, ms: "sm.MolSystemSmiffer", **distances):
@@ -14,17 +14,42 @@ class Trimmer():
         self.common_mask: vg.Grid = None
         self.specific_masks = {k : vg.Grid(ms, dtype = bool) for k in distances.keys()}
 
-        if sm.DO_TRIMMING_OCCUPANCY:
-            self._trim_occupancies()
 
-        if ms.do_ps:
-            self._run_common_mask_operations()
+    # --------------------------------------------------------------------------
+    @classmethod
+    def init_infer_dists(cls, ms: "sm.MolSystemSmiffer") -> "sm.Trimmer":
+        trimming_dists = {}
+        if sm.DO_SMIF_HYDROPHILIC:
+            trimming_dists["small"] = sm.TRIMMING_DIST_SMALL
+
+        if (
+            sm.DO_SMIF_STACKING or
+            sm.DO_SMIF_HBA or sm.DO_SMIF_HBD or
+            sm.DO_SMIF_HYDROPHOBIC or sm.SAVE_TRIMMING_MASK
+        ):
+            trimming_dists["mid"] = sm.TRIMMING_DIST_MID
+
+        if sm.DO_SMIF_APBS:
+            trimming_dists["large"] = sm.TRIMMING_DIST_LARGE
+
+        return cls(ms, **trimming_dists)
 
 
     # --------------------------------------------------------------------------
-    def apply_trimming(self, smif: "vg.Grid", key: str):
-        mask = self.specific_masks[key]
-        smif.grid[mask.grid] = 0
+    def trim(self):
+        if sm.DO_TRIMMING_OCCUPANCY:
+            self._trim_occupancies()
+
+        if self._should_use_common_mask():
+            self._init_common_mask()
+            self._run_common_mask_operations()
+            self._apply_common_mask_to_specific_masks()
+            self._discard_common_mask()
+
+
+    # --------------------------------------------------------------------------
+    def mask_grid(self, smif: "vg.Grid", key: str):
+        smif.grid[self.get_mask(key).grid] = 0
 
 
     # --------------------------------------------------------------------------
@@ -33,9 +58,17 @@ class Trimmer():
 
 
     # --------------------------------------------------------------------------
-    def _run_common_mask_operations(self):
+    def _should_use_common_mask(self) -> bool:
+        return self.ms.do_ps
+
+
+    # --------------------------------------------------------------------------
+    def _init_common_mask(self):
         self.common_mask = self.specific_masks[self.KEY_INIT_COMMON_MASK].copy()
 
+
+    # --------------------------------------------------------------------------
+    def _run_common_mask_operations(self):
         if sm.DO_TRIMMING_FARAWAY:
             self._trim_faraway()
 
@@ -45,8 +78,16 @@ class Trimmer():
         if sm.DO_TRIMMING_RNDS:
             self._trim_rnds()
 
+
+    # --------------------------------------------------------------------------
+    def _apply_common_mask_to_specific_masks(self):
         for mask in self.specific_masks.values():
             mask.grid |= self.common_mask.grid
+
+
+    # --------------------------------------------------------------------------
+    def _discard_common_mask(self):
+        del self.common_mask
         self.common_mask = None
 
 

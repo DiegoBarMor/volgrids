@@ -71,13 +71,7 @@ class MolSystem:
 
         self._infer_box_attributes()
 
-        box_size = self.maxCoords - self.minCoords
-        if vg.USE_FIXED_DELTAS:
-            self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
-            self.resolution = np.round(box_size / self.deltas).astype(int)
-        else:
-            self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES], dtype = int)
-            self.deltas = box_size / self.resolution
+        self._set_deltas_resolution()
 
         self._warning_big_grid()
 
@@ -115,6 +109,17 @@ class MolSystem:
     def _calc_radius_and_cog(self):
         self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
         self.cog = (self.minCoords + self.maxCoords) / 2
+
+
+    # --------------------------------------------------------------------------
+    def _set_deltas_resolution(self):
+        box_size = self.maxCoords - self.minCoords
+        if vg.USE_FIXED_DELTAS:
+            self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
+            self.resolution = np.round(box_size / self.deltas).astype(int)
+        else:
+            self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES], dtype = int)
+            self.deltas = box_size / self.resolution
 
 
     # --------------------------------------------------------------------------

@@ -18,40 +18,42 @@ class MolSystemSmiffer(vg.MolSystem):
     def __init__(self, path_struct: Path, path_traj: Path = None):
         self.do_ps = sm.PS_INFO is not None
         self.chemtable = sm.ChemTable(self._get_path_table())
-
         self._init_attrs_from_molecules(path_struct, path_traj)
 
+
+    # --------------------------------------------------------------------------
+    def get_relevant_atoms(self):
         if self.do_ps:
-            radius,xcog,ycog,zcog = sm.PS_INFO
-            self.relevant_atoms = self.system.select_atoms(
+            radius, xcog, ycog, zcog = sm.PS_INFO
+            return self.system.select_atoms(
                 f"{self.chemtable.selection_query} and point {xcog} {ycog} {zcog} {radius}"
             )
-        else:
-            self.relevant_atoms = self.system.select_atoms(self.chemtable.selection_query)
+
+        return self.system.select_atoms(self.chemtable.selection_query)
 
 
     # --------------------------------------------------------------------------
     def get_relevant_atoms_broad(self, trimming_dist):
-        if not self.do_ps:
-            return self.relevant_atoms
+        if self.do_ps:
+            radius, xcog, ycog, zcog = sm.PS_INFO
+            return self.system.select_atoms(
+                f"{self.chemtable.selection_query} and point {xcog} {ycog} {zcog} {radius + trimming_dist}"
+            )
 
-        xcog, ycog, zcog = self.cog
-        return self.system.select_atoms(
-            f"{self.chemtable.selection_query} and point {xcog} {ycog} {zcog} {self.radius + trimming_dist}"
-        )
+        return self.system.select_atoms(self.chemtable.selection_query)
 
 
     # --------------------------------------------------------------------------
     def _infer_box_attributes(self):
         if self.do_ps:
-            radius,xcog,ycog,zcog = sm.PS_INFO
+            radius, xcog, ycog, zcog = sm.PS_INFO
             self.cog = np.array([xcog, ycog, zcog])
             self.minCoords = self.cog - radius
             self.maxCoords = self.cog + radius
             self.radius = radius
+            return
 
-        else:
-            super()._infer_box_attributes()
+        super()._infer_box_attributes()
 
 
     # --------------------------------------------------------------------------

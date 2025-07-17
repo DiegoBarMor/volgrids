@@ -35,7 +35,7 @@ class SmifHBonds(sm.Smif, ABC):
 
 
     def iter_particles(self):
-        atoms = self.ms.relevant_atoms
+        atoms = self.ms.get_relevant_atoms()
         for res in atoms.residues:
             res_atoms = atoms.select_atoms(_str_this_residue(res))
             hbond_triplets = self.hbond_getter(self.ms.chemtable, res.resname)
@@ -70,7 +70,7 @@ class SmifHBonds(sm.Smif, ABC):
 class SmifHBAccepts(SmifHBonds, ABC):
     def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
         name_antecedent_0, name_antecedent_1, name_hbond_atom, _ = hbond_triplet
-        atoms = self.ms.relevant_atoms
+        atoms = self.ms.get_relevant_atoms()
 
         ##### standard antecedents
         if not name_antecedent_1:
@@ -92,7 +92,7 @@ class SmifHBAccepts(SmifHBonds, ABC):
 class SmifHBDonors(SmifHBonds, ABC):
     def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
         name_antecedent_0, name_antecedent_1, name_hbond_atom, do_infer_H = hbond_triplet
-        atoms = self.ms.relevant_atoms
+        atoms = self.ms.get_relevant_atoms()
 
         ##### pseudo-antecedents
         if name_antecedent_1:

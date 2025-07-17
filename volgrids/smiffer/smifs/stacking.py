@@ -24,7 +24,7 @@ class SmifStacking(sm.Smif):
 
     def iter_particles(self):
         resname_to_ids = defaultdict(set)
-        atoms = self.ms.relevant_atoms
+        atoms = self.ms.get_relevant_atoms()
 
         for a in atoms:
             resname_to_ids[a.resname.upper()].add((a.resid, a.chainID))

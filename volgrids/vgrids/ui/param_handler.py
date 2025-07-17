@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 
 # //////////////////////////////////////////////////////////////////////////////
 class ParamHandler(ABC):
-
     def __init__(self, *params_pos: str, **params_kwd: list[str]):
         self._params_pos = params_pos
         self._params_kwd = params_kwd
@@ -82,8 +81,16 @@ class ParamHandler(ABC):
     # --------------------------------------------------------------------------
     def _safe_idx(self, lst: list, idx: int, err_msg: str) -> str:
         if idx < 0: idx += len(lst)
-        if len(lst) > idx:
-            return lst[idx]
+
+        try:
+            n_elements = len(lst)
+        except TypeError:
+            if idx == 0:
+                return lst
+        else:
+            if idx < n_elements:
+                return lst[idx]
+
         self._exit_with_help(-1, err_msg)
 
 
