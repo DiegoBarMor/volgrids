@@ -5,8 +5,10 @@ from ._parsers.chem_table import ChemTable
 
 from ._smifs.smif import Smif
 from ._smifs.apbs import SmifAPBS
-from ._smifs.hbonds import SmifHBARing, SmifHBDRing, SmifHBDCone
-from ._smifs.hydro import SmifHydrophilic, SmifHydrophobic
+from ._smifs._hbonds.hbaccepts import SmifHBARing
+from ._smifs._hbonds.hbdonors import SmifHBDRing, SmifHBDCone
+from ._smifs._hydro.hydrophilic import SmifHydrophilic
+from ._smifs._hydro.hydrophobic import SmifHydrophobic
 from ._smifs.stacking import SmifStacking
 
 from ._ui.param_handler import ParamHandlerSmiffer

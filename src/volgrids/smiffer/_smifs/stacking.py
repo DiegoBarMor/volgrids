@@ -8,9 +8,9 @@ import volgrids.smiffer as sm
 class SmifStacking(sm.Smif):
     def populate_grid(self):
         radius = sm.MU_STACKING[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_STACKING
-        gk = vg.KernelGaussianMultivariate(radius, self.ms.deltas, vg.FLOAT_DTYPE)
+        kernel = vg.KernelGaussianMultivariate(radius, self.ms.deltas, vg.FLOAT_DTYPE)
 
-        gk.link_to_grid(self.grid, self.ms.minCoords)
+        kernel.link_to_grid(self.grid, self.ms.minCoords)
         for res_atoms in self.iter_particles():
             cog = res_atoms.center_of_geometry()
             a,b,c = res_atoms.positions[:3]
@@ -18,10 +18,11 @@ class SmifStacking(sm.Smif):
             v = vg.Math.normalize(c - a)
             normal = vg.Math.normalize(np.cross(u, v))
 
-            gk.recalculate_kernel(normal, sm.MU_STACKING, sm.COV_INV_STACKING, isStacking = True)
-            gk.stamp(cog, multiplication_factor = sm.ENERGY_SCALE)
+            kernel.recalculate_kernel(normal, sm.MU_STACKING, sm.COV_INV_STACKING, isStacking = True)
+            kernel.stamp(cog, multiplication_factor = sm.ENERGY_SCALE)
 
 
+    # --------------------------------------------------------------------------
     def iter_particles(self):
         resname_to_ids = defaultdict(set)
         atoms = self.ms.get_relevant_atoms()

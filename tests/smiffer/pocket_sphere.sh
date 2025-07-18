@@ -37,5 +37,5 @@ python3 run/smiffer.py rna  $fpdb/8eyv.pdb  -o $fout -a $fapbs/8eyv.pdb.mrc  -rx
 
 # cp "$fpdb/2g5k.pdb" "$fout/"
 # cp "$fpdb/2o3v.pdb" "$fout/"
-# python3 run/smiffer.py rna $fpdb/2g5k.pdb -o $fout -rxyz 15.0 3.476 27.8915 66.1055
-# python3 run/smiffer.py rna $fpdb/2o3v.pdb -o $fout -rxyz 15.0 0.478 -7.3925 45.962
+# python3 run/smiffer.py rna $fpdb/2g5k.pdb -o $fout -rxyz 15.0 3.476 27.8915 66.1055 -a $fapbs/2g5k.pdb.mrc
+# python3 run/smiffer.py rna $fpdb/2o3v.pdb -o $fout -rxyz 15.0 0.478 -7.3925 45.962  -a $fapbs/2o3v.pdb.mrc
