@@ -5,49 +5,38 @@ import volgrids as vg
 import volgrids.smiffer as sm
 
 from .hb import SmifHBonds
-from .utils import safe_return_coords, \
-    str_prev_residue, str_this_residue, str_next_residue
+from .triplet import Triplet
+from .utils import str_prev_residue, str_this_residue, str_next_residue
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBDonors(SmifHBonds, ABC):
-    def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
-        name_antecedent_0, name_antecedent_1, name_interactor, do_infer_H = hbond_triplet
-        atoms = self.ms.get_relevant_atoms()
+    def set_triplet_positions(self, triplet: Triplet, all_atoms, res) -> None:
+        res_atoms = all_atoms.select_atoms(str_this_residue(res))
+        triplet.set_pos_interactor(res_atoms)
+        triplet.set_pos_head(res_atoms)
 
-        ##### pseudo-antecedents
-        if name_antecedent_1:
-            ### special case for terminal aminoacids
-            if hbond_triplet == ("C", "CA", "N", False):
-                return safe_return_coords(atoms,
-                    f"({str_prev_residue(res)} and name C ) or " +\
-                    f"({str_this_residue(res)} and name CA)"
+        ############################### TAIL POSITION
+        ### special cases for protein
+        if sm.CURRENT_MOLTYPE == sm.MolType.PROT:
+            if triplet.interactor_is("N"): # tail points are in different residues
+                triplet.set_pos_tail_custom(
+                    atoms = all_atoms,
+                    query_t0 = str_prev_residue(res),
+                    query_t1 = str_this_residue(res)
                 )
+                return
 
-            if do_infer_H:
-                atom_ref        = res_atoms.select_atoms(f"name {name_antecedent_0}")
-                atom_antecedent = res_atoms.select_atoms(f"name {name_antecedent_1}")
-                atom_hbond      = res_atoms.select_atoms(f"name {name_interactor  }")
-                if len(atom_ref) != 1 or len(atom_antecedent) != 1 or len(atom_hbond) != 1:
-                    return
+        ### special cases for RNA
+        if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
+            if triplet.interactor_is("O3'"): # donor only if there is no next residue
+                sel_next_res = all_atoms.select_atoms(str_next_residue(res))
+                if len(sel_next_res) > 0: return
 
-                direction = atom_antecedent[0].position - atom_ref[0].position
-                return atom_hbond[0].position - direction
+            if triplet.interactor_is("O5'"): # donor only if there is no previous residue
+                sel_prev_res = all_atoms.select_atoms(str_prev_residue(res))
+                if len(sel_prev_res) > 0: return
 
-            return safe_return_coords(res_atoms, f"name {name_antecedent_0} {name_antecedent_1}")
-
-        ##### standard antecedents
-        ## special case for RNA, it's a donor only if there is no next residue
-        if name_interactor == "O3'":
-            sel_next_res = atoms.select_atoms(str_next_residue(res))
-            if len(sel_next_res) > 0: return
-
-        ## special case for RNA, it's a donor only if there is no previous residue
-        if name_interactor == "O5'":
-            sel_prev_res = atoms.select_atoms(str_prev_residue(res))
-            if len(sel_prev_res) > 0: return
-
-        ## other standard antecedent cases
-        return safe_return_coords(res_atoms, f"name {name_antecedent_0}")
+        triplet.set_pos_tail(res_atoms)
 
 
 # //////////////////////////////////////////////////////////////////////////////

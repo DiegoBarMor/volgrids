@@ -5,29 +5,28 @@ import volgrids as vg
 import volgrids.smiffer as sm
 
 from .hb import SmifHBonds
-from .utils import safe_return_coords, \
-    str_this_residue, str_next_residue
+from .triplet import Triplet
+from .utils import str_this_residue, str_next_residue
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBAccepts(SmifHBonds, ABC):
-    def select_antecedent(self, res, res_atoms, hbond_triplet) -> None|np.ndarray:
-        name_antecedent_0, name_antecedent_1, name_interactor, _ = hbond_triplet
-        atoms = self.ms.get_relevant_atoms()
+    def set_triplet_positions(self, triplet: Triplet, all_atoms, res) -> None:
+        res_atoms = all_atoms.select_atoms(str_this_residue(res))
+        triplet.set_pos_interactor(res_atoms)
+        triplet.set_pos_head(res_atoms)
 
-        ##### standard antecedents
-        if not name_antecedent_1:
-            return safe_return_coords(res_atoms, f"name {name_antecedent_0}")
+        ############################### TAIL POSITION
+        ### special cases for RNA
+        if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
+            if triplet.interactor_is("O3'"): # tail points are in different residues
+                triplet.set_pos_tail_custom(
+                    atoms = all_atoms,
+                    query_t0 = str_this_residue(res),
+                    query_t1 = str_next_residue(res)
+                )
+                return
 
-        ##### pseudo-antecedents
-        ### special case for RNA, needs to check next residue
-        if name_interactor == "O3'":
-            return safe_return_coords(atoms,
-                f"({str_this_residue(res)} and name {name_antecedent_0}) or" +\
-                f"({str_next_residue(res)} and name {name_antecedent_1})"
-            )
-
-        ### other pseudo-antecedent cases
-        return safe_return_coords(res_atoms, f"name {name_antecedent_0} {name_antecedent_1}")
+        triplet.set_pos_tail(res_atoms)
 
 
 # //////////////////////////////////////////////////////////////////////////////

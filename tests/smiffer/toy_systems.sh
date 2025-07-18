@@ -16,7 +16,9 @@ python3 run/smiffer.py prot $fout/peptide_H.pdb    -o $fout --protonated
 python3 run/smiffer.py rna  $fout/guanine.pdb      -o $fout
 python3 run/smiffer.py rna  $fout/ribose_gua.pdb   -o $fout
 python3 run/smiffer.py rna  $fout/ribose_gua_H.pdb -o $fout
+python3 run/smiffer.py rna  $fout/uuu.pdb          -o $fout
 
-python3 run/smiffer.py prot $fout/arg.pdb -o $fout
-python3 run/smiffer.py prot $fout/asn.pdb -o $fout
-python3 run/smiffer.py rna  $fout/cyt.pdb -o $fout
+python3 run/smiffer.py prot $fout/all_arg.pdb -o $fout
+python3 run/smiffer.py prot $fout/all_asn.pdb -o $fout
+python3 run/smiffer.py rna  $fout/all_cyt.pdb -o $fout
+python3 run/smiffer.py rna  $fout/all_ump.pdb -o $fout

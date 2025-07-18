@@ -17,17 +17,21 @@ IPH/O1: -0.05
 IPH: C1 C2 C3 C4 C5 C6 # the SMIF will be placed in their center of geometry
 
 [NAMES_HBACCEPTORS]
-IPH: C1-O1 # formatted as antecedent-acceptor
+IPH: O1=C1->O1 # formatted as "acceptor=tail->head"
+
+### "tail->head" are the two points used to calculate the direction vector, by substracting tail from head
+### this vector is then used as normal pivot when calculating the hypothetical hbond angles (i.e. axis of rotation for the gaussian)
+### usually "head" corresponds to the acceptor/donor and "tail" to its antecedent atom, but this might not always be the case
 
 ### in the case of multiple antecedents (think of the O in furane),
-### you can place both antecedents in the format: a1.a2-acceptor
-### then a "pseudo-antecedent" will be considered in the point between the 'a1' and 'a2' antecedents
-### and used to calculate the axis of rotation for the gaussian
+### you can place both antecedents in the format: "acceptor=a1.a2->acceptor"
+### then a 'pseudo-antecedent' will be considered in the point between the "a1" and "a2" antecedents
+### and used as tail. In this example, "acceptor" also functions as head to calculate the direction vector
 
 [NAMES_HBDONORS]
-IPH: C1-O1 # formatted as antecedent-donor
+IPH: O1=C1->O1 # formatted as "donor=tail->head"
 
-### same format rule of a1.a2-donor can be used here for complicated cases
+### same format rule of donor=a1.a2->donor can be used here for complicated cases
 
 [NAMES_HBD_FIXED]
 ### a section can be empty too
