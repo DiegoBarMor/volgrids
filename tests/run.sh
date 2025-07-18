@@ -9,6 +9,9 @@ tests/smiffer/whole.sh
 tests/smiffer/traj.sh
 tests/smiffer/ligand.sh
 
-tests/vgtools/tools.sh
+tests/vgtools/convert.sh
+tests/vgtools/pack_unpack.sh
+tests/vgtools/fix_cmap.sh
+tests/vgtools/compare.sh
 
 echo "All tests completed successfully."

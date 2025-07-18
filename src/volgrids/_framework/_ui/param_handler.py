@@ -162,4 +162,15 @@ class ParamHandler(ABC):
         )
 
 
+    # --------------------------------------------------------------------------
+    def _safe_kwd_float(self, name: str, default: float = 0.0) -> float:
+        if not self._has_param_kwds(name):
+            return default
+        val = self._safe_get_param_kwd(name, 0)
+        try:
+            return float(val)
+        except ValueError:
+            self._exit_with_help(-1, f"The value for the flag '{name}' must be a float.")
+
+
 # //////////////////////////////////////////////////////////////////////////////

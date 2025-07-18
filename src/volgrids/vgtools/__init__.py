@@ -1,5 +1,7 @@
 from ._core.operations import VGOperations
 
+from ._misc.comparison_result import ComparisonResult
+
 from ._ui.param_handler import ParamHandlerVGTools
 from ._ui.app import AppVGTools
 
@@ -33,3 +35,8 @@ PATH_UNPACK_OUT: _pathlib.Path = None # folder where to unpack the grids
 ### Fix CMAP
 PATH_FIXCMAP_IN:  _pathlib.Path = None # "path/input/fix.cmap"
 PATH_FIXCMAP_OUT: _pathlib.Path = None # "path/output/fix.cmap"
+
+### Compare
+PATH_COMPARE_IN_0: _pathlib.Path = None # "path/input/grid_0.mrc"
+PATH_COMPARE_IN_1: _pathlib.Path = None # "path/input/grid_1.mrc"
+THRESHOLD_COMPARE: float # threshold for comparison (default 1e-3)

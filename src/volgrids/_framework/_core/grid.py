@@ -45,6 +45,13 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def __abs__(self) -> "Grid":
+        obj = Grid(self.ms, init_grid = False)
+        obj.grid = np.abs(self.grid)
+        return obj
+
+
+    # --------------------------------------------------------------------------
     @classmethod
     def reverse(cls, other: "Grid") -> "Grid":
         """Return a new Grid with the reversed values of the other Grid.
@@ -66,6 +73,13 @@ class Grid:
     # --------------------------------------------------------------------------
     def is_empty(self):
         return np.all(self.grid == 0)
+
+
+    # --------------------------------------------------------------------------
+    def get_deltas    (self): return np.array((self.dx  , self.dy  , self.dz  ))
+    def get_resolution(self): return np.array((self.xres, self.yres, self.zres))
+    def get_min_coords(self): return np.array((self.xmin, self.ymin, self.zmin))
+    def get_max_coords(self): return np.array((self.xmax, self.ymax, self.zmax))
 
 
     # --------------------------------------------------------------------------

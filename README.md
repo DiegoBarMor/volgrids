@@ -214,12 +214,13 @@ Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
 
 ## Usage
 Run `python3 run/vgtools.py [mode] [options...]` and provide the parameters of the calculation via arguments.
-  - Replace `[mode]` with `convert`, `pack`, `unpack` or `fix_cmap`. Available modes:
+  - Replace `[mode]` with one of the following available modes:
     - `convert`: Convert grid files between formats.
     - `pack`: Pack multiple grid files into a single CMAP series-file.
     - `unpack`: Unpack a CMAP series-file into multiple grid files.
     - `fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
-  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 run/vgtools.py [mode]` with no more arguments).
+    - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
+  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 run/vgtools.py [mode] -h`).
 
 
 
@@ -252,7 +253,7 @@ Run `python3 run/vgtools.py [mode] [options...]` and provide the parameters of t
 ## VGTools
 * check what happens if performing "fix_cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
-* mode to compare grids
+* mode to describe grids
 * mode to perform operations on grids: abs, sum, diff, mask...
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 

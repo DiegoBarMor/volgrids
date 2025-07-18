@@ -11,7 +11,9 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "mrc"    : ("-m", "--mrc"),
             "ccp4"   : ("-p", "--ccp4"),
             "cmap"   : ("-c", "--cmap"),
+            "thresh" : ("-t", "--threshold"),
     }
+    _DEFAULT_COMPARISON_THRESHOLD = 1e-5
 
 
     # --------------------------------------------------------------------------
@@ -23,6 +25,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "  pack     - Pack multiple grid files into a single CMAP series-file.",
             "  unpack   - Unpack a CMAP series-file into multiple grid files.",
             "  fix_cmap - Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.",
+            "  compare  - Compare two grid files by printing the number of differing points and their accumulated difference.",
             "Run 'python3 run/vgtools.py [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
@@ -34,6 +37,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             pack     = self._parse_pack,
             unpack   = self._parse_unpack,
             fix_cmap = self._parse_fix_cmap,
+            compare  = self._parse_compare,
         )
         func()
 
@@ -41,7 +45,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
     # --------------------------------------------------------------------------
     def _parse_convert(self) -> None:
         self._set_help_str(
-            "usage: python3 run/vgtools.py convert [path/input/grid.dx] [options...]",
+            "usage: python3 run/vgtools.py convert [path/input/grid] [options...]",
             "Available options:",
             "-h, --help  Show this help message and exit.",
             "-d, --dx    File path where to save the converted grid in DX format.",
@@ -54,7 +58,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
 
         vgt.PATH_CONVERT_IN = self._safe_path_file_in(
             self._safe_get_param_pos(1,
-               err_msg = "No input grid file provided. Provide a path to the grid file as first positional argument."
+               err_msg = "No input grid file provided. Provide a path to the grid file as second positional argument."
             )
         )
 
@@ -126,6 +130,32 @@ class ParamHandlerVGTools(vg.ParamHandler):
         vgt.PATH_FIXCMAP_IN = self._safe_kwd_file_in("input")
 
         vgt.PATH_FIXCMAP_OUT = self._safe_kwd_file_out("output")
+
+
+    # --------------------------------------------------------------------------
+    def _parse_compare(self) -> None:
+        self._set_help_str(
+            "usage: python3 run/vgtools.py compare [path/input/grid_0] [path/input/grid_1] [options...]",
+            "Available options:",
+            "-h, --help       Show this help message and exit.",
+            "-t, --threshold  Threshold for comparison. Default is 1e-3.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help(0)
+
+        vgt.PATH_COMPARE_IN_0 = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No first input grid file provided. Provide a path to the first grid file as second positional argument."
+            )
+        )
+
+        vgt.PATH_COMPARE_IN_1 = self._safe_path_file_in(
+            self._safe_get_param_pos(2,
+               err_msg = "No second input grid file provided. Provide a path to the second grid file as third positional argument."
+            )
+        )
+
+        vgt.THRESHOLD_COMPARE = self._safe_kwd_float("thresh", self._DEFAULT_COMPARISON_THRESHOLD)
 
 
 # //////////////////////////////////////////////////////////////////////////////

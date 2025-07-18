@@ -27,6 +27,22 @@ class AppVGTools(vg.App):
             vgt.VGOperations.fix_cmap(vgt.PATH_FIXCMAP_IN, vgt.PATH_FIXCMAP_OUT)
             return
 
+        if vgt.OPERATION == "compare":
+            print(f">>> Comparing grids: {vgt.PATH_COMPARE_IN_0} vs {vgt.PATH_COMPARE_IN_1} (threshold={vgt.THRESHOLD_COMPARE:2.2e})")
+            result = vgt.VGOperations.compare(vgt.PATH_COMPARE_IN_0, vgt.PATH_COMPARE_IN_1, vgt.THRESHOLD_COMPARE)
+
+            for message in result.messages:
+                print(f"...>>> {message}")
+            if result.npoints_total == 0: return
+
+            print(
+                f"...>>> {result.npoints_diff}/{result.npoints_total} points differ " +\
+                f"({100 * result.npoints_diff / result.npoints_total:.2f}%)\n" +\
+                f"...>>> Accumulated difference: {result.cumulative_diff:2.2e} " +\
+                f"(avg {result.avg_diff:2.2e} per point)"
+            )
+            return
+
         raise ValueError(f"Unknown mode: {vgt.OPERATION}")
 
 
