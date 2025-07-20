@@ -5,8 +5,8 @@ from ._parsers.chem_table import ChemTable
 
 from ._smifs.smif import Smif
 from ._smifs.apbs import SmifAPBS
-from ._smifs._hbonds.hbaccepts import SmifHBARing
-from ._smifs._hbonds.hbdonors import SmifHBDRing, SmifHBDCone
+from ._smifs._hbonds.hbaccepts import SmifHBAccepts
+from ._smifs._hbonds.hbdonors import SmifHBDonors
 from ._smifs._hydro.hydrophilic import SmifHydrophilic
 from ._smifs._hydro.hydrophobic import SmifHydrophobic
 from ._smifs.stacking import SmifStacking

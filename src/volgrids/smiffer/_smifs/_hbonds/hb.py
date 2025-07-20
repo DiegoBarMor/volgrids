@@ -1,4 +1,3 @@
-import numpy as np
 from abc import ABC, abstractmethod
 
 import volgrids as vg
@@ -11,29 +10,38 @@ class SmifHBonds(sm.Smif, ABC):
     # --------------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.kernel: vg.Kernel
-        self.kernel_args: dict
+        self.kernel: vg.Kernel = None
+        self.kernel_params: vg.ParamsGaussianBivariate = None
         self.hbond_getter: callable
+
 
     # --------------------------------------------------------------------------
     @abstractmethod
-    def set_triplet_positions(self, triplet: Triplet, all_atoms, res) -> None|np.ndarray:
-        return
+    def set_triplet_positions(self, triplet: Triplet, all_atoms, res) -> None:
+        raise NotImplementedError()
 
 
     # --------------------------------------------------------------------------
     @abstractmethod
     def init_kernel(self):
-        return
+        raise NotImplementedError()
 
 
     # --------------------------------------------------------------------------
     def populate_grid(self):
         self.init_kernel()
+        if self.kernel is None:
+            raise ValueError("Kernel must be initialized in the init_kernel() implementation.")
+        self.process_kernel()
 
+
+    # --------------------------------------------------------------------------
+    def process_kernel(self):
         self.kernel.link_to_grid(self.grid, self.ms.minCoords)
         for pos_interactor, vec_direction in self.iter_particles():
-            self.kernel.recalculate_kernel(vec_direction, **self.kernel_args)
+            self.kernel.recalculate_kernel(
+                vec_direction, self.kernel_params, isStacking = False
+            )
             self.kernel.stamp(pos_interactor, multiplication_factor = sm.ENERGY_SCALE)
 
 

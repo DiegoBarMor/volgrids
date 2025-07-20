@@ -101,10 +101,10 @@ class AppSmiffer(vg.App):
             self._calc_smif(sm.SmifStacking, "mid", "stacking")
 
         if sm.DO_SMIF_HBA:
-            self._calc_smif(sm.SmifHBARing, "mid", "hbacceptors")
+            self._calc_smif(sm.SmifHBAccepts, "mid", "hbacceptors")
 
         if sm.DO_SMIF_HBD:
-            self._process_hbdonors("mid")
+            self._calc_smif(sm.SmifHBDonors, "mid", "hbdonors")
 
         if sm.DO_SMIF_HYDROPHOBIC:
             grid_hphob: sm.SmifHydrophobic =\
@@ -136,17 +136,6 @@ class AppSmiffer(vg.App):
         self.trimmer.mask_grid(grid, key_trimming)
         grid.save_data(sm.FOLDER_OUT, title)
         return grid
-
-
-    # --------------------------------------------------------------------------
-    def _process_hbdonors(self, key_trimming: str):
-        grid_hbdring = sm.SmifHBDRing(self.ms)
-        grid_hbdcone = sm.SmifHBDCone(self.ms)
-        grid_hbdring.populate_grid()
-        grid_hbdcone.populate_grid()
-        grid_hbd = grid_hbdring + grid_hbdcone
-        self.trimmer.mask_grid(grid_hbd, key_trimming)
-        grid_hbd.save_data(sm.FOLDER_OUT, "hbdonors")
 
 
 # //////////////////////////////////////////////////////////////////////////////

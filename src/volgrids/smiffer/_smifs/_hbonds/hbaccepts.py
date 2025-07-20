@@ -1,6 +1,3 @@
-import numpy as np
-from abc import ABC
-
 import volgrids as vg
 import volgrids.smiffer as sm
 
@@ -9,7 +6,7 @@ from .triplet import Triplet
 from .utils import str_this_residue, str_next_residue
 
 # //////////////////////////////////////////////////////////////////////////////
-class SmifHBAccepts(SmifHBonds, ABC):
+class SmifHBAccepts(SmifHBonds):
     def set_triplet_positions(self, triplet: Triplet, all_atoms, res) -> None:
         res_atoms = all_atoms.select_atoms(str_this_residue(res))
         triplet.set_pos_interactor(res_atoms)
@@ -29,13 +26,13 @@ class SmifHBAccepts(SmifHBonds, ABC):
         triplet.set_pos_tail(res_atoms)
 
 
-# //////////////////////////////////////////////////////////////////////////////
-class SmifHBARing(SmifHBAccepts):
+    # --------------------------------------------------------------------------
     def init_kernel(self):
-        radius = sm.MU_DIST_HBA + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA
-        self.kernel = vg.KernelGaussianBivariateAngleDist(radius, self.ms.deltas, vg.FLOAT_DTYPE)
-
-        self.kernel_args = dict(params = sm.PARAMS_HBA, isStacking = False)
+        self.kernel = vg.KernelGaussianBivariateAngleDist(
+            radius = sm.MU_DIST_HBA + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA,
+            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE
+        )
+        self.kernel_params = sm.PARAMS_HBA
         self.hbond_getter = sm.ChemTable.get_names_hba
 
 

@@ -1,4 +1,3 @@
-import numpy as np
 from abc import ABC
 
 import volgrids as vg
@@ -39,23 +38,31 @@ class SmifHBDonors(SmifHBonds, ABC):
         triplet.set_pos_tail(res_atoms)
 
 
-# //////////////////////////////////////////////////////////////////////////////
-class SmifHBDRing(SmifHBDonors):
-    def init_kernel(self):
-        radius = sm.MU_DIST_HBD + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD
-        self.kernel = vg.KernelGaussianBivariateAngleDist(radius, self.ms.deltas, vg.FLOAT_DTYPE)
+    # --------------------------------------------------------------------------
+    def populate_grid(self):
+        super().populate_grid()
 
-        self.kernel_args = dict(params = sm.PARAMS_HBD, isStacking = False)
+        self._init_kernel_hbd_fixed()
+        self.process_kernel()
+
+
+    # --------------------------------------------------------------------------
+    def init_kernel(self):
+        self.kernel = vg.KernelGaussianBivariateAngleDist(
+            radius = sm.MU_DIST_HBD + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD,
+            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE
+        )
+        self.kernel_params = sm.PARAMS_HBD
         self.hbond_getter = sm.ChemTable.get_names_hbd
 
 
-# //////////////////////////////////////////////////////////////////////////////
-class SmifHBDCone(SmifHBDonors):
-    def init_kernel(self):
-        radius = sm.MU_DIST_HBD_FIXED + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FIXED
-        self.kernel = vg.KernelGaussianBivariateAngleDist(radius, self.ms.deltas, vg.FLOAT_DTYPE)
-
-        self.kernel_args = dict(params = sm.PARAMS_HBD_FIXED, isStacking = False)
+    # --------------------------------------------------------------------------
+    def _init_kernel_hbd_fixed(self):
+        self.kernel = vg.KernelGaussianBivariateAngleDist(
+            radius = sm.MU_DIST_HBD_FIXED + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FIXED,
+            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE
+        )
+        self.kernel_params = sm.PARAMS_HBD_FIXED
         self.hbond_getter = sm.ChemTable.get_names_hbd_fixed
 
 
