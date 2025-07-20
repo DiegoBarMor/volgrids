@@ -5,9 +5,11 @@ from ._framework._kernels.kernel import Kernel
 from ._framework._kernels.boolean import \
     KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut
 from ._framework._kernels.gaussian import \
-    KernelGaussianUnivariate, KernelGaussianMultivariate
+    KernelGaussianUnivariateDist, KernelGaussianBivariateAngleDist
 
 from ._framework._misc.math import Math
+from ._framework._misc.params_gaussian import \
+    ParamsGaussianUnivariate, ParamsGaussianBivariate
 from ._framework._misc.timer import Timer
 from ._framework._misc.utils import resolve_path
 

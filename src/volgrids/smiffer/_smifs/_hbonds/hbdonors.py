@@ -42,20 +42,20 @@ class SmifHBDonors(SmifHBonds, ABC):
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBDRing(SmifHBDonors):
     def init_kernel(self):
-        radius = sm.MU_HBD[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD
-        self.kernel = vg.KernelGaussianMultivariate(radius, self.ms.deltas, vg.FLOAT_DTYPE)
+        radius = sm.MU_DIST_HBD + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD
+        self.kernel = vg.KernelGaussianBivariateAngleDist(radius, self.ms.deltas, vg.FLOAT_DTYPE)
 
-        self.kernel_args = dict(mu = sm.MU_HBD, cov_inv = sm.COV_INV_HBD, isStacking = False)
+        self.kernel_args = dict(params = sm.PARAMS_HBD, isStacking = False)
         self.hbond_getter = sm.ChemTable.get_names_hbd
 
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBDCone(SmifHBDonors):
     def init_kernel(self):
-        radius = sm.MU_HBD_FIXED[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FIXED
-        self.kernel = vg.KernelGaussianMultivariate(radius, self.ms.deltas, vg.FLOAT_DTYPE)
+        radius = sm.MU_DIST_HBD_FIXED + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FIXED
+        self.kernel = vg.KernelGaussianBivariateAngleDist(radius, self.ms.deltas, vg.FLOAT_DTYPE)
 
-        self.kernel_args = dict(mu = sm.MU_HBD_FIXED, cov_inv = sm.COV_INV_HBD_FIXED, isStacking = False)
+        self.kernel_args = dict(params = sm.PARAMS_HBD_FIXED, isStacking = False)
         self.hbond_getter = sm.ChemTable.get_names_hbd_fixed
 
 

@@ -56,33 +56,32 @@ class AppSmiffer(vg.App):
 
     # --------------------------------------------------------------------------
     def _init_globals(self):
-        sm.MU_HBA = np.array([sm.MU_ANGLE_HBA, sm.MU_DIST_HBA])
-        sm.COV_HBA = np.array([
-            [sm.SIGMA_ANGLE_HBA**2, 0],
-            [0,  sm.SIGMA_DIST_HBA**2]
-        ])
-        sm.COV_INV_HBA = np.linalg.inv(sm.COV_HBA)
-
-        sm.MU_HBD = np.array([sm.MU_ANGLE_HBD, sm.MU_DIST_HBD])
-        sm.COV_HBD =  np.array([
-            [sm.SIGMA_ANGLE_HBD**2, 0],
-            [0,  sm.SIGMA_DIST_HBD**2]
-        ])
-        sm.COV_INV_HBD = np.linalg.inv(sm.COV_HBD)
-
-        sm.MU_HBD_FIXED = np.array([sm.MU_ANGLE_HBD_FIXED, sm.MU_DIST_HBD_FIXED])
-        sm.COV_HBD_FIXED =  np.array([
-            [sm.SIGMA_ANGLE_HBD_FIXED**2, 0],
-            [0,  sm.SIGMA_DIST_HBD_FIXED**2]
-        ])
-        sm.COV_INV_HBD_FIXED = np.linalg.inv(sm.COV_HBD_FIXED)
-
-        sm.MU_STACKING = np.array([sm.MU_ANGLE_STACKING, sm.MU_DIST_STACKING])
-        sm.COV_STACKING = np.array([
-            [sm.COV_STACKING_00, sm.COV_STACKING_01],
-            [sm.COV_STACKING_10, sm.COV_STACKING_11]
-        ])
-        sm.COV_INV_STACKING = np.linalg.inv(sm.COV_STACKING)
+        sm.PARAMS_HPHOB = vg.ParamsGaussianUnivariate(
+            mu = sm.MU_HYDROPHOBIC, sigma = sm.SIGMA_HYDROPHOBIC,
+        )
+        sm.PARAMS_HPHIL = vg.ParamsGaussianUnivariate(
+            mu = sm.MU_HYDROPHILIC, sigma = sm.SIGMA_HYDROPHILIC,
+        )
+        sm.PARAMS_HBA = vg.ParamsGaussianBivariate(
+            mu_0 = sm.MU_ANGLE_HBA, mu_1 = sm.MU_DIST_HBA,
+            cov_00 = sm.SIGMA_ANGLE_HBA**2, cov_01 = 0,
+            cov_10 = 0,  cov_11 = sm.SIGMA_DIST_HBA**2,
+        )
+        sm.PARAMS_HBD = vg.ParamsGaussianBivariate(
+            mu_0 = sm.MU_ANGLE_HBD, mu_1 = sm.MU_DIST_HBD,
+            cov_00 = sm.SIGMA_ANGLE_HBD**2, cov_01 = 0,
+            cov_10 = 0,  cov_11 = sm.SIGMA_DIST_HBD**2,
+        )
+        sm.PARAMS_HBD_FIXED = vg.ParamsGaussianBivariate(
+            mu_0 = sm.MU_ANGLE_HBD_FIXED, mu_1 = sm.MU_DIST_HBD_FIXED,
+            cov_00 = sm.SIGMA_ANGLE_HBD_FIXED**2, cov_01 = 0,
+            cov_10 = 0,  cov_11 = sm.SIGMA_DIST_HBD_FIXED**2,
+        )
+        sm.PARAMS_STACK = vg.ParamsGaussianBivariate(
+            mu_0 = sm.MU_ANGLE_STACKING, mu_1 = sm.MU_DIST_STACKING,
+            cov_00 = sm.COV_STACKING_00, cov_01 = sm.COV_STACKING_01,
+            cov_10 = sm.COV_STACKING_10, cov_11 = sm.COV_STACKING_11,
+        )
 
         ### square root of the DIST contribution to sm.COV_STACKING,
         sm.SIGMA_DIST_STACKING = np.sqrt(sm.COV_STACKING_11)

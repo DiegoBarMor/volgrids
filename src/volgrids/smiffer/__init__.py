@@ -80,23 +80,13 @@ __config_keys__ = set(__annotations__.keys())
 
 
 ############################### NUMERIC GLOBALS ################################
-import numpy as _np
-MU_HBA:      _np.ndarray[float, float]
-COV_HBA:     _np.ndarray
-COV_INV_HBA: _np.ndarray
-
-MU_HBD:      _np.ndarray[float, float]
-COV_HBD:     _np.ndarray
-COV_INV_HBD: _np.ndarray
-
-MU_HBD_FIXED:      _np.ndarray[float, float]
-COV_HBD_FIXED:     _np.ndarray
-COV_INV_HBD_FIXED: _np.ndarray
-
-MU_STACKING:      _np.ndarray[float, float]
-COV_STACKING:     _np.ndarray
-COV_INV_STACKING: _np.ndarray
-
+import volgrids as _vg
+PARAMS_HBA:       _vg.ParamsGaussianBivariate
+PARAMS_HBD:       _vg.ParamsGaussianBivariate
+PARAMS_HBD_FIXED: _vg.ParamsGaussianBivariate
+PARAMS_HPHOB:     _vg.ParamsGaussianUnivariate
+PARAMS_HPHIL:     _vg.ParamsGaussianUnivariate
+PARAMS_STACK:     _vg.ParamsGaussianBivariate
 SIGMA_DIST_STACKING: float
 
 

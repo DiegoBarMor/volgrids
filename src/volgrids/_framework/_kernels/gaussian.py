@@ -3,17 +3,17 @@ import numpy as np
 import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
-class KernelGaussianUnivariate(vg.Kernel):
+class KernelGaussianUnivariateDist(vg.Kernel):
     """For generating univariate gaussian spheres (e.g. for hydrophob)"""
-    def __init__(self, mu, sigma, radius, deltas, dtype):
+    def __init__(self, params: "vg.ParamsGaussianUnivariate", radius, deltas, dtype):
         super().__init__(radius, deltas, dtype)
-        self.kernel = vg.Math.univariate_gaussian(self.dist, mu, sigma)
+        self.kernel = vg.Math.univariate_gaussian(self.dist, params.mu, params.sigma)
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class KernelGaussianMultivariate(vg.Kernel):
+class KernelGaussianBivariateAngleDist(vg.Kernel):
     """For generating multivariate gaussian distributions (for hba, hbd, stacking)"""
-    def recalculate_kernel(self, normal, mu, cov_inv, isStacking):
+    def recalculate_kernel(self, normal, params: "vg.ParamsGaussianBivariate", isStacking: bool):
         beta_values = vg.Math.get_angle(
             self.shifted_coords, normal,
             flag_corrections = "stacking" if isStacking else "hbonds"
@@ -25,7 +25,7 @@ class KernelGaussianMultivariate(vg.Kernel):
             ),
             axis = 3
         )
-        self.kernel = vg.Math.multivariate_gaussian(input_mat, mu, cov_inv)
+        self.kernel = vg.Math.bivariate_gaussian(input_mat, params.mu, params.cov_inv)
 
 
 # //////////////////////////////////////////////////////////////////////////////

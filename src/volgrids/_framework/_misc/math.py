@@ -110,7 +110,7 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def multivariate_gaussian(x, mu, cov_inv):
+    def bivariate_gaussian(x, mu, cov_inv):
         """ input_mat "x" shape: (xsize, ysize, zsize, 2 = (dist, beta)) """
         u = x - mu
         sigma = cov_inv

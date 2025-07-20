@@ -32,10 +32,10 @@ class SmifHBAccepts(SmifHBonds, ABC):
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBARing(SmifHBAccepts):
     def init_kernel(self):
-        radius = sm.MU_HBA[1] + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA
-        self.kernel = vg.KernelGaussianMultivariate(radius, self.ms.deltas, vg.FLOAT_DTYPE)
+        radius = sm.MU_DIST_HBA + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA
+        self.kernel = vg.KernelGaussianBivariateAngleDist(radius, self.ms.deltas, vg.FLOAT_DTYPE)
 
-        self.kernel_args = dict(mu = sm.MU_HBA, cov_inv = sm.COV_INV_HBA, isStacking = False)
+        self.kernel_args = dict(params = sm.PARAMS_HBA, isStacking = False)
         self.hbond_getter = sm.ChemTable.get_names_hba
 
 
