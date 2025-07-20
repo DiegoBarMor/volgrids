@@ -21,7 +21,7 @@ class Triplet:
         self._t0 = t0
         self._t1 = t1
         self._head = head
-        self._interactor = interactor
+        self.interactor = interactor
 
         self.pos_tail: np.ndarray | None = None
         self.pos_head: np.ndarray | None = None
@@ -29,7 +29,7 @@ class Triplet:
 
         self.resname = res.resname.upper()
         self.str_prev_res = f"segid {res.segid} and resid {res.resid - 1}"
-        self.str_this_res = f"segid {res.segid} and resid {res.resid} and resname {res.resname}"
+        self.str_this_res = f"segid {res.segid} and resid {res.resid    }"
         self.str_next_res = f"segid {res.segid} and resid {res.resid + 1}"
 
     # --------------------------------------------------------------------------
@@ -49,7 +49,7 @@ class Triplet:
     # --------------------------------------------------------------------------
     def set_pos_interactor(self, atoms: mda.AtomGroup) -> np.ndarray | None:
         self.pos_interactor = _safe_return_coords(
-            atoms, f"name {self._interactor}"
+            atoms, f"name {self.interactor}"
         )
 
 
@@ -65,17 +65,12 @@ class Triplet:
 
 
     # ------------------------------------------------------------------------------
-    def interactor_is(self, name: str) -> bool:
-        return self._interactor == name
-
-
-    # ------------------------------------------------------------------------------
     def get_interactor_bonded_hydrogens(self, atoms: mda.AtomGroup) -> tuple:
-        sel_atoms = atoms.select_atoms(f"name {self._interactor}")
+        sel_atoms = atoms.select_atoms(f"name {self.interactor}")
         if len(sel_atoms) == 0:
             return []
         bonded_atoms = [
-            (bond.atoms[0] if bond.atoms[0].name != self._interactor else bond.atoms[1])
+            (bond.atoms[0] if bond.atoms[0].name != self.interactor else bond.atoms[1])
             for bond in sel_atoms.bonds
         ]
         return tuple(filter(lambda a: a.type == 'H', bonded_atoms))

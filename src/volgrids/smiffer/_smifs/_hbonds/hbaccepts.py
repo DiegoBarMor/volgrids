@@ -12,7 +12,7 @@ class SmifHBAccepts(SmifHBonds):
         ############################### TAIL POSITION
         ### special cases for RNA
         if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
-            if triplet.interactor_is("O3'"): # tail points are in different residues
+            if triplet.interactor == "O3'": # tail points are in different residues
                 triplet.set_pos_tail_custom(
                     atoms = self.all_atoms,
                     query_t0 = triplet.str_this_res,

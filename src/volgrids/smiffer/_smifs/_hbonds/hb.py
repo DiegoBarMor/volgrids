@@ -14,7 +14,7 @@ class SmifHBonds(sm.Smif, ABC):
         self.hbond_getter: callable
         self.all_atoms = self.ms.get_relevant_atoms()
         self.res_atoms = None
-
+        self.processed_interactors = set()
 
     # --------------------------------------------------------------------------
     @abstractmethod
@@ -46,6 +46,8 @@ class SmifHBonds(sm.Smif, ABC):
         for res in self.all_atoms.residues:
             triplet_strs = self.hbond_getter(self.ms.chemtable, res.resname)
             if triplet_strs is None: continue # skip weird residues
+
+            self.processed_interactors.clear()
 
             for triplet_str in triplet_strs:
                 if not triplet_str: continue  # skip residues without HBond pairs

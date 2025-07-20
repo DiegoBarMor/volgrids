@@ -30,7 +30,7 @@ class SmifHBDonors(SmifHBonds, ABC):
             if triplet.resname == "PRO": # donor only if there is no previous residue
                 if _has_prev_res(self.all_atoms, triplet): return
 
-            elif triplet.interactor_is("N"): # tail points are in different residues
+            elif triplet.interactor == "N": # tail points are in different residues
                 if _has_prev_res(self.all_atoms, triplet):
                     triplet.set_pos_tail_custom( # N of peptide bond
                         atoms = self.all_atoms,
@@ -51,10 +51,10 @@ class SmifHBDonors(SmifHBonds, ABC):
 
         ### special cases for RNA
         if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
-            if triplet.interactor_is("O3'"): # donor only if there is no next residue
+            if triplet.interactor == "O3'": # donor only if there is no next residue
                 if _has_next_res(self.all_atoms, triplet): return
 
-            elif triplet.interactor_is("O5'"): # donor only if there is no previous residue
+            elif triplet.interactor == "O5'": # donor only if there is no previous residue
                 if _has_prev_res(self.all_atoms, triplet): return
 
         triplet.set_pos_tail(self.res_atoms)
@@ -91,17 +91,17 @@ class SmifHBDonors(SmifHBonds, ABC):
             self.ms.system.guess_TopologyAttrs(to_guess = ["bonds"])
 
         for triplet in super()._iter_triplets():
-            processed = False
+            if triplet.interactor in self.processed_interactors: continue
+
             if sm.USE_STRUCTURE_HYDROGENS:
                 for hydrogen in triplet.get_interactor_bonded_hydrogens(self.res_atoms):
                     triplet.pos_tail = triplet.pos_interactor
                     triplet.pos_head = hydrogen.position
                     self.kernel = self._kernel_alt
-                    processed = True
+                    self.processed_interactors.add(triplet.interactor)
                     yield triplet
 
-
-            if not processed: # sm.USE_STRUCTURE_HYDROGENS fallbacks to "no-hydrogen" model if no hydrogens found
+            if triplet.pos_head is None: # sm.USE_STRUCTURE_HYDROGENS falls back to "no-hydrogen" model if no hydrogens found
                 self.kernel = self._kernel_std
                 yield triplet
 

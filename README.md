@@ -241,7 +241,6 @@ Run `python3 run/vgtools.py [mode] [options...]` and provide the parameters of t
 ## SMIFFER
 * maybe: replace the RNDS trimming with a faster method
 * provide download links for the testdata folder
-* add flag for considering the structure's hydrogen atoms when calculating HBD smifs
 * change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
 
