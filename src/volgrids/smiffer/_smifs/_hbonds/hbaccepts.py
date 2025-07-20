@@ -27,13 +27,13 @@ class SmifHBAccepts(SmifHBonds):
 
 
     # --------------------------------------------------------------------------
-    def init_kernel(self):
+    def populate_grid(self):
         self.kernel = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_HBA + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA,
-            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE
+            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBA
         )
-        self.kernel_params = sm.PARAMS_HBA
         self.hbond_getter = sm.ChemTable.get_names_hba
+        self.process_kernel()
 
 
 # //////////////////////////////////////////////////////////////////////////////

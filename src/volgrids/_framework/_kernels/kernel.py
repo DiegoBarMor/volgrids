@@ -51,11 +51,6 @@ class Kernel:
 
 
     # --------------------------------------------------------------------------
-    def recalculate_kernel(self, *args, **kwargs):
-        return
-
-
-    # --------------------------------------------------------------------------
     def stamp(self, center_stamp_at, multiplication_factor = None, operation = "sum"):
         if self.grid is None:
             raise ValueError("No grid associated, can't stamp Kernel. Use 'link_to_grid' first.")

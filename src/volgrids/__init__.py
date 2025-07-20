@@ -8,7 +8,7 @@ from ._framework._kernels.gaussian import \
     KernelGaussianUnivariateDist, KernelGaussianBivariateAngleDist
 
 from ._framework._misc.math import Math
-from ._framework._misc.params_gaussian import \
+from ._framework._misc.params_gaussian import ParamsGaussian, \
     ParamsGaussianUnivariate, ParamsGaussianBivariate
 from ._framework._misc.timer import Timer
 from ._framework._misc.utils import resolve_path

@@ -8,7 +8,7 @@ class SmifHydrophobic(SmifHydro):
     def populate_grid(self):
         radius = sm.MU_HYDROPHOBIC + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_HYDROPHOBIC
         kernel = vg.KernelGaussianUnivariateDist(
-            sm.PARAMS_HPHOB, radius, self.ms.deltas, vg.FLOAT_DTYPE
+            radius, self.ms.deltas, vg.FLOAT_DTYPE, sm.PARAMS_HPHOB
         )
         kernel.link_to_grid(self.grid, self.ms.minCoords)
 

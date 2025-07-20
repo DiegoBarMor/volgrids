@@ -145,8 +145,4 @@ class Grid:
         raise ValueError(f"Unknown output format: {vg.OUTPUT_FORMAT}.")
 
 
-    ######################### SPECIFIC METHODS (OVERRIDE TO USE)
-    def populate_grid(self): return
-
-
 # //////////////////////////////////////////////////////////////////////////////

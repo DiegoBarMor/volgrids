@@ -40,30 +40,19 @@ class SmifHBDonors(SmifHBonds, ABC):
 
     # --------------------------------------------------------------------------
     def populate_grid(self):
-        super().populate_grid()
-
-        self._init_kernel_hbd_fixed()
-        self.process_kernel()
-
-
-    # --------------------------------------------------------------------------
-    def init_kernel(self):
         self.kernel = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_HBD + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD,
-            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE
+            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD
         )
-        self.kernel_params = sm.PARAMS_HBD
         self.hbond_getter = sm.ChemTable.get_names_hbd
+        self.process_kernel()
 
-
-    # --------------------------------------------------------------------------
-    def _init_kernel_hbd_fixed(self):
         self.kernel = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_HBD_FIXED + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FIXED,
-            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE
+            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD_FIXED
         )
-        self.kernel_params = sm.PARAMS_HBD_FIXED
         self.hbond_getter = sm.ChemTable.get_names_hbd_fixed
+        self.process_kernel()
 
 
 # //////////////////////////////////////////////////////////////////////////////

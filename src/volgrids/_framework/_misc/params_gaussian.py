@@ -1,16 +1,24 @@
 import numpy as np
+from abc import ABC
 from dataclasses import dataclass, field
 
 # //////////////////////////////////////////////////////////////////////////////
 @dataclass
-class ParamsGaussianUnivariate:
+class ParamsGaussian(ABC):
+    """Base class for Gaussian parameters classes"""
+    pass
+
+
+# //////////////////////////////////////////////////////////////////////////////
+@dataclass
+class ParamsGaussianUnivariate(ParamsGaussian):
     mu: float
     sigma: float
 
 
 # //////////////////////////////////////////////////////////////////////////////
 @dataclass
-class ParamsGaussianBivariate:
+class ParamsGaussianBivariate(ParamsGaussian):
     mu_0: float
     mu_1: float
     cov_00: float
