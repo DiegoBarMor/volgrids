@@ -3,27 +3,24 @@ import volgrids.smiffer as sm
 
 from .hb import SmifHBonds
 from .triplet import Triplet
-from .utils import str_this_residue, str_next_residue
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBAccepts(SmifHBonds):
-    def set_triplet_positions(self, triplet: Triplet, all_atoms, res) -> None:
-        res_atoms = all_atoms.select_atoms(str_this_residue(res))
-        triplet.set_pos_interactor(res_atoms)
-        triplet.set_pos_head(res_atoms)
+    def find_tail_head_positions(self, triplet: Triplet) -> None:
+        triplet.set_pos_head(self.res_atoms)
 
         ############################### TAIL POSITION
         ### special cases for RNA
         if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
             if triplet.interactor_is("O3'"): # tail points are in different residues
                 triplet.set_pos_tail_custom(
-                    atoms = all_atoms,
-                    query_t0 = str_this_residue(res),
-                    query_t1 = str_next_residue(res)
+                    atoms = self.all_atoms,
+                    query_t0 = triplet.str_this_res,
+                    query_t1 = triplet.str_next_res
                 )
                 return
 
-        triplet.set_pos_tail(res_atoms)
+        triplet.set_pos_tail(self.res_atoms)
 
 
     # --------------------------------------------------------------------------
@@ -32,6 +29,7 @@ class SmifHBAccepts(SmifHBonds):
             radius = sm.MU_DIST_HBA + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA,
             deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBA
         )
+        self.kernel.link_to_grid(self.grid, self.ms.minCoords)
         self.hbond_getter = sm.ChemTable.get_names_hba
         self.process_kernel()
 

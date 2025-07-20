@@ -13,17 +13,17 @@ class SmifHBonds(sm.Smif, ABC):
         self.kernel: vg.KernelGaussianBivariateAngleDist = None
         self.hbond_getter: callable
         self.all_atoms = self.ms.get_relevant_atoms()
+        self.res_atoms = None
 
 
     # --------------------------------------------------------------------------
     @abstractmethod
-    def set_triplet_positions(self, triplet: Triplet, all_atoms, res) -> None:
+    def find_tail_head_positions(self, triplet: Triplet) -> None:
         raise NotImplementedError()
 
 
     # --------------------------------------------------------------------------
     def process_kernel(self):
-        self.kernel.link_to_grid(self.grid, self.ms.minCoords)
         for pos_interactor, vec_direction in self.iter_particles():
             self.kernel.recalculate_kernel(vec_direction, isStacking = False)
             self.kernel.stamp(pos_interactor, multiplication_factor = sm.ENERGY_SCALE)
@@ -31,8 +31,8 @@ class SmifHBonds(sm.Smif, ABC):
 
     # --------------------------------------------------------------------------
     def iter_particles(self):
-        for res, triplet in self._iter_triplets():
-            self.set_triplet_positions(triplet, self.all_atoms, res)
+        for triplet in self._iter_triplets():
+            self.find_tail_head_positions(triplet)
             vec_direction = triplet.get_direction_vector()
 
             if (triplet.pos_interactor is None) or (vec_direction is None):
@@ -49,7 +49,11 @@ class SmifHBonds(sm.Smif, ABC):
 
             for triplet_str in triplet_strs:
                 if not triplet_str: continue  # skip residues without HBond pairs
-                yield res, Triplet(*triplet_str)
+
+                triplet = Triplet(res, *triplet_str)
+                self.res_atoms = self.all_atoms.select_atoms(triplet.str_this_res)
+                triplet.set_pos_interactor(self.res_atoms)
+                yield triplet
 
 
 # //////////////////////////////////////////////////////////////////////////////
