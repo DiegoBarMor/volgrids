@@ -1,4 +1,5 @@
 from abc import ABC
+import MDAnalysis as mda
 
 import volgrids as vg
 import volgrids.smiffer as sm
@@ -88,7 +89,13 @@ class SmifHBDonors(SmifHBonds, ABC):
     # --------------------------------------------------------------------------
     def _iter_triplets(self):
         if sm.USE_STRUCTURE_HYDROGENS:
-            self.ms.system.guess_TopologyAttrs(to_guess = ["bonds"])
+            hydrogens = self.ms.system.select_atoms("name H*")
+            if len(hydrogens) == 0:
+                sm.USE_STRUCTURE_HYDROGENS = False
+            else:
+                u = mda.Merge(self.all_atoms, hydrogens)
+                u.guess_TopologyAttrs(to_guess = ["bonds"]) # bond guess is performed in a temporary universe that excludes any unwanted atoms (like ions with undefined vdw radii)
+                self.all_atoms = u.atoms # the all_atoms reference must be also updated to this temporary universe that contains the bonds
 
         for triplet in super()._iter_triplets():
             if triplet.interactor in self.processed_interactors: continue

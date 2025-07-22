@@ -11,7 +11,9 @@ class ParserConfig(vg.ParserIni):
         """
 
         if not self.has(section):
-            raise ValueError(f"Configuration file does not contain [{section}] section (case sensitive).")
+            if all_configs_mandatory:
+                raise ValueError(f"Configuration file does not contain [{section}] section (case sensitive).")
+            return  # Section not present, skip if not mandatory
 
         for k, value in self.iter_splitted_lines(section):
             k = k.upper()

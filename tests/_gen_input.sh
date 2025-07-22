@@ -58,7 +58,7 @@ tmp_config_cmap=$fvgtools/cmap.config
 tmp_config_smifs=$fvgtools/smifs.config
 
 cat > $tmp_config_dx <<- EOM
-[VGRIDS]
+[VOLGRIDS]
 OUTPUT_FORMAT=vg.GridFormat.DX
 [SMIFFER]
 DO_SMIF_HBA=False
@@ -70,7 +70,7 @@ SAVE_TRIMMING_MASK=False
 EOM
 
 cat > $tmp_config_mrc <<- EOM
-[VGRIDS]
+[VOLGRIDS]
 OUTPUT_FORMAT=vg.GridFormat.MRC
 [SMIFFER]
 DO_SMIF_HBA=False
@@ -82,7 +82,7 @@ SAVE_TRIMMING_MASK=False
 EOM
 
 cat > $tmp_config_ccp4 <<- EOM
-[VGRIDS]
+[VOLGRIDS]
 OUTPUT_FORMAT=vg.GridFormat.CCP4
 [SMIFFER]
 DO_SMIF_HBA=False
@@ -94,7 +94,7 @@ SAVE_TRIMMING_MASK=False
 EOM
 
 cat > $tmp_config_cmap <<- EOM
-[VGRIDS]
+[VOLGRIDS]
 OUTPUT_FORMAT=vg.GridFormat.CMAP
 [SMIFFER]
 DO_SMIF_HBA=False
@@ -106,7 +106,7 @@ SAVE_TRIMMING_MASK=False
 EOM
 
 cat > $tmp_config_smifs <<- EOM
-[VGRIDS]
+[VOLGRIDS]
 OUTPUT_FORMAT=vg.GridFormat.MRC
 [SMIFFER]
 DO_SMIF_HBA=True

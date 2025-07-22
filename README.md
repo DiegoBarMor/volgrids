@@ -90,7 +90,6 @@ Run `python3 run/smiffer.py [mode] [path_structure] [options...]` and provide th
     - `-rxyz [r] [x] [y] [z]` where `[r]`, `[x]`, `[y]` and `[z]` are the float values for the radius and X,Y,Z coordinates of a sphere in space, respectively. This activates "pocket sphere" mode, where the SMIFs will only be calculated inside the sphere provided.
     - `-b [path_table]` where `[path_table]` is the path to a *.chem* table file to use for ligand mode, or to override the default macromolecules' tables. This flag is mandatory for "ligand" mode.
     - `-c [path_config]` where `[path_config]` is the path to a configuration file with global settings, to override the default settings from `config.ini`.
-    - `-p` to indicate that the input structure is protonated and its hydrogen atoms should be used for calculating the pertinent SMIFs.
 
 
 <!-- ----------------------------------------------------------------------- -->

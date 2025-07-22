@@ -15,7 +15,7 @@ def _assert_df(df: pd.DataFrame, *cols_metadata):
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppVeins(vg.App):
-    CONFIG_MODULES = {"VGRIDS": vg}
+    CONFIG_MODULES = {"VOLGRIDS": vg}
     _CLASS_PARAM_HANDLER = ve.ParamHandlerVeins
 
     # --------------------------------------------------------------------------

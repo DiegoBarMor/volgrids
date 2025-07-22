@@ -5,7 +5,7 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.App):
-    CONFIG_MODULES = {"VGRIDS": vg, "SMIFFER": sm}
+    CONFIG_MODULES = {"VOLGRIDS": vg, "SMIFFER": sm}
     _CLASS_PARAM_HANDLER = sm.ParamHandlerSmiffer
 
     _CLASS_TRIMMER = sm.Trimmer

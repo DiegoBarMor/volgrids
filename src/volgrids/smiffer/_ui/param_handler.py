@@ -11,7 +11,6 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         "pocket": ("-rxyz", "--pocket"),
         "table" : ("-b", "--table"),
         "config": ("-c", "--config"),
-        "proton": ("-p", "--protonated"),
     }
 
 
@@ -46,7 +45,6 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             "-b, --table       File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
             "-c, --config      File path to a configuration file with global settings, to override the default settings from config.ini.",
             "-rxyz, --pocket   Activate 'pocket sphere' mode by providing the sphere radius and the X, Y, Z coordinates for its center. If not provided, 'whole' mode is assumed.",
-            "-p, --protonated  Indicate that the input structure is protonated and its hydrogen atoms should be used for calculating the pertinent SMIFs (HBDonors).",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help(0)
@@ -86,8 +84,6 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             except ValueError:
                 self._exit_with_help(-1, "Pocket sphere options must be numeric values.")
             sm.PS_INFO = (radius, x_cog, y_cog, z_cog)
-
-        sm.USE_STRUCTURE_HYDROGENS = self._has_param_kwds("proton")
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -48,7 +48,7 @@ class App(ABC):
     @abstractmethod
     def CONFIG_MODULES() -> dict[str, dict[str, any]]:
         """class variable that links the pertinent keys from the config file, to the module to be configured.
-        For example: `{"VGRIDS": vg, "SMIFFER": sm}`, assuming `import volgrids.vgrids as vg` and `import volgrids.smiffer as sm`."""
+        For example: `{"VOLGRIDS": vg, "SMIFFER": sm}`, assuming `import volgrids.vgrids as vg` and `import volgrids.smiffer as sm`."""
         raise NotImplementedError()
 
 

@@ -3,7 +3,7 @@ import volgrids.vgtools as vgt
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppVGTools(vg.App):
-    CONFIG_MODULES = {"VGRIDS": vg}
+    CONFIG_MODULES = {"VOLGRIDS": vg}
     _CLASS_PARAM_HANDLER = vgt.ParamHandlerVGTools
 
     # --------------------------------------------------------------------------
