@@ -3,13 +3,16 @@ from collections import defaultdict
 import volgrids as vg
 
 # ------------------------------------------------------------------------------
-def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str]:
+def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str, bool]:
     def _assert(condition: bool):
         if not condition: raise ValueError(
             f"Triplet '{triplet}' is not in the expected formats 'I=T->H' or 'I=T0.T1->H'."
         )
 
-    parts = triplet.split('=')
+    stripped = triplet.strip('!')
+    hbond_fixed = stripped != triplet
+
+    parts = stripped.split('=')
     _assert(len(parts) == 2)
 
     interactor, direction = parts
@@ -26,7 +29,10 @@ def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str]:
     parts = tail.split('.')
     _assert((len(parts) <= 2) and parts[0])
 
-    return interactor, tail, head
+    t0 = parts[0]
+    t1 = parts[1] if len(parts) == 2 else ''
+
+    return interactor, t0, t1, head, hbond_fixed
 
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -37,9 +43,8 @@ class ParserChemTable:
         self._residues_hphob: dict[str, float] = {}
         self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
         self._names_stk: dict[str, str] = {}
-        self._names_hba: dict[str, list[tuple[str, str, str]]] = {}
-        self._names_hbd: dict[str, list[tuple[str, str, str]]] = {}
-        self._names_hbd_fixed: dict[str, list[tuple[str, str, str]]] = {}
+        self._names_hba: dict[str, list[tuple[str, str, str, bool]]] = {}
+        self._names_hbd: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._parse_table()
 
 
@@ -71,11 +76,6 @@ class ParserChemTable:
 
 
     # --------------------------------------------------------------------------
-    def get_names_hbd_fixed(self, resname: str):
-        return self._names_hbd_fixed.get(resname)
-
-
-    # --------------------------------------------------------------------------
     def _parse_table(self):
         ### extract values from the lines
         query = self._parser_ini.get("SELECTION_QUERY")
@@ -93,16 +93,12 @@ class ParserChemTable:
             self._names_stk[resname] = atomnames
 
         for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBACCEPTORS", sep = ':'):
-            triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
-            self._names_hba[resname] = triplets
+            triplets = map(_parse_atoms_triplet, str_triplets.split())
+            self._names_hba[resname] = [(hba,t0,t1,head,False) for hba,t0,t1,head,_ in triplets] # hbond_fixed must always be False for HBAcceptors
 
         for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBDONORS", sep = ':'):
             triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
             self._names_hbd[resname] = triplets
-
-        for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBD_FIXED", sep = ':'):
-            triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
-            self._names_hbd_fixed[resname] = triplets
 
         ### expand the atoms declared with the '*' wildcard to all residues (hydrophobicity)
         hphob_wildcard = self._atoms_hphob.get('*')

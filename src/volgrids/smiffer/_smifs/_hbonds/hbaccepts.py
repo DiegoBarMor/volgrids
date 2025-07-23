@@ -6,6 +6,18 @@ from .triplet import Triplet
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBAccepts(SmifHBonds):
+    # --------------------------------------------------------------------------
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.kernel = vg.KernelGaussianBivariateAngleDist(
+            radius = sm.MU_DIST_HBA + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA,
+            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBA
+        )
+        self.kernel.link_to_grid(self.grid, self.ms.minCoords)
+        self.hbond_getter = sm.ParserChemTable.get_names_hba
+
+
+    # --------------------------------------------------------------------------
     def find_tail_head_positions(self, triplet: Triplet) -> None:
         triplet.set_pos_head(self.res_atoms)
 
@@ -21,17 +33,6 @@ class SmifHBAccepts(SmifHBonds):
                 return
 
         triplet.set_pos_tail(self.res_atoms)
-
-
-    # --------------------------------------------------------------------------
-    def populate_grid(self):
-        self.kernel = vg.KernelGaussianBivariateAngleDist(
-            radius = sm.MU_DIST_HBA + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA,
-            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBA
-        )
-        self.kernel.link_to_grid(self.grid, self.ms.minCoords)
-        self.hbond_getter = sm.ParserChemTable.get_names_hba
-        self.process_kernel()
 
 
 # //////////////////////////////////////////////////////////////////////////////

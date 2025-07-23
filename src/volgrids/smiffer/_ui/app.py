@@ -67,10 +67,10 @@ class AppSmiffer(vg.App):
             cov_00 = sm.SIGMA_ANGLE_HBA**2, cov_01 = 0,
             cov_10 = 0,  cov_11 = sm.SIGMA_DIST_HBA**2,
         )
-        sm.PARAMS_HBD = vg.ParamsGaussianBivariate(
-            mu_0 = sm.MU_ANGLE_HBD, mu_1 = sm.MU_DIST_HBD,
-            cov_00 = sm.SIGMA_ANGLE_HBD**2, cov_01 = 0,
-            cov_10 = 0,  cov_11 = sm.SIGMA_DIST_HBD**2,
+        sm.PARAMS_HBD_FREE = vg.ParamsGaussianBivariate(
+            mu_0 = sm.MU_ANGLE_HBD_FREE, mu_1 = sm.MU_DIST_HBD_FREE,
+            cov_00 = sm.SIGMA_ANGLE_HBD_FREE**2, cov_01 = 0,
+            cov_10 = 0,  cov_11 = sm.SIGMA_DIST_HBD_FREE**2,
         )
         sm.PARAMS_HBD_FIXED = vg.ParamsGaussianBivariate(
             mu_0 = sm.MU_ANGLE_HBD_FIXED, mu_1 = sm.MU_DIST_HBD_FIXED,

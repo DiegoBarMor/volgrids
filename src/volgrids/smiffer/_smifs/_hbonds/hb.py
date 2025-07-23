@@ -23,7 +23,7 @@ class SmifHBonds(sm.Smif, ABC):
 
 
     # --------------------------------------------------------------------------
-    def process_kernel(self):
+    def populate_grid(self):
         for pos_interactor, vec_direction in self.iter_particles():
             self.kernel.recalculate_kernel(vec_direction, isStacking = False)
             self.kernel.stamp(pos_interactor, multiplication_factor = sm.ENERGY_SCALE)
@@ -44,15 +44,15 @@ class SmifHBonds(sm.Smif, ABC):
     # --------------------------------------------------------------------------
     def _iter_triplets(self):
         for res in self.all_atoms.residues:
-            triplet_strs = self.hbond_getter(self.ms.chemtable, res.resname)
-            if triplet_strs is None: continue # skip weird residues
+            hbond_tuples = self.hbond_getter(self.ms.chemtable, res.resname)
+            if hbond_tuples is None: continue # skip weird residues
 
             self.processed_interactors.clear()
 
-            for triplet_str in triplet_strs:
-                if not triplet_str: continue  # skip residues without HBond pairs
+            for hbond_tuple in hbond_tuples:
+                if not hbond_tuple: continue  # skip residues without HBond pairs
 
-                triplet = Triplet(res, *triplet_str)
+                triplet = Triplet(res, *hbond_tuple)
                 self.res_atoms = self.all_atoms.select_atoms(triplet.str_this_res)
                 triplet.set_pos_interactor(self.res_atoms)
                 yield triplet

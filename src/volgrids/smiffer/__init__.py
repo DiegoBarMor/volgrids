@@ -59,10 +59,10 @@ MU_DIST_HBA:     float
 SIGMA_ANGLE_HBA: float
 SIGMA_DIST_HBA:  float
 
-MU_ANGLE_HBD:    float
-MU_DIST_HBD:     float
-SIGMA_ANGLE_HBD: float
-SIGMA_DIST_HBD:  float
+MU_ANGLE_HBD_FREE:    float
+MU_DIST_HBD_FREE:     float
+SIGMA_ANGLE_HBD_FREE: float
+SIGMA_DIST_HBD_FREE:  float
 
 MU_ANGLE_HBD_FIXED:    float
 MU_DIST_HBD_FIXED:     float
@@ -84,7 +84,7 @@ __config_keys__ = set(__annotations__.keys())
 ############################### NUMERIC GLOBALS ################################
 import volgrids as _vg
 PARAMS_HBA:       _vg.ParamsGaussianBivariate
-PARAMS_HBD:       _vg.ParamsGaussianBivariate
+PARAMS_HBD_FREE:  _vg.ParamsGaussianBivariate
 PARAMS_HBD_FIXED: _vg.ParamsGaussianBivariate
 PARAMS_HPHOB:     _vg.ParamsGaussianUnivariate
 PARAMS_HPHIL:     _vg.ParamsGaussianUnivariate

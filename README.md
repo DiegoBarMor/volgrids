@@ -242,6 +242,7 @@ Run `python3 run/vgtools.py [mode] [options...]` and provide the parameters of t
 * provide download links for the testdata folder
 * change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
+* check if there's a bug in the peptide bond N of the test toy system peptide_no_h
 
 ## VEINS
 * implement "forces" mode

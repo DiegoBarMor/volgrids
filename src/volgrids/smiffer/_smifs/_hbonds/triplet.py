@@ -13,15 +13,15 @@ def _safe_return_coords(atoms: mda.AtomGroup, sel_string: str):
 
 # //////////////////////////////////////////////////////////////////////////////
 class Triplet:
-    def __init__(self, res: Residue, interactor: str, tail: str, head: str):
-        parts = tail.split('.')
-        t0 = parts[0]
-        t1 = parts[1] if len(parts) == 2 else ''
-
-        self._t0 = t0
-        self._t1 = t1
+    def __init__(self,
+        res: Residue, interactor: str,
+        tail_0: str, tail_1: str, head: str, hbond_fixed: bool
+    ):
+        self._t0 = tail_0
+        self._t1 = tail_1
         self._head = head
         self.interactor = interactor
+        self.hbond_fixed = hbond_fixed
 
         self.pos_tail: np.ndarray | None = None
         self.pos_head: np.ndarray | None = None
