@@ -75,12 +75,12 @@ class SmifHBDonors(SmifHBonds, ABC):
         )
         _kernel_hbd_fixed.link_to_grid(self.grid, self.ms.minCoords)
 
-        self.hbond_getter = sm.ChemTable.get_names_hbd
+        self.hbond_getter = sm.ParserChemTable.get_names_hbd
         self._kernel_std = _kernel_hbd
         self._kernel_alt = _kernel_hbd_fixed
         self.process_kernel()
 
-        self.hbond_getter = sm.ChemTable.get_names_hbd_fixed
+        self.hbond_getter = sm.ParserChemTable.get_names_hbd_fixed
         self._kernel_std = _kernel_hbd_fixed
         self._kernel_alt = _kernel_hbd_fixed
         self.process_kernel()

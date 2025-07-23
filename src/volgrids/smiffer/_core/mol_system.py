@@ -17,7 +17,7 @@ class MolType(Enum):
 class MolSystemSmiffer(vg.MolSystem):
     def __init__(self, path_struct: Path, path_traj: Path = None):
         self.do_ps = sm.PS_INFO is not None
-        self.chemtable = sm.ChemTable(self._get_path_table())
+        self.chemtable = sm.ParserChemTable(self._get_path_table())
         self._init_attrs_from_molecules(path_struct, path_traj)
 
 

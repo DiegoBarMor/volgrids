@@ -26,14 +26,14 @@ def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str]:
     parts = tail.split('.')
     _assert((len(parts) <= 2) and parts[0])
 
-    return tail, head, interactor
+    return interactor, tail, head
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class ChemTable:
+class ParserChemTable:
     def __init__(self, path_table):
-        self.parser_ini = vg.ParserIni(path_table)
         self.selection_query: str = ''
+        self._parser_ini = vg.ParserIni(path_table)
         self._residues_hphob: dict[str, float] = {}
         self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
         self._names_stk: dict[str, str] = {}
@@ -78,29 +78,29 @@ class ChemTable:
     # --------------------------------------------------------------------------
     def _parse_table(self):
         ### extract values from the lines
-        query = self.parser_ini.get("SELECTION_QUERY")
+        query = self._parser_ini.get("SELECTION_QUERY")
         if query is None: raise ValueError("No selection query found in the table file.")
         self.selection_query = query[0]
 
-        for resname, value in self.parser_ini.iter_splitted_lines("RES_HPHOBICITY", sep = ':'):
+        for resname, value in self._parser_ini.iter_splitted_lines("RES_HPHOBICITY", sep = ':'):
             self._residues_hphob[resname] = float(value)
 
-        for names, value in self.parser_ini.iter_splitted_lines("ATOM_HPHOBICITY", sep = ':'):
+        for names, value in self._parser_ini.iter_splitted_lines("ATOM_HPHOBICITY", sep = ':'):
             resname, atomname = names.split('/')
             self._atoms_hphob[resname][atomname] = float(value)
 
-        for resname, atomnames in self.parser_ini.iter_splitted_lines("NAMES_STACKING", sep = ':'):
+        for resname, atomnames in self._parser_ini.iter_splitted_lines("NAMES_STACKING", sep = ':'):
             self._names_stk[resname] = atomnames
 
-        for resname, str_triplets in self.parser_ini.iter_splitted_lines("NAMES_HBACCEPTORS", sep = ':'):
+        for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBACCEPTORS", sep = ':'):
             triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
             self._names_hba[resname] = triplets
 
-        for resname, str_triplets in self.parser_ini.iter_splitted_lines("NAMES_HBDONORS", sep = ':'):
+        for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBDONORS", sep = ':'):
             triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
             self._names_hbd[resname] = triplets
 
-        for resname, str_triplets in self.parser_ini.iter_splitted_lines("NAMES_HBD_FIXED", sep = ':'):
+        for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBD_FIXED", sep = ':'):
             triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
             self._names_hbd_fixed[resname] = triplets
 

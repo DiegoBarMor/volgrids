@@ -13,7 +13,7 @@ def _safe_return_coords(atoms: mda.AtomGroup, sel_string: str):
 
 # //////////////////////////////////////////////////////////////////////////////
 class Triplet:
-    def __init__(self, res: Residue, tail: str, head: str, interactor: str):
+    def __init__(self, res: Residue, interactor: str, tail: str, head: str):
         parts = tail.split('.')
         t0 = parts[0]
         t1 = parts[1] if len(parts) == 2 else ''

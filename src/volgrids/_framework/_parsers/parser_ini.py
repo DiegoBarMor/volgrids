@@ -2,6 +2,10 @@ import re
 
 # //////////////////////////////////////////////////////////////////////////////
 class ParserIni:
+    """Parser for INI-like files, extracting sections and their corresponding lines."""
+    _CHAR_COMMENT = '#'
+
+    # --------------------------------------------------------------------------
     def __init__(self, path_ini):
         self._ini_sections: dict[str, list[str]] = {}
         with open(path_ini, 'r') as file:
@@ -9,9 +13,12 @@ class ParserIni:
 
 
     # --------------------------------------------------------------------------
-    @staticmethod
-    def split_line(line: str, sep: str = '=') -> tuple[str, str]:
-        line = line.split('#')[0].strip() # Remove comments
+    @classmethod
+    def split_line(cls, line: str, sep: str = '=') -> tuple[str, str]:
+        """
+        Splits a line into a key-value pair based on the specified separator.
+        """
+        line = line.split(cls._CHAR_COMMENT)[0].strip() # Remove comments
         pair = tuple(map(str.strip, line.split(sep)))
         if len(pair) != 2:
             raise ValueError(f"Line '{line}' does not contain '{sep}'")
@@ -42,12 +49,17 @@ class ParserIni:
         """
         for line in self._ini_sections.get(key, []):
             line = line.strip()
-            if not line or line.startswith('#'): continue
+            if not line or line.startswith(self._CHAR_COMMENT): continue
             yield line
 
 
     # --------------------------------------------------------------------------
     def iter_splitted_lines(self, key: str, sep: str = '='):
+        """
+        Iterates over the lines of the section identified by key,
+        splitting each line into a key-value pair based on the specified separator.
+        Yields tuples of (key, value) for each line.
+        """
         for line in self.iter_lines(key):
             yield self.split_line(line, sep)
 

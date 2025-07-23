@@ -30,7 +30,7 @@ class SmifHBAccepts(SmifHBonds):
             deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBA
         )
         self.kernel.link_to_grid(self.grid, self.ms.minCoords)
-        self.hbond_getter = sm.ChemTable.get_names_hba
+        self.hbond_getter = sm.ParserChemTable.get_names_hba
         self.process_kernel()
 
 

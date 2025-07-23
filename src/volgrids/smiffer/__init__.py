@@ -1,7 +1,7 @@
 from ._core.mol_system import MolType, MolSystemSmiffer
 from ._core.trimmer import Trimmer
 
-from ._parsers.chem_table import ChemTable
+from ._parsers.parser_chem_table import ParserChemTable
 
 from ._smifs.smif import Smif
 from ._smifs.apbs import SmifAPBS
