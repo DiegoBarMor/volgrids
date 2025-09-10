@@ -4,8 +4,8 @@ set -eu
 echo
 echo ">>> TEST SMIFFER 1: Benchmark, Pocket Sphere mode"
 
-fapbs="testdata/_input/apbs"
-fpdb="testdata/_input/pdb-nosolv"
+fapbs="testdata/smiffer/apbs"
+fpdb="testdata/smiffer/pdb-nosolv"
 fout="testdata/smiffer/pocket_sphere"
 rm -rf $fout; mkdir -p $fout
 

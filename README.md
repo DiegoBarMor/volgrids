@@ -96,18 +96,18 @@ Run `python3 run/smiffer.py [mode] [path_structure] [options...]` and provide th
 ## Commands examples
 - Sample commands to obtain the electrostatic grids from [pdb2pqr](https://pdb2pqr.readthedocs.io/en/latest/) and [APBS](https://apbs.readthedocs.io/en/latest/)
 ```
-pdb2pqr --ff=AMBER testdata/_input/pdb-nosolv/1iqj.pdb testdata/_input/pqr/1iqj.pqr --apbs-input testdata/_input/1iqj.in
-apbs testdata/_input/1iqj.in
+pdb2pqr --ff=AMBER testdata/smiffer/pdb-nosolv/1iqj.pdb testdata/smiffer/pqr/1iqj.pqr --apbs-input testdata/smiffer/1iqj.in
+apbs testdata/smiffer/1iqj.in
 ```
 
 - Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-rxyz`).
 ```
-python3 run/smiffer.py prot testdata/_input/pdb-nosolv/1iqj.pdb -rxyz 14.675 4.682 21.475 7.161
+python3 run/smiffer.py prot testdata/smiffer/pdb-nosolv/1iqj.pdb -rxyz 14.675 4.682 21.475 7.161
 ```
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```
-python3 run/smiffer.py rna testdata/_input/pdb-nosolv/5bjo.pdb -a testdata/_input/apbs/5bjo.pqr.dx
+python3 run/smiffer.py rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/_input/apbs/5bjo.pqr.dx
 ```
 
 - Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that this is only implemented for "whole" mode at the moment.

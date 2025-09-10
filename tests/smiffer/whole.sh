@@ -4,8 +4,8 @@ set -eu
 echo
 echo ">>> TEST SMIFFER 2: Benchmark, Whole mode"
 
-fapbs="testdata/_input/apbs"
-fpdb="testdata/_input/pdb-nosolv"
+fapbs="testdata/smiffer/apbs"
+fpdb="testdata/smiffer/pdb-nosolv"
 fout="testdata/smiffer/whole"
 rm -rf $fout; mkdir -p $fout
 

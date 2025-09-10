@@ -3,16 +3,16 @@ set -eu
 
 ### folders that should already exist
 fdata="testdata/_input"
-fpdb_orig="$fdata/pdb-original"
-fframes="$fdata/_example_frames"
+fpdb_orig="$fdata/smiffer_benchmark"
+fframes="$fdata/inconsistent_frames"
 
 ### folders that will be created
-fpdb_nosolv="$fdata/pdb-nosolv"
-fapbs="$fdata/apbs"
 fsmiffer="testdata/smiffer"
+fpdb_nosolv="$fsmiffer/pdb-nosolv"
+fapbs="$fsmiffer/apbs"
 
-rm   -rf $fpdb_nosolv $fapbs $fsmiffer
-mkdir -p $fpdb_nosolv $fapbs $fsmiffer
+rm   -rf $fsmiffer
+mkdir -p $fpdb_nosolv $fapbs
 
 ### folders that will just be copied
 cp -r "$fdata/ligands" "$fsmiffer/ligands"

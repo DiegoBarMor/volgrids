@@ -3,7 +3,7 @@ set -eu
 
 if [[ "$#" -ne 2 ]]; then
     echo "Usage: $0 <path_pdb> <folder_output>"
-    echo "Example: $0 testdata/_input/pdb-nosolv/1iqj.pdb testdata/_input/apbs"
+    echo "Example: $0 testdata/smiffer/pdb-nosolv/1iqj.pdb testdata/smiffer/apbs"
     exit 1
 fi
 
