@@ -13,3 +13,6 @@ python3 run/smiffer.py prot testdata/_input/toy_systems/peptide.pdb -o $fout
 ### try running it somewhere else
 cd ~
 python3 "$root"/run/smiffer.py prot "$root"/testdata/_input/toy_systems/peptide.pdb -o $fout
+
+cd "$root"
+rm -rf $fout

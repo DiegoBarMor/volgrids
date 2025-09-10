@@ -1,0 +1,79 @@
+### the ".chem" tables contain the parameters for the SMIFer calculations of a molecular system
+### sections are divided by headers surrounded by square brackets, e.g. [HEADER]
+### the specific syntax of every section will be explained in this template
+### comments starting from any # character are ignored
+
+
+
+################################################################################ SELECTION
+### this is the molecular query that MDAnalysis will apply to select only the atoms of interest
+
+[SELECTION_QUERY]
+resname TSC
+
+
+
+################################################################################ HYDROPHOBIC/HYDROPHILIC
+### the hydrophobocity/hydrophilicity SMIF currently has two kinds of scales
+### - RES_HPHOBICITY: a global residue scale, where the atoms' types are disregarded and instead a common factor is applied according to the residue they're part of (e.g. protein SMIFs, to follow the philosophy of residue hydrophobicity scales like KD or WW)
+### - ATOM_HPHOBICITY: a local atomic scale, where the residue is disregarded and every atom name has its own scale (e.g. rna SMIFs, useful to make the distinction between phosphate-ribose-base)
+### inside the code, both scales are multiplied for every calculation. However, this might not make much sense
+### so in practice it could be best to use only one of the two options (the other defaults to 1 if left empty)
+
+[RES_HPHOBICITY]
+
+# for ligands it probably makes more sense to use the atom-wise scale, so leave this one empty for now
+
+
+[ATOM_HPHOBICITY]
+TSC/CG:   1.01 # atom scales have the following format: resname/atomname
+*/CD2:    1.05 # instead of the resname, you can also use the * wildcard to apply for any residue
+*/CE3:    1.05 # this is useful in case the selection query covers multiple residues, or just as syntactic sugar
+TSC/CZ3:  1.10 # note: in this example, the numerical values are arbitrary
+TSC/CH2:  1.10
+TSC/CZ2:  1.05
+TSC/CE2:  0.50
+TSC/NE1: -0.80
+TSC/CD1:  0.50
+TSC/CB:   0.80
+TSC/CA:   0.50
+TSC/N:   -1.05
+TSC/O1:  -1.05
+
+
+
+################################################################################ STACKING
+### for every stacking group of the molecule, a row with the atom names composing the group should be provided
+### then for every row of atom names, a stacking SMIF will be placed in the center of geometry of the specified atoms
+### every row should have the format: "resname: atom1 atom2 atom3 ..."
+
+[NAMES_STACKING]
+TSC: CD2 CE3 CZ3 CH2 CZ2 CE2
+
+
+
+################################################################################ HYDROGEN BONDS
+### for calculating the hbond SMIFs, a reference directional pivot vector is required for calculating the angular dependence of the gaussian
+### in other words, this vector is used as normal pivot when calculating the hypothetical hbond angles (i.e. axis of rotation for the gaussian)
+### given that the code supports molecules without hydrogens, these pivot vectors are to be declared in other ways in these tables
+
+### the pivot vector can be described as "tail->head", where "head" and "tail" are the two points used to calculate its directionality,
+### by substracting "tail" from "head". this pivot vector is then centered in the respective "acceptor" or "donor" atom
+### usually "head" corresponds to the acceptor/donor and "tail" to its antecedent atom, but this might not always be the case
+
+### in short, at least three points are required for every hbond interactions: "tail", "head" and "interactor" (i.e. "donor" or "acceptor")
+### the standard way of declaring these triplets is with the format "interactor=tail->head" by using the respective atom names
+### for every residue, all the triplets are placed in the same line, separated with whitespaces
+
+### in the case of multiple antecedents (think of NE1 or O1 in this example ligand), the "tail" is the point in between these two atoms
+### in this case, the atom names are to be placed in this format: "interactor=antecedent1.antecent2->acceptor"
+
+### finally, when there's a geometrical constraint that allows to infer the precise direction in which the hydrogen should be, the model takes this into account
+### in this case, a "!" character must be added at the end of the interaction to inform the model about this detail
+
+[NAMES_HBACCEPTORS]
+TSC: O1=CA->O1
+
+
+[NAMES_HBDONORS]
+TSC: O1=CA->O1 N=CA->N NE1=CD1.CE2->NE1!

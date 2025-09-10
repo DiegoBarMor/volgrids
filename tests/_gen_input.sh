@@ -1,19 +1,28 @@
 #!/bin/bash
 set -eu
 
+### folders that should already exist
 fdata="testdata/_input"
 fpdb_orig="$fdata/pdb-original"
+fframes="$fdata/_example_frames"
+
+### folders that will be created
 fpdb_nosolv="$fdata/pdb-nosolv"
 fapbs="$fdata/apbs"
-fframes="$fdata/_example_frames"
+fsmiffer="testdata/smiffer"
+
+rm   -rf $fpdb_nosolv $fapbs $fsmiffer
+mkdir -p $fpdb_nosolv $fapbs $fsmiffer
+
+### folders that will just be copied
+cp -r "$fdata/ligands" "$fsmiffer/ligands"
+cp -r "$fdata/traj"    "$fsmiffer/traj"
 
 
 
 ################################################################################
 ##################################### APBS #####################################
 ################################################################################
-rm -rf $fpdb_nosolv $fapbs
-mkdir -p $fpdb_nosolv $fapbs
 
 tmp_py=$fdata/remove_solvent.tmp.py
 cat > $tmp_py <<- EOM
