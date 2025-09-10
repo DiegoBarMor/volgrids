@@ -105,5 +105,3 @@ FOLDER_OUT:      _pathlib.Path = None # "folder/output/"
 
 PS_INFO: tuple[float, float, float, float] = None # pocket sphere info: [radius, x, y, z]
 CURRENT_MOLTYPE: MolType = MolType.NONE           # type of the current molecule
-
-USE_STRUCTURE_HYDROGENS = False # whether to use hydrogens from the structure to calculate hbond smifs

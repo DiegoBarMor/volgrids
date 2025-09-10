@@ -85,9 +85,9 @@ class SmifHBDonors(SmifHBonds, ABC):
             if len(hydrogens) == 0:
                 sm.USE_STRUCTURE_HYDROGENS = False
             else:
-                u = mda.Merge(self.all_atoms, hydrogens)
-                u.guess_TopologyAttrs(to_guess = ["bonds"]) # bond guess is performed in a temporary universe that excludes any unwanted atoms (like ions with undefined vdw radii)
-                self.all_atoms = u.atoms # the all_atoms reference must be also updated to this temporary universe that contains the bonds
+                u = mda.Merge(self.all_atoms, hydrogens)    # temporary universe that excludes any unwanted atoms (like ions with undefined vdw radii)...
+                u.guess_TopologyAttrs(to_guess = ["bonds"]) # ... so that there are no problems with the bond guessing
+                self.all_atoms = u.atoms # the bonds are contained in these newly defined atomgroup, so update the all_atoms reference
 
         for triplet in super()._iter_triplets():
             if triplet.interactor in self.processed_interactors: continue
