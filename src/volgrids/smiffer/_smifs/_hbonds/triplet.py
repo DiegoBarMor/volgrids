@@ -15,10 +15,9 @@ def _safe_return_coords(atoms: mda.AtomGroup, sel_string: str):
 class Triplet:
     def __init__(self,
         res: Residue, interactor: str,
-        tail_0: str, tail_1: str, head: str, hbond_fixed: bool
+        tail: tuple[str], head: str, hbond_fixed: bool
     ):
-        self._t0 = tail_0
-        self._t1 = tail_1
+        self._tail = tail
         self._head = head
         self.interactor = interactor
         self.hbond_fixed = hbond_fixed
@@ -35,7 +34,7 @@ class Triplet:
     # --------------------------------------------------------------------------
     def set_pos_tail(self, atoms: mda.AtomGroup) -> np.ndarray | None:
         self.pos_tail = _safe_return_coords(
-            atoms, f"name {self._t0} {self._t1}"
+            atoms, f"name {' '.join(self._tail)}"
         )
 
 
@@ -57,10 +56,15 @@ class Triplet:
     def set_pos_tail_custom(self,
         atoms: mda.AtomGroup, query_t0: str, query_t1: str
     ) -> np.ndarray | None:
+        """
+        Reserved for special cases in protein and RNA.
+        """
+        assert len(self._tail) == 2, "Custom tail position can only be set for triplets with two tail points."
+        t0, t1 = self._tail
         self.pos_tail = _safe_return_coords(
             atoms,
-            f"({query_t0} and name {self._t0}) or " +\
-            f"({query_t1} and name {self._t1})"
+            f"({query_t0} and name {t0}) or " +\
+            f"({query_t1} and name {t1})"
         )
 
 

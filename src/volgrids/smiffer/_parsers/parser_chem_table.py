@@ -5,9 +5,8 @@ import volgrids as vg
 # ------------------------------------------------------------------------------
 def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str, bool]:
     def _assert(condition: bool):
-        if not condition: raise ValueError(
+        assert condition, \
             f"Triplet '{triplet}' is not in the expected formats 'I=T->H' or 'I=T0.T1->H'."
-        )
 
     stripped = triplet.strip('!')
     hbond_fixed = stripped != triplet
@@ -22,17 +21,16 @@ def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str, bool]:
     tail, head = parts
     _assert(tail and head and interactor)
 
-    ### 'i=t->h' is valid
-    ### 'i=t0.t1->h' is valid
-    ### 'i=t0.->h' is valid but discouraged
-    ### 'i=.t1->h' isn't valid
-    parts = tail.split('.')
-    _assert((len(parts) <= 2) and parts[0])
+    ### valid syntax?  | yes | no |
+    ### 'i=t->h'       |  X  |    |
+    ### 'i=t0.t1->h'   |  X  |    |
+    ### 'i=t0.t1.t2->h'|  X  |    |
+    ### 'i=t0.->h'     |     | X  |
+    ### 'i=.t1->h'     |     | X  |
+    tail_points = tail.split('.')
+    _assert(len(tail_points) > 0 and all(tail_points))
 
-    t0 = parts[0]
-    t1 = parts[1] if len(parts) == 2 else ''
-
-    return interactor, t0, t1, head, hbond_fixed
+    return interactor, tail_points, head, hbond_fixed
 
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -94,7 +92,7 @@ class ParserChemTable:
 
         for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBACCEPTORS", sep = ':'):
             triplets = map(_parse_atoms_triplet, str_triplets.split())
-            self._names_hba[resname] = [(hba,t0,t1,head,False) for hba,t0,t1,head,_ in triplets] # hbond_fixed must always be False for HBAcceptors
+            self._names_hba[resname] = [(hba,tail,head,False) for hba,tail,head,_ in triplets] # hbond_fixed must always be False for HBAcceptors
 
         for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBDONORS", sep = ':'):
             triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
