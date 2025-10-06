@@ -1,11 +1,12 @@
+"""
+Script to run Smiffer from the command line.
+Installing the volgrids package is not necessary.
+Please run from the root of the repository, e.g.:
+    python run/smiffer.py --help
+"""
+
 import warnings
-
-### simulate having "volgrids" installed as a package
-### this way it's not necessary to install the repo to run this script
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
+from _mods.allow_root_imports import *
 import volgrids.veins as ve
 
 if __name__ == "__main__":

@@ -1,6 +1,12 @@
 # Volumetric Grids (VolGrids)
 This is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`run/smiffer.py`), **Volumetric Energy INSpector (VEINS)** (`run/veins.py`) and **Volgrid Tools** (`run/vgtools.py`). You can read more in their respective sections.
 
+## QuickStart
+```
+pip install -r environment/requirements.txt
+python3 run/smiffer.py --help
+```
+
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- -------------------------------- SETUP -------------------------------- -->
