@@ -9,17 +9,18 @@ class ParamHandlerVeins(vg.ParamHandler):
         "traj"  : ("-t", "--trajectory"),
         "cutoff": ("-c", "--cutoff"),
     }
+    _DEFAULT_ENERGY_CUTOFF = 1e-3
 
 
     # --------------------------------------------------------------------------
     def assign_globals(self):
         self._set_help_str(
-            "usage: run/python3 veins.py [mode] [options...]",
+            "[WIP] WORK IN PROGRESS - NOT YET FUNCTIONAL",
+            "usage: python3 run/veins.py [mode] [options...]",
             "Available modes:",
             "  energies - Generate grids to visually represent in space the interaction energies of a molecular system.",
             # "  force  - ", # TODO: Implement force mode
-            "Run 'run/python3 veins.py [mode] --help' for more details on each mode.",
-            "Running 'run/python3 veins.py' without a valid mode will display this help message.",
+            "Run 'python3 run/veins.py [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
             self._exit_with_help(0)
@@ -35,7 +36,7 @@ class ParamHandlerVeins(vg.ParamHandler):
     # --------------------------------------------------------------------------
     def _parse_energies(self) -> None:
         self._set_help_str(
-            "usage: run/python3 veins.py energy [path/input/structure.pdb] [path/input/energies.csv] [options...]",
+            "usage: python3 run/veins.py energy [path/input/structure.pdb] [path/input/energies.csv] [options...]",
             "Available options:",
             "-h, --help       Show this help message and exit.",
             "-o, --output     Path to the folder where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
@@ -57,19 +58,9 @@ class ParamHandlerVeins(vg.ParamHandler):
             )
         )
 
-        ve.FOLDER_OUT = self._safe_path_folder_out(
-            self._safe_get_param_kwd("output", 0) if self._has_param_kwds("output") \
-            else ve.PATH_STRUCTURE.parent
-        )
-
-        if self._has_param_kwds("traj"):
-            ve.PATH_TRAJECTORY = self._safe_kwd_file_in("traj")
-
-        if self._has_param_kwds("cutoff"):
-            try:
-                ve.ENERGY_CUTOFF = float(self._safe_get_param_kwd("cutoff", 0))
-            except ValueError:
-                self._exit_with_help(-1, "The cutoff value must be a valid float number.")
+        ve.FOLDER_OUT = self._safe_kwd_folder_out("output", default = ve.PATH_STRUCTURE.parent)
+        ve.PATH_TRAJECTORY = self._safe_kwd_file_in("traj")
+        ve.ENERGY_CUTOFF = self._safe_kwd_float("cutoff", default = self._DEFAULT_ENERGY_CUTOFF)
 
 
     # --------------------------------------------------------------------------

@@ -62,17 +62,10 @@ class ParamHandlerVGTools(vg.ParamHandler):
             )
         )
 
-        if self._has_param_kwds("dx"):
-            vgt.PATH_CONVERT_DX = self._safe_kwd_file_out("dx")
-
-        if self._has_param_kwds("mrc"):
-            vgt.PATH_CONVERT_MRC = self._safe_kwd_file_out("mrc")
-
-        if self._has_param_kwds("ccp4"):
-            vgt.PATH_CONVERT_CCP4 = self._safe_kwd_file_out("ccp4")
-
-        if self._has_param_kwds("cmap"):
-            vgt.PATH_CONVERT_CMAP = self._safe_kwd_file_out("cmap")
+        vgt.PATH_CONVERT_DX   = self._safe_kwd_file_out("dx")
+        vgt.PATH_CONVERT_MRC  = self._safe_kwd_file_out("mrc")
+        vgt.PATH_CONVERT_CCP4 = self._safe_kwd_file_out("ccp4")
+        vgt.PATH_CONVERT_CMAP = self._safe_kwd_file_out("cmap")
 
 
     # --------------------------------------------------------------------------
@@ -89,10 +82,10 @@ class ParamHandlerVGTools(vg.ParamHandler):
 
         vgt.PATHS_PACK_IN = [
             self._safe_path_file_in(path) for path in \
-            self._safe_get_param_kwd_list("input", 0)
+            self._safe_get_param_kwd_list("input")
         ]
 
-        vgt.PATH_PACK_OUT = self._safe_kwd_file_out("output")
+        vgt.PATH_PACK_OUT = self._safe_kwd_file_out("output", required = True)
 
 
     # --------------------------------------------------------------------------
@@ -107,12 +100,8 @@ class ParamHandlerVGTools(vg.ParamHandler):
         if self._has_param_kwds("help"):
             self._exit_with_help(0)
 
-        vgt.PATH_UNPACK_IN = self._safe_kwd_file_in("input")
-
-        vgt.PATH_UNPACK_OUT = self._safe_path_folder_out(
-            self._safe_get_param_kwd("output", 0) if self._has_param_kwds("output") \
-            else vgt.PATH_UNPACK_IN.parent
-        )
+        vgt.PATH_UNPACK_IN = self._safe_kwd_file_in("input", required = True)
+        vgt.PATH_UNPACK_OUT = self._safe_kwd_folder_out("output", default = vgt.PATH_UNPACK_IN.parent)
 
 
     # --------------------------------------------------------------------------
@@ -127,9 +116,8 @@ class ParamHandlerVGTools(vg.ParamHandler):
         if self._has_param_kwds("help"):
             self._exit_with_help(0)
 
-        vgt.PATH_FIXCMAP_IN = self._safe_kwd_file_in("input")
-
-        vgt.PATH_FIXCMAP_OUT = self._safe_kwd_file_out("output")
+        vgt.PATH_FIXCMAP_IN = self._safe_kwd_file_in("input", required = True)
+        vgt.PATH_FIXCMAP_OUT = self._safe_kwd_file_out("output", required = True)
 
 
     # --------------------------------------------------------------------------
@@ -155,7 +143,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             )
         )
 
-        vgt.THRESHOLD_COMPARE = self._safe_kwd_float("thresh", self._DEFAULT_COMPARISON_THRESHOLD)
+        vgt.THRESHOLD_COMPARE = self._safe_kwd_float("thresh", default = self._DEFAULT_COMPARISON_THRESHOLD)
 
 
 # //////////////////////////////////////////////////////////////////////////////

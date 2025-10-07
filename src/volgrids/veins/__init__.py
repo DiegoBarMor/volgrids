@@ -18,4 +18,4 @@ PATH_ENERGIES_CSV: _pathlib.Path = None # "path/input/energies.csv"
 PATH_TRAJECTORY:   _pathlib.Path = None # "path/input/traj.xtc"
 FOLDER_OUT:        _pathlib.Path = None # "path/output/"
 
-ENERGY_CUTOFF:     float = 1e-3  # Energies below this cutoff will be ignored
+ENERGY_CUTOFF: float # Energies below this cutoff will be ignored (default 1e-3)

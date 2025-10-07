@@ -39,4 +39,4 @@ PATH_FIXCMAP_OUT: _pathlib.Path = None # "path/output/fix.cmap"
 ### Compare
 PATH_COMPARE_IN_0: _pathlib.Path = None # "path/input/grid_0.mrc"
 PATH_COMPARE_IN_1: _pathlib.Path = None # "path/input/grid_1.mrc"
-THRESHOLD_COMPARE: float # threshold for comparison (default 1e-3)
+THRESHOLD_COMPARE: float # threshold for comparison (default 1e-5)

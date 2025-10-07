@@ -49,6 +49,14 @@ pip install mdanalysis h5py
 
 
 <!-- ----------------------------------------------------------------------- -->
+### APBS (optional)
+```
+sudo apt-get install apbs
+sudo apt install pdb2pqr
+```
+
+
+<!-- ----------------------------------------------------------------------- -->
 ## Usage
 ### Without installing VolGrids
 You can use the tools provided by VolGrids without installing it, by calling any of the scripts in the root directory of this repository (it doesn't have to be the current directory, you can call them from anywhere). Leave `[options...]` empty to read more about the available options.

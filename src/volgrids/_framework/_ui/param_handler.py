@@ -41,8 +41,7 @@ class ParamHandler(ABC):
         params_kwd: dict[str, list[str]] = {current_name: []}
         cli_args = sys.argv[1:]
 
-        while cli_args:
-            arg = cli_args.pop(0)
+        for arg in cli_args:
             if arg.lower() in alias_to_flagname: # arg is a flag
                 current_name = alias_to_flagname[arg.lower()]
                 if current_name in params_kwd:
@@ -74,7 +73,7 @@ class ParamHandler(ABC):
 
 
     # --------------------------------------------------------------------------
-    def _has_param_kwds(self, *names: str) -> list[str]:
+    def _has_param_kwds(self, *names: str) -> bool:
         return all(name in self._params_kwd for name in names)
 
 
@@ -108,16 +107,26 @@ class ParamHandler(ABC):
 
 
     # --------------------------------------------------------------------------
-    def _safe_get_param_kwd_list(self, name: str, err_msg: str = None) -> list[str]:
+    def _safe_get_param_kwd_list(self, name: str, min_len: int = 1) -> list[str]:
         if not self._has_param_kwds(name):
-            self._exit_with_help(-1, err_msg if err_msg else f"The flag '{name}' was not provided.")
-        return self._params_kwd[name]
+            self._exit_with_help(-1, f"The flag '{name}' was not provided.")
+        lst = self._params_kwd[name]
+        if len(lst) < min_len:
+            self._exit_with_help(-1, f"The flag '{name}' was used but not enough values were provided. At least {min_len} value(s) expected.")
+        return lst
 
 
     # --------------------------------------------------------------------------
-    def _safe_get_param_kwd(self, name: str, idx: int, err_msg: str = None) -> str:
-        lst = self._safe_get_param_kwd_list(name, err_msg)
-        return self._safe_idx(lst, idx, err_msg if err_msg else f"The flag '{name}' was used but not enough values were provided.")
+    def _safe_get_param_kwd(self, name: str, required = False, default: str = None) -> str:
+        if self._has_param_kwds(name):
+            lst = self._params_kwd[name]
+            if lst: return lst[0]
+            self._exit_with_help(-1, f"The flag '{name}' was used but no value was provided.")
+
+        if required:
+            self._exit_with_help(-1, f"The mandatory flag '{name}' was not provided.")
+
+        return default
 
 
     # --------------------------------------------------------------------------
@@ -149,28 +158,34 @@ class ParamHandler(ABC):
 
 
     # --------------------------------------------------------------------------
-    def _safe_kwd_file_in(self, name: str) -> Path:
-        return self._safe_path_file_in(
-            self._safe_get_param_kwd(name, 0)
-        )
+    def _safe_kwd_file_in(self, name: str, required = False, default: str = None) -> Path | None:
+        path = self._safe_get_param_kwd(name, required, default)
+        if path is None: return
+        return self._safe_path_file_in(path)
 
 
     # --------------------------------------------------------------------------
-    def _safe_kwd_file_out(self, name: str) -> Path:
-        return self._safe_path_file_out(
-            self._safe_get_param_kwd(name, 0)
-        )
+    def _safe_kwd_file_out(self, name: str, required = False, default: str = None) -> Path | None:
+        path = self._safe_get_param_kwd(name, required, default)
+        if path is None: return
+        return self._safe_path_file_out(path)
 
 
     # --------------------------------------------------------------------------
-    def _safe_kwd_float(self, name: str, default: float = 0.0) -> float:
-        if not self._has_param_kwds(name):
-            return default
-        val = self._safe_get_param_kwd(name, 0)
+    def _safe_kwd_folder_out(self, name: str, required = False, default: str = None) -> Path | None:
+        path = self._safe_get_param_kwd(name, required, default)
+        if path is None: return
+        return self._safe_path_folder_out(path)
+
+
+    # --------------------------------------------------------------------------
+    def _safe_kwd_float(self, name: str, required = False, default: float = 0.0) -> float:
+        val_str: str = self._safe_get_param_kwd(name, required)
+        if val_str is None: return default
         try:
-            return float(val)
+            return float(val_str)
         except ValueError:
-            self._exit_with_help(-1, f"The value for the flag '{name}' must be a float.")
+            self._exit_with_help(-1, f"The value for the flag '{name}' must be a float. Got '{val_str}' instead.")
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -49,30 +49,20 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         if self._has_param_kwds("help"):
             self._exit_with_help(0)
 
+        if sm.CURRENT_MOLTYPE.is_ligand() and not self._has_param_kwds("table"):
+            self._exit_with_help(-1, "No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file.")
+
         sm.PATH_STRUCTURE = self._safe_path_file_in(
             self._safe_get_param_pos(1,
                err_msg = "No input structure file provided. Provide a path to the structure file as first positional argument."
             )
         )
 
-        sm.FOLDER_OUT = self._safe_path_folder_out(
-            self._safe_get_param_kwd("output", 0) if self._has_param_kwds("output") \
-            else sm.PATH_STRUCTURE.parent
-        )
-
-        if self._has_param_kwds("traj"):
-            sm.PATH_TRAJECTORY = self._safe_kwd_file_in("traj")
-
-        if self._has_param_kwds("apbs"):
-            sm.PATH_APBS = self._safe_kwd_file_in("apbs")
-
-        if self._has_param_kwds("table"):
-            sm.PATH_TABLE = self._safe_kwd_file_in("table")
-        elif sm.CURRENT_MOLTYPE == sm.MolType.LIGAND:
-            self._exit_with_help(-1, "No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file.")
-
-        if self._has_param_kwds("config"):
-            vg.PATH_CUSTOM_CONFIG = self._safe_kwd_file_in("config")
+        sm.FOLDER_OUT = self._safe_kwd_folder_out("output", default = sm.PATH_STRUCTURE.parent)
+        sm.PATH_TRAJECTORY    = self._safe_kwd_file_in("traj")
+        sm.PATH_APBS          = self._safe_kwd_file_in("apbs")
+        sm.PATH_TABLE         = self._safe_kwd_file_in("table")
+        vg.PATH_CUSTOM_CONFIG = self._safe_kwd_file_in("config")
 
         if self._has_param_kwds("pocket"):
             params_pocket = self._params_kwd["pocket"]
