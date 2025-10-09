@@ -141,12 +141,12 @@ A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [thi
 ### Color standard
 | Potential       | Color      | RGB 0-1    | RGB 0-255  | HEX    |
 |-----------------|------------|------------|------------|--------|
-| APBS +          | Blue       | 0,0,1      | 0,0,255    | 0000FF |
 | APBS -          | Red        | 1,0,0      | 255,0,0    | FF0000 |
-| Hydrophobic (+) | Yellow     | 1,1,0      | 255,255,0  | FFFF00 |
-| Hydrophilic (-) | Light Blue | 0.3,0.85,1 | 77,217,255 | 4DD9FF |
-| HB Donors       | Orange     | 1,0.5,0    | 255,128,0  | FF8000 |
+| APBS +          | Blue       | 0,0,1      | 0,0,255    | 0000FF |
 | HB Acceptors    | Violet     | 0.7,0,1    | 179,0,255  | B300FF |
+| HB Donors       | Orange     | 1,0.5,0    | 255,128,0  | FF8000 |
+| Hydrophilic (-) | Light Blue | 0.3,0.85,1 | 77,217,255 | 4DD9FF |
+| Hydrophobic (+) | Yellow     | 1,1,0      | 255,255,0  | FFFF00 |
 | Stacking        | Green      | 0,1,0      | 0,255,0    | 00FF00 |
 
 
@@ -247,8 +247,7 @@ Run `python3 run/vgtools.py [mode] [options...]` and provide the parameters of t
 
 ## VGrids
 * implement: raise an error if a format file is opened with the wrong function
-* make a common App class
-  * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
+* add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 * standard ini files use ; instead of # for comments
 
 ## SMIFFER
@@ -257,8 +256,10 @@ Run `python3 run/vgtools.py [mode] [options...]` and provide the parameters of t
 * change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
+* add safeguard when there's no atoms for the specified molecule type
 
 ## VEINS
+* finish/rework "energies" mode implementation
 * implement "forces" mode
 * move Grid's static fields into config.ini
 * add tests
@@ -269,6 +270,7 @@ Run `python3 run/vgtools.py [mode] [options...]` and provide the parameters of t
 * mode to describe grids
 * mode to perform operations on grids: abs, sum, diff, mask...
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
+* bypass the "large grid" warning when processing an existing large grid with VGTools.
 
 
 <!-- ----------------------------------------------------------------------- -->

@@ -1,3 +1,4 @@
+import warnings
 from abc import ABC
 import MDAnalysis as mda
 
@@ -81,13 +82,7 @@ class SmifHBDonors(SmifHBonds, ABC):
     # --------------------------------------------------------------------------
     def _iter_triplets(self):
         if sm.USE_STRUCTURE_HYDROGENS:
-            hydrogens = self.ms.system.select_atoms("name H*")
-            if len(hydrogens) == 0:
-                sm.USE_STRUCTURE_HYDROGENS = False
-            else:
-                u = mda.Merge(self.all_atoms, hydrogens)    # temporary universe that excludes any unwanted atoms (like ions with undefined vdw radii)...
-                u.guess_TopologyAttrs(to_guess = ["bonds"]) # ... so that there are no problems with the bond guessing
-                self.all_atoms = u.atoms # the bonds are contained in these newly defined atomgroup, so update the all_atoms reference
+            self._attempt_to_guess_bonds()
 
         for triplet in super()._iter_triplets():
             if triplet.interactor in self.processed_interactors: continue
@@ -108,6 +103,25 @@ class SmifHBDonors(SmifHBonds, ABC):
     # --------------------------------------------------------------------------
     def _get_relevant_kernel(self, triplet: Triplet) -> vg.KernelGaussianBivariateAngleDist:
         return self._kernel_hbd_fixed if triplet.hbond_fixed else self._kernel_hbd_free
+
+
+    # --------------------------------------------------------------------------
+    def _attempt_to_guess_bonds(self):
+        hydrogens = self.ms.system.select_atoms("name H*")
+        if len(hydrogens) == 0:
+            sm.USE_STRUCTURE_HYDROGENS = False
+            return
+
+        try:
+            u = mda.Merge(self.all_atoms, hydrogens) # temporary universe that excludes any unwanted atoms (like ions with undefined vdw radii)...
+            u.guess_TopologyAttrs(to_guess = ["bonds"]) # ... so that there are no problems with the bond guessing
+        except (ValueError, AttributeError):
+            warnings.warn("MDAnalysis could not guess bonds for hydrogens. Falling back to non-hydrogen model for H-bond donors.")
+            sm.USE_STRUCTURE_HYDROGENS = False
+            return
+
+        ### the bonds are contained in these newly defined atomgroup, so update the all_atoms reference
+        self.all_atoms = u.atoms
 
 
 # //////////////////////////////////////////////////////////////////////////////
