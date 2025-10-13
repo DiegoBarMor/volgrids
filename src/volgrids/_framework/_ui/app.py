@@ -1,3 +1,4 @@
+import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -17,7 +18,16 @@ class App(ABC):
     # --------------------------------------------------------------------------
     @classmethod
     def from_cli(cls):
+        argv = sys.argv[1:]
         params_pos, params_kwd = cls._CLASS_PARAM_HANDLER.parse_cli_args()
+        return cls(*params_pos, **params_kwd)
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def from_str_argv(cls, str_argv: str):
+        argv = str_argv.split()
+        params_pos, params_kwd = cls._CLASS_PARAM_HANDLER.parse_cli_args(argv)
         return cls(*params_pos, **params_kwd)
 
 

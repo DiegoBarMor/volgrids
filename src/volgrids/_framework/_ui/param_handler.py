@@ -25,7 +25,7 @@ class ParamHandler(ABC):
 
     # --------------------------------------------------------------------------
     @classmethod
-    def parse_cli_args(cls) -> tuple[list[str], dict[str, list[str]]]:
+    def parse_cli_args(cls, argv) -> tuple[list[str], dict[str, list[str]]]:
         """_EXPECTED_CLI_FLAGS is a dict where keys are flag identifiers, each associated with a list of aliases for said flag.
         This method then outputs a dict where the keys are the flag identifiers actually found in self._args,
         together with their correspondant values."""
@@ -39,9 +39,8 @@ class ParamHandler(ABC):
 
         current_name = '' # '' is used for options at the start that are not associated with any flag
         params_kwd: dict[str, list[str]] = {current_name: []}
-        cli_args = sys.argv[1:]
 
-        for arg in cli_args:
+        for arg in argv:
             if arg.lower() in alias_to_flagname: # arg is a flag
                 current_name = alias_to_flagname[arg.lower()]
                 if current_name in params_kwd:

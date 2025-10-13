@@ -10,6 +10,8 @@ class ParserConfig(vg.ParserIni):
         Applies the configuration to the provided global dictionary.
         """
 
+        self.assert_sections_not_empty()
+
         if not self.has(section):
             if all_configs_mandatory:
                 raise ValueError(f"Configuration file does not contain [{section}] section (case sensitive).")

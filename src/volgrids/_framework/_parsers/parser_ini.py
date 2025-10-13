@@ -7,6 +7,7 @@ class ParserIni:
 
     # --------------------------------------------------------------------------
     def __init__(self, path_ini):
+        self._path_ini = path_ini
         self._ini_sections: dict[str, list[str]] = {}
         with open(path_ini, 'r') as file:
             self._extract_sections(file.read())
@@ -23,6 +24,12 @@ class ParserIni:
         if len(pair) != 2:
             raise ValueError(f"Line '{line}' does not contain '{sep}'")
         return pair
+
+
+    # --------------------------------------------------------------------------
+    def assert_sections_not_empty(self) -> None:
+        if not self._ini_sections:
+            raise ValueError(f"The INI file '{self._path_ini}' does not contain any sections.")
 
 
     # --------------------------------------------------------------------------
