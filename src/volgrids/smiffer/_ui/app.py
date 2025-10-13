@@ -32,9 +32,6 @@ class AppSmiffer(vg.App):
         self.timer.start()
 
         if self.ms.do_traj: # TRAJECTORY MODE
-            if self.ms.do_ps:
-                raise NotImplementedError("PocketSphere not implemented yet for trajectory mode. Use -w flag")
-
             print()
             for _ in self.ms.system.trajectory:
                 self.ms.frame += 1

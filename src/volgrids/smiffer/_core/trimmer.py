@@ -12,7 +12,7 @@ class Trimmer:
 
         self.distances = distances
         self.common_mask: vg.Grid = None
-        self.specific_masks = {k : vg.Grid(ms, dtype = bool) for k in distances.keys()}
+        self.specific_masks = None
 
 
     # --------------------------------------------------------------------------
@@ -36,7 +36,14 @@ class Trimmer:
 
 
     # --------------------------------------------------------------------------
+    def reset_masks(self):
+        self.common_mask: vg.Grid = None
+        self.specific_masks = {k : vg.Grid(self.ms, dtype = bool) for k in self.distances.keys()}
+
+
+    # --------------------------------------------------------------------------
     def trim(self):
+        self.reset_masks()
         if sm.DO_TRIMMING_OCCUPANCY:
             self._trim_occupancies()
 

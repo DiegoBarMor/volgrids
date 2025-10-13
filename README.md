@@ -124,7 +124,7 @@ python3 run/smiffer.py prot testdata/smiffer/pdb-nosolv/1iqj.pdb -rxyz 14.675 4.
 python3 run/smiffer.py rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/_input/apbs/5bjo.pqr.dx
 ```
 
-- Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that this is only implemented for "whole" mode at the moment.
+- Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.
 ```
 python3 run/smiffer.py rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
 ```
@@ -193,6 +193,7 @@ Note that this time, the morph can be paused manually with the slider button (is
 ```
 volume level 0.5
 volume transparency 0.5
+volume showOutlineBox true
 ```
 
 
