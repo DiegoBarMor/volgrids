@@ -8,7 +8,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         "output": ("-o", "--output"),
         "traj"  : ("-t", "--traj"),
         "apbs"  : ("-a", "--apbs"),
-        "pocket": ("-rxyz", "--pocket"),
+        "sphere": ("-s", "--sphere"),
         "table" : ("-b", "--table"),
         "config": ("-c", "--config"),
     }
@@ -44,7 +44,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             "-a, --apbs        File path to the output of APBS for the respective structure file (this must be done before). An OpenDX file is expected.",
             "-b, --table       File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
             "-c, --config      File path to a configuration file with global settings, to override the default settings from config.ini.",
-            "-rxyz, --pocket   Activate 'pocket sphere' mode by providing the sphere radius and the X, Y, Z coordinates for its center. If not provided, 'whole' mode is assumed.",
+            "-s, --sphere      Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere. If not provided, 'whole' mode is assumed.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help(0)
@@ -64,16 +64,16 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         sm.PATH_TABLE         = self._safe_kwd_file_in("table")
         vg.PATH_CUSTOM_CONFIG = self._safe_kwd_file_in("config")
 
-        if self._has_param_kwds("pocket"):
-            params_pocket = self._params_kwd["pocket"]
+        if self._has_param_kwds("sphere"):
+            params_sphere = self._params_kwd["sphere"]
             try:
-                radius = float(self._safe_idx(params_pocket, 0, "Missing pocket sphere radius."))
-                x_cog  = float(self._safe_idx(params_pocket, 1, "Missing pocket sphere center X coordinate."))
-                y_cog  = float(self._safe_idx(params_pocket, 2, "Missing pocket sphere center Y coordinate."))
-                z_cog  = float(self._safe_idx(params_pocket, 3, "Missing pocket sphere center Z coordinate."))
+                x_cog  = float(self._safe_idx(params_sphere, 0, "Missing sphere center X coordinate."))
+                y_cog  = float(self._safe_idx(params_sphere, 1, "Missing sphere center Y coordinate."))
+                z_cog  = float(self._safe_idx(params_sphere, 2, "Missing sphere center Z coordinate."))
+                radius = float(self._safe_idx(params_sphere, 3, "Missing sphere radius."))
             except ValueError:
-                self._exit_with_help(-1, "Pocket sphere options must be numeric values.")
-            sm.PS_INFO = (radius, x_cog, y_cog, z_cog)
+                self._exit_with_help(-1, "Sphere options must be numeric values.")
+            sm.SPHERE_INFO = (x_cog, y_cog, z_cog, radius)
 
 
 # //////////////////////////////////////////////////////////////////////////////

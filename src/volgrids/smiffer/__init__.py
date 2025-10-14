@@ -103,5 +103,5 @@ PATH_APBS:       _pathlib.Path = None # "path/input/apbs.pqr.dx"
 PATH_TABLE:      _pathlib.Path = None # "path/input/table.chem"
 FOLDER_OUT:      _pathlib.Path = None # "folder/output/"
 
-PS_INFO: tuple[float, float, float, float] = None # pocket sphere info: [radius, x, y, z]
-CURRENT_MOLTYPE: MolType = MolType.NONE           # type of the current molecule
+SPHERE_INFO: tuple[float, float, float, float] = None # pocket sphere info: [x, y, z, radius]
+CURRENT_MOLTYPE: MolType = MolType.NONE               # type of the current molecule
