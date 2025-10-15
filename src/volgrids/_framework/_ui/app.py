@@ -19,7 +19,7 @@ class App(ABC):
     @classmethod
     def from_cli(cls):
         argv = sys.argv[1:]
-        params_pos, params_kwd = cls._CLASS_PARAM_HANDLER.parse_cli_args()
+        params_pos, params_kwd = cls._CLASS_PARAM_HANDLER.parse_cli_args(argv)
         return cls(*params_pos, **params_kwd)
 
 

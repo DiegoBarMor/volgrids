@@ -16,10 +16,10 @@ sm.AppSmiffer.from_cli().run()
 EOM
 
 ### try running it in the repo's root
-python3 -W ignore $tmp_py prot testdata/_input/toy_systems/peptide.pdb -o $fout
+python3 -W ignore $tmp_py prot testdata/_raw_input/toy_systems/peptide.pdb -o $fout
 
 ### try running it somewhere else
 cd ~
-python3 -W ignore "$root"/$tmp_py prot "$root"/testdata/_input/toy_systems/peptide.pdb -o $fout
+python3 -W ignore "$root"/$tmp_py prot "$root"/testdata/_raw_input/toy_systems/peptide.pdb -o $fout
 
 rm -f "$root"/$tmp_py

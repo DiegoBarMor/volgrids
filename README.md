@@ -121,7 +121,7 @@ python3 run/smiffer.py prot testdata/smiffer/pdb-nosolv/1iqj.pdb -s 4.682 21.475
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```
-python3 run/smiffer.py rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/_input/apbs/5bjo.pqr.dx
+python3 run/smiffer.py rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pqr.dx
 ```
 
 - Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.

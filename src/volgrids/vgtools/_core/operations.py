@@ -31,9 +31,9 @@ class VGOperations:
         for path_in in paths_in:
             grid = vg.GridIO.read_auto(path_in)
             if resolution is None:
-                resolution = (grid.xres, grid.yres, grid.zres)
+                resolution = f"{grid.xres} {grid.yres} {grid.zres}"
 
-            new_res = (grid.xres, grid.yres, grid.zres)
+            new_res = f"{grid.xres} {grid.yres} {grid.zres}"
             if (new_res != resolution) and not warned:
                 print(
                     f">>> Warning: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\

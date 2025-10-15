@@ -8,21 +8,17 @@ folder_vgtools="testdata/vgtools"
 folder00="$folder_smiffer/toy_systems"
 folder01="$folder_smiffer/pocket_sphere"
 folder02="$folder_smiffer/whole"
-folder03="$folder_smiffer/traj"
-folder04c="$folder_vgtools/converting"
-folder04p="$folder_vgtools/packing"
-folder04u="$folder_vgtools/unpacking"
-folder04f="$folder_vgtools/fix_cmap"
-folder05="$folder_smiffer/ligand"
+folder03="$folder_smiffer/trajs"
+folder04="$folder_smiffer/ligands"
+folder05c="$folder_vgtools/converting"
+folder05p="$folder_vgtools/packing"
+folder05u="$folder_vgtools/unpacking"
+folder05f="$folder_vgtools/fix_cmap"
 
-rm -rf $folder_env $folder00 $folder01 $folder02
-rm  -f $folder03/*.cmap
-
-rm -f $folder04c/dx* $folder04c/mrc* $folder04c/ccp4* $folder04c/cmap*
-rm -f $folder04p/2esj.cmap
-rm -f $folder04u/1iqj.*.cmap
-rm -f $folder04f/hbdonors.fixed.cmap
-
-rm -f $folder05/*.cmap
+rm -rf $folder_env $folder00 $folder01 $folder02 $folder03 $folder04
+rm -f $folder05c/dx* $folder05c/mrc* $folder05c/ccp4* $folder05c/cmap*
+rm -f $folder05p/2esj.cmap
+rm -f $folder05u/1iqj.*.cmap
+rm -f $folder05f/hbdonors.fixed.cmap
 
 clear

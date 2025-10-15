@@ -2,9 +2,9 @@
 set -eu
 
 ### folders that should already exist
-fdata="testdata/_input"
-fpdb_orig="$fdata/smiffer_benchmark"
-fframes="$fdata/inconsistent_frames"
+folder_raw="testdata/_raw_input"
+fpdb_orig="$folder_raw/smiffer_benchmark"
+fframes="$folder_raw/inconsistent_frames"
 
 ### folders that will be created
 fsmiffer="testdata/smiffer"
@@ -15,8 +15,8 @@ rm   -rf $fsmiffer
 mkdir -p $fpdb_nosolv $fapbs
 
 ### folders that will just be copied
-cp -r "$fdata/ligands" "$fsmiffer/ligands"
-cp -r "$fdata/traj"    "$fsmiffer/traj"
+cp -r "$folder_raw/ligands" "$fsmiffer/ligands"
+cp -r "$folder_raw/trajs"   "$fsmiffer/trajs"
 
 
 
@@ -24,7 +24,7 @@ cp -r "$fdata/traj"    "$fsmiffer/traj"
 ##################################### APBS #####################################
 ################################################################################
 
-tmp_py=$fdata/remove_solvent.tmp.py
+tmp_py=$folder_raw/remove_solvent.tmp.py
 cat > $tmp_py <<- EOM
 import sys
 import MDAnalysis as mda

@@ -16,21 +16,5 @@ done
 
 python3 run/smiffer.py rna  $fpdb/1akx.pdb  -o $fout -a $fapbs/1akx.pdb.mrc
 python3 run/smiffer.py prot $fpdb/1bg0.pdb  -o $fout -a $fapbs/1bg0.pdb.mrc
-python3 run/smiffer.py prot $fpdb/1eby.pdb  -o $fout -a $fapbs/1eby.pdb.mrc
-python3 run/smiffer.py prot $fpdb/1ehe.pdb  -o $fout -a $fapbs/1ehe.pdb.mrc
-python3 run/smiffer.py prot $fpdb/1h7l.pdb  -o $fout -a $fapbs/1h7l.pdb.mrc
-python3 run/smiffer.py rna  $fpdb/1i9v.pdb  -o $fout -a $fapbs/1i9v.pdb.mrc
-python3 run/smiffer.py prot $fpdb/1iqj.pdb  -o $fout -a $fapbs/1iqj.pdb.mrc
-python3 run/smiffer.py prot $fpdb/1ofz.pdb  -o $fout -a $fapbs/1ofz.pdb.mrc
-python3 run/smiffer.py rna  $fpdb/2esj.pdb  -o $fout -a $fapbs/2esj.pdb.mrc
-python3 run/smiffer.py prot $fpdb/3dd0.pdb  -o $fout -a $fapbs/3dd0.pdb.mrc
-python3 run/smiffer.py prot $fpdb/3ee4.pdb  -o $fout -a $fapbs/3ee4.pdb.mrc
-python3 run/smiffer.py rna  $fpdb/4f8u.pdb  -o $fout -a $fapbs/4f8u.pdb.mrc
-python3 run/smiffer.py rna  $fpdb/5bjo.pdb  -o $fout -a $fapbs/5bjo.pdb.mrc
-python3 run/smiffer.py rna  $fpdb/5kx9.pdb  -o $fout -a $fapbs/5kx9.pdb.mrc
-python3 run/smiffer.py prot $fpdb/5m9w.pdb  -o $fout -a $fapbs/5m9w.pdb.mrc
 python3 run/smiffer.py prot $fpdb/6e9a.pdb  -o $fout -a $fapbs/6e9a.pdb.mrc
-python3 run/smiffer.py rna  $fpdb/6tf3.pdb  -o $fout -a $fapbs/6tf3.pdb.mrc
 python3 run/smiffer.py rna  $fpdb/7oax0.pdb -o $fout -a $fapbs/7oax0.pdb.mrc
-python3 run/smiffer.py rna  $fpdb/7oax1.pdb -o $fout -a $fapbs/7oax1.pdb.mrc
-python3 run/smiffer.py rna  $fpdb/8eyv.pdb  -o $fout -a $fapbs/8eyv.pdb.mrc

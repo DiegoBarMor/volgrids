@@ -4,7 +4,7 @@ set -eu
 echo
 echo ">>> TEST SMIFFER 0: Toy systems"
 
-fpdb="testdata/_input/toy_systems"
+fpdb="testdata/_raw_input/toy_systems"
 fout="testdata/smiffer/toy_systems"
 tmp_config_ignore_h="$fpdb/ignore_h.config.tmp"
 rm -rf $fout; mkdir -p $fout
