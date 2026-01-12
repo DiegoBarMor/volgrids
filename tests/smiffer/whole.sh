@@ -14,7 +14,7 @@ for name in "${names[@]}"; do
     cp "$fpdb/$name.pdb" "$fout/$name.pdb"
 done
 
-python3 run/smiffer.py rna  $fpdb/1akx.pdb  -o $fout -a $fapbs/1akx.pdb.mrc
-python3 run/smiffer.py prot $fpdb/1bg0.pdb  -o $fout -a $fapbs/1bg0.pdb.mrc
-python3 run/smiffer.py prot $fpdb/6e9a.pdb  -o $fout -a $fapbs/6e9a.pdb.mrc
-python3 run/smiffer.py rna  $fpdb/7oax0.pdb -o $fout -a $fapbs/7oax0.pdb.mrc
+python3 smiffer.py rna  $fpdb/1akx.pdb  -o $fout -a $fapbs/1akx.pdb.mrc
+python3 smiffer.py prot $fpdb/1bg0.pdb  -o $fout -a $fapbs/1bg0.pdb.mrc
+python3 smiffer.py prot $fpdb/6e9a.pdb  -o $fout -a $fapbs/6e9a.pdb.mrc
+python3 smiffer.py rna  $fpdb/7oax0.pdb -o $fout -a $fapbs/7oax0.pdb.mrc

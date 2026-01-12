@@ -16,11 +16,11 @@ class ParamHandlerVeins(vg.ParamHandler):
     def assign_globals(self):
         self._set_help_str(
             "[WIP] WORK IN PROGRESS - NOT YET FUNCTIONAL",
-            "usage: python3 run/veins.py [mode] [options...]",
+            "usage: python3 veins.py [mode] [options...]",
             "Available modes:",
             "  energies - Generate grids to visually represent in space the interaction energies of a molecular system.",
             # "  force  - ", # TODO: Implement force mode
-            "Run 'python3 run/veins.py [mode] --help' for more details on each mode.",
+            "Run 'python3 veins.py [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
             self._exit_with_help(0)
@@ -36,7 +36,7 @@ class ParamHandlerVeins(vg.ParamHandler):
     # --------------------------------------------------------------------------
     def _parse_energies(self) -> None:
         self._set_help_str(
-            "usage: python3 run/veins.py energy [path/input/structure.pdb] [path/input/energies.csv] [options...]",
+            "usage: python3 veins.py energy [path/input/structure.pdb] [path/input/energies.csv] [options...]",
             "Available options:",
             "-h, --help       Show this help message and exit.",
             "-o, --output     Path to the folder where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",

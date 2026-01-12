@@ -38,7 +38,7 @@ class VGOperations:
                 print(
                     f">>> Warning: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\
                     "Chimera won't recognize it as a volume series and open every grid in a separate representation." +\
-                    "Use `run/vgtools.py fix_cmap` if you want to fix this."
+                    "Use `vgtools.py fix_cmap` if you want to fix this."
                 )
                 warned = True
 
@@ -80,7 +80,8 @@ class VGOperations:
         keys = vg.GridIO.get_cmap_keys(path_in)
         nframes = len(keys)
 
-        avg = np.zeros_like(vg.GridIO.read_cmap(path_in, keys[0]).grid)
+        grid = vg.GridIO.read_cmap(path_in, keys[0])
+        avg = np.zeros_like(grid.grid)
         for key in keys:
             print(key)
             avg += vg.GridIO.read_cmap(path_in, key).grid

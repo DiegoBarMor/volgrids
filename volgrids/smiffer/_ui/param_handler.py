@@ -17,12 +17,12 @@ class ParamHandlerSmiffer(vg.ParamHandler):
     # --------------------------------------------------------------------------
     def assign_globals(self):
         self._set_help_str(
-            "usage: python3 run/smiffer.py [prot|rna|convert|pack|unpack] [options...]",
+            "usage: python3 smiffer.py [prot|rna|convert|pack|unpack] [options...]",
             "Available modes:",
             "  prot     - Calculate SMIFs for protein structures.",
             "  rna      - Calculate SMIFs for RNA structures.",
             "  ligand   - Calculate SMIFs for ligand structures. A .chem table must be provided.",
-            "Run 'python3 run/smiffer.py [mode] --help' for more details on each mode.",
+            "Run 'python3 smiffer.py [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
             self._exit_with_help(0)
@@ -36,7 +36,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
 
 
         self._set_help_str(
-            f"usage: python3 run/smiffer.py {mode} [path/input/struct.pdb] [options...]",
+            f"usage: python3 smiffer.py {mode} [path/input/struct.pdb] [options...]",
             "Available options:",
             "-h, --help        Show this help message and exit.",
             "-o, --output      Folder path where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",

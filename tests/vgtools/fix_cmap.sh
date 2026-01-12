@@ -8,4 +8,4 @@ folder="testdata/vgtools/fix_cmap"
 
 path_in="$folder/hbdonors.issue.cmap"
 path_out="$folder/hbdonors.fixed.cmap"
-python3 run/vgtools.py fix_cmap -i "$path_in" -o "$path_out"
+python3 vgtools.py fix_cmap -i "$path_in" -o "$path_out"

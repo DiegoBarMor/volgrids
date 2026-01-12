@@ -1,10 +1,10 @@
 # Volumetric Grids (VolGrids)
-This is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`run/smiffer.py`), **Volumetric Energy INSpector (VEINS)** (`run/veins.py`) and **Volgrid Tools** (`run/vgtools.py`). You can read more in their respective sections.
+This is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`./smiffer.py`), **Volumetric Energy INSpector (VEINS)** (`./veins.py`) and **Volgrid Tools** (`./vgtools.py`). You can read more in their respective sections.
 
 ## QuickStart
 ```
 pip install -r environment/requirements.txt
-python3 run/smiffer.py --help
+python3 smiffer.py --help
 ```
 
 
@@ -63,17 +63,17 @@ You can use the tools provided by VolGrids without installing it, by calling any
 
 - **SMIF Calculator:**
 ```
-python3 run/smiffer.py [options...]
+python3 smiffer.py [options...]
 ```
 
 - **Volumetric Energy INSpector (VEINS):**
 ```
-run/python3 veins.py [options...]
+python3 veins.py [options...]
 ```
 
 - **Volgrid Tools:**
 ```
-python3 run/vgtools.py [options...]
+python3 vgtools.py [options...]
 ```
 
 
@@ -94,7 +94,7 @@ rm -rf build volgrids.egg-info # optional cleanup
 This is a custom implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
 
 ## Usage
-Run `python3 run/smiffer.py [mode] [path_structure] [options...]` and provide the parameters of the calculation via arguments:
+Run `python3 smiffer.py [mode] [path_structure] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `prot`, `rna` or `ligand` according to the structure of interest.
   - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
   - Optionally, replace `[options...]` with any combination of the following:
@@ -116,17 +116,17 @@ apbs testdata/smiffer/1iqj.in
 
 - Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-s`).
 ```
-python3 run/smiffer.py prot testdata/smiffer/pdb-nosolv/1iqj.pdb -s 4.682 21.475 7.161 14.675
+python3 smiffer.py prot testdata/smiffer/pdb-nosolv/1iqj.pdb -s 4.682 21.475 7.161 14.675
 ```
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```
-python3 run/smiffer.py rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pqr.dx
+python3 smiffer.py rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pqr.dx
 ```
 
 - Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.
 ```
-python3 run/smiffer.py rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
+python3 smiffer.py rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
 ```
 
 
@@ -205,7 +205,7 @@ volume showOutlineBox true
 This tool allows to visualize interaction energies in space by portraying them as a volumetric grid. Apart from the usual structure/trajectory files (PDB, XTC...), a CSV with energy values and the indices of the atoms/residues involved must be given. Interactions between 2, 3 and 4 particles are supported and represented accordingly
 
 ## Usage
-Run `run/python3 veins.py [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
+Run `python3 veins.py [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `energies`.
   - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
   - replace `[path_csv]` with the path to the energies CSV file. Mandatory positional argument. It must contain the following rows:
@@ -227,14 +227,14 @@ Run `run/python3 veins.py [mode] [path_structure] [path_csv] [options...]` and p
 Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
 
 ## Usage
-Run `python3 run/vgtools.py [mode] [options...]` and provide the parameters of the calculation via arguments.
+Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the calculation via arguments.
   - Replace `[mode]` with one of the following available modes:
     - `convert`: Convert grid files between formats.
     - `pack`: Pack multiple grid files into a single CMAP series-file.
     - `unpack`: Unpack a CMAP series-file into multiple grid files.
     - `fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
     - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
-  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 run/vgtools.py [mode] -h`).
+  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 vgtools.py [mode] -h`).
 
 
 
@@ -272,6 +272,7 @@ Run `python3 run/vgtools.py [mode] [options...]` and provide the parameters of t
 * mode to perform operations on grids: abs, sum, diff, mask...
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
+* add tests for "average" operation.
 
 
 <!-- ----------------------------------------------------------------------- -->

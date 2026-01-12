@@ -18,16 +18,16 @@ cat > $tmp_config_ignore_h <<- EOM
 USE_STRUCTURE_HYDROGENS=False
 EOM
 
-python3 run/smiffer.py prot $fout/peptide_no_h.pdb    -o $fout -c $tmp_config_ignore_h
-python3 run/smiffer.py prot $fout/peptide.pdb         -o $fout
-python3 run/smiffer.py rna  $fout/guanine.pdb         -o $fout
-python3 run/smiffer.py rna  $fout/ribose_gua_no_h.pdb -o $fout -c $tmp_config_ignore_h
-python3 run/smiffer.py rna  $fout/ribose_gua.pdb      -o $fout
-python3 run/smiffer.py rna  $fout/uuu.pdb             -o $fout
+python3 smiffer.py prot $fout/peptide_no_h.pdb    -o $fout -c $tmp_config_ignore_h
+python3 smiffer.py prot $fout/peptide.pdb         -o $fout
+python3 smiffer.py rna  $fout/guanine.pdb         -o $fout
+python3 smiffer.py rna  $fout/ribose_gua_no_h.pdb -o $fout -c $tmp_config_ignore_h
+python3 smiffer.py rna  $fout/ribose_gua.pdb      -o $fout
+python3 smiffer.py rna  $fout/uuu.pdb             -o $fout
 
-python3 run/smiffer.py prot $fout/all_arg.pdb -o $fout
-python3 run/smiffer.py prot $fout/all_asn.pdb -o $fout
-python3 run/smiffer.py rna  $fout/all_cyt.pdb -o $fout
-python3 run/smiffer.py rna  $fout/all_ump.pdb -o $fout
+python3 smiffer.py prot $fout/all_arg.pdb -o $fout
+python3 smiffer.py prot $fout/all_asn.pdb -o $fout
+python3 smiffer.py rna  $fout/all_cyt.pdb -o $fout
+python3 smiffer.py rna  $fout/all_ump.pdb -o $fout
 
 rm -f $tmp_config_ignore_h

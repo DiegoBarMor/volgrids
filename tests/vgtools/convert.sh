@@ -31,18 +31,18 @@ path_cmap_to_mrc="$folder/cmap-mrc.mrc"
 path_cmap_to_ccp4="$folder/cmap-ccp4.ccp4"
 path_cmap_to_cmap="$folder/cmap-cmap.cmap"
 
-python3 run/vgtools.py convert "$path_dx_input"   \
+python3 vgtools.py convert "$path_dx_input"   \
     --dx "$path_dx_to_dx"       --mrc "$path_dx_to_mrc"   \
     --ccp4 "$path_dx_to_ccp4"   --cmap "$path_dx_to_cmap"
 
-python3 run/vgtools.py convert "$path_mrc_input"  \
+python3 vgtools.py convert "$path_mrc_input"  \
     --dx "$path_mrc_to_dx"      --mrc "$path_mrc_to_mrc"  \
     --ccp4 "$path_mrc_to_ccp4"  --cmap "$path_mrc_to_cmap"
 
-python3 run/vgtools.py convert "$path_ccp4_input" \
+python3 vgtools.py convert "$path_ccp4_input" \
     --dx "$path_ccp4_to_dx"     --mrc "$path_ccp4_to_mrc" \
     --ccp4 "$path_ccp4_to_ccp4" --cmap "$path_ccp4_to_cmap"
 
-python3 run/vgtools.py convert "$path_cmap_input" \
+python3 vgtools.py convert "$path_cmap_input" \
     --dx "$path_cmap_to_dx"     --mrc "$path_cmap_to_mrc" \
     --ccp4 "$path_cmap_to_ccp4" --cmap "$path_cmap_to_cmap"
