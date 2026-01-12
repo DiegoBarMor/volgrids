@@ -76,6 +76,24 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def average(path_in: Path, path_out: Path):
+        keys = vg.GridIO.get_cmap_keys(path_in)
+        nframes = len(keys)
+
+        avg = np.zeros_like(vg.GridIO.read_cmap(path_in, keys[0]).grid)
+        for key in keys:
+            print(key)
+            avg += vg.GridIO.read_cmap(path_in, key).grid
+        avg /= nframes
+
+        grid_avg: vg.Grid = vg.Grid(grid.ms, init_grid = False)
+        grid_avg.grid = avg
+
+        vg.GridIO.write_cmap(path_out, grid_avg, "averaged")
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def compare(path_in_0: Path, path_in_1: Path, threshold: float) -> "vgt.ComparisonResult":
         def _are_different_vector(vec0, vec1):
             diff = np.abs(vec0 - vec1)

@@ -13,7 +13,7 @@ __config_keys__ = set(__annotations__.keys())
 ### These are global variables that are to be set by
 ### an instance of ParamHandler (or its inherited classes)
 
-OPERATION: str = '' # mode of the application, i.e. "convert", "pack", "unpack", "fix_cmap"
+OPERATION: str = '' # mode of the application, i.e. "convert", "pack", "unpack", "fix_cmap", "average", "compare"
 
 import pathlib as _pathlib
 
@@ -35,6 +35,10 @@ PATH_UNPACK_OUT: _pathlib.Path = None # folder where to unpack the grids
 ### Fix CMAP
 PATH_FIXCMAP_IN:  _pathlib.Path = None # "path/input/fix.cmap"
 PATH_FIXCMAP_OUT: _pathlib.Path = None # "path/output/fix.cmap"
+
+### Average
+PATH_AVERAGE_IN:  _pathlib.Path = None # "path/input/traj.cmap"
+PATH_AVERAGE_OUT: _pathlib.Path = None # "path/output/average.cmap"
 
 ### Compare
 PATH_COMPARE_IN_0: _pathlib.Path = None # "path/input/grid_0.mrc"

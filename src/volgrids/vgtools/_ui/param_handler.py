@@ -37,6 +37,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             pack     = self._parse_pack,
             unpack   = self._parse_unpack,
             fix_cmap = self._parse_fix_cmap,
+            average  = self._parse_average,
             compare  = self._parse_compare,
         )
         func()
@@ -100,7 +101,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
         if self._has_param_kwds("help"):
             self._exit_with_help(0)
 
-        vgt.PATH_UNPACK_IN = self._safe_kwd_file_in("input", required = True)
+        vgt.PATH_UNPACK_IN  = self._safe_kwd_file_in("input", required = True)
         vgt.PATH_UNPACK_OUT = self._safe_kwd_folder_out("output", default = vgt.PATH_UNPACK_IN.parent)
 
 
@@ -116,8 +117,24 @@ class ParamHandlerVGTools(vg.ParamHandler):
         if self._has_param_kwds("help"):
             self._exit_with_help(0)
 
-        vgt.PATH_FIXCMAP_IN = self._safe_kwd_file_in("input", required = True)
+        vgt.PATH_FIXCMAP_IN  = self._safe_kwd_file_in("input", required = True)
         vgt.PATH_FIXCMAP_OUT = self._safe_kwd_file_out("output", required = True)
+
+
+    # --------------------------------------------------------------------------
+    def _parse_average(self) -> None:
+        self._set_help_str(
+            "usage: python3 run/vgtools.py average [options...]",
+            "Available options:",
+            "-h, --help    Show this help message and exit.",
+            "-i, --input   File path to the CMAP series-file to be averaged. Must be provided.",
+            "-o, --output  File path where to save the averaged CMAP file. Must be provided.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help(0)
+
+        vgt.PATH_AVERAGE_IN  = self._safe_kwd_file_in("input", required = True)
+        vgt.PATH_AVERAGE_OUT = self._safe_kwd_file_out("output", required = True)
 
 
     # --------------------------------------------------------------------------

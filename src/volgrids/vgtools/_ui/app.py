@@ -27,6 +27,11 @@ class AppVGTools(vg.App):
             vgt.VGOperations.fix_cmap(vgt.PATH_FIXCMAP_IN, vgt.PATH_FIXCMAP_OUT)
             return
 
+        if vgt.OPERATION == "average":
+            print(f">>> Averaging CMAP file: {vgt.PATH_AVERAGE_IN}")
+            vgt.VGOperations.average(vgt.PATH_AVERAGE_IN, vgt.PATH_AVERAGE_OUT)
+            return
+
         if vgt.OPERATION == "compare":
             print(f">>> Comparing grids: {vgt.PATH_COMPARE_IN_0} vs {vgt.PATH_COMPARE_IN_1} (threshold={vgt.THRESHOLD_COMPARE:2.2e})")
             result = vgt.VGOperations.compare(vgt.PATH_COMPARE_IN_0, vgt.PATH_COMPARE_IN_1, vgt.THRESHOLD_COMPARE)
