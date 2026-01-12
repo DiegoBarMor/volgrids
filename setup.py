@@ -11,8 +11,7 @@ setup(
     author_email="diegobarmor42@gmail.com",
     url="https://github.com/diegobarmor/volgrids",
     license="MIT",
-    package_dir={"": "src"},
-    packages=find_packages(where="src"),
+    packages=find_packages(),
     package_data={
         "volgrids": ["config.ini", "_data/*"],
     },

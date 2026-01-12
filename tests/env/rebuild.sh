@@ -3,4 +3,4 @@ set -eu
 
 pip uninstall -y volgrids
 pip install .
-rm -rf build src/volgrids.egg-info
+rm -rf build volgrids.egg-info
