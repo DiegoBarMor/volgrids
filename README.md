@@ -87,6 +87,11 @@ rm -rf build volgrids.egg-info # optional cleanup
 ```
 
 
+<!-- ----------------------------------------------------------------------- -->
+### Running the tests
+Follow the instructions at the [test data repo](https://github.com/DiegoBarMor/volgrids-testdata).
+
+
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- ------------------------------- SMIFFER ------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -128,12 +133,6 @@ python3 smiffer.py rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/
 ```
 python3 smiffer.py rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
 ```
-
-
-<!-- ----------------------------------------------------------------------- -->
-## Benchmark
-A benchmark of 10 protein-ligand and 10 rna-ligand complexes is provided at [this location](https://drive.google.com/file/d/1o1jR4RhXlIL0Jg3m0twrpbiTV7eIGZ38/view?usp=sharing), in the form of PDB and PQR input files.
-<!-- TODO: update this with a new link to the testdata folder -->
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -253,7 +252,6 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 
 ## SMIFFER
 * maybe: replace the RNDS trimming with a faster method
-* provide download links for the testdata folder
 * change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
@@ -272,7 +270,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * mode to perform operations on grids: abs, sum, diff, mask...
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
-* add tests for "average" operation.
+* add tests for the "average" operation.
 
 
 <!-- ----------------------------------------------------------------------- -->
