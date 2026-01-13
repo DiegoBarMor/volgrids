@@ -1,24 +1,24 @@
-from ._framework._core.grid import Grid
-from ._framework._core.mol_system import MolSystem
+from ._core.grid import Grid
+from ._core.mol_system import MolSystem
 
-from ._framework._kernels.kernel import Kernel
-from ._framework._kernels.boolean import \
+from ._kernels.kernel import Kernel
+from ._kernels.boolean import \
     KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut
-from ._framework._kernels.gaussian import \
+from ._kernels.gaussian import \
     KernelGaussianUnivariateDist, KernelGaussianBivariateAngleDist
 
-from ._framework._misc.math import Math
-from ._framework._misc.params_gaussian import ParamsGaussian, \
+from ._misc.math import Math
+from ._misc.params_gaussian import ParamsGaussian, \
     ParamsGaussianUnivariate, ParamsGaussianBivariate
-from ._framework._misc.timer import Timer
-from ._framework._misc.utils import resolve_path_package, resolve_path_resource
+from ._misc.timer import Timer
+from ._misc.utils import resolve_path_package, resolve_path_resource
 
-from ._framework._parsers.parser_ini import ParserIni
-from ._framework._parsers.parser_config import ParserConfig
-from ._framework._parsers.grid_io import GridFormat, GridIO
+from ._parsers.parser_ini import ParserIni
+from ._parsers.parser_config import ParserConfig
+from ._parsers.grid_io import GridFormat, GridIO
 
-from ._framework._ui.param_handler import ParamHandler
-from ._framework._ui.app import App
+from ._ui.param_handler import ParamHandler
+from ._ui.app import App
 
 
 ############################# CONFIG FILE GLOBALS ##############################

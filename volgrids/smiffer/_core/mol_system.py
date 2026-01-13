@@ -66,7 +66,7 @@ class MolSystemSmiffer(vg.MolSystem):
     def _get_path_table(self) -> Path:
         if sm.PATH_TABLE: return sm.PATH_TABLE
 
-        folder_default_tables = Path("_data")
+        folder_default_tables = Path("_tables")
 
         if sm.CURRENT_MOLTYPE == MolType.PROT:
             return vg.resolve_path_package(folder_default_tables / "prot.chem")
