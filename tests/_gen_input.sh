@@ -36,13 +36,13 @@ def remove_solv(path_in, path_out, selection): mda.Universe(path_in).select_atom
 for name in benchmark_prots: remove_solv(folder_in / f"{name}.pdb", folder_out / f"{name}.pdb", "protein")
 for name in benchmark_rnas:  remove_solv(folder_in / f"{name}.pdb", folder_out / f"{name}.pdb", "nucleic")
 EOM
-echo "Removing solvent from PDB files..."
+echo ">>> Removing solvent from PDB files..."
 python3 -W ignore $tmp_py $fpdb_orig $fpdb_nosolv
 rm -f $tmp_py
 
 names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
 for name in "${names[@]}"; do
-    bash utils/apbs.sh "$fpdb_nosolv/$name.pdb" $fapbs
+    bash volgrids/utils/apbs.sh "$fpdb_nosolv/$name.pdb" $fapbs --mrc --verbose
 done
 
 

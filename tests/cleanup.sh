@@ -20,5 +20,3 @@ rm -f $folder05c/dx* $folder05c/mrc* $folder05c/ccp4* $folder05c/cmap*
 rm -f $folder05p/2esj.cmap
 rm -f $folder05u/1iqj.*.cmap
 rm -f $folder05f/hbdonors.fixed.cmap
-
-clear
