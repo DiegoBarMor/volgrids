@@ -6,14 +6,14 @@ set -euo pipefail
 CONVERT_TO_MRC=false
 VERBOSE=false
 
-if [[ "$#" -lt 3 ]]; then
+if [[ "$#" -lt 2 ]]; then
     echo "Usage: $0 <path_pdb> <folder_output> [--mrc] [--verbose]"
     echo "Example: $0 testdata/smiffer/pdb-nosolv/1iqj.pdb testdata/smiffer/apbs --mrc --verbose"
     exit 1
 fi
 
-path_pdb="$1"
-folder_out="$2"
+path_pdb=$(realpath "$1")
+folder_out=$(realpath "$2")
 shift 2
 
 while [[ $# -gt 0 && "$1" == --* ]]; do
@@ -40,11 +40,8 @@ if [[ ! -f "$path_pdb" ]]; then
     echo "Error: PDB file '$path_pdb' does not exist."
     exit 1
 fi
-if [[ ! -d "$folder_out" ]]; then
-    echo "Error: Output folder '$folder_out' does not exist."
-    exit 1
-fi
 
+mkdir -p "$folder_out"
 cp "$path_pdb" "$folder_out"
 
 cd "$folder_out" # ------------------------------ inside output folder vvvvv

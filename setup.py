@@ -12,7 +12,7 @@ setup(
     url="https://github.com/diegobarmor/volgrids",
     license="MIT",
     packages=find_packages(),
-    package_data={"volgrids": ["_tables/*"]},
+    package_data={"volgrids": ["_tables/*", "utils/*"]},
     install_requires=[],
     classifiers=[
         "Programming Language :: Python :: 3",

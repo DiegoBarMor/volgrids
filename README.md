@@ -105,7 +105,7 @@ Run `python3 smiffer.py [mode] [path_structure] [options...]` and provide the pa
   - Optionally, replace `[options...]` with any combination of the following:
     - `-o [folder_out]` where `[folder_out]` is the folder where the output SMIFs should be stored. if not provided, the parent folder of the input file will be used.
     - `-t [path_traj]`  where `[path_traj]` is the path to a trajectory file (e.g. XTC) supported by MDAnalysis. This activates "traj" mode, where SMIFs are calculated for all the frames of the trajectory and saved in a CMAP-series file.
-    - `-a [path_apbs]` where `[path_apbs]` is the path to the output of APBS. An *OpenDX* file is expected. This grid will be interpolated into the shape of the other grids.
+    - `-a (path_apbs)` where `(path_apbs)` is the path to the output of APBS. An *OpenDX* file is expected. This grid will be interpolated into the shape of the other grids. If `(path_apbs)` is skipped, APBS will be automatically executed to generate a temporary *OpenDX* APBS output (APBS is assumed to be properly installed in this case).
     - `-s [x] [y] [z] [r]` where `[x]`, `[y]`, `[z]` and `[r]` are the float values for the X,Y,Z coordinates and the radius of a sphere in space, respectively. This activates "pocket sphere" mode, where the SMIFs will only be calculated inside the sphere provided.
     - `-b [path_table]` where `[path_table]` is the path to a *.chem* table file to use for ligand mode, or to override the default macromolecules' tables. This flag is mandatory for "ligand" mode.
     - `-c [path_config]` where `[path_config]` is the path to a configuration file with global settings, to override the default settings (e.g. `config_volgrids.ini`).

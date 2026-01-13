@@ -26,8 +26,7 @@ class AppSmiffer(vg.App):
 
     # --------------------------------------------------------------------------
     def run(self):
-        if sm.PATH_APBS is None:
-            sm.DO_SMIF_APBS = False
+        sm.DO_SMIF_APBS = (sm.PATH_APBS is not None) or sm.MUST_COMPUTE_APBS_INPUT
 
         self.timer.start()
 
@@ -127,8 +126,8 @@ class AppSmiffer(vg.App):
 
 
     # --------------------------------------------------------------------------
-    def _calc_smif(self, cls_grid: type, key_trimming: str, title: str) -> "vg.Grid":
-        grid: vg.Grid = cls_grid(self.ms)
+    def _calc_smif(self, cls_grid: type[sm.Smif], key_trimming: str, title: str) -> "vg.Grid":
+        grid: sm.Smif = cls_grid(self.ms)
         grid.populate_grid()
         self.trimmer.mask_grid(grid, key_trimming)
         grid.save_data(sm.FOLDER_OUT, title)

@@ -106,3 +106,5 @@ FOLDER_OUT:      _pathlib.Path = None # "folder/output/"
 
 SPHERE_INFO: tuple[float, float, float, float] = None # pocket sphere info: [x, y, z, radius]
 CURRENT_MOLTYPE: MolType = MolType.NONE               # type of the current molecule
+
+MUST_COMPUTE_APBS_INPUT: bool = False

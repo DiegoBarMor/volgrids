@@ -1,4 +1,7 @@
+import tempfile
+import subprocess
 import numpy as np
+from pathlib import Path
 
 import volgrids as vg
 import volgrids.smiffer as sm
@@ -7,7 +10,28 @@ import volgrids.smiffer as sm
 class SmifAPBS(sm.Smif):
     # --------------------------------------------------------------------------
     def populate_grid(self):
-        apbs = vg.GridIO.read_auto(sm.PATH_APBS)
+        if not sm.MUST_COMPUTE_APBS_INPUT:
+            self.apbs_to_smif(sm.PATH_APBS)
+            return
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path_script = vg.resolve_path_package("utils/apbs.sh")
+            path_apbs_temp = Path(f"{tmpdir}/{sm.PATH_STRUCTURE.name}.dx")
+
+            proc = subprocess.run(
+                ["/bin/bash", str(path_script), str(sm.PATH_STRUCTURE), tmpdir],
+                capture_output = True, text = True
+            )
+            if proc.returncode != 0:
+                raise RuntimeError(f"apbs.sh failed (code={proc.returncode}):\n{proc.stderr}")
+            if not path_apbs_temp.exists():
+                raise FileNotFoundError(f"Expected APBS output not found: {path_apbs_temp}")
+            self.apbs_to_smif(path_apbs_temp)
+
+
+    # --------------------------------------------------------------------------
+    def apbs_to_smif(self, path_apbs_in):
+        apbs = vg.GridIO.read_auto(path_apbs_in)
         apbs.reshape(
             new_min = (self.xmin, self.ymin, self.zmin),
             new_max = (self.xmax, self.ymax, self.zmax),
