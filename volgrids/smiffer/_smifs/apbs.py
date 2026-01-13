@@ -15,18 +15,26 @@ class SmifAPBS(sm.Smif):
             return
 
         with tempfile.TemporaryDirectory() as tmpdir:
+            path_tmpdir = Path(tmpdir)
+            path_tmpchild = path_tmpdir / "child"
+            path_tmpchild.mkdir()
+
             path_script = vg.resolve_path_package("utils/apbs.sh")
-            path_apbs_temp = Path(f"{tmpdir}/{sm.PATH_STRUCTURE.name}.dx")
+            path_tmp_pdb  = path_tmpchild / sm.PATH_STRUCTURE.name
+            path_tmp_apbs = path_tmpdir / f"{sm.PATH_STRUCTURE.name}.dx"
+
+            self.ms.system.atoms.write(path_tmp_pdb)
 
             proc = subprocess.run(
-                ["/bin/bash", str(path_script), str(sm.PATH_STRUCTURE), tmpdir],
+                ["/bin/bash", str(path_script), str(path_tmp_pdb), tmpdir, "--verbose"],
                 capture_output = True, text = True
             )
             if proc.returncode != 0:
                 raise RuntimeError(f"apbs.sh failed (code={proc.returncode}):\n{proc.stderr}")
-            if not path_apbs_temp.exists():
-                raise FileNotFoundError(f"Expected APBS output not found: {path_apbs_temp}")
-            self.apbs_to_smif(path_apbs_temp)
+            if not path_tmp_apbs.exists():
+                raise FileNotFoundError(f"Expected APBS output not found: {path_tmp_apbs}")
+
+            self.apbs_to_smif(path_tmp_apbs)
 
 
     # --------------------------------------------------------------------------

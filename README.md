@@ -256,6 +256,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * document the .chem tables
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
 * add safeguard when there's no atoms for the specified molecule type
+* add tests for apbs
 
 ## VEINS
 * finish/rework "energies" mode implementation

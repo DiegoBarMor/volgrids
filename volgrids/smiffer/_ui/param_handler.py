@@ -70,6 +70,15 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             sm.MUST_COMPUTE_APBS_INPUT = True
 
 
+        if (sm.PATH_TRAJECTORY is not None) and (sm.PATH_APBS is not None) and sm.DO_SMIF_APBS:
+            raise ValueError(
+                f"The APBS output '{sm.PATH_APBS}' was provided. However, "+
+                "trajectory mode is enabled, so this file would be ambiguous. "+
+                "Please either disable trajectory mode or remove the APBS file input. "+
+                "If APBS calculations are required for each frame, use the flag -a without providing a path."
+            )
+
+
         if self._has_param_kwds("sphere"):
             params_sphere = self._params_kwd["sphere"]
             try:

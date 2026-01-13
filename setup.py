@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="volgrids",
-    version="0.1.0",
+    version="0.2.0",
     description="Framework for volumetric calculations, with emphasis in biological molecular systems.",
     keywords="grid mif smif volumetric molecular structural biology interaction field",
     long_description=open("README.md").read(),
