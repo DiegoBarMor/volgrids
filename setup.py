@@ -13,7 +13,7 @@ setup(
     license="MIT",
     packages=find_packages(),
     package_data={
-        "volgrids": ["config.ini", "_data/*"],
+        "volgrids": ["_data/*"],
     },
     install_requires=[],
     classifiers=[

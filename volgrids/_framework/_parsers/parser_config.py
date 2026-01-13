@@ -4,7 +4,7 @@ import volgrids as vg
 class ParserConfig(vg.ParserIni):
     def apply_config(self,
         section: str, scope_module: dict[str, ], scope_dependencies: dict[str, ],
-        valid_config_keys: set[str], all_configs_mandatory: bool = True
+        valid_config_keys: set[str]
     ) -> None:
         """
         Applies the configuration to the provided global dictionary.
@@ -12,10 +12,7 @@ class ParserConfig(vg.ParserIni):
 
         self.assert_sections_not_empty()
 
-        if not self.has(section):
-            if all_configs_mandatory:
-                raise ValueError(f"Configuration file does not contain [{section}] section (case sensitive).")
-            return  # Section not present, skip if not mandatory
+        if not self.has(section): return  # skip absent sections
 
         for k, value in self.iter_splitted_lines(section):
             k = k.upper()
@@ -23,9 +20,6 @@ class ParserConfig(vg.ParserIni):
                 raise ValueError(f"Unknown configuration for [{section}]: {k}.")
             scope_module[k.upper()] = self._parse_str(scope_dependencies, value)
             valid_config_keys.remove(k)
-
-        if all_configs_mandatory and valid_config_keys:
-            raise ValueError(f"Configuration keys not set: {', '.join(valid_config_keys)}.")
 
 
     # --------------------------------------------------------------------------

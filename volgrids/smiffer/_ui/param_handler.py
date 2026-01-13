@@ -43,7 +43,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             "-t, --traj        File path to a trajectory file (e.g. XTC) supported by MDAnalysis. Activates 'traj' mode: calculate SMIFs for all the frames and save them as a CMAP-series file.",
             "-a, --apbs        File path to the output of APBS for the respective structure file (this must be done before). An OpenDX file is expected.",
             "-b, --table       File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
-            "-c, --config      File path to a configuration file with global settings, to override the default settings from config.ini.",
+            "-c, --config      File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).",
             "-s, --sphere      Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere. If not provided, 'whole' mode is assumed.",
         )
         if self._has_param_kwds("help"):

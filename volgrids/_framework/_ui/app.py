@@ -6,13 +6,11 @@ import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class App(ABC):
-    PATH_DEFAULT_CONFIG = vg.resolve_path("config.ini")
-
     # --------------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
         handler = self._CLASS_PARAM_HANDLER(*args, **kwargs)
         handler.assign_globals()
-        self.load_configs(vg.PATH_CUSTOM_CONFIG)
+        self.load_configs()
 
 
     # --------------------------------------------------------------------------
@@ -32,14 +30,16 @@ class App(ABC):
 
 
     # --------------------------------------------------------------------------
-    def load_configs(self, path_custom: Path | None):
-        self._load_config_file(self.PATH_DEFAULT_CONFIG, is_default = True)
-        if path_custom is None: return
-        self._load_config_file(path_custom, is_default = False)
+    def load_configs(self):
+        if vg.PATH_DEFAULT_CONFIG is not None:
+            self._load_config_file(vg.PATH_DEFAULT_CONFIG)
+
+        if vg.PATH_CUSTOM_CONFIG is not None:
+            self._load_config_file(vg.PATH_CUSTOM_CONFIG)
 
 
     # --------------------------------------------------------------------------
-    def _load_config_file(self, path_config: Path, is_default: bool) -> None:
+    def _load_config_file(self, path_config: Path) -> None:
         parser = vg.ParserConfig(path_config)
         scope_dependencies = self._import_config_dependencies()
 
@@ -49,7 +49,6 @@ class App(ABC):
                 scope_module = scope_module.__dict__,
                 scope_dependencies = scope_dependencies,
                 valid_config_keys = scope_module.__config_keys__.copy(),
-                all_configs_mandatory = is_default
             )
 
 
