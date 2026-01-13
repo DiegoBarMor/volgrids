@@ -23,7 +23,7 @@ class ParamHandlerVeins(vg.ParamHandler):
             "Run 'python3 veins.py [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         ve.MODE = self._safe_get_param_pos(0).lower()
         func: callable = self._safe_map_value(ve.MODE,
@@ -44,7 +44,7 @@ class ParamHandlerVeins(vg.ParamHandler):
             "-c, --cutoff     Energies below this cutoff will be ignored. Default value: 1e-3.",
         )
         if self._has_param_kwds("help"):
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         ve.PATH_STRUCTURE = self._safe_path_file_in(
             self._safe_get_param_pos(1,

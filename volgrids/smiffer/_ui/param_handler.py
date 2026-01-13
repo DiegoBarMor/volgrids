@@ -25,7 +25,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             "Run 'python3 smiffer.py [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         mode = self._safe_get_param_pos(0)
         sm.CURRENT_MOLTYPE = self._safe_map_value(mode.lower(),
@@ -47,10 +47,10 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             "-s, --sphere      Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere. If not provided, 'whole' mode is assumed.",
         )
         if self._has_param_kwds("help"):
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         if sm.CURRENT_MOLTYPE.is_ligand() and not self._has_param_kwds("table"):
-            self._exit_with_help(-1, "No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file.")
+            self._exit_with_help("No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file.")
 
         sm.PATH_STRUCTURE = self._safe_path_file_in(
             self._safe_get_param_pos(1,
@@ -72,7 +72,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
                 z_cog  = float(self._safe_idx(params_sphere, 2, "Missing sphere center Z coordinate."))
                 radius = float(self._safe_idx(params_sphere, 3, "Missing sphere radius."))
             except ValueError:
-                self._exit_with_help(-1, "Sphere options must be numeric values.")
+                self._exit_with_help("Sphere options must be numeric values.")
             sm.SPHERE_INFO = (x_cog, y_cog, z_cog, radius)
 
 

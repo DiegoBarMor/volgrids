@@ -29,7 +29,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "Run 'python3 vgtools.py [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         vgt.OPERATION = self._safe_get_param_pos(0).lower()
         func: callable = self._safe_map_value(vgt.OPERATION,
@@ -55,7 +55,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "-c, --cmap  File path where to save the converted grid in CMAP format. The stem of the input file will be used as the CMAP key.",
         )
         if self._has_param_kwds("help"):
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         vgt.PATH_CONVERT_IN = self._safe_path_file_in(
             self._safe_get_param_pos(1,
@@ -79,7 +79,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "-o, --output  File path where to save the packed grid in CMAP format. Must be provided.",
         )
         if self._has_param_kwds("help"):
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         vgt.PATHS_PACK_IN = [
             self._safe_path_file_in(path) for path in \
@@ -99,7 +99,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "-o, --output  Folder path where to save the unpacked grids. If not provided, the parent folder of the input packed file will be used.",
         )
         if self._has_param_kwds("help"):
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         vgt.PATH_UNPACK_IN  = self._safe_kwd_file_in("input", required = True)
         vgt.PATH_UNPACK_OUT = self._safe_kwd_folder_out("output", default = vgt.PATH_UNPACK_IN.parent)
@@ -115,7 +115,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "-o, --output  File path where to save the fixed CMAP file. Must be provided.",
         )
         if self._has_param_kwds("help"):
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         vgt.PATH_FIXCMAP_IN  = self._safe_kwd_file_in("input", required = True)
         vgt.PATH_FIXCMAP_OUT = self._safe_kwd_file_out("output", required = True)
@@ -131,7 +131,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "-o, --output  File path where to save the averaged CMAP file. Must be provided.",
         )
         if self._has_param_kwds("help"):
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         vgt.PATH_AVERAGE_IN  = self._safe_kwd_file_in("input", required = True)
         vgt.PATH_AVERAGE_OUT = self._safe_kwd_file_out("output", required = True)
@@ -146,7 +146,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "-t, --threshold  Threshold for comparison. Default is 1e-3.",
         )
         if self._has_param_kwds("help"):
-            self._exit_with_help(0)
+            self._exit_with_help()
 
         vgt.PATH_COMPARE_IN_0 = self._safe_path_file_in(
             self._safe_get_param_pos(1,
