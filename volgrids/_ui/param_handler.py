@@ -1,9 +1,15 @@
-import os, sys
+import os
 from pathlib import Path
 from abc import ABC, abstractmethod
 
 # //////////////////////////////////////////////////////////////////////////////
 class ParamHandler(ABC):
+    class InvalidPathError(Exception): pass
+    class InvalidParamError(Exception): pass
+    class MissingParamError(Exception): pass
+    class MissingArgsError(Exception): pass
+
+    # --------------------------------------------------------------------------
     def __init__(self, *params_pos: str, **params_kwd: list[str]):
         self._params_pos = params_pos
         self._params_kwd = params_kwd
@@ -60,12 +66,12 @@ class ParamHandler(ABC):
 
 
     # --------------------------------------------------------------------------
-    def _exit_with_help(self, err_msg: str = '') -> None:
+    def _exit_with_help(self, cls_error: type[Exception] = ValueError, err_msg: str = '') -> None:
         if not err_msg: # assume exit code 0 when no error message is provided
             print(f"{self._help_str}")
             exit(0)
 
-        raise SystemExit(f"{self._help_str}\n\nError: {err_msg}")
+        raise cls_error(f"\n{self._help_str}\n\nError while parsing CLI arguments:\n{err_msg}")
 
 
     # --------------------------------------------------------------------------
@@ -98,7 +104,7 @@ class ParamHandler(ABC):
     def _safe_map_value(self, key: str, **values):
         value = values.get(key, None)
         if value is None:
-            self._exit_with_help(f"Invalid parameter '{key}'. Expected one of the following: {', '.join(values.keys())}.")
+            self._exit_with_help(self.InvalidParamError, f"Invalid parameter '{key}'. Expected one of the following: {', '.join(values.keys())}.")
         return value
 
 
@@ -110,10 +116,10 @@ class ParamHandler(ABC):
     # --------------------------------------------------------------------------
     def _safe_get_param_kwd_list(self, name: str, min_len: int = 1) -> list[str]:
         if not self._has_param_kwds(name):
-            self._exit_with_help(f"The flag '{name}' was not provided.")
+            self._exit_with_help(self.MissingParamError, f"The flag '{name}' was not provided.")
         lst = self._params_kwd[name]
         if len(lst) < min_len:
-            self._exit_with_help(f"The flag '{name}' was used but not enough values were provided. At least {min_len} value(s) expected.")
+            self._exit_with_help(self.MissingArgsError, f"The flag '{name}' was used but not enough values were provided. At least {min_len} value(s) expected.")
         return lst
 
 
@@ -122,10 +128,10 @@ class ParamHandler(ABC):
         if self._has_param_kwds(name):
             lst = self._params_kwd[name]
             if lst: return lst[0]
-            self._exit_with_help(f"The flag '{name}' was used but no value was provided.")
+            self._exit_with_help(self.MissingArgsError, f"The flag '{name}' was used but no value was provided.")
 
         if required:
-            self._exit_with_help(f"The mandatory flag '{name}' was not provided.")
+            self._exit_with_help(self.MissingParamError, f"The mandatory flag '{name}' was not provided.")
 
         return default
 
@@ -134,9 +140,9 @@ class ParamHandler(ABC):
     def _safe_path_file_in(self, path: str) -> Path:
         obj = Path(path)
         if not obj.exists():
-            self._exit_with_help(f"The specified file path '{path}' does not exist.")
+            self._exit_with_help(self.InvalidPathError, f"The specified file path '{path}' does not exist.")
         if obj.is_dir():
-            self._exit_with_help(f"The specified file path '{path}' is a folder.")
+            self._exit_with_help(self.InvalidPathError, f"The specified file path '{path}' is a folder.")
         return obj
 
 
@@ -144,7 +150,7 @@ class ParamHandler(ABC):
     def _safe_path_file_out(self, path: str) -> Path:
         obj = Path(path)
         if obj.is_dir():
-            self._exit_with_help(f"The specified file path '{path}' is a folder.")
+            self._exit_with_help(self.InvalidPathError, f"The specified file path '{path}' is a folder.")
         os.makedirs(obj.parent, exist_ok = True)
         return obj
 
@@ -153,7 +159,7 @@ class ParamHandler(ABC):
     def _safe_path_folder_out(self, path: str) -> Path:
         obj = Path(path)
         if obj.is_file():
-            self._exit_with_help(f"The specified folder path '{path}' is a file.")
+            self._exit_with_help(self.InvalidPathError, f"The specified folder path '{path}' is a file.")
         os.makedirs(obj, exist_ok = True)
         return obj
 
@@ -186,7 +192,7 @@ class ParamHandler(ABC):
         try:
             return float(val_str)
         except ValueError:
-            self._exit_with_help(f"The value for the flag '{name}' must be a float. Got '{val_str}' instead.")
+            self._exit_with_help(self.InvalidParamError, f"The value for the flag '{name}' must be a float. Got '{val_str}' instead.")
 
 
 # //////////////////////////////////////////////////////////////////////////////
