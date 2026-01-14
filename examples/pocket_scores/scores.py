@@ -146,11 +146,12 @@ class PocketScoreCalculator:
 
 ################################################################################
 if __name__ == "__main__":
-    # Run tests/smiffer/pocket_sphere.py before running this script
+    # Run tests/smiffer/pocket_sphere.sh and tests/smiffer/whole.sh before running this script
+    # Set "SAVE_TRIMMING_MASK = true" in config_volgrids.ini
     # Run this script from the root folder of the repository
 
     FOLDER_DATA  = Path("testdata/smiffer")
-    PATH_CSV_OUT = Path("scores.csv")
+    PATH_CSV_OUT = Path("examples/pocket_scores/scores.csv")
 
     FOLDER_PS    = FOLDER_DATA / "pocket_sphere"
     FOLDER_WH    = FOLDER_DATA / "whole"
