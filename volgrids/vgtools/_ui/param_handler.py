@@ -19,11 +19,12 @@ class ParamHandlerVGTools(vg.ParamHandler):
     # --------------------------------------------------------------------------
     def assign_globals(self):
         self._set_help_str(
-            "usage: python3 vgtools.py [convert|pack|unpack|fix_cmap] [options...]",
+            "usage: python3 vgtools.py [convert|pack|unpack|average|fix_cmap] [options...]",
             "Available modes:",
             "  convert  - Convert grid files between formats.",
             "  pack     - Pack multiple grid files into a single CMAP series-file.",
             "  unpack   - Unpack a CMAP series-file into multiple grid files.",
+            "  average  - Average all grids in a CMAP series-file into a single grid.",
             "  fix_cmap - Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.",
             "  compare  - Compare two grid files by printing the number of differing points and their accumulated difference.",
             "Run 'python3 vgtools.py [mode] --help' for more details on each mode.",

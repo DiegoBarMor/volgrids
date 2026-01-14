@@ -43,7 +43,6 @@ class VGOperations:
                 warned = True
 
             key = str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
-            # key = path_in.stem
             vg.GridIO.write_cmap(path_out, grid, key)
 
 
@@ -90,7 +89,7 @@ class VGOperations:
         grid_avg: vg.Grid = vg.Grid(grid.ms, init_grid = False)
         grid_avg.grid = avg
 
-        vg.GridIO.write_cmap(path_out, grid_avg, "averaged")
+        vg.GridIO.write_auto(path_out, grid_avg)
 
 
     # --------------------------------------------------------------------------

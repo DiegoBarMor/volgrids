@@ -248,6 +248,33 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def write_auto(path_grid: Path, data: "vg.Grid"):
+        """Detect the format of the grid file based on its extension and then write it."""
+        ext = path_grid.suffix.lower()
+
+        # [TODO] improve the format detection?
+        if ext == ".dx":
+            GridIO.write_dx(path_grid, data)
+            return
+
+        if ext == ".mrc":
+            GridIO.write_mrc(path_grid, data)
+            return
+
+        if ext == ".ccp4":
+            GridIO.write_ccp4(path_grid, data)
+            return
+
+        if ext == ".cmap":
+            keys = GridIO.get_cmap_keys(path_grid)
+            GridIO.write_cmap(path_grid, data, key = f"map_{len(keys)+1}")
+            return
+
+        raise ValueError(f"Unrecognized file format: {ext}")
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def get_cmap_keys(path_cmap) -> list[str]:
         with h5py.File(path_cmap, 'r') as h5:
             return list(h5["Chimera"].keys())
