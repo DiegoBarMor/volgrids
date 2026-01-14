@@ -11,8 +11,8 @@ fout="testdata/env"
 tmp_py="smiffer.tmp.py"
 
 cat > $tmp_py <<- EOM
-import volgrids.smiffer as sm
-sm.AppSmiffer.from_cli().run()
+import volgrids.smiffer as sm; import sys
+sm.AppSmiffer.from_cli(sys.argv[1:]).run()
 EOM
 
 ### try running it in the repo's root

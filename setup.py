@@ -21,6 +21,11 @@ setup(
     packages=find_packages(),
     package_data={"volgrids": ["_tables/*", "utils/*"]},
     install_requires=read_requirements(),
+    entry_points={
+        "console_scripts": [
+            "volgrids=volgrids.__main__:main",
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
