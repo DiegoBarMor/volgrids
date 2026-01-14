@@ -1,5 +1,5 @@
 # Volumetric Grids (VolGrids)
-This is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`./smiffer.py`), **Volumetric Energy INSpector (VEINS)** (`./veins.py`) and **Volgrid Tools** (`./vgtools.py`). You can read more in their respective sections.
+VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`./smiffer.py`), **Volumetric Energy INSpector (VEINS)** (`./veins.py`) and **Volgrid Tools** (`./vgtools.py`). You can read more in their respective sections.
 
 ## QuickStart
 ```bash
@@ -93,7 +93,7 @@ Follow the instructions at the [test data repo](https://github.com/DiegoBarMor/v
 <!-- ------------------------------- SMIFFER ------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Statistical Molecular Interaction Fields (SMIF) Calculator
-This is a custom implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
+This is an implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
 
 ## Usage
 Run `python3 smiffer.py [mode] [path_structure] [options...]` and provide the parameters of the calculation via arguments:
@@ -251,14 +251,13 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 <!-- --------------------------------- TODO -------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # TODO
-* improve help strings
-* add annotations, docstrings and overall cleaning
+* improve help strings. Add annotations, docstrings and overall cleaning
 * try out cavities-finder ideas
 * replace mdanalysis with another PDB parser?
-* improve build setup so that requirements are automatically installed when installing volgrids
 
 ## VGrids
 * implement: raise an error if a format file is opened with the wrong function
+* add possibility for config parameters being passed via the CLI
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 * standard ini files use ; instead of # for comments
 

@@ -3,11 +3,11 @@ import pandas as pd
 from pathlib import Path
 from collections import defaultdict
 
-# ### simulate having "volgrids" installed as a package
-# ### this way it's not necessary to install the repo to run this script
-# import sys
-# from pathlib import Path
-# sys.path.insert(0, str(Path(__file__).parent.parent))
+### simulate having "volgrids" installed as a package
+### this way it's not necessary to install the repo to run this script
+import sys; from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+### you can remove the previous two lines if volgrids is installed
 
 import volgrids as vg
 
@@ -146,8 +146,7 @@ class PocketScoreCalculator:
 
 ################################################################################
 if __name__ == "__main__":
-    # Run tests/smiffer/pocket_sphere.sh and tests/smiffer/whole.sh before running this script
-    # Set "SAVE_TRIMMING_MASK = true" in config_volgrids.ini
+    # Run tests/smiffer/run.sh before running this script
     # Run this script from the root folder of the repository
 
     FOLDER_DATA  = Path("testdata/smiffer")
