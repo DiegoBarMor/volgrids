@@ -1,10 +1,10 @@
 # Volumetric Grids (VolGrids)
-VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`./smiffer.py`), **Volumetric Energy INSpector (VEINS)** (`./veins.py`) and **Volgrid Tools** (`./vgtools.py`). You can read more in their respective sections.
+VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`python3 volgrids smiffer`), **Volumetric Energy INSpector (VEINS)** (`python3 volgrids veins`) and **Volgrid Tools** (`python3 volgrids vgtools`). You can read more in their respective sections.
 
 ## QuickStart
 ```bash
 pip install -r requirements.txt
-python3 smiffer.py --help
+python3 volgrids smiffer --help
 ```
 
 
@@ -55,22 +55,22 @@ Follow the instructions from [here](#installation-ubuntu).
 
 <!-- ----------------------------------------------------------------------- -->
 ## Usage
-### Without installing VolGrids
+### Running the CLI utilities (without VolGrids installed)
 You can use the tools provided by VolGrids without installing it, by calling any of the scripts in the root directory of this repository (it doesn't have to be the current directory, you can call them from anywhere). Leave `[options...]` empty to read more about the available options.
 
 - **SMIF Calculator:**
 ```bash
-python3 smiffer.py [options...]
+python3 volgrids smiffer [options...]
 ```
 
 - **Volumetric Energy INSpector (VEINS):**
 ```bash
-python3 veins.py [options...]
+python3 volgrids veins [options...]
 ```
 
 - **Volgrid Tools:**
 ```bash
-python3 vgtools.py [options...]
+python3 volgrids vgtools [options...]
 ```
 
 
@@ -78,9 +78,27 @@ python3 vgtools.py [options...]
 ### Using VolGrids as a package
 You can install VolGrids as a package and import it from your own scripts. For installing with pip:
 ```bash
-# your current directory should be the root folder of this repository
+# your current directory should be the root directory of this repository
 pip install .
 rm -rf build volgrids.egg-info # optional cleanup
+```
+
+
+<!-- ----------------------------------------------------------------------- -->
+### Running the CLI utilities (VolGrids installed)
+- **SMIF Calculator:**
+```bash
+volgrids smiffer [options...]
+```
+
+- **Volumetric Energy INSpector (VEINS):**
+```bash
+volgrids veins [options...]
+```
+
+- **Volgrid Tools:**
+```bash
+volgrids vgtools [options...]
 ```
 
 
@@ -96,7 +114,7 @@ Follow the instructions at the [test data repo](https://github.com/DiegoBarMor/v
 This is an implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
 
 ## Usage
-Run `python3 smiffer.py [mode] [path_structure] [options...]` and provide the parameters of the calculation via arguments:
+Run `python3 volgrids smiffer [mode] [path_structure] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `prot`, `rna` or `ligand` according to the structure of interest.
   - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
   - Optionally, replace `[options...]` with any combination of the following:
@@ -112,17 +130,17 @@ Run `python3 smiffer.py [mode] [path_structure] [options...]` and provide the pa
 ## Commands examples
 - Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-s`).
 ```bash
-python3 smiffer.py prot testdata/smiffer/pdb-nosolv/1iqj.pdb -s 4.682 21.475 7.161 14.675
+python3 volgrids smiffer prot testdata/smiffer/pdb-nosolv/1iqj.pdb -s 4.682 21.475 7.161 14.675
 ```
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```bash
-python3 smiffer.py rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pqr.dx
+python3 volgrids smiffer rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pqr.dx
 ```
 
 - Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.
 ```bash
-python3 smiffer.py rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
+python3 volgrids smiffer rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
 ```
 
 
@@ -213,7 +231,7 @@ apbs testdata/smiffer/1iqj.in
 This tool allows to visualize interaction energies in space by portraying them as a volumetric grid. Apart from the usual structure/trajectory files (PDB, XTC...), a CSV with energy values and the indices of the atoms/residues involved must be given. Interactions between 2, 3 and 4 particles are supported and represented accordingly
 
 ## Usage
-Run `python3 veins.py [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
+Run `python3 volgrids veins [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `energies`.
   - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
   - replace `[path_csv]` with the path to the energies CSV file. Mandatory positional argument. It must contain the following rows:
@@ -235,7 +253,7 @@ Run `python3 veins.py [mode] [path_structure] [path_csv] [options...]` and provi
 Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
 
 ## Usage
-Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the calculation via arguments.
+Run `python3 volgrids vgtools [mode] [options...]` and provide the parameters of the calculation via arguments.
   - Replace `[mode]` with one of the following available modes:
     - `convert`: Convert grid files between formats.
     - `pack`: Pack multiple grid files into a single CMAP series-file.
@@ -243,7 +261,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
     - `average`: Average all grids in a CMAP series-file into a single grid.
     - `fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
     - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
-  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 vgtools.py [mode] -h`).
+  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 volgrids vgtools [mode] -h`).
 
 
 

@@ -13,9 +13,9 @@ paths_in="$fp/2esj.hba.mrc $fp/2esj.hbd.mrc $fp/2esj.phi.mrc $fp/2esj.pho.mrc $f
 path_out="$fp/2esj.cmap"
 
 # shellcheck disable=SC2086
-python3 vgtools.py pack -i $paths_in -o "$path_out"
+python3 volgrids vgtools pack -i $paths_in -o "$path_out"
 
 
 ############################# UNPACKING
 path_in="$fu/1iqj.cmap"
-python3 vgtools.py unpack -i "$path_in"
+python3 volgrids vgtools unpack -i "$path_in"

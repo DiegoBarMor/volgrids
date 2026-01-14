@@ -97,6 +97,6 @@ preffix="$folder_out/$name_pdb"
 rm -f "$preffix" "$preffix.in" "$preffix.log" "$preffix.pqr" "$folder_out/io.mc"
 
 if [[ "$CONVERT_TO_MRC" == "true" ]]; then
-    python3 vgtools.py convert "$preffix.dx" --mrc "$preffix.mrc"
+    python3 volgrids vgtools convert "$preffix.dx" --mrc "$preffix.mrc"
     rm -f "$preffix.dx"
 fi

@@ -130,10 +130,10 @@ EOM
 
 ############################# CONVERSIONS
 # shellcheck disable=SC2086
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config $tmp_config_dx
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config $tmp_config_mrc
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config $tmp_config_ccp4
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config $tmp_config_cmap
+python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config $tmp_config_dx
+python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config $tmp_config_mrc
+python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config $tmp_config_ccp4
+python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config $tmp_config_cmap
 
 mv $fc/1iqj.stacking.dx   $fc/1iqj.stk.dx
 mv $fc/1iqj.stacking.mrc  $fc/1iqj.stk.mrc
@@ -143,7 +143,7 @@ mv $fc/1iqj.stacking.cmap $fc/1iqj.stk.cmap
 
 ############################# PACKING
 # shellcheck disable=SC2086
-python3 smiffer.py rna $fpdb_nosolv/2esj.pdb -o $fp -s 21.865 -6.397 16.946 15.708 --config $tmp_config_smifs
+python3 volgrids smiffer rna $fpdb_nosolv/2esj.pdb -o $fp -s 21.865 -6.397 16.946 15.708 --config $tmp_config_smifs
 
 mv $fp/2esj.hbacceptors.mrc $fp/2esj.hba.mrc
 mv $fp/2esj.hbdonors.mrc    $fp/2esj.hbd.mrc
@@ -154,10 +154,10 @@ mv $fp/2esj.stacking.mrc    $fp/2esj.stk.mrc
 
 ############################# UNPACKING
 # shellcheck disable=SC2086
-python3 smiffer.py prot $fpdb_nosolv/1iqj.pdb -o $fu -s 4.682 21.475 7.161 14.675 --config $tmp_config_smifs
+python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fu -s 4.682 21.475 7.161 14.675 --config $tmp_config_smifs
 
 cd $fu
-python3 ../../../vgtools.py pack \
+python3 ../../../volgrids vgtools pack \
     -i 1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc \
     -o 1iqj.cmap
 cd ../../..
@@ -166,7 +166,7 @@ rm -f $fu/1iqj.*.mrc
 
 
 ############################# FIX CMAP
-python3 vgtools.py pack -i \
+python3 volgrids vgtools pack -i \
     $fframes/smiffer_126.hbdonors.cmap $fframes/smiffer_142.hbdonors.cmap \
     $fframes/smiffer_3.hbdonors.cmap   $fframes/smiffer_127.hbdonors.cmap \
     $fframes/smiffer_32.hbdonors.cmap  $fframes/smiffer_50.hbdonors.cmap  \
