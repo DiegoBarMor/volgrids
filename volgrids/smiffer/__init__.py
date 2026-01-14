@@ -17,6 +17,8 @@ from ._ui.app import AppSmiffer
 
 ############################# CONFIG FILE GLOBALS ##############################
 import numpy as _np
+_keys_other = set(globals().keys())
+
 DO_SMIF_STACKING:    bool = True
 DO_SMIF_HBA:         bool = True
 DO_SMIF_HBD:         bool = True
@@ -79,7 +81,7 @@ GAUSSIAN_KERNEL_SIGMAS: int = 4
 APBS_MIN_CUTOFF: int = -2
 APBS_MAX_CUTOFF: int = 3
 
-__config_keys__ = set(__annotations__.keys())
+__config_keys__ = set(globals().keys()) - _keys_other
 
 
 ############################### NUMERIC GLOBALS ################################

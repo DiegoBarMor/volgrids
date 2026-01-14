@@ -23,6 +23,8 @@ from ._ui.app import App
 
 ############################# CONFIG FILE GLOBALS ##############################
 import numpy as _np
+_keys_other = set(globals().keys())
+
 OUTPUT_FORMAT: GridFormat = GridFormat.CMAP_PACKED
 
 GZIP_COMPRESSION: int = 9
@@ -40,7 +42,7 @@ GRID_ZRES: int = 200
 EXTRA_BOX_SIZE: int = 5
 USE_FIXED_DELTAS: bool = True
 
-__config_keys__ = set(__annotations__.keys())
+__config_keys__ = set(globals().keys()) - _keys_other
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################

@@ -6,7 +6,8 @@ from ._ui.param_handler import ParamHandlerVGTools
 from ._ui.app import AppVGTools
 
 
-__config_keys__ = set(__annotations__.keys())
+############################# CONFIG FILE GLOBALS ##############################
+__config_keys__ = set()
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################

@@ -2,8 +2,8 @@
 This is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`./smiffer.py`), **Volumetric Energy INSpector (VEINS)** (`./veins.py`) and **Volgrid Tools** (`./vgtools.py`). You can read more in their respective sections.
 
 ## QuickStart
-```
-pip install -r environment/requirements.txt
+```bash
+pip install -r requirements.txt
 python3 smiffer.py --help
 ```
 
@@ -21,39 +21,36 @@ This framework only has 2 Python dependencies:
 <!-- ----------------------------------------------------------------------- -->
 ### Option 1: Setting up a Conda environment
 #### Automatic
-```
-conda env create -f environment/conda.yml
+```bash
+conda env create -f environment.yml
 conda activate volgrids
 ```
 
 #### Manual
-```
+```bash
 conda create --name volgrids -y
 conda activate volgrids
 conda install python -y
-conda install -c conda-forge mdanalysis -y
+conda install -c conda-forge mdanalysis h5py -y
 ```
 
 
 <!-- ----------------------------------------------------------------------- -->
 ### Option 2: Simple setup with PIP
 #### Automatic
-```
-pip install -r environment/requirements.txt
+```bash
+pip install -r requirements.txt
 ```
 
 #### Manual
-```
+```bash
 pip install mdanalysis h5py
 ```
 
 
 <!-- ----------------------------------------------------------------------- -->
 ### APBS (optional)
-```
-sudo apt-get install apbs
-sudo apt install pdb2pqr
-```
+Follow the instructions from [here](#installation-ubuntu).
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -62,17 +59,17 @@ sudo apt install pdb2pqr
 You can use the tools provided by VolGrids without installing it, by calling any of the scripts in the root directory of this repository (it doesn't have to be the current directory, you can call them from anywhere). Leave `[options...]` empty to read more about the available options.
 
 - **SMIF Calculator:**
-```
+```bash
 python3 smiffer.py [options...]
 ```
 
 - **Volumetric Energy INSpector (VEINS):**
-```
+```bash
 python3 veins.py [options...]
 ```
 
 - **Volgrid Tools:**
-```
+```bash
 python3 vgtools.py [options...]
 ```
 
@@ -80,7 +77,7 @@ python3 vgtools.py [options...]
 <!-- ----------------------------------------------------------------------- -->
 ### Using VolGrids as a package
 You can install VolGrids as a package and import it from your own scripts. For installing with pip:
-```
+```bash
 # your current directory should be the root folder of this repository
 pip install .
 rm -rf build volgrids.egg-info # optional cleanup
@@ -113,24 +110,18 @@ Run `python3 smiffer.py [mode] [path_structure] [options...]` and provide the pa
 
 <!-- ----------------------------------------------------------------------- -->
 ## Commands examples
-- Sample commands to obtain the electrostatic grids from [pdb2pqr](https://pdb2pqr.readthedocs.io/en/latest/) and [APBS](https://apbs.readthedocs.io/en/latest/)
-```
-pdb2pqr --ff=AMBER testdata/smiffer/pdb-nosolv/1iqj.pdb testdata/smiffer/pqr/1iqj.pqr --apbs-input testdata/smiffer/1iqj.in
-apbs testdata/smiffer/1iqj.in
-```
-
 - Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-s`).
-```
+```bash
 python3 smiffer.py prot testdata/smiffer/pdb-nosolv/1iqj.pdb -s 4.682 21.475 7.161 14.675
 ```
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
-```
+```bash
 python3 smiffer.py rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pqr.dx
 ```
 
 - Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.
-```
+```bash
 python3 smiffer.py rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
 ```
 
@@ -196,6 +187,24 @@ volume showOutlineBox true
 ```
 
 
+<!-- ----------------------------------------------------------------------- -->
+## APBS reference
+Sample commands to obtain the electrostatic grids from [pdb2pqr](https://pdb2pqr.readthedocs.io/en/latest/) and [APBS](https://apbs.readthedocs.io/en/latest/)
+
+### Installation (Ubuntu)
+```bash
+pip install pdb2pqr
+# sudo apt install pdb2pqr # alternative
+sudo apt-get install apbs
+```
+
+### Commands examples
+```bash
+pdb2pqr --ff=AMBER testdata/smiffer/pdb-nosolv/1iqj.pdb testdata/smiffer/pqr/1iqj.pqr --apbs-input testdata/smiffer/1iqj.in
+apbs testdata/smiffer/1iqj.in
+```
+
+
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- -------------------------------- VEINS -------------------------------- -->
@@ -231,6 +240,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
     - `convert`: Convert grid files between formats.
     - `pack`: Pack multiple grid files into a single CMAP series-file.
     - `unpack`: Unpack a CMAP series-file into multiple grid files.
+    - `average`: Average all grids in a CMAP series-file into a single grid.
     - `fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
     - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
   - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 vgtools.py [mode] -h`).
@@ -244,6 +254,8 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * improve help strings
 * add annotations, docstrings and overall cleaning
 * try out cavities-finder ideas
+* replace mdanalysis with another PDB parser?
+* improve build setup so that requirements are automatically installed when installing volgrids
 
 ## VGrids
 * implement: raise an error if a format file is opened with the wrong function
@@ -257,6 +269,7 @@ Run `python3 vgtools.py [mode] [options...]` and provide the parameters of the c
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
 * add safeguard when there's no atoms for the specified molecule type
 * add tests for apbs
+* reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
 
 ## VEINS
 * finish/rework "energies" mode implementation
