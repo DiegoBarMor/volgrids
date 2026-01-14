@@ -3,5 +3,6 @@ desktop.ini
 .vscode/
 
 testdata/
+tmp/
 
 upload.sh
