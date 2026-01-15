@@ -26,7 +26,9 @@ class AppSmiffer(vg.App):
 
     # --------------------------------------------------------------------------
     def run(self):
-        sm.DO_SMIF_APBS = (sm.PATH_APBS is not None) or sm.MUST_COMPUTE_APBS_INPUT
+        if sm.CURRENT_MOLTYPE.is_ligand():
+            sm.DO_SMIF_APBS = False
+            print("\n...--- ligand: skipping APBS SMIF calculation.", end = ' ', flush = True)
 
         self.timer.start()
 

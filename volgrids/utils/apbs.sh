@@ -110,6 +110,6 @@ if [[ "$CONVERT_TO_MRC" == "true" ]]; then
     root_volgrids=$(dirname "$(dirname "$(realpath "$0")")")
     ### if this sh script is moved somewhere else and the volgrids package is installed
     ### the command below can be simplified to just "volgrids vgtools convert ..."
-    python3 "$root_volgrids" vgtools convert "$folder_out/$name_pdb.dx" --mrc "$folder_out/${name_pdb%.pdb}.mrc"
+    python3 "$root_volgrids" vgtools convert "$folder_out/$name_pdb.dx" --mrc "$folder_out/$name_pdb.mrc"
     rm -f "$folder_out/$name_pdb.dx"
 fi

@@ -3,9 +3,11 @@ import subprocess
 from pathlib import Path
 from MDAnalysis.core.groups import AtomGroup
 
+import volgrids as vg
+
 # //////////////////////////////////////////////////////////////////////////////
 class APBSSubprocess:
-    _PATH_SCRIPT = Path(__file__).parent / "apbs.sh"
+    _PATH_SCRIPT = vg.resolve_path_package("utils/apbs.sh")
 
     # --------------------------------------------------------------------------
     def __init__(self, atoms: AtomGroup, name_pdb: str):

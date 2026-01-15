@@ -7,7 +7,7 @@ import volgrids.smiffer as sm
 class SmifAPBS(sm.Smif):
     # --------------------------------------------------------------------------
     def populate_grid(self):
-        if not sm.MUST_COMPUTE_APBS_INPUT:
+        if sm.PATH_APBS is not None:
             self.apbs_to_smif(sm.PATH_APBS)
             return
 
