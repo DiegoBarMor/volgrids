@@ -13,6 +13,7 @@ def help_and_exit(exit_code: int):
     print(
         f"usage: volgrids [smiffer|veins|vgtools] [options...]",
          "Available applications:",
+         "  apbs     - Generate raw APBS potential grids for biomolecular structures.",
          "  smiffer  - Calculate SMIFs for biomolecular structures.",
          "  veins    - Calculate VEINS for biomolecular structures.",
          "  vgtools  - Miscellaneous tools for volumetric grids.",
@@ -38,6 +39,12 @@ def main():
     warnings.filterwarnings("ignore", module = "MDAnalysis.*")
     app_name = argv[0].lower()
     app_args = argv[1:]
+
+    if app_name == "apbs":
+        print(f">>> Launching APBS subprocess for '{app_args[0]}'...", flush = True)
+        apbs = vg.APBSSubprocess.run_subprocess(app_args)
+        print(f"{apbs.stdout}\n{apbs.stderr}".strip(), flush = True)
+        exit(apbs.returncode)
 
     if app_name == "smiffer":
         import volgrids.smiffer as sm

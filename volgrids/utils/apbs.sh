@@ -1,20 +1,33 @@
 #!/bin/bash
 set -euo pipefail
 
-### convert the output to MRC format instead of DX
-### MRC conversion is provided by the `vgtools` converter from this repo
-CONVERT_TO_MRC=false
-VERBOSE=false
+### Automatic calculation of electrostatic potential grids using APBS.
+### The grid will be saved in the same folder as the input PDB file,
+### with the same name but with extension .dx or .mrc (if --mrc is used).
+### All intermediate files will be removed.
+###
+### Requires: pdb2pqr, apbs
+### Optional: python3 with volgrids installed (for MRC conversion)
+### Usage: apbs.sh <path_pdb> [--mrc] [--verbose]
+### Example: apbs.sh testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --verbose
 
-if [[ "$#" -lt 2 ]]; then
-    echo "Usage: $0 <path_pdb> <folder_output> [--mrc] [--verbose]"
-    echo "Example: $0 testdata/smiffer/pdb-nosolv/1iqj.pdb testdata/smiffer/apbs --mrc --verbose"
+
+CONVERT_TO_MRC=false # convert the output to MRC format instead of DX?
+VERBOSE=false        # print verbose output from APBS?
+
+help_message() {
+    name_sh=$(basename "$0")
+    echo "Usage: $name_sh <path_pdb> [--mrc] [--verbose]"
+    echo "Example: $name_sh testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --verbose"
+}
+
+if [[ "$#" -lt 1 ]]; then
+    help_message
     exit 1
 fi
 
 path_pdb=$(realpath "$1")
-folder_out=$(realpath "$2")
-shift 2
+shift 1
 
 while [[ $# -gt 0 && "$1" == --* ]]; do
     case "$1" in
@@ -28,7 +41,7 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
             ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 <path_pdb> <folder_output> [--mrc] [--verbose]"
+            help_message
             exit 1
             ;;
     esac
@@ -41,9 +54,7 @@ if [[ ! -f "$path_pdb" ]]; then
     exit 1
 fi
 
-mkdir -p "$folder_out"
-cp "$path_pdb" "$folder_out"
-
+folder_out=$(dirname "$path_pdb")
 cd "$folder_out" # ------------------------------ inside output folder vvvvv
 
 name_pdb=$(basename "$path_pdb")
@@ -91,12 +102,14 @@ path_grid=$(echo "$log" | awk '{print $NF}')
 
 mv "$path_grid" "$name_pdb.dx"
 
+rm -f "$name_pdb.in" "$name_pdb.log" "$name_pdb.pqr" "$folder_out/io.mc"
+
 cd "$cwd"  # ------------------------------------ back to original folder vvvvv
 
-preffix="$folder_out/$name_pdb"
-rm -f "$preffix" "$preffix.in" "$preffix.log" "$preffix.pqr" "$folder_out/io.mc"
-
 if [[ "$CONVERT_TO_MRC" == "true" ]]; then
-    python3 volgrids vgtools convert "$preffix.dx" --mrc "$preffix.mrc"
-    rm -f "$preffix.dx"
+    root_volgrids=$(dirname "$(dirname "$(realpath "$0")")")
+    ### if this sh script is moved somewhere else and the volgrids package is installed
+    ### the command below can be simplified to just "volgrids vgtools convert ..."
+    python3 "$root_volgrids" vgtools convert "$folder_out/$name_pdb.dx" --mrc "$folder_out/${name_pdb%.pdb}.mrc"
+    rm -f "$folder_out/$name_pdb.dx"
 fi
