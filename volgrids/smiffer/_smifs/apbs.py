@@ -11,7 +11,7 @@ class SmifAPBS(sm.Smif):
             self.apbs_to_smif(sm.PATH_APBS)
             return
 
-        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCTURE.name) as path_apbs:
+        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name) as path_apbs:
             self.apbs_to_smif(path_apbs)
 
 

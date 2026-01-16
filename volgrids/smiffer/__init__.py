@@ -93,6 +93,7 @@ PARAMS_HPHOB:     _vg.ParamsGaussianUnivariate
 PARAMS_HPHIL:     _vg.ParamsGaussianUnivariate
 PARAMS_STACK:     _vg.ParamsGaussianBivariate
 SIGMA_DIST_STACKING: float
+APBS_ELAPSED_TIME: float = 0.0
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
@@ -100,11 +101,11 @@ SIGMA_DIST_STACKING: float
 ### an instance of ParamHandler (or its inherited classes)
 
 import pathlib as _pathlib
-PATH_STRUCTURE:  _pathlib.Path = None # "path/input/struct.pdb"
-PATH_TRAJECTORY: _pathlib.Path = None # "path/input/traj.xtc"
-PATH_APBS:       _pathlib.Path = None # "path/input/apbs.pqr.dx"
-PATH_TABLE:      _pathlib.Path = None # "path/input/table.chem"
-FOLDER_OUT:      _pathlib.Path = None # "folder/output/"
+PATH_STRUCT: _pathlib.Path = None # "path/input/struct.pdb"
+PATH_TRAJ:   _pathlib.Path = None # "path/input/traj.xtc"
+PATH_APBS:   _pathlib.Path = None # "path/input/apbs.pqr.dx"
+PATH_TABLE:  _pathlib.Path = None # "path/input/table.chem"
+FOLDER_OUT:  _pathlib.Path = None # "folder/output/"
 
 SPHERE_INFO: tuple[float, float, float, float] = None # pocket sphere info: [x, y, z, radius]
 CURRENT_MOLTYPE: MolType = MolType.NONE               # type of the current molecule

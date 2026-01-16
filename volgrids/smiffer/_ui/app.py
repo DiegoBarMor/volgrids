@@ -16,7 +16,7 @@ class AppSmiffer(vg.App):
         super().__init__(*args, **kwargs)
         self._init_globals()
 
-        self.ms: sm.MolSystemSmiffer = self._CLASS_MOL_SYSTEM(sm.PATH_STRUCTURE, sm.PATH_TRAJECTORY)
+        self.ms: sm.MolSystemSmiffer = self._CLASS_MOL_SYSTEM(sm.PATH_STRUCT, sm.PATH_TRAJ)
         self.trimmer: sm.Trimmer = self._CLASS_TRIMMER.init_infer_dists(self.ms)
         self.timer = vg.Timer(
             f">>> Now processing {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}'"+\

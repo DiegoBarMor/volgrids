@@ -22,7 +22,7 @@ class AppVeins(vg.App):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ms = vg.MolSystem(ve.PATH_STRUCTURE, ve.PATH_TRAJECTORY)
+        self.ms = vg.MolSystem(ve.PATH_STRUCT, ve.PATH_TRAJ)
         self.df = pd.read_csv(ve.PATH_ENERGIES_CSV).dropna(how = "any")
         self.cols_frames: list = None
 

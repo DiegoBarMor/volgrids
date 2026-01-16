@@ -15,9 +15,9 @@ __config_keys__ = set()
 MODE: str = '' # mode of the application, i.e. "energies"
 
 import pathlib as _pathlib
-PATH_STRUCTURE:    _pathlib.Path = None # "path/input/structure.pdb"
+PATH_STRUCT:       _pathlib.Path = None # "path/input/structure.pdb"
 PATH_ENERGIES_CSV: _pathlib.Path = None # "path/input/energies.csv"
-PATH_TRAJECTORY:   _pathlib.Path = None # "path/input/traj.xtc"
+PATH_TRAJ:         _pathlib.Path = None # "path/input/traj.xtc"
 FOLDER_OUT:        _pathlib.Path = None # "path/output/"
 
 ENERGY_CUTOFF: float # Energies below this cutoff will be ignored (default 1e-3)

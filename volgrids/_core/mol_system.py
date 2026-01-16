@@ -129,9 +129,15 @@ class MolSystem:
         if grid_size > vg.WARNING_GRID_SIZE:
             print()
             while True:
-                choice = input(f">>> WARNING: resulting ({rx}x{ry}x{rz}) grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n").upper()
+                choice = input(
+                    f">>> WARNING: resulting ({rx}x{ry}x{rz}) grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n"
+                ).upper()
                 if choice == 'Y': break
                 if choice == 'N': exit()
+
+    # --------------------------------------------------------------------------
+    def get_relevant_atoms(self):
+        raise NotImplementedError()
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -40,7 +40,7 @@ class SmifStacking(sm.Smif):
                 sel = f"resid {resid} and name {aromatic_atoms}"
                 if chain: sel += f" and chainID {chain}"
                 res_atoms = atoms.select_atoms(sel)
-                if len(res_atoms) >= 3: # include rings even if they're not completely inside the PS
+                if len(res_atoms) >= 3: # include rings even if they're not completely inside the grid's boundaries
                     yield res_atoms
 
 

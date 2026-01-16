@@ -46,7 +46,7 @@ class ParamHandlerVeins(vg.ParamHandler):
         if self._has_param_kwds("help"):
             self._exit_with_help()
 
-        ve.PATH_STRUCTURE = self._safe_path_file_in(
+        ve.PATH_STRUCT = self._safe_path_file_in(
             self._safe_get_param_pos(1,
                err_msg = "No input structure file provided. Provide a path to the structure file as first positional argument."
             )
@@ -58,8 +58,8 @@ class ParamHandlerVeins(vg.ParamHandler):
             )
         )
 
-        ve.FOLDER_OUT = self._safe_kwd_folder_out("output", default = ve.PATH_STRUCTURE.parent)
-        ve.PATH_TRAJECTORY = self._safe_kwd_file_in("traj")
+        ve.FOLDER_OUT = self._safe_kwd_folder_out("output", default = ve.PATH_STRUCT.parent)
+        ve.PATH_TRAJ  = self._safe_kwd_file_in("traj")
         ve.ENERGY_CUTOFF = self._safe_kwd_float("cutoff", default = self._DEFAULT_ENERGY_CUTOFF)
 
 

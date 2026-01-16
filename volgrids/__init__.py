@@ -54,5 +54,5 @@ __config_keys__ = set(globals().keys()) - _keys_other
 ### CUSTOM config.ini allows the user to specify a custom config file path from the command line.
 
 import pathlib as _pathlib
-PATH_DEFAULT_CONFIG: _pathlib.Path = None # "./config_volgrids.ini"
-PATH_CUSTOM_CONFIG:  _pathlib.Path = None # "path/input/config.ini"
+PATH_DEFAULT_CONFIG:      _pathlib.Path  = None # "./config_volgrids.ini"
+PATHS_CUSTOM_CONFIG: list[_pathlib.Path] = []   # "path/input/config.ini"

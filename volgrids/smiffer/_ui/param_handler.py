@@ -34,7 +34,6 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             ligand = sm.MolType.LIGAND,
         )
 
-
         self._set_help_str(
             f"usage: volgrids smiffer {mode} [path/input/struct.pdb] [options...]",
             "Available options:",
@@ -49,40 +48,63 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         if self._has_param_kwds("help"):
             self._exit_with_help()
 
-        if sm.CURRENT_MOLTYPE.is_ligand() and not self._has_param_kwds("table"):
-            self._exit_with_help(self.MissingParamError, "No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file.")
-
-        sm.PATH_STRUCTURE = self._safe_path_file_in(
+        sm.PATH_STRUCT = self._safe_path_file_in(
             self._safe_get_param_pos(1,
                err_msg = "No input structure file provided. Provide a path to the structure file as first positional argument."
             )
         )
 
-        sm.FOLDER_OUT = self._safe_kwd_folder_out("output", default = sm.PATH_STRUCTURE.parent)
-        sm.PATH_APBS          = self._safe_kwd_file_in("apbs")
-        sm.PATH_TRAJECTORY    = self._safe_kwd_file_in("traj")
-        sm.PATH_TABLE         = self._safe_kwd_file_in("table")
-        vg.PATH_CUSTOM_CONFIG = self._safe_kwd_file_in("config")
+        sm.FOLDER_OUT = self._safe_kwd_folder_out("output", default = sm.PATH_STRUCT.parent)
+        sm.PATH_APBS  = self._safe_kwd_file_in("apbs")
+        sm.PATH_TRAJ  = self._safe_kwd_file_in("traj")
+        sm.PATH_TABLE = self._safe_kwd_file_in("table")
+
+        self._handle_params_configs()
+        self._handle_params_sphere()
+        self._assert_traj_apbs()
+        self._assert_ligand_has_table()
 
 
-        if (sm.PATH_TRAJECTORY is not None) and (sm.PATH_APBS is not None) and sm.DO_SMIF_APBS:
-            raise ValueError(
-                f"The APBS output '{sm.PATH_APBS}' was provided. However, "+
-                "trajectory mode is enabled, so this file would be ambiguous. "+
-                "Please either disable trajectory mode or remove the APBS file input. "
-            )
+    # --------------------------------------------------------------------------
+    def _handle_params_sphere(self):
+        if not self._has_param_kwds("sphere"): return
+        params_sphere = self._params_kwd["sphere"]
+        try:
+            x_cog  = float(self._safe_idx(params_sphere, 0, "Missing sphere center X coordinate."))
+            y_cog  = float(self._safe_idx(params_sphere, 1, "Missing sphere center Y coordinate."))
+            z_cog  = float(self._safe_idx(params_sphere, 2, "Missing sphere center Z coordinate."))
+            radius = float(self._safe_idx(params_sphere, 3, "Missing sphere radius."))
+        except ValueError:
+            self._exit_with_help(self.InvalidParamError, "Sphere options must be numeric values.")
+        sm.SPHERE_INFO = (x_cog, y_cog, z_cog, radius)
 
 
-        if self._has_param_kwds("sphere"):
-            params_sphere = self._params_kwd["sphere"]
-            try:
-                x_cog  = float(self._safe_idx(params_sphere, 0, "Missing sphere center X coordinate."))
-                y_cog  = float(self._safe_idx(params_sphere, 1, "Missing sphere center Y coordinate."))
-                z_cog  = float(self._safe_idx(params_sphere, 2, "Missing sphere center Z coordinate."))
-                radius = float(self._safe_idx(params_sphere, 3, "Missing sphere radius."))
-            except ValueError:
-                self._exit_with_help(self.InvalidParamError, "Sphere options must be numeric values.")
-            sm.SPHERE_INFO = (x_cog, y_cog, z_cog, radius)
+    # --------------------------------------------------------------------------
+    def _handle_params_configs(self):
+        path_config = self._safe_kwd_file_in("config") # [WIP]
+        if path_config is None: return
+        vg.PATHS_CUSTOM_CONFIG = [path_config]
+
+
+    # --------------------------------------------------------------------------
+    def _assert_traj_apbs(self):
+        if not sm.DO_SMIF_APBS: return
+        if (sm.PATH_TRAJ is None) or (sm.PATH_APBS is None): return
+        raise self.InvalidParamError(
+            f"The APBS output '{sm.PATH_APBS}' was provided. However, "+
+            "trajectory mode is enabled, so this file would be ambiguous. "+
+            "Please either disable trajectory mode or remove the APBS file input. "
+        )
+
+
+    # --------------------------------------------------------------------------
+    def _assert_ligand_has_table(self):
+        if not sm.CURRENT_MOLTYPE.is_ligand(): return
+        if self._has_param_kwds("table"): return
+        self._exit_with_help(
+            self.MissingParamError,
+            "No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file."
+        )
 
 
 # //////////////////////////////////////////////////////////////////////////////

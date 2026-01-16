@@ -32,8 +32,8 @@ class App(ABC):
         if vg.PATH_DEFAULT_CONFIG is not None:
             self._load_config_file(vg.PATH_DEFAULT_CONFIG)
 
-        if vg.PATH_CUSTOM_CONFIG is not None:
-            self._load_config_file(vg.PATH_CUSTOM_CONFIG)
+        for path_config in vg.PATHS_CUSTOM_CONFIG:
+            self._load_config_file(path_config)
 
 
     # --------------------------------------------------------------------------

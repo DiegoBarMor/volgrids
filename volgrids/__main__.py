@@ -22,11 +22,13 @@ def help_and_exit(exit_code: int):
     )
     exit(exit_code)
 
+
 # ------------------------------------------------------------------------------
 def detect_running_from_repo() -> bool:
     return __package__ == '' or __package__ is None
 
-# ------------------------------------------------------------------------------
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def main():
     if detect_running_from_repo():
         vg.PATH_DEFAULT_CONFIG = Path(__file__).parent.parent / "config_volgrids.ini"
