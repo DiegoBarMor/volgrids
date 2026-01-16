@@ -8,9 +8,9 @@
 
 
 <!-- ----------------------------------------------------------------------- -->
-## VGrids
+## VolGrids
 * implement: raise an error if a format file is opened with the wrong function
-* add possibility for config parameters being passed via the CLI
+* add possibility for config parameters being passed via the CLI, as well as passing multiple config files
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 * standard ini files use ; instead of # for comments
 

@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eu
 
+
+
 echo
 echo ">>> TEST ENV 0: Environment WITHOUT volgrids installed, just its dependencies"
 
@@ -13,6 +15,3 @@ python3 volgrids smiffer prot testdata/_raw_input/toy_systems/peptide.pdb -o $fo
 ### try running it somewhere else
 cd ~
 python3 "$root"/volgrids smiffer prot "$root"/testdata/_raw_input/toy_systems/peptide.pdb -o $fout
-
-cd "$root"
-rm -rf $fout

@@ -44,7 +44,7 @@ class AppSmiffer(vg.App):
         else: # SINGLE PDB MODE
             self._process_grids()
 
-        self.timer.end()
+        self.timer.end(text = "SMIFS", minus = sm.APBS_ELAPSED_TIME)
 
 
     # --------------------------------------------------------------------------

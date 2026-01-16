@@ -11,12 +11,16 @@ class SmifAPBS(sm.Smif):
             self.apbs_to_smif(sm.PATH_APBS)
             return
 
+        timer = vg.Timer().start()
         with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name) as path_apbs:
-            self.apbs_to_smif(path_apbs)
+            self.apbs_to_smif(path_apbs, timer)
 
 
     # --------------------------------------------------------------------------
-    def apbs_to_smif(self, path_apbs_in):
+    def apbs_to_smif(self, path_apbs_in, timer: vg.Timer = None):
+        if timer is not None:
+            sm.APBS_ELAPSED_TIME = timer.end(text = "APBS", end = ' ')
+
         apbs = vg.GridIO.read_auto(path_apbs_in)
         apbs.reshape(
             new_min = (self.xmin, self.ymin, self.zmin),
