@@ -77,16 +77,26 @@ class ParserIni:
         Extracts all headers and their corresponding bodies from the given string.
         Each header is a substring enclosed in square brackets, e.g. [HEADER].
         The body is the text after the header's closing bracket up to the next header or end of string.
+        Text preceding the first header is captured under an empty string key.
         """
-        pattern = re.compile(r"\[(\w+)\]")
-        matches = list(pattern.finditer(data))
+
+        def split_body(start: int, end: int) -> list[str]:
+            return data[start:end].strip().splitlines()
+
+        matches = list(re.finditer(r"^\s*\[(\w+)\]", data, re.MULTILINE))
+
+        if not matches: # no headers found -> treat entire data as a single section with an empty header
+            self._ini_sections[''] = split_body(0, len(data))
+            return
+
+        self._ini_sections[''] = split_body(0, matches[0].start()) # capture text before the first header
+
         for i, match in enumerate(matches):
             header = match.group(1)
             body_start = match.end()
             body_end = matches[i + 1].start() if (i + 1 < len(matches)) else len(data)
-            body = data[body_start:body_end].strip()
             if header in self._ini_sections: raise ValueError(f"Duplicate header found: {header}")
-            self._ini_sections[header] = body.splitlines()
+            self._ini_sections[header] = split_body(body_start, body_end)
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -1,10 +1,24 @@
 # Volumetric Grids (VolGrids)
-VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. Three tools are also provided: **SMIF Calculator** (`python3 volgrids smiffer`), **Volumetric Energy INSpector (VEINS)** (`python3 volgrids veins`) and **Volgrid Tools** (`python3 volgrids vgtools`). You can read more in their respective sections.
+VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. Some tools are also provided:
+  - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
+  - **SMIF Calculator** via `volgrids smiffer`
+  - **Volumetric Energy INSpector (VEINS)** via `volgrids veins`. WORK IN PROGRESS
+  - **Volgrid Tools** via `volgrids vgtools`.
+
+You can read more in their respective sections.
 
 ## QuickStart
 ```bash
+pip install volgrids
+volgrids --help
+```
+
+### Without installing the package
+```bash
+git clone https://github.com/DiegoBarMor/volgrids
+cd volgrids
 pip install -r requirements.txt
-python3 volgrids smiffer --help
+python3 volgrids --help
 ```
 
 
@@ -13,9 +27,9 @@ python3 volgrids smiffer --help
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Setup
 ## Requirements
-This framework only has 2 Python dependencies:
-- **MDAnalysis** for parsing structure and trajectories data. Installing this should also install **NumPy**, also needed by volgrids.
-- **h5py** for parsing CMAP files.
+- Grid operations are based on **NumPy** arrays.
+- Molecular structures and trajectories data are parsed by **MDAnalysis**.
+- CMAP files are parsed by **h5py**.
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -58,46 +72,32 @@ Follow the instructions from [here](#installation-ubuntu).
 ### Running the CLI utilities (without VolGrids installed)
 You can use the tools provided by VolGrids without installing it, by calling any of the scripts in the root directory of this repository (it doesn't have to be the current directory, you can call them from anywhere). Leave `[options...]` empty to read more about the available options.
 
-- **SMIF Calculator:**
 ```bash
+python3 volgrids apbs    [options...]
 python3 volgrids smiffer [options...]
-```
-
-- **Volumetric Energy INSpector (VEINS):**
-```bash
-python3 volgrids veins [options...]
-```
-
-- **Volgrid Tools:**
-```bash
+python3 volgrids veins   [options...]
 python3 volgrids vgtools [options...]
 ```
 
-
 <!-- ----------------------------------------------------------------------- -->
-### Using VolGrids as a package
-You can install VolGrids as a package and import it from your own scripts. For installing with pip:
+### Running the CLI utilities (VolGrids installed)
+- VolGrids can be installed as a package via pip:
 ```bash
-# your current directory should be the root directory of this repository
+pip install volgrids
+```
+
+- (Or alternatively from its repository):
+```bash
+# your current directory must be the root directory of volgrids repository
 pip install .
 rm -rf build volgrids.egg-info # optional cleanup
 ```
 
-
-<!-- ----------------------------------------------------------------------- -->
-### Running the CLI utilities (VolGrids installed)
-- **SMIF Calculator:**
+- Then, it can be run from anywhere via:
 ```bash
+volgrids apbs    [options...]
 volgrids smiffer [options...]
-```
-
-- **Volumetric Energy INSpector (VEINS):**
-```bash
-volgrids veins [options...]
-```
-
-- **Volgrid Tools:**
-```bash
+volgrids veins   [options...]
 volgrids vgtools [options...]
 ```
 
@@ -135,7 +135,7 @@ python3 volgrids smiffer prot testdata/smiffer/pdb-nosolv/1iqj.pdb -s 4.682 21.4
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```bash
-python3 volgrids smiffer rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pqr.dx
+python3 volgrids smiffer rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pdb.mrc
 ```
 
 - Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.
@@ -158,50 +158,54 @@ python3 volgrids smiffer rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/
 | Stacking        | Green      | 0,1,0      | 0,255,0    | 00FF00 |
 
 
-### MRC/CCP4 data in Chimera
-Use this command when visualizing MRC/CCP4 data with negative values in Chimera (replace `1` with the actual number of the model).
+### MRC/CCP4 data in ChimeraX
+Use this command when visualizing MRC/CCP4 data with negative values in ChimeraX (replace `1` with the actual number of the model).
 ```
 volume #1 capFaces false
 ```
 
 
-### CMAP trajectories in Chimera
-Follow these instructions to visualize the atomic and SMIF trajectories simultaneously in Chimera. ChimeraX is recommended.
+### CMAP trajectories in ChimeraX
+Follow these instructions to visualize the atomic and SMIF trajectories simultaneously in ChimeraX.
 1) Open the PDB and load the atom trajectory into it (in ChimeraX, simply drag the files into the window).
 2) Open the CMAP file in a similar way.
-3) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
+3) Start the playback by using this ChimeraX command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
 ```
 coordset #1; vseries play #2
 coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5
 coordset #1 pauseFrames 5; vseries play #2 pauseFrames 5; vseries play #3 pauseFrames 5
 ```
-4) Use this Chimera command to stop the playback. The ids used must match the previous command.
+4) Use this ChimeraX command to stop the playback. The ids used must match the previous command.
 ```
 coordset stop #1; vseries stop #2
 ```
 
 
 #### Smooth Trajectories
-1) Load the PDB and the trajectory files into it Chimera (in ChimeraX, simply drag the files into the window).
+1) Load the PDB and the trajectory files into it ChimeraX (e.g. drag the files into the window).
 2) Load the CMAP file in a similar way.
 3) (Optional) Load the `smooth_md.py` script (again, can be done by dragging it into ChimeraX).
-4) Start the playback by using this Chimera command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
+4) Start the playback by using this ChimeraX command. The numbers specified would change if dealing with multiple structures/cmaps. Examples:
 ```
 coordset #1 pauseFrames 10; vop morph #2 playStep 0.0005 frames 2000 modelId 3
 coordset #1 pauseFrames 20; vop morph #2 playStep 0.00025 frames 4000 modelId 3
 coordset #1 pauseFrames 20; vop morph #2 playStep 0.00025 frames 4000 modelId 4; vop morph #3 playStep 0.00025 frames 4000 modelId 5
 ```
-4) Use this Chimera command to stop the playback. The ids used must match the previous command.
+4) Use this ChimeraX command to stop the playback. The ids used must match the previous command.
 ```
 coordset stop #1; vseries stop #2
 ```
 Note that this time, the morph can be paused manually with the slider button (is there a command equivalent?)
 
-#### Other useful Chimera commands
+#### Other useful ChimeraX commands
 ```
 volume level 0.5
 volume transparency 0.5
 volume showOutlineBox true
+
+save trajectory.pdb models #1 allCoordsets true
+cartoon style width 0.2 thickness 0.1
+size stickradius 0.1
 ```
 
 
@@ -274,45 +278,6 @@ Run `python3 volgrids vgtools [mode] [options...]` and provide the parameters of
     - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
   - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 volgrids vgtools [mode] -h`).
 
-
-
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- --------------------------------- TODO -------------------------------- -->
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-# TODO
-* improve help strings. Add annotations, docstrings and overall cleaning
-* try out cavities-finder ideas
-* replace mdanalysis with another PDB parser?
-
-## VGrids
-* implement: raise an error if a format file is opened with the wrong function
-* add possibility for config parameters being passed via the CLI
-* add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
-* standard ini files use ; instead of # for comments
-
-## SMIFFER
-* maybe: replace the RNDS trimming with a faster method
-* change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
-* document the .chem tables
-* check if there's a bug in the peptide bond N of the test toy system peptide_no_h
-* add safeguard when there's no atoms for the specified molecule type
-* add tests for apbs
-* reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
-
-## VEINS
-* finish/rework "energies" mode implementation
-* implement "forces" mode
-* move Grid's static fields into config_volgrids.ini
-* add tests
-
-## VGTools
-* check what happens if performing "fix_cmap" operation when cmap input and output are the same file
-* implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
-* mode to describe grids
-* mode to perform operations on grids: abs, sum, diff, mask...
-* when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
-* bypass the "large grid" warning when processing an existing large grid with VGTools.
-* add tests for the "average" operation.
 
 
 <!-- ----------------------------------------------------------------------- -->
