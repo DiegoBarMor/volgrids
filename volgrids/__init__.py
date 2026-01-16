@@ -11,7 +11,7 @@ from ._misc.math import Math
 from ._misc.params_gaussian import ParamsGaussian, \
     ParamsGaussianUnivariate, ParamsGaussianBivariate
 from ._misc.timer import Timer
-from ._misc.utils import resolve_path_package, resolve_path_resource
+from ._misc.utils import resolve_path_package
 
 from ._parsers.parser_ini import ParserIni
 from ._parsers.parser_config import ParserConfig

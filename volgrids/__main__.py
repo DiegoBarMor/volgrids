@@ -23,15 +23,14 @@ def help_and_exit(exit_code: int):
     exit(exit_code)
 
 # ------------------------------------------------------------------------------
-def run_from_repo():
-    vg.PATH_DEFAULT_CONFIG = vg.resolve_path_resource(
-        Path(__file__).parent, "config_volgrids.ini"
-    )
-    main()
-
+def detect_running_from_repo() -> bool:
+    return __package__ == '' or __package__ is None
 
 # ------------------------------------------------------------------------------
 def main():
+    if detect_running_from_repo():
+        vg.PATH_DEFAULT_CONFIG = Path(__file__).parent.parent / "config_volgrids.ini"
+
     argv = sys.argv[1:]
     if not argv: help_and_exit(1)
     if argv[0] in ("-h", "--help"): help_and_exit(0)
