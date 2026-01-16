@@ -27,12 +27,6 @@ class ParserIni:
 
 
     # --------------------------------------------------------------------------
-    def assert_sections_not_empty(self) -> None:
-        if not self._ini_sections:
-            raise ValueError(f"The INI file '{self._path_ini}' does not contain any sections.")
-
-
-    # --------------------------------------------------------------------------
     def has(self, key: str) -> bool:
         """
         Checks if the given key exists in the sections.

@@ -15,12 +15,10 @@ cp "$fpdb/ribose_gua.pdb" "$fout/ribose_gua_no_h.pdb"
 cp "$fout/peptide.pdb" "$fout/peptide_no_h.pdb" # for visualization purposes
 
 cat > $tmp_config_no_apbs <<- EOM
-[SMIFFER]
 DO_SMIF_APBS=False
 EOM
 
 cat > $tmp_config_ignore_h <<- EOM
-[SMIFFER]
 USE_STRUCTURE_HYDROGENS=False
 DO_SMIF_APBS=False
 EOM

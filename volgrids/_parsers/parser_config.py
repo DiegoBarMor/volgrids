@@ -3,23 +3,22 @@ import volgrids as vg
 # //////////////////////////////////////////////////////////////////////////////
 class ParserConfig(vg.ParserIni):
     def apply_config(self,
-        section: str, scope_module: dict[str, ], scope_dependencies: dict[str, ],
-        valid_config_keys: set[str]
+        scope_module: dict[str, ],
+        scope_dependencies: dict[str, ],
+        this_module_keys: set[str],
+        all_known_keys: set[str],
     ) -> None:
         """
         Applies the configuration to the provided global dictionary.
         """
-
-        self.assert_sections_not_empty()
-
-        if not self.has(section): return  # skip absent sections
-
-        for k, value in self.iter_splitted_lines(section):
-            k = k.upper()
-            if k not in valid_config_keys:
-                raise ValueError(f"Unknown configuration for [{section}]: {k}.")
-            scope_module[k.upper()] = self._parse_str(scope_dependencies, value)
-            valid_config_keys.remove(k)
+        for section in self._ini_sections.keys():
+            for k, value in self.iter_splitted_lines(section):
+                k = k.upper()
+                if k not in this_module_keys:
+                    continue
+                if k not in all_known_keys:
+                    raise ValueError(f"Unknown configuration: {k}.")
+                scope_module[k] = self._parse_str(scope_dependencies, value)
 
 
     # --------------------------------------------------------------------------

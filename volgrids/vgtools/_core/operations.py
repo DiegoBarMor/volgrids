@@ -37,7 +37,7 @@ class VGOperations:
             if (new_res != resolution) and not warned:
                 print(
                     f">>> Warning: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\
-                    "Chimera won't recognize it as a volume series and open every grid in a separate representation." +\
+                    "Chimera won't recognize it as a volume series and open every grid in a separate representation. " +\
                     "Use `volgrids vgtools fix_cmap` if you want to fix this."
                 )
                 warned = True

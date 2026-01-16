@@ -41,19 +41,20 @@ class App(ABC):
         parser = vg.ParserConfig(path_config)
         scope_dependencies = self._import_config_dependencies()
 
-        for section, scope_module in self.CONFIG_MODULES.items():
+        all_known_keys = set(k for scope_module in self.CONFIG_MODULES for k in scope_module.__config_keys__)
+        for scope_module in self.CONFIG_MODULES:
             parser.apply_config(
-                section = section,
                 scope_module = scope_module.__dict__,
                 scope_dependencies = scope_dependencies,
-                valid_config_keys = scope_module.__config_keys__.copy(),
+                this_module_keys = scope_module.__config_keys__,
+                all_known_keys = all_known_keys
             )
 
 
     # --------------------------------------------------------------------------
     @property
     @abstractmethod
-    def CONFIG_MODULES() -> dict[str, dict[str, any]]:
+    def CONFIG_MODULES() -> tuple:
         """class variable that links the pertinent keys from the config file, to the module to be configured.
         For example: `{"VOLGRIDS": vg, "SMIFFER": sm}`, assuming `import volgrids.vgrids as vg` and `import volgrids.smiffer as sm`."""
         raise NotImplementedError()
