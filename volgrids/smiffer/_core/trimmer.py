@@ -119,7 +119,10 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     def _trim_rnds(self):
-        """perform a random search to remove isolated regions"""
+        """
+        Perform a random search to remove isolated regions.
+        Can be problematic (e.g. slow, aggressive trimming); use with caution.
+        """
         visited = np.zeros(self.ms.resolution, dtype = bool)
 
         directions = np.array([[i,j,k] for i in range(-1,2) for j in range(-1,2) for k in range(-1,2) if i&j&k])

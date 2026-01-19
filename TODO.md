@@ -24,6 +24,7 @@
 * add safeguard when there's no atoms for the specified molecule type
 * add tests for apbs
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
+* Generate a warning when saving empty smifs
 
 
 <!-- ----------------------------------------------------------------------- -->
