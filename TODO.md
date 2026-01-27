@@ -25,6 +25,7 @@
 * add tests for apbs
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
 * Generate a warning when saving empty smifs
+* Consider dumping `PQR_CONTENTS_TEMP` into an output `.pqr` file, as it is relevant for visually interpreting the resulting smifs.
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -44,6 +45,13 @@
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
 * add tests for the "average" operation.
+
+
+<!-- ----------------------------------------------------------------------- -->
+## SMTools
+* start implementing SMTools, example operations:
+    * `sphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
+    * `smifhist` for an interactive matplotlib visualization of the SMIFs' histograms.
 
 
 <!-- ----------------------------------------------------------------------- -->

@@ -1,3 +1,4 @@
+import tempfile
 import numpy as np
 from pathlib import Path
 from enum import Enum, auto
@@ -25,6 +26,15 @@ class MolSystemSmiffer(vg.MolSystem):
         self.do_ps = sm.SPHERE_INFO is not None
         self.chemtable = sm.ParserChemTable(self._get_path_table())
         self._init_attrs_from_molecules(path_struct, path_traj)
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def from_pqr_data(cls, pqr_data: str):
+        with tempfile.NamedTemporaryFile(mode = "w+", suffix = ".pqr", delete = True) as tmp_pqr:
+            tmp_pqr.write(pqr_data)
+            tmp_pqr.flush()
+            return cls(Path(tmp_pqr.name), None)
 
 
     # --------------------------------------------------------------------------

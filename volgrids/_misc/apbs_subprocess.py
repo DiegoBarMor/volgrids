@@ -10,9 +10,10 @@ class APBSSubprocess:
     _PATH_SCRIPT = vg.resolve_path_package("utils/apbs.sh")
 
     # --------------------------------------------------------------------------
-    def __init__(self, atoms: AtomGroup, name_pdb: str):
+    def __init__(self, atoms: AtomGroup, name_pdb: str, keep_pqr: bool = False):
         self.atoms = atoms
         self.name_pdb = name_pdb
+        self.keep_pqr = keep_pqr
         self._tmpdir = None
 
     # --------------------------------------------------------------------------
@@ -24,7 +25,7 @@ class APBSSubprocess:
         path_tmp_apbs = path_tmpdir / f"{self.name_pdb}.dx"
 
         self.atoms.write(path_tmp_pdb)
-        proc = self.run_subprocess([str(path_tmp_pdb)])
+        proc = self.run_subprocess([str(path_tmp_pdb), "--pqr"])
 
         if proc.returncode != 0:
             self._tmpdir.cleanup()
@@ -32,6 +33,9 @@ class APBSSubprocess:
         if not path_tmp_apbs.exists():
             self._tmpdir.cleanup()
             raise FileNotFoundError(f"Expected APBS output not found: {path_tmp_apbs}")
+
+        if self.keep_pqr:
+            vg.PQR_CONTENTS_TEMP = (path_tmpdir / f"{self.name_pdb}.pqr").read_text()
 
         return path_tmp_apbs
 

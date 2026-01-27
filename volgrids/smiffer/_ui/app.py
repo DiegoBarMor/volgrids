@@ -87,53 +87,83 @@ class AppSmiffer(vg.App):
 
     # --------------------------------------------------------------------------
     def _process_grids(self):
+        ### APBS must be calculated first and split into two parts,
+        ### because it can potentially set vg.PQR_CONTENTS_TEMP (used for trimming)
+        if sm.DO_SMIF_APBS:
+            smif_apbs: sm.SmifAPBS = self._calc_smif(sm.SmifAPBS)
+            if vg.PQR_CONTENTS_TEMP:
+                self.trimmer.ms = sm.MolSystemSmiffer.from_pqr_data(vg.PQR_CONTENTS_TEMP)
+
+
         self.trimmer.trim()
 
+        if sm.DO_SMIF_APBS:
+            smif_apbs.reshape_as_other(self.trimmer.specific_masks["large"])
+            self._trim_and_save_smif(
+                smif_apbs, key_trimming = "large", title = "apbs"
+            )
+            del self.trimmer.specific_masks["large"]
+
+
+        ### Calculate standard SMIF grids
+        if sm.DO_SMIF_HYDROPHILIC:
+            smif_hphil = self._calc_smif(sm.SmifHydrophilic)
+            self._trim_and_save_smif(
+                smif_hphil, key_trimming = "small", title = "hydrophilic"
+            )
+            del self.trimmer.specific_masks["small"]
+
+        if sm.DO_SMIF_HYDROPHOBIC:
+            smif_hphob = self._calc_smif(sm.SmifHydrophobic)
+            self._trim_and_save_smif(
+                smif_hphob, key_trimming = "mid", title = "hydrophobic"
+            )
+
+        if sm.DO_SMIF_HBA:
+            self._trim_and_save_smif(
+                self._calc_smif(sm.SmifHBAccepts),
+                key_trimming = "mid", title = "hbacceptors"
+            )
+
+        if sm.DO_SMIF_HBD:
+            self._trim_and_save_smif(
+                self._calc_smif(sm.SmifHBDonors),
+                key_trimming = "mid", title = "hbdonors"
+            )
+
+        if sm.DO_SMIF_STACKING:
+            self._trim_and_save_smif(
+                self._calc_smif(sm.SmifStacking),
+                key_trimming = "mid", title = "stacking"
+            )
+
+
+        ### Calculate additional grids
         if sm.SAVE_TRIMMING_MASK:
             mask = self.trimmer.get_mask("mid")
             reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
             reverse.save_data(sm.FOLDER_OUT, f"trimming")
 
-        ### Calculate standard SMIF grids
-        if sm.DO_SMIF_STACKING:
-            self._calc_smif(sm.SmifStacking, "mid", "stacking")
-
-        if sm.DO_SMIF_HBA:
-            self._calc_smif(sm.SmifHBAccepts, "mid", "hbacceptors")
-
-        if sm.DO_SMIF_HBD:
-            self._calc_smif(sm.SmifHBDonors, "mid", "hbdonors")
-
-        if sm.DO_SMIF_HYDROPHOBIC:
-            grid_hphob: sm.SmifHydrophobic =\
-                self._calc_smif(sm.SmifHydrophobic, "mid", "hydrophobic")
-
-        if sm.DO_SMIF_HYDROPHILIC:
-            grid_hphil: sm.SmifHydrophilic =\
-                self._calc_smif(sm.SmifHydrophilic, "small", "hydrophilic")
-
-        if sm.DO_SMIF_APBS:
-            grid_apbs: sm.SmifAPBS =\
-                self._calc_smif(sm.SmifAPBS, "large", "apbs")
-
-
-        ### Calculate additional grids
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
-            grid_hpdiff = grid_hphob - grid_hphil
+            grid_hpdiff = smif_hphob - smif_hphil
             grid_hpdiff.save_data(sm.FOLDER_OUT, "hydrodiff")
 
         if sm.DO_SMIF_LOG_APBS:
-            grid_apbs.apply_logabs_transform()
-            grid_apbs.save_data(sm.FOLDER_OUT, "apbslog")
+            smif_apbs.apply_logabs_transform()
+            smif_apbs.save_data(sm.FOLDER_OUT, "apbslog")
 
 
     # --------------------------------------------------------------------------
-    def _calc_smif(self, cls_grid: type[sm.Smif], key_trimming: str, title: str) -> "vg.Grid":
-        grid: sm.Smif = cls_grid(self.ms)
-        grid.populate_grid()
-        self.trimmer.mask_grid(grid, key_trimming)
-        grid.save_data(sm.FOLDER_OUT, title)
-        return grid
+    def _calc_smif(self, cls_smif: type[sm.Smif]) -> "sm.Smif":
+        smif: sm.Smif = cls_smif(self.ms)
+        smif.populate_grid()
+        return smif
+
+
+    # --------------------------------------------------------------------------
+    def _trim_and_save_smif(self, smif: sm.Smif, key_trimming: str, title: str) -> None:
+        self.trimmer.mask_grid(smif, key_trimming)
+        smif.save_data(sm.FOLDER_OUT, title)
 
 
 # //////////////////////////////////////////////////////////////////////////////

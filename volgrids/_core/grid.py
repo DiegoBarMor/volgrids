@@ -114,6 +114,15 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def reshape_as_other(self, other: "Grid"):
+        self.reshape(
+            new_min = (other.xmin, other.ymin, other.zmin),
+            new_max = (other.xmax, other.ymax, other.zmax),
+            new_res = (other.xres, other.yres, other.zres)
+        )
+
+
+    # --------------------------------------------------------------------------
     def save_data(self, folder_out: Path, title: str):
         path_prefix = folder_out / f"{self.ms.molname}.{title}"
 
