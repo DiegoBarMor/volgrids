@@ -94,7 +94,6 @@ class AppSmiffer(vg.App):
             if vg.PQR_CONTENTS_TEMP:
                 self.trimmer.ms = sm.MolSystemSmiffer.from_pqr_data(vg.PQR_CONTENTS_TEMP)
 
-
         self.trimmer.trim()
 
         if sm.DO_SMIF_APBS:
@@ -151,6 +150,10 @@ class AppSmiffer(vg.App):
         if sm.DO_SMIF_LOG_APBS:
             smif_apbs.apply_logabs_transform()
             smif_apbs.save_data(sm.FOLDER_OUT, "apbslog")
+
+        if not self.ms.do_traj and vg.PQR_CONTENTS_TEMP:
+            path_pqr = sm.FOLDER_OUT / f"{self.ms.molname}.pqr"
+            path_pqr.write_text(vg.PQR_CONTENTS_TEMP)
 
 
     # --------------------------------------------------------------------------

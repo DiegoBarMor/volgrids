@@ -84,18 +84,6 @@ APBS_MAX_CUTOFF: int = 3
 __config_keys__ = set(globals().keys()) - _keys_other
 
 
-############################### NUMERIC GLOBALS ################################
-import volgrids as _vg
-PARAMS_HBA:       _vg.ParamsGaussianBivariate
-PARAMS_HBD_FREE:  _vg.ParamsGaussianBivariate
-PARAMS_HBD_FIXED: _vg.ParamsGaussianBivariate
-PARAMS_HPHOB:     _vg.ParamsGaussianUnivariate
-PARAMS_HPHIL:     _vg.ParamsGaussianUnivariate
-PARAMS_STACK:     _vg.ParamsGaussianBivariate
-SIGMA_DIST_STACKING: float
-APBS_ELAPSED_TIME: float = 0.0
-
-
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by
 ### an instance of ParamHandler (or its inherited classes)
@@ -109,3 +97,16 @@ FOLDER_OUT:  _pathlib.Path = None # "folder/output/"
 
 SPHERE_INFO: tuple[float, float, float, float] = None # pocket sphere info: [x, y, z, radius]
 CURRENT_MOLTYPE: MolType = MolType.NONE               # type of the current molecule
+
+
+############################### RUNTIME GLOBALS ################################
+import volgrids as _vg
+PARAMS_HBA:       _vg.ParamsGaussianBivariate
+PARAMS_HBD_FREE:  _vg.ParamsGaussianBivariate
+PARAMS_HBD_FIXED: _vg.ParamsGaussianBivariate
+PARAMS_HPHOB:     _vg.ParamsGaussianUnivariate
+PARAMS_HPHIL:     _vg.ParamsGaussianUnivariate
+PARAMS_STACK:     _vg.ParamsGaussianBivariate
+SIGMA_DIST_STACKING: float
+
+APBS_ELAPSED_TIME: float = 0.0

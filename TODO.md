@@ -25,7 +25,6 @@
 * add tests for apbs
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
 * Generate a warning when saving empty smifs
-* Consider dumping `PQR_CONTENTS_TEMP` into an output `.pqr` file, as it is relevant for visually interpreting the resulting smifs.
 
 
 <!-- ----------------------------------------------------------------------- -->

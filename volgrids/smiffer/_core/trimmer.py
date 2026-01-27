@@ -10,9 +10,9 @@ class Trimmer:
     def __init__(self, ms: "sm.MolSystemSmiffer", **distances):
         self.ms: "sm.MolSystemSmiffer" = ms
 
-        self.distances = distances
+        self.distances: dict[str, float] = distances
         self.common_mask: vg.Grid = None
-        self.specific_masks = None
+        self.specific_masks: dict[str, vg.Grid] = None
 
 
     # --------------------------------------------------------------------------

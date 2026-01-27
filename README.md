@@ -2,8 +2,8 @@
 VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. Some tools are also provided:
   - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
   - **SMIF Calculator** via `volgrids smiffer`
-  - **Volumetric Energy INSpector (VEINS)** via `volgrids veins`. WORK IN PROGRESS
   - **Volgrid Tools** via `volgrids vgtools`.
+  - **Volumetric Energy INSpector (VEINS)** via `volgrids veins`. WORK IN PROGRESS
 
 You can read more in their respective sections.
 
@@ -240,6 +240,25 @@ apbs testdata/smiffer/1iqj.in
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- ---------------------------- VOLGRID TOOLS ---------------------------- -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+# Volgrid Tools
+Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
+
+## Usage
+Run `python3 volgrids vgtools [mode] [options...]` and provide the parameters of the calculation via arguments.
+  - Replace `[mode]` with one of the following available modes:
+    - `convert`: Convert grid files between formats.
+    - `pack`: Pack multiple grid files into a single CMAP series-file.
+    - `unpack`: Unpack a CMAP series-file into multiple grid files.
+    - `average`: Average all grids in a CMAP series-file into a single grid.
+    - `fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
+    - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
+  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 volgrids vgtools [mode] -h`).
+
+
+
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- -------------------------------- VEINS -------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Volumetric Energy INSpector (VEINS)
@@ -258,25 +277,6 @@ Run `python3 volgrids veins [mode] [path_structure] [path_csv] [options...]` and
   - Optionally, replace `[options...]` with any combination of the following:
     - `-o [folder_out]` where `[folder_out]` is the folder where the output SMIFs should be stored. if not provided, the parent folder of the input file will be used.
     `-c [cutoff]` where `[cutoff]` is a float number. Energies below this cutoff will be ignored. Default value: 1e-3.
-
-
-
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- ---------------------------- VOLGRID TOOLS ---------------------------- -->
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-# Volgrid Tools
-Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
-
-## Usage
-Run `python3 volgrids vgtools [mode] [options...]` and provide the parameters of the calculation via arguments.
-  - Replace `[mode]` with one of the following available modes:
-    - `convert`: Convert grid files between formats.
-    - `pack`: Pack multiple grid files into a single CMAP series-file.
-    - `unpack`: Unpack a CMAP series-file into multiple grid files.
-    - `average`: Average all grids in a CMAP series-file into a single grid.
-    - `fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
-    - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
-  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 volgrids vgtools [mode] -h`).
 
 
 
