@@ -1,9 +1,9 @@
 # Volumetric Grids (VolGrids)
 VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. Some tools are also provided:
-  - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
-  - **SMIF Calculator** via `volgrids smiffer`
-  - **Volgrid Tools** via `volgrids vgtools`.
-  - **Volumetric Energy INSpector (VEINS)** via `volgrids veins`. WORK IN PROGRESS
+  - [**APBS Automatic Pipeline**](#apbs-automatic-pipeline) via `volgrids apbs`. Requires [installing APBS](#setup-ubuntu).
+  - [**SMIF Calculator**](#statistical-molecular-interaction-fields-smif-calculator) via `volgrids smiffer`
+  - [**Volgrid Tools**](#volgrid-tools) via `volgrids vgtools`.
+  - ~~[**Volumetric Energy INSpector (VEINS)**](#volumetric-energy-inspector-veins) via `volgrids veins`.~~ WORK IN PROGRESS
 
 You can read more in their respective sections.
 
@@ -107,6 +107,39 @@ volgrids vgtools [options...]
 Follow the instructions at the [test data repo](https://github.com/DiegoBarMor/volgrids-testdata).
 
 
+
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- --------------------------------- APBS -------------------------------- -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+# APBS Automatic Pipeline
+Automatic pipeline intended to obtain the electrostatic grids from [`APBS`](https://apbs.readthedocs.io/en/latest/). Requires both `APBS` and [`pdb2pqr`](https://pdb2pqr.readthedocs.io/en/latest/).
+
+### Setup (Ubuntu)
+```bash
+pip install pdb2pqr
+# sudo apt install pdb2pqr # alternative
+sudo apt-get install apbs
+```
+
+### Commands examples
+- Running APBS with Volgrids (recommended).
+```bash
+python3 volgrids apbs testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --verbose
+```
+
+- Alternative (calling directly `apbs.sh`).
+```bash
+volgrids/utils/apbs.sh apbs testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --verbose
+```
+
+- Running APBS without Volgrids.
+```bash
+pdb2pqr --ff=AMBER testdata/smiffer/pdb-nosolv/1iqj.pdb testdata/smiffer/pqr/1iqj.pqr --apbs-input testdata/smiffer/1iqj.in
+apbs testdata/smiffer/1iqj.in
+```
+
+
+
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- ------------------------------- SMIFFER ------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -206,35 +239,6 @@ volume showOutlineBox true
 save trajectory.pdb models #1 allCoordsets true
 cartoon style width 0.2 thickness 0.1
 size stickradius 0.1
-```
-
-
-<!-- ----------------------------------------------------------------------- -->
-## APBS reference
-Sample commands to obtain the electrostatic grids from [pdb2pqr](https://pdb2pqr.readthedocs.io/en/latest/) and [APBS](https://apbs.readthedocs.io/en/latest/)
-
-### Installation (Ubuntu)
-```bash
-pip install pdb2pqr
-# sudo apt install pdb2pqr # alternative
-sudo apt-get install apbs
-```
-
-### Commands examples
-- Running APBS with Volgrids (recommended).
-```bash
-python3 volgrids apbs testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --verbose
-```
-
-- Alternative (calling directly `apbs.sh`).
-```bash
-volgrids/utils/apbs.sh apbs testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --verbose
-```
-
-- Running APBS without Volgrids.
-```bash
-pdb2pqr --ff=AMBER testdata/smiffer/pdb-nosolv/1iqj.pdb testdata/smiffer/pqr/1iqj.pqr --apbs-input testdata/smiffer/1iqj.in
-apbs testdata/smiffer/1iqj.in
 ```
 
 

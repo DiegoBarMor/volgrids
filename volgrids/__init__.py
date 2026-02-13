@@ -44,7 +44,7 @@ GRID_ZRES: int = 200
 EXTRA_BOX_SIZE: int = 5
 USE_FIXED_DELTAS: bool = True
 
-__config_keys__ = set(globals().keys()) - _keys_other
+__config_keys__ = set(globals().keys()) - _keys_other; del _keys_other
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################

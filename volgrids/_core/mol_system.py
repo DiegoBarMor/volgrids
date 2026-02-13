@@ -37,21 +37,30 @@ class MolSystem:
     # --------------------------------------------------------------------------
     @classmethod
     def from_box_data(cls,
-        resolution: np.ndarray, origin: np.ndarray, deltas: np.ndarray,
+        origin: np.ndarray,
+        deltas: np.ndarray | None = None,
+        resolution: np.ndarray | None = None,
+        maxCoords: np.ndarray | None = None,
         molname: str = "grid"
     ) -> "MolSystem":
         """
         Create a MolSystem instance from box data. 'maxCoords' is inferred
-        :param resolution: The resolution of the grid (number of points in each dimension).
         :param origin: The origin of the grid (minimum coordinates of the bounding box).
-        :param deltas: The size of each grid point in each dimension.
+        :param deltas: The size of each grid point in each dimension. If None, volgrids will set both resolution and deltas automatically.
+        :param resolution: The resolution of the grid (number of points in each dimension). If None, volgrids will set both resolution and deltas automatically.
+        :param maxCoords: The maximum coordinates of the bounding box. If None, it will be inferred from the origin, deltas and resolution.
         :param molname: The name of the molecule (default is "grid").
         :return: An instance of MolSystem with the provided box data.
         """
+        if maxCoords is None:
+            if (deltas is None) or (resolution is None):
+                raise ValueError("If 'maxCoords' is not provided, both 'deltas' and 'resolution' must be provided to infer the maximum coordinates.")
+            maxCoords = origin + deltas * resolution
+
         return cls(box_data = {
             "resolution": resolution,
             "minCoords": origin,
-            "maxCoords": origin + deltas * resolution,
+            "maxCoords": maxCoords,
             "deltas": deltas,
             "molname": molname
         })
@@ -70,9 +79,7 @@ class MolSystem:
             self.frame = None
 
         self._infer_box_attributes()
-
-        self._set_deltas_resolution()
-
+        self._set_automatic_deltas_resolution()
         self._warning_big_grid()
 
 
@@ -89,12 +96,16 @@ class MolSystem:
         self.system  = None
         self.frame   = None
 
-        self.minCoords  = np.array(box_data["minCoords"],  dtype = float)
-        self.maxCoords  = np.array(box_data["maxCoords"],  dtype = float)
-        self.resolution = np.array(box_data["resolution"], dtype = int  )
-        self.deltas     = np.array(box_data["deltas"],     dtype = float)
-        self._calc_radius_and_cog()
+        self.minCoords = np.array(box_data["minCoords"],  dtype = float)
+        self.maxCoords = np.array(box_data["maxCoords"],  dtype = float)
 
+        if (box_data["resolution"] is None) or (box_data["deltas"] is None):
+            self._set_automatic_deltas_resolution()
+        else:
+            self.deltas     = np.array(box_data["deltas"],     dtype = float)
+            self.resolution = np.array(box_data["resolution"], dtype = int  )
+
+        self._calc_radius_and_cog()
         self._warning_big_grid()
 
 
@@ -112,7 +123,7 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
-    def _set_deltas_resolution(self):
+    def _set_automatic_deltas_resolution(self):
         box_size = self.maxCoords - self.minCoords
         if vg.USE_FIXED_DELTAS:
             self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])

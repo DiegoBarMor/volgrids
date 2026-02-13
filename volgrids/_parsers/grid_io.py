@@ -22,9 +22,9 @@ class GridIO:
     def read_dx(path_dx) -> "vg.Grid":
         parser_dx = gd.Grid(path_dx)
         ms = vg.MolSystem.from_box_data(
-            resolution = parser_dx.grid.shape,
             origin = parser_dx.origin,
-            deltas = parser_dx.delta
+            deltas = parser_dx.delta,
+            resolution = parser_dx.grid.shape,
         )
         obj = vg.Grid(ms, init_grid = False)
         obj.grid = parser_dx.grid
@@ -76,9 +76,9 @@ class GridIO:
             ox, oy, oz = frame.attrs["origin"]
             dz, dy, dx = frame.attrs["step"]
             ms = vg.MolSystem.from_box_data(
-                resolution = np.array([rx, ry, rz]),
                 origin = np.array([ox, oy, oz]),
-                deltas = np.array([dx, dy, dz])
+                deltas = np.array([dx, dy, dz]),
+                resolution = np.array([rx, ry, rz]),
             )
             obj = vg.Grid(ms, init_grid = False)
             obj.grid = frame["data_zyx"][()].transpose(2,1,0)
@@ -309,7 +309,7 @@ def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
 
         if axes_correspondance == (1, 2, 3):
             ms = vg.MolSystem.from_box_data(
-                resolution = res.copy(), origin = origin.copy(), deltas = vsize.copy()
+                origin = origin.copy(), deltas = vsize.copy(), resolution = res.copy(),
             )
             obj = vg.Grid(ms, init_grid = False)
             obj.grid = data.transpose(2,1,0)
@@ -317,7 +317,7 @@ def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
 
         if axes_correspondance == (3, 2, 1):
             ms = vg.MolSystem.from_box_data(
-                resolution = res[::-1], origin = origin[::-1], deltas = vsize[::-1]
+                origin = origin[::-1], deltas = vsize[::-1], resolution = res[::-1],
             )
             obj = vg.Grid(ms, init_grid = False)
             obj.grid = data
