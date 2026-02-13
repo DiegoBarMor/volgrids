@@ -3,7 +3,7 @@ VolGrids is a framework for volumetric calculations, with emphasis in biological
   - [**APBS Automatic Pipeline**](#apbs-automatic-pipeline) via `volgrids apbs`. Requires [installing APBS](#setup-ubuntu).
   - [**SMIF Calculator**](#statistical-molecular-interaction-fields-smif-calculator) via `volgrids smiffer`
   - [**Volgrid Tools**](#volgrid-tools) via `volgrids vgtools`.
-  - ~~[**Volumetric Energy INSpector (VEINS)**](#volumetric-energy-inspector-veins) via `volgrids veins`.~~ WORK IN PROGRESS
+  - [**Volumetric Energy INSpector (VEINS)**](#volumetric-energy-inspector-veins) via `volgrids veins`.
 
 You can read more in their respective sections.
 
@@ -270,17 +270,13 @@ This tool allows to visualize interaction energies in space by portraying them a
 
 ## Usage
 Run `python3 volgrids veins [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
-  - replace `[mode]` with `energies`.
-  - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
-  - replace `[path_csv]` with the path to the energies CSV file. Mandatory positional argument. It must contain the following rows:
-    - **kind**: Name of the interaction kind. All rows with the same *kind* will be used to calculate a single grid with its name.
-    - **npoints**: Number of particles involved in the interaction.
-    - **idxs**: Group of 0-based indices joined by `-`. These are the indices of the particles involved in the interaction. This group must contain *npoints* indices.
-    - **idxs_are_residues**: Whether the indices correspond to the molecule's residues (`true`) or atoms (`false`).
-    - **energy**: Value of the interaction's energy.
+  - replace `[mode]` with `energy` or `force`.
+  - replace `[path_csv]` with the path to the energies CSV file. Mandatory positional argument. It must contain the following columns:
+    - In `force` mode:
+      - **xpos**, **ypos**, **zpos**: Coordinates corresponding to the forces' particles.
+      - **x_**, **y_**, **z_**: Where `_` is the name of every force to consider. Hence, a valid `CSV` header would look something like: `xpos,ypos,zpos,xFbond,yFbond,zFbond,xFangle,yFangle,zFangle`.
   - Optionally, replace `[options...]` with any combination of the following:
     - `-o [folder_out]` where `[folder_out]` is the folder where the output SMIFs should be stored. if not provided, the parent folder of the input file will be used.
-    `-c [cutoff]` where `[cutoff]` is a float number. Energies below this cutoff will be ignored. Default value: 1e-3.
 
 
 

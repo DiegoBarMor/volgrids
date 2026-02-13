@@ -7,19 +7,16 @@ class ParamHandlerVeins(vg.ParamHandler):
         "help"  : ("-h", "--help"),
         "output": ("-o", "--output"),
         "traj"  : ("-t", "--trajectory"),
-        "cutoff": ("-c", "--cutoff"),
     }
-    _DEFAULT_ENERGY_CUTOFF = 1e-3
 
 
     # --------------------------------------------------------------------------
     def assign_globals(self):
         self._set_help_str(
-            "[WIP] WORK IN PROGRESS - NOT YET FUNCTIONAL",
             "usage: volgrids veins [mode] [options...]",
             "Available modes:",
-            "  energies - Generate grids to visually represent in space the interaction energies of a molecular system.",
-            # "  force  - ", # TODO: Implement force mode
+            "  energy - Generate grids for the spatial interaction energies of a molecular system.",
+            "  force   - Generate grids for the spatial interaction forces of a molecular system.",
             "Run 'volgrids veins [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
@@ -27,45 +24,58 @@ class ParamHandlerVeins(vg.ParamHandler):
 
         ve.MODE = self._safe_get_param_pos(0).lower()
         func: callable = self._safe_map_value(ve.MODE,
-            energies = self._parse_energies,
-            forces   = self._parse_forces,
+            energy = self._parse_energy,
+            force  = self._parse_force,
         )
         func()
 
 
     # --------------------------------------------------------------------------
-    def _parse_energies(self) -> None:
+    def _parse_energy(self) -> None:
+        raise NotImplementedError("[WIP]")
+
         self._set_help_str(
             "usage: volgrids veins energy [path/input/structure.pdb] [path/input/energies.csv] [options...]",
             "Available options:",
             "-h, --help       Show this help message and exit.",
             "-o, --output     Path to the folder where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
-            "-t, --trajectory Path to a trajectory file (e.g. XTC) supported by MDAnalysis. In this case, the energies CSV file contains an energy column for each frame. The header of such columns must start with 'frame'.",
-            "-c, --cutoff     Energies below this cutoff will be ignored. Default value: 1e-3.",
+            "-t, --trajectory Enable trajectory mode. Use this flag to provide a frame number that will be used for the grid's key in the output CMAP file.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()
 
-        ve.PATH_STRUCT = self._safe_path_file_in(
-            self._safe_get_param_pos(1,
-               err_msg = "No input structure file provided. Provide a path to the structure file as first positional argument."
-            )
-        )
-
-        ve.PATH_ENERGIES_CSV = self._safe_path_file_in(
+        ve.PATH_CSV_IN = self._safe_path_file_in(
             self._safe_get_param_pos(2,
                err_msg = "No energies CSV file provided. Provide a path to the energies file as second positional argument."
             )
         )
 
-        ve.FOLDER_OUT = self._safe_kwd_folder_out("output", default = ve.PATH_STRUCT.parent)
-        ve.PATH_TRAJ  = self._safe_kwd_file_in("traj")
-        ve.ENERGY_CUTOFF = self._safe_kwd_float("cutoff", default = self._DEFAULT_ENERGY_CUTOFF)
+        ve.FOLDER_OUT = self._safe_kwd_folder_out("output", default = ve.PATH_CSV_IN.parent)
+        ve.TRAJ_FRAME = self._safe_kwd_int("traj", default = None)
 
 
     # --------------------------------------------------------------------------
-    def _parse_forces(self) -> None:
-        raise NotImplementedError("VEINS Forces mode is not yet implemented.")
+    def _parse_force(self) -> None:
+        self._set_help_str(
+            "usage: volgrids veins force [path/input/structure.pdb] [path/input/forces.csv] [options...]",
+            "Available options:",
+            "-h, --help       Show this help message and exit.",
+            "-o, --output     Path to the folder where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
+            "-t, --trajectory Enable trajectory mode. Use this flag to provide a frame number that will be used for the grid's key in the output CMAP file.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        ve.PATH_CSV_IN = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No forces CSV file provided. Provide a path to the forces file as second positional argument."
+            )
+        )
+
+        ve.FOLDER_OUT = self._safe_kwd_folder_out("output", default = ve.PATH_CSV_IN.parent)
+        ve.TRAJ_FRAME = self._safe_kwd_int("traj", default = None)
+        if ve.TRAJ_FRAME is not None:
+            raise NotImplementedError("[WIP]")
 
 
 # //////////////////////////////////////////////////////////////////////////////

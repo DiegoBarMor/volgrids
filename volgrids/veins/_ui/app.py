@@ -1,13 +1,14 @@
+import numpy as np
 import pandas as pd
 
 import volgrids as vg
 import volgrids.veins as ve
 
 # ------------------------------------------------------------------------------
-def _assert_df(df: pd.DataFrame, *cols_metadata):
+def _assert_df_has_cols(df: pd.DataFrame, *cols_metadata):
     if not set(df.columns).issuperset(cols_metadata):
         raise ValueError(
-            f"CSV file '{ve.PATH_ENERGIES_CSV}' must contain the columns: " +\
+            f"CSV file '{ve.PATH_CSV_IN}' must contain the columns: " +\
             ", ".join(map(lambda x: f"'{x}'", cols_metadata)) + " " +\
             f"Found columns: {df.columns}"
         )
@@ -17,54 +18,37 @@ def _assert_df(df: pd.DataFrame, *cols_metadata):
 class AppVeins(vg.App):
     CONFIG_MODULES = (vg,)
     _CLASS_PARAM_HANDLER = ve.ParamHandlerVeins
+    COLS_POSITION = ["xpos", "ypos", "zpos"]
 
     # --------------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.ms = vg.MolSystem(ve.PATH_STRUCT, ve.PATH_TRAJ)
-        self.df = pd.read_csv(ve.PATH_ENERGIES_CSV).dropna(how = "any")
-        self.cols_frames: list = None
+        self.df = pd.read_csv(ve.PATH_CSV_IN).dropna(how = "any")
+        self.cols_values = set(self.df.columns) - set(self.COLS_POSITION)
 
-        if self.ms.do_traj:
-            _assert_df(self.df, "kind", "npoints", "idxs", "idxs_are_residues")
-            self.cols_frames = sorted(filter(lambda x: x.startswith("frame"), self.df.columns))
-            if not self.cols_frames:
-                raise ValueError(
-                    f"CSV file '{ve.PATH_ENERGIES_CSV}' must contain at least one column starting with 'frame' "
-                    "when running in trajectory mode."
-                )
-            mat = self.df[self.cols_frames].to_numpy()
-            mat[mat < ve.ENERGY_CUTOFF] = 0.0
-            self.df.loc[:, self.cols_frames] = mat
+        _assert_df_has_cols(self.df, *self.COLS_POSITION)
+        self.coords = self.df[self.COLS_POSITION].values.astype(float)
 
-        else:
-            _assert_df(self.df, "kind", "npoints", "idxs", "idxs_are_residues", "energy")
-            self.df = self.df[self.df["energy"].abs() > ve.ENERGY_CUTOFF]
+        self.ms = vg.MolSystem.from_box_data(
+            origin    = np.min(self.coords, axis = 0) - vg.EXTRA_BOX_SIZE,
+            maxCoords = np.max(self.coords, axis = 0) + vg.EXTRA_BOX_SIZE,
+            molname = ve.PATH_CSV_IN.name
+        )
 
         self.timer = vg.Timer(
-            f">>> Now processing '{self.ms.molname}' ({ve.MODE})"
+            f">>> Now processing '{ve.PATH_CSV_IN.name}' ({ve.MODE})"
         )
 
 
     # --------------------------------------------------------------------------
     def run(self):
+        title_suffix = ve.MODE[:5] +\
+            ('' if ve.TRAJ_FRAME is None else f"_frame{ve.TRAJ_FRAME:04}")
+        process_grids: callable = self._get_process_grids_func()
+
         self.timer.start()
-
-        if self.ms.do_traj: # TRAJECTORY MODE
-            for _ in self.ms.system.trajectory:
-                current_col = self.cols_frames[self.ms.frame]
-                self.df["energy"] = self.df[current_col]
-                self.ms.frame += 1
-
-                timer_frame = vg.Timer(f"...>>> Frame {self.ms.frame}/{len(self.ms.system.trajectory)}")
-                timer_frame.start()
-                self._process_grids()
-                timer_frame.end()
-
-        else: # SINGLE PDB MODE
-            self._process_grids()
-
+        process_grids(title_suffix)
         self.timer.end()
 
 
@@ -75,11 +59,39 @@ class AppVeins(vg.App):
 
 
     # --------------------------------------------------------------------------
-    def _process_grids(self):
+    def _get_process_grids_func(self) -> callable:
+        match ve.MODE:
+            case "energy": return self._process_grids_energy
+            case "force":  return self._process_grids_force
+            case _: raise ValueError(f"Invalid mode '{ve.MODE}'.")
+
+
+    # --------------------------------------------------------------------------
+    def _process_grids_energy(self, title_suffix: str):
+        raise NotImplementedError("[WIP]")
         for kind in self.df["kind"].unique():
-            grid = ve.GridVolumetricEnergy(self.ms, self.df, kind)
+            grid = ve.GridVolumetricEnergy(self.ms, self.df, kind) # [WIP]
+            grid.populate_grid() # [WIP]
+            grid.save_data(ve.FOLDER_OUT, f"{grid.kind}{title_suffix}")
+
+
+    # --------------------------------------------------------------------------
+    def _process_grids_force(self, title_suffix: str):
+        force_kinds = self._infer_force_column_names()
+        for kind in force_kinds:
+            forces = self.df[[f"x{kind}", f"y{kind}", f"z{kind}"]].values.astype(float)
+            grid = ve.GridVolumetricForce(self.ms, self.coords, forces)
             grid.populate_grid()
-            grid.save_data(ve.FOLDER_OUT, grid.kind)
+            grid.save_data(ve.FOLDER_OUT, f"{kind}{title_suffix}")
+
+
+    # --------------------------------------------------------------------------
+    def _infer_force_column_names(self) -> list[str]:
+        cols_start_x = set(c[1:] for c in self.cols_values if c.startswith('x'))
+        cols_start_y = set(c[1:] for c in self.cols_values if c.startswith('y'))
+        cols_start_z = set(c[1:] for c in self.cols_values if c.startswith('z'))
+        assert cols_start_x == cols_start_y == cols_start_z, "Inconsistent force column names."
+        return sorted(cols_start_x)
 
 
 # # //////////////////////////////////////////////////////////////////////////////

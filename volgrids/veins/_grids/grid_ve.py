@@ -11,6 +11,7 @@ class GridVolumetricEnergy(vg.Grid):
 
     # --------------------------------------------------------------------------
     def __init__(self, ms: vg.MolSystem, df: pd.DataFrame, kind: str):
+        raise NotImplementedError("[WIP]")
         super().__init__(ms)
         self.df = df[df["kind"] == kind].copy()
         self.kind = kind
@@ -33,9 +34,9 @@ class GridVolumetricEnergy(vg.Grid):
         direction = b - a  # get the direction vector between two particles
 
         ##### perform kernel operations
-        radius = np.linalg.norm(direction) * self.RADIUS_FIX
+        length = np.linalg.norm(direction) * self.RADIUS_FIX
         kernel = vg.KernelCylinder(
-            radius = radius, vdirection = direction, width = self.WIDTH_CYLINDERS,
+            length = length, direction = direction, width = self.WIDTH_CYLINDERS,
             deltas = self.ms.deltas, dtype = np.float32
         )
         self._apply_kernel(kernel, pos, row["energy"])
@@ -72,14 +73,14 @@ class GridVolumetricEnergy(vg.Grid):
         normal = b - d            # get the direction vector between the second two non-adjacent particles
 
         ##### perform kernel operations
-        radius0 = np.linalg.norm(direction) * self.RADIUS_FIX
-        radius1 = np.linalg.norm(normal) * self.RADIUS_FIX
+        length0 = np.linalg.norm(direction) * self.RADIUS_FIX
+        length1 = np.linalg.norm(normal) * self.RADIUS_FIX
         kernel0 = vg.KernelCylinder(
-            radius = radius0, vdirection = direction, width = self.WIDTH_CYLINDERS,
+            length = length0, direction = direction, width = self.WIDTH_CYLINDERS,
             deltas = self.ms.deltas, dtype = np.float32
         )
         kernel1 = vg.KernelCylinder(
-            radius = radius1, vdirection = normal, width = self.WIDTH_CYLINDERS,
+            length = length1, direction = normal, width = self.WIDTH_CYLINDERS,
             deltas = self.ms.deltas, dtype = np.float32
         )
         self._apply_kernel(kernel0, pos, row["energy"])

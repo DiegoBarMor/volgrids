@@ -13,9 +13,9 @@ class KernelSphere(vg.Kernel):
 # //////////////////////////////////////////////////////////////////////////////
 class KernelCylinder(vg.Kernel):
     """For generating boolean cylinders"""
-    def __init__(self, radius, vdirection, width, deltas, dtype):
-        super().__init__(radius, deltas, dtype)
-        w = vg.Math.get_projection_height(self.shifted_coords, vdirection)
+    def __init__(self, length, direction, width, deltas, dtype):
+        super().__init__(radius = length, deltas = deltas, dtype = dtype)
+        w = vg.Math.get_projection_height(self.shifted_coords, direction)
         self.kernel[w < width] = 1
 
 

@@ -186,6 +186,16 @@ class ParamHandler(ABC):
 
 
     # --------------------------------------------------------------------------
+    def _safe_kwd_int(self, name: str, required = False, default: float = 0) -> float:
+        val_str: str = self._safe_get_param_kwd(name, required)
+        if val_str is None: return default
+        try:
+            return int(val_str)
+        except ValueError:
+            self._exit_with_help(self.InvalidParamError, f"The value for the flag '{name}' must be a int. Got '{val_str}' instead.")
+
+
+    # --------------------------------------------------------------------------
     def _safe_kwd_float(self, name: str, required = False, default: float = 0.0) -> float:
         val_str: str = self._safe_get_param_kwd(name, required)
         if val_str is None: return default
