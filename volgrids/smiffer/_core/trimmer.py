@@ -22,11 +22,10 @@ class Trimmer:
         if sm.DO_SMIF_HYDROPHILIC:
             trimming_dists["small"] = sm.TRIMMING_DIST_SMALL
 
-        if (
-            sm.DO_SMIF_STACKING or
-            sm.DO_SMIF_HBA or sm.DO_SMIF_HBD or
-            sm.DO_SMIF_HYDROPHOBIC or sm.SAVE_TRIMMING_MASK
-        ):
+        if any((
+            sm.DO_SMIF_STACKING, sm.DO_SMIF_HBA, sm.DO_SMIF_HBD, sm.DO_SMIF_HYDROPHOBIC,
+            sm.SAVE_TRIMMING_MASK, sm.DO_CAVITIES_FINDER
+        )):
             trimming_dists["mid"] = sm.TRIMMING_DIST_MID
 
         if sm.DO_SMIF_APBS:

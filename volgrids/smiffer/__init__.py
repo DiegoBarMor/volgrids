@@ -1,5 +1,6 @@
 from ._core.mol_system import MolType, MolSystemSmiffer
 from ._core.trimmer import Trimmer
+from ._core.cavities import Cavities
 
 from ._parsers.parser_chem_table import ParserChemTable
 
@@ -33,7 +34,9 @@ DO_TRIMMING_SPHERE:    bool = True
 DO_TRIMMING_OCCUPANCY: bool = True
 DO_TRIMMING_RNDS:      bool = True
 DO_TRIMMING_FARAWAY:   bool = True
-SAVE_TRIMMING_MASK:    bool = False
+
+DO_CAVITIES_FINDER: bool = False
+SAVE_TRIMMING_MASK: bool = False
 
 USE_STRUCTURE_HYDROGENS: bool = True
 
