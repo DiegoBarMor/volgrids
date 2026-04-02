@@ -1,15 +1,12 @@
 from setuptools import setup, find_packages
 from pathlib import Path
 
-def read_requirements(path = "requirements.txt"):
-    p = Path(path)
-    if not p.exists(): return []
-    stripped_lines = (ln.strip() for ln in p.read_text().strip().splitlines())
-    return [ln for ln in stripped_lines if ln and not ln.startswith("#")]
+__version__: str
+exec(Path("volgrids/_version.py").read_text())
 
 setup(
     name="volgrids",
-    version="0.4.1",
+    version=__version__,
     description="Framework for volumetric calculations, with emphasis in biological molecular systems.",
     keywords="grid mif smif volumetric molecular structural biology interaction field",
     long_description=open("README.md").read(),
@@ -20,7 +17,7 @@ setup(
     license="MIT",
     packages=find_packages(),
     package_data={"volgrids": ["_tables/*", "utils/*"]},
-    install_requires=read_requirements(),
+    install_requires=["MDAnalysis==2.10.0", "h5py==3.15.1"],
     entry_points={
         "console_scripts": [
             "volgrids=volgrids.__main__:main",

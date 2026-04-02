@@ -11,13 +11,14 @@ except ImportError:
 # ------------------------------------------------------------------------------
 def help_and_exit(exit_code: int):
     print(
-        f"usage: volgrids [smiffer|veins|vgtools] [options...]",
-         "Available applications:",
-         "  apbs     - Generate raw APBS potential grids for biomolecular structures.",
-         "  smiffer  - Calculate SMIFs for biomolecular structures.",
-         "  veins    - Calculate VEINS for biomolecular structures.",
-         "  vgtools  - Miscellaneous tools for volumetric grids.",
-        f"Run 'volgrids [app] --help' for more details on each application.",
+        f"VOLGRIDS (v{vg.__version__}). Usage:",
+        "    volgrids [smiffer|veins|vgtools] [options...]\n",
+        "Available applications:",
+        "    apbs     - Generate raw APBS potential grids for biomolecular structures.",
+        "    smiffer  - Calculate SMIFs for biomolecular structures.",
+        "    veins    - Calculate VEINS for biomolecular structures.",
+        "    vgtools  - Miscellaneous tools for volumetric grids.\n",
+        "Run 'volgrids [app] --help' for more details on each application.\n",
         sep = '\n'
     )
     exit(exit_code)

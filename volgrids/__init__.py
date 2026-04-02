@@ -1,3 +1,5 @@
+from ._version import __version__
+
 from ._core.grid import Grid
 from ._core.mol_system import MolSystem
 

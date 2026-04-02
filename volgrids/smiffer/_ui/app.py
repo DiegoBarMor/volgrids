@@ -93,6 +93,7 @@ class AppSmiffer(vg.App):
             smif_apbs: sm.SmifAPBS = self._calc_smif(sm.SmifAPBS)
             if vg.PQR_CONTENTS_TEMP:
                 self.trimmer.ms = sm.MolSystemSmiffer.from_pqr_data(vg.PQR_CONTENTS_TEMP)
+                self.trimmer.ms.molname = self.ms.molname
 
         self.trimmer.trim()
 
