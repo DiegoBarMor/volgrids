@@ -11,6 +11,8 @@ from ._smifs._hydro.hydrophilic import SmifHydrophilic
 from ._smifs._hydro.hydrophobic import SmifHydrophobic
 from ._smifs.stacking import SmifStacking
 
+from ._misc.sphere_info import SphereInfo
+
 from ._ui.param_handler import ParamHandlerSmiffer
 from ._ui.app import AppSmiffer
 
@@ -41,7 +43,7 @@ TRIMMING_DIST_SMALL: float = 2.5
 TRIMMING_DIST_MID:   float = 3.0
 TRIMMING_DIST_LARGE: float = 3.5
 
-MAX_RNDS_DIST:   float = _np.inf
+MAX_RNDS_DIST:   float = float("inf")
 COG_CUBE_RADIUS: int = 4
 
 TRIM_FARAWAY_DIST: float = 7.0
@@ -95,8 +97,8 @@ PATH_APBS:   _pathlib.Path = None # "path/input/apbs.pqr.dx"
 PATH_TABLE:  _pathlib.Path = None # "path/input/table.chem"
 FOLDER_OUT:  _pathlib.Path = None # "folder/output/"
 
-SPHERE_INFO: tuple[float, float, float, float] = None # pocket sphere info: [x, y, z, radius]
-CURRENT_MOLTYPE: MolType = MolType.NONE               # type of the current molecule
+SPHERE: SphereInfo  = None              # pocket sphere info: [x, y, z, radius]
+CURRENT_MOLTYPE: MolType = MolType.NONE # type of the current molecule
 
 
 ############################### RUNTIME GLOBALS ################################

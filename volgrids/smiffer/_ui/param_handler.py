@@ -76,7 +76,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             radius = float(self._safe_idx(params_sphere, 3, "Missing sphere radius."))
         except ValueError:
             self._exit_with_help(self.InvalidParamError, "Sphere options must be numeric values.")
-        sm.SPHERE_INFO = (x_cog, y_cog, z_cog, radius)
+        sm.SPHERE = sm.SphereInfo(x_cog, y_cog, z_cog, radius)
 
 
     # --------------------------------------------------------------------------

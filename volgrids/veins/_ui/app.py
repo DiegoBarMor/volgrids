@@ -69,12 +69,6 @@ class AppVeins(vg.App):
 
 
     # --------------------------------------------------------------------------
-    def _import_config_dependencies(self):
-        import numpy as np
-        return {"np": np, "vg": vg}
-
-
-    # --------------------------------------------------------------------------
     def _process_grids(self):
         for kind in self.df["kind"].unique():
             grid = ve.GridVolumetricEnergy(self.ms, self.df, kind)
