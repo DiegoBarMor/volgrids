@@ -48,11 +48,6 @@ class AppSmiffer(vg.App):
 
 
     # --------------------------------------------------------------------------
-    def _import_config_dependencies(self):
-        return {"np": np, "vg": vg}
-
-
-    # --------------------------------------------------------------------------
     def _init_globals(self):
         sm.PARAMS_HPHOB = vg.ParamsGaussianUnivariate(
             mu = sm.MU_HYDROPHOBIC, sigma = sm.SIGMA_HYDROPHOBIC,

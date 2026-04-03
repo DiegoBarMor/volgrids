@@ -52,6 +52,16 @@ class App(ABC):
 
 
     # --------------------------------------------------------------------------
+    def _import_config_dependencies(self) -> dict[str, any]:
+        """Import any modules that can be used by the config file.
+        For example, if a key-value pair is VALUE=np.inf, you should import numpy as np inside this method.
+        Return the scope with the imported modules, for example by adding "return locals()" at the end.
+        """
+        import numpy as np
+        return {"np": np, "vg": vg}
+
+
+    # --------------------------------------------------------------------------
     @property
     @abstractmethod
     def CONFIG_MODULES() -> tuple:
@@ -70,16 +80,6 @@ class App(ABC):
     # --------------------------------------------------------------------------
     @abstractmethod
     def run(self):
-        raise NotImplementedError()
-
-
-    # --------------------------------------------------------------------------
-    @abstractmethod
-    def _import_config_dependencies(self) -> dict[str, any]:
-        """Import any modules that can be used by the config file.
-        For example, if a key-value pair is VALUE=np.inf, you should import numpy as np inside this method.
-        Return the scope with the imported modules, for example by adding "return locals()" at the end.
-        """
         raise NotImplementedError()
 
 

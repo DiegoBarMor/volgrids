@@ -52,12 +52,6 @@ class AppVGTools(vg.App):
 
 
     # --------------------------------------------------------------------------
-    def _import_config_dependencies(self):
-        import numpy as np
-        return {"np": np, "vg": vg}
-
-
-    # --------------------------------------------------------------------------
     def _run_convert(self):
         def _convert(path_out, fmt_out: vg.GridFormat):
             if path_out is None: return

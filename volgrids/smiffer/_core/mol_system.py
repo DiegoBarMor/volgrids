@@ -23,7 +23,7 @@ class MolType(Enum):
 # //////////////////////////////////////////////////////////////////////////////
 class MolSystemSmiffer(vg.MolSystem):
     def __init__(self, path_struct: Path, path_traj: Path = None):
-        self.do_ps = sm.SPHERE_INFO is not None
+        self.do_ps = sm.SPHERE is not None
         self.chemtable = sm.ParserChemTable(self._get_path_table())
         self._init_attrs_from_molecules(path_struct, path_traj)
 
@@ -40,9 +40,9 @@ class MolSystemSmiffer(vg.MolSystem):
     # --------------------------------------------------------------------------
     def get_relevant_atoms(self):
         if self.do_ps:
-            xcog, ycog, zcog, radius = sm.SPHERE_INFO
+            point = f"{sm.SPHERE.x} {sm.SPHERE.y} {sm.SPHERE.z} {sm.SPHERE.radius}"
             return self.system.select_atoms(
-                f"{self.chemtable.selection_query} and point {xcog} {ycog} {zcog} {radius}"
+                f"{self.chemtable.selection_query} and point {point}"
             )
 
         return self.system.select_atoms(self.chemtable.selection_query)
@@ -51,9 +51,9 @@ class MolSystemSmiffer(vg.MolSystem):
     # --------------------------------------------------------------------------
     def get_relevant_atoms_broad(self, trimming_dist):
         if self.do_ps:
-            xcog, ycog, zcog, radius = sm.SPHERE_INFO
+            point = f"{sm.SPHERE.x} {sm.SPHERE.y} {sm.SPHERE.z} {sm.SPHERE.radius + trimming_dist}"
             return self.system.select_atoms(
-                f"{self.chemtable.selection_query} and point {xcog} {ycog} {zcog} {radius + trimming_dist}"
+                f"{self.chemtable.selection_query} and point {point}"
             )
 
         return self.system.select_atoms(self.chemtable.selection_query)
@@ -62,11 +62,10 @@ class MolSystemSmiffer(vg.MolSystem):
     # --------------------------------------------------------------------------
     def _infer_box_attributes(self):
         if self.do_ps:
-            xcog, ycog, zcog, radius = sm.SPHERE_INFO
-            self.cog = np.array([xcog, ycog, zcog])
-            self.minCoords = self.cog - radius
-            self.maxCoords = self.cog + radius
-            self.radius = radius
+            self.cog = np.array([sm.SPHERE.x, sm.SPHERE.y, sm.SPHERE.z])
+            self.minCoords = self.cog - sm.SPHERE.radius
+            self.maxCoords = self.cog + sm.SPHERE.radius
+            self.radius = sm.SPHERE.radius
             return
 
         super()._infer_box_attributes()
