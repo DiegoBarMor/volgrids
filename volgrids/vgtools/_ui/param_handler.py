@@ -21,13 +21,14 @@ class ParamHandlerVGTools(vg.ParamHandler):
         self._set_help_str(
             "usage: volgrids vgtools [convert|pack|unpack|average|fix_cmap] [options...]",
             "Available modes:",
-            "  convert  - Convert grid files between formats.",
-            "  pack     - Pack multiple grid files into a single CMAP series-file.",
-            "  unpack   - Unpack a CMAP series-file into multiple grid files.",
-            "  average  - Average all grids in a CMAP series-file into a single grid.",
-            "  fix_cmap - Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.",
-            "  compare  - Compare two grid files by printing the number of differing points and their accumulated difference.",
-            "Run 'volgrids vgtools [mode] --help' for more details on each mode.",
+            "    convert  - Convert grid files between formats.",
+            "    pack     - Pack multiple grid files into a single CMAP series-file.",
+            "    unpack   - Unpack a CMAP series-file into multiple grid files.",
+            "    average  - Average all grids in a CMAP series-file into a single grid.",
+            "    fix_cmap - Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.",
+            "    summary  - Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.",
+            "    compare  - Compare two grid files by printing the number of differing points and their accumulated difference.",
+            "\nRun 'volgrids vgtools [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
             self._exit_with_help()
@@ -39,6 +40,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             unpack   = self._parse_unpack,
             fix_cmap = self._parse_fix_cmap,
             average  = self._parse_average,
+            summary  = self._parse_summary,
             compare  = self._parse_compare,
         )
         func()
@@ -47,13 +49,13 @@ class ParamHandlerVGTools(vg.ParamHandler):
     # --------------------------------------------------------------------------
     def _parse_convert(self) -> None:
         self._set_help_str(
-            "usage: volgrids vgtools convert [path/input/grid] [options...]",
+            "usage: volgrids vgtools convert [input_grid] [options...]",
             "Available options:",
-            "-h, --help  Show this help message and exit.",
-            "-d, --dx    File path where to save the converted grid in DX format.",
-            "-m, --mrc   File path where to save the converted grid in MRC format.",
-            "-p, --ccp4  File path where to save the converted grid in CCP4 format.",
-            "-c, --cmap  File path where to save the converted grid in CMAP format. The stem of the input file will be used as the CMAP key.",
+            "    -h, --help  Show this help message and exit.",
+            "    -d, --dx    File path where to save the converted grid in DX format.",
+            "    -m, --mrc   File path where to save the converted grid in MRC format.",
+            "    -p, --ccp4  File path where to save the converted grid in CCP4 format.",
+            "    -c, --cmap  File path where to save the converted grid in CMAP format. The stem of the input file will be used as the CMAP key.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()
@@ -75,9 +77,9 @@ class ParamHandlerVGTools(vg.ParamHandler):
         self._set_help_str(
             "usage: volgrids vgtools pack [options...]",
             "Available options:",
-            "-h, --help    Show this help message and exit.",
-            "-i, --input   List of file paths with the input grids to be packed. At least one grid file must be provided.",
-            "-o, --output  File path where to save the packed grid in CMAP format. Must be provided.",
+            "    -h, --help    Show this help message and exit.",
+            "    -i, --input   List of file paths with the input grids to be packed. At least one grid file must be provided.",
+            "    -o, --output  File path where to save the packed grid in CMAP format. Must be provided.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()
@@ -95,9 +97,9 @@ class ParamHandlerVGTools(vg.ParamHandler):
         self._set_help_str(
             "usage: volgrids vgtools unpack [options...]",
             "Available options:",
-            "-h, --help    Show this help message and exit.",
-            "-i, --input   File path to the CMAP series-file to be unpacked. Must be provided.",
-            "-o, --output  Folder path where to save the unpacked grids. If not provided, the parent folder of the input packed file will be used.",
+            "    -h, --help    Show this help message and exit.",
+            "    -i, --input   File path to the CMAP series-file to be unpacked. Must be provided.",
+            "    -o, --output  Folder path where to save the unpacked grids. If not provided, the parent folder of the input packed file will be used.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()
@@ -111,9 +113,9 @@ class ParamHandlerVGTools(vg.ParamHandler):
         self._set_help_str(
             "usage: volgrids vgtools fix_cmap [options...]",
             "Available options:",
-            "-h, --help    Show this help message and exit.",
-            "-i, --input   File path to the CMAP file to be fixed. Must be provided.",
-            "-o, --output  File path where to save the fixed CMAP file. Must be provided.",
+            "    -h, --help    Show this help message and exit.",
+            "    -i, --input   File path to the CMAP file to be fixed. Must be provided.",
+            "    -o, --output  File path where to save the fixed CMAP file. Must be provided.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()
@@ -127,9 +129,9 @@ class ParamHandlerVGTools(vg.ParamHandler):
         self._set_help_str(
             "usage: volgrids vgtools average [options...]",
             "Available options:",
-            "-h, --help    Show this help message and exit.",
-            "-i, --input   File path to the CMAP series-file to be averaged. Must be provided.",
-            "-o, --output  File path where to save the averaged CMAP file. Must be provided.",
+            "    -h, --help    Show this help message and exit.",
+            "    -i, --input   File path to the CMAP series-file to be averaged. Must be provided.",
+            "    -o, --output  File path where to save the averaged CMAP file. Must be provided.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()
@@ -139,12 +141,29 @@ class ParamHandlerVGTools(vg.ParamHandler):
 
 
     # --------------------------------------------------------------------------
+    def _parse_summary(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools summary [input_grid] [options...]",
+            "    Available options:",
+            "    -h, --help  Show this help message and exit.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_SUMMARY_IN = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No input grid file provided. Provide a path to the grid file as second positional argument."
+            )
+        )
+
+
+    # --------------------------------------------------------------------------
     def _parse_compare(self) -> None:
         self._set_help_str(
-            "usage: volgrids vgtools compare [path/input/grid_0] [path/input/grid_1] [options...]",
+            "usage: volgrids vgtools compare [input_grid_0] [input_grid_1] [options...]",
             "Available options:",
-            "-h, --help       Show this help message and exit.",
-            "-t, --threshold  Threshold for comparison. Default is 1e-3.",
+            "    -h, --help       Show this help message and exit.",
+            "    -t, --threshold  Threshold for comparison. Default is 1e-3.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()

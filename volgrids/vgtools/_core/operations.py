@@ -8,7 +8,7 @@ import volgrids.vgtools as vgt
 class VGOperations:
     @staticmethod
     def convert(path_in: Path, path_out: Path, fmt_out: vg.GridFormat):
-        grid = vg.GridIO.read_auto(vgt.PATH_CONVERT_IN)
+        grid = vg.GridIO.read_auto(path_in)
 
         func: callable = {
             vg.GridFormat.DX: vg.GridIO.write_dx,
@@ -90,6 +90,24 @@ class VGOperations:
         grid_avg.grid = avg
 
         vg.GridIO.write_auto(path_out, grid_avg)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def summary(path_in: Path):
+        grid = vg.GridIO.read_auto(path_in)
+
+        info_keys = f"; keys: " + ' '.join(vg.GridIO.get_cmap_keys(path_in)) \
+            if grid.fmt.is_cmap() else ""
+
+        print(f"... fmt: {grid.fmt}{info_keys}")
+        print(f"... resolution: {grid.xres}x{grid.yres}x{grid.zres}; deltas: ({grid.dx:.2f},{grid.dy:.2f},{grid.dz:.2f})")
+        print(f"... box: ({grid.xmin:.2f},{grid.ymin:.2f},{grid.zmin:.2f})->({grid.xmax:.2f},{grid.ymax:.2f},{grid.zmax:.2f})")
+        print(f"... min: {grid.grid.min():2.2e}; max: {grid.grid.max():2.2e}; mean: {grid.grid.mean():2.2e}")
+
+        n_nonzero = len(grid.grid[grid.grid != 0])
+        n_total = grid.grid.size
+        print(f"... non-zero points: {n_nonzero}/{n_total} ({100*n_nonzero/n_total:.2f}%)\n")
 
 
     # --------------------------------------------------------------------------
