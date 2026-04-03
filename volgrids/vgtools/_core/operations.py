@@ -95,19 +95,28 @@ class VGOperations:
     # --------------------------------------------------------------------------
     @staticmethod
     def summary(path_in: Path):
+        def numerics(g: vg.Grid, key: str):
+            n_total = g.grid.size
+            n_nonzero = len(g.grid[g.grid != 0])
+            print(f"... grid: {key}")
+            print(f"...... min: {g.grid.min():2.2e}; max: {g.grid.max():2.2e}; mean: {g.grid.mean():2.2e}")
+            print(f"...... non-zero points: {n_nonzero}/{n_total} ({100*n_nonzero/n_total:.2f}%)")
+
         grid = vg.GridIO.read_auto(path_in)
+        grid_names = vg.GridIO.get_cmap_keys(path_in) if grid.fmt.is_cmap() else [path_in.stem]
 
-        info_keys = f"; keys: " + ' '.join(vg.GridIO.get_cmap_keys(path_in)) \
-            if grid.fmt.is_cmap() else ""
-
-        print(f"... fmt: {grid.fmt}{info_keys}")
+        print(f"... fmt: {grid.fmt}, ngrids: {len(grid_names)}")
         print(f"... resolution: {grid.xres}x{grid.yres}x{grid.zres}; deltas: ({grid.dx:.2f},{grid.dy:.2f},{grid.dz:.2f})")
         print(f"... box: ({grid.xmin:.2f},{grid.ymin:.2f},{grid.zmin:.2f})->({grid.xmax:.2f},{grid.ymax:.2f},{grid.zmax:.2f})")
-        print(f"... min: {grid.grid.min():2.2e}; max: {grid.grid.max():2.2e}; mean: {grid.grid.mean():2.2e}")
 
-        n_nonzero = len(grid.grid[grid.grid != 0])
-        n_total = grid.grid.size
-        print(f"... non-zero points: {n_nonzero}/{n_total} ({100*n_nonzero/n_total:.2f}%)\n")
+        if not grid.fmt.is_cmap():
+            numerics(grid, path_in.stem); print()
+            return
+
+        for key in grid_names:
+            numerics(vg.GridIO.read_cmap(path_in, key), key)
+        print()
+
 
 
     # --------------------------------------------------------------------------
