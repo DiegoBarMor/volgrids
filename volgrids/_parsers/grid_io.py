@@ -2,18 +2,8 @@ import os, h5py
 import numpy as np
 import gridData as gd
 from pathlib import Path
-from enum import Enum, auto
 
 import volgrids as vg
-
-# //////////////////////////////////////////////////////////////////////////////
-class GridFormat(Enum):
-    DX = auto()
-    MRC = auto()
-    CCP4 = auto()
-    CMAP = auto()
-    CMAP_PACKED = auto()
-
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridIO:

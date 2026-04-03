@@ -124,34 +124,45 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def save_data(self, folder_out: Path, title: str):
+        def clear_cmap(path_out: Path) -> Path:
+            if vg.REMOVE_OLD_CMAP_OUTPUT:
+                path_out.unlink(missing_ok = True)
+            return path_out
+
         path_prefix = folder_out / f"{self.ms.molname}.{title}"
 
-        if self.ms.do_traj:
-            ### ignore the OUTPUT flag, CMAP is the only format that supports multiple frames
-            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, f"{self.ms.molname}.{self.ms.frame:04}")
+        if self.ms.do_traj: # ignores the GRID_FORMAT_OUTPUT config -> CMAP is the only format that supports multiple frames
+            path_cmap = clear_cmap(folder_out / f"{self.ms.molname}.{title}.cmap")
+            vg.REMOVE_OLD_CMAP_OUTPUT = False
+            vg.GridIO.write_cmap(path_cmap, self, f"{self.ms.molname}.{self.ms.frame:04}")
             return
 
-        if vg.OUTPUT_FORMAT == vg.GridFormat.DX:
+        gf = vg.GridFormat.from_str(vg.GRID_FORMAT_OUTPUT)
+
+        if gf == vg.GridFormat.DX:
             vg.GridIO.write_dx(f"{path_prefix}.dx", self)
             return
 
-        if vg.OUTPUT_FORMAT == vg.GridFormat.MRC:
+        if gf == vg.GridFormat.MRC:
             vg.GridIO.write_mrc(f"{path_prefix}.mrc", self)
             return
 
-        if vg.OUTPUT_FORMAT == vg.GridFormat.CCP4:
+        if gf == vg.GridFormat.CCP4:
             vg.GridIO.write_ccp4(f"{path_prefix}.ccp4", self)
             return
 
-        if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP:
-            vg.GridIO.write_cmap(f"{path_prefix}.cmap", self, self.ms.molname)
+        if gf == vg.GridFormat.CMAP:
+            path_cmap = clear_cmap(folder_out / f"{self.ms.molname}.{title}.cmap")
+            vg.GridIO.write_cmap(path_cmap, self, self.ms.molname)
             return
 
-        if vg.OUTPUT_FORMAT == vg.GridFormat.CMAP_PACKED:
-            vg.GridIO.write_cmap(folder_out / f"{self.ms.molname}.cmap", self, f"{self.ms.molname}.{title}")
+        if gf == vg.GridFormat.CMAP_PACKED:
+            path_cmap = clear_cmap(folder_out / f"{self.ms.molname}.cmap")
+            vg.REMOVE_OLD_CMAP_OUTPUT = False
+            vg.GridIO.write_cmap(path_cmap, self, f"{self.ms.molname}.{title}")
             return
 
-        raise ValueError(f"Unknown output format: {vg.OUTPUT_FORMAT}.")
+        raise ValueError(f"Unknown output format: {vg.GRID_FORMAT_OUTPUT}.")
 
 
 # //////////////////////////////////////////////////////////////////////////////

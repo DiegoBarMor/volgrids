@@ -3,8 +3,7 @@ import volgrids as vg
 # //////////////////////////////////////////////////////////////////////////////
 class ParserConfig(vg.ParserIni):
     def apply_config(self,
-        scope_module: dict[str, ],
-        scope_dependencies: dict[str, ],
+        scope_module: dict[str,],
         this_module_keys: set[str],
         all_known_keys: set[str],
     ) -> None:
@@ -18,12 +17,12 @@ class ParserConfig(vg.ParserIni):
                     continue
                 if k not in all_known_keys:
                     raise ValueError(f"Unknown configuration: {k}.")
-                scope_module[k] = self._parse_str(scope_dependencies, value)
+                scope_module[k] = self._parse_str(value)
 
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def _parse_str(scope: dict, str_value: str):
+    def _parse_str(str_value: str):
         ### INTEGERS
         if str_value.isdigit():
             return int(str_value)
@@ -37,33 +36,7 @@ class ParserConfig(vg.ParserIni):
             return str_value.lower() == "true"
 
         ### STRINGS
-        stripped = str_value.strip('"')
-        if len(stripped) != len(str_value):
-            return stripped
-
-        stripped = str_value.strip("'")
-        if len(stripped) != len(str_value):
-            return stripped
-
-        ### MODULE ATTRIBUTES
-        error_message = f"Invalid configuration value: {str_value}"
-
-        parts = str_value.split('.')
-        if len(parts) < 2: raise ValueError(error_message)
-
-        key = parts.pop(0)
-        node = scope.get(key, None)
-        if node is None: raise ValueError(error_message)
-
-        while parts:
-            key = parts.pop(0)
-            try:
-                node = node.__dict__.get(key, None)
-            except (AttributeError):
-                raise ValueError(error_message)
-            if node is None:
-                raise ValueError(error_message)
-        return node
+        return str_value.strip('"').strip("'")
 
 
 # //////////////////////////////////////////////////////////////////////////////

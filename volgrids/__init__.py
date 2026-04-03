@@ -17,7 +17,8 @@ from ._misc.utils import resolve_path_package
 
 from ._parsers.parser_ini import ParserIni
 from ._parsers.parser_config import ParserConfig
-from ._parsers.grid_io import GridFormat, GridIO
+from ._parsers.grid_format import GridFormat
+from ._parsers.grid_io import GridIO
 
 from ._ui.param_handler import ParamHandler
 from ._ui.app import App
@@ -26,13 +27,11 @@ from ._misc.apbs_subprocess import APBSSubprocess
 
 
 ############################# CONFIG FILE GLOBALS ##############################
-import numpy as _np
 _keys_other = set(globals().keys())
 
-OUTPUT_FORMAT: GridFormat = GridFormat.CMAP_PACKED
-
+GRID_FORMAT_OUTPUT: str = "CMAP_PACKED"
+REMOVE_OLD_CMAP_OUTPUT: bool = True
 GZIP_COMPRESSION: int = 9
-FLOAT_DTYPE: type = _np.float32
 WARNING_GRID_SIZE: float = 5.0e7
 
 GRID_DX: float = 0.25
@@ -61,4 +60,6 @@ PATHS_CUSTOM_CONFIG: list[_pathlib.Path] = []   # "path/input/config.ini"
 
 
 ############################### RUNTIME GLOBALS ################################
+import numpy as _np
 PQR_CONTENTS_TEMP: str = ""
+FLOAT_DTYPE: type = _np.float32

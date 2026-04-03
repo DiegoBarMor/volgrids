@@ -39,26 +39,14 @@ class App(ABC):
     # --------------------------------------------------------------------------
     def _load_config_file(self, path_config: Path) -> None:
         parser = vg.ParserConfig(path_config)
-        scope_dependencies = self._import_config_dependencies()
 
         all_known_keys = set(k for scope_module in self.CONFIG_MODULES for k in scope_module.__config_keys__)
         for scope_module in self.CONFIG_MODULES:
             parser.apply_config(
                 scope_module = scope_module.__dict__,
-                scope_dependencies = scope_dependencies,
                 this_module_keys = scope_module.__config_keys__,
                 all_known_keys = all_known_keys
             )
-
-
-    # --------------------------------------------------------------------------
-    def _import_config_dependencies(self) -> dict[str, any]:
-        """Import any modules that can be used by the config file.
-        For example, if a key-value pair is VALUE=np.inf, you should import numpy as np inside this method.
-        Return the scope with the imported modules, for example by adding "return locals()" at the end.
-        """
-        import numpy as np
-        return {"np": np, "vg": vg}
 
 
     # --------------------------------------------------------------------------
