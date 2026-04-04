@@ -8,7 +8,7 @@ import volgrids.vgtools as vgt
 class VGOperations:
     @staticmethod
     def convert(path_in: Path, path_out: Path, fmt_out: vg.GridFormat):
-        grid = vg.GridIO.read_auto(vgt.PATH_CONVERT_IN)
+        grid = vg.GridIO.read_auto(path_in)
 
         func: callable = {
             vg.GridFormat.DX: vg.GridIO.write_dx,
@@ -90,6 +90,33 @@ class VGOperations:
         grid_avg.grid = avg
 
         vg.GridIO.write_auto(path_out, grid_avg)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def summary(path_in: Path):
+        def numerics(g: vg.Grid, key: str):
+            n_total = g.grid.size
+            n_nonzero = len(g.grid[g.grid != 0])
+            print(f"... grid: {key}")
+            print(f"...... min: {g.grid.min():2.2e}; max: {g.grid.max():2.2e}; mean: {g.grid.mean():2.2e}")
+            print(f"...... non-zero points: {n_nonzero}/{n_total} ({100*n_nonzero/n_total:.2f}%)")
+
+        grid = vg.GridIO.read_auto(path_in)
+        grid_names = vg.GridIO.get_cmap_keys(path_in) if grid.fmt.is_cmap() else [path_in.stem]
+
+        print(f"... fmt: {grid.fmt}, ngrids: {len(grid_names)}")
+        print(f"... resolution: {grid.xres}x{grid.yres}x{grid.zres}; deltas: ({grid.dx:.2f},{grid.dy:.2f},{grid.dz:.2f})")
+        print(f"... box: ({grid.xmin:.2f},{grid.ymin:.2f},{grid.zmin:.2f})->({grid.xmax:.2f},{grid.ymax:.2f},{grid.zmax:.2f})")
+
+        if not grid.fmt.is_cmap():
+            numerics(grid, path_in.stem); print()
+            return
+
+        for key in grid_names:
+            numerics(vg.GridIO.read_cmap(path_in, key), key)
+        print()
+
 
 
     # --------------------------------------------------------------------------

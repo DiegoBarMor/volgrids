@@ -20,4 +20,9 @@ class GridFormat(Enum):
         raise ValueError(f"Unknown grid format: {s}.")
 
 
+    # --------------------------------------------------------------------------
+    def is_cmap(self) -> bool:
+        return self == self.CMAP or self == self.CMAP_PACKED
+
+
 # //////////////////////////////////////////////////////////////////////////////

@@ -32,6 +32,11 @@ class AppVGTools(vg.App):
             vgt.VGOperations.average(vgt.PATH_AVERAGE_IN, vgt.PATH_AVERAGE_OUT)
             return
 
+        if vgt.OPERATION == "summary":
+            print(f">>> Grid summary: {vgt.PATH_SUMMARY_IN}")
+            vgt.VGOperations.summary(vgt.PATH_SUMMARY_IN)
+            return
+
         if vgt.OPERATION == "compare":
             print(f">>> Comparing grids: {vgt.PATH_COMPARE_IN_0} vs {vgt.PATH_COMPARE_IN_1} (threshold={vgt.THRESHOLD_COMPARE:2.2e})")
             result = vgt.VGOperations.compare(vgt.PATH_COMPARE_IN_0, vgt.PATH_COMPARE_IN_1, vgt.THRESHOLD_COMPARE)

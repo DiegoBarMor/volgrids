@@ -41,6 +41,9 @@ PATH_FIXCMAP_OUT: _pathlib.Path = None # "path/output/fix.cmap"
 PATH_AVERAGE_IN:  _pathlib.Path = None # "path/input/traj.cmap"
 PATH_AVERAGE_OUT: _pathlib.Path = None # "path/output/average.cmap"
 
+### Summary
+PATH_SUMMARY_IN: _pathlib.Path = None # "path/input/grid.dx" or "path/input/grid.mrc" or "path/input/grid.cmap
+
 ### Compare
 PATH_COMPARE_IN_0: _pathlib.Path = None # "path/input/grid_0.mrc"
 PATH_COMPARE_IN_1: _pathlib.Path = None # "path/input/grid_1.mrc"
