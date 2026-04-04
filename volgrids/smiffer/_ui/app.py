@@ -139,11 +139,6 @@ class AppSmiffer(vg.App):
             reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
             reverse.save_data(sm.FOLDER_OUT, "trimming")
 
-        if sm.DO_CAVITIES_FINDER:
-            mask = self.trimmer.get_mask("mid")
-            cavities = sm.Cavities.find_cavities_naive(mask)
-            cavities.save_data(sm.FOLDER_OUT, "cavities")
-
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
             grid_hpdiff = smif_hphob - smif_hphil
             grid_hpdiff.save_data(sm.FOLDER_OUT, "hydrodiff")
