@@ -18,6 +18,7 @@ bash tests/smiffer/pocket_sphere.sh
 bash tests/smiffer/whole.sh
 bash tests/smiffer/traj.sh
 bash tests/smiffer/ligand.sh
+bash tests/smiffer/cavities.sh
 
 bash tests/vgtools/convert.sh
 bash tests/vgtools/pack_unpack.sh

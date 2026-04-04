@@ -1,5 +1,6 @@
 from ._core.mol_system import MolType, MolSystemSmiffer
 from ._core.trimmer import Trimmer
+from ._core.cavities import Cavities
 
 from ._parsers.parser_chem_table import ParserChemTable
 
@@ -18,7 +19,6 @@ from ._ui.app import AppSmiffer
 
 
 ############################# CONFIG FILE GLOBALS ##############################
-import numpy as _np
 _keys_other = set(globals().keys())
 
 DO_SMIF_STACKING:    bool = True
@@ -35,7 +35,11 @@ DO_TRIMMING_SPHERE:    bool = True
 DO_TRIMMING_OCCUPANCY: bool = True
 DO_TRIMMING_RNDS:      bool = True
 DO_TRIMMING_FARAWAY:   bool = True
-SAVE_TRIMMING_MASK:    bool = False
+DO_TRIMMING_CAVITIES:  bool = False
+TRIMMING_CAVITIES_THRESHOLD: int = 3
+
+SAVE_TRIMMING_MASK: bool = False
+SAVE_CAVITIES: bool = False
 
 USE_STRUCTURE_HYDROGENS: bool = True
 
