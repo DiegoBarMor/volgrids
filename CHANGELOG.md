@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.0] - 2026-04-05
+- Implemented experimental **cavities** trimming operation.
+- Added a `vgtools` utility for summarizing grids.
+
 ## [0.4.2] - 2026-04-03
 - Bugfixes:
     - Fixed trimming mask being saved with an incorrect name.

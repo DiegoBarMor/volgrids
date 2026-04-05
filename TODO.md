@@ -3,8 +3,8 @@
 <!-- ----------------------------------------------------------------------- -->
 ## General
 * improve help strings. Add annotations, docstrings and overall cleaning
-* try out cavities-finder ideas
 * replace mdanalysis with another PDB parser?
+    * find out how to handle trajectory files in this case
 * improve the CLI parsing
     * e.g. passing another positional arguments after `volgrids smiffer rna path_input.pdb` shouldn't be allowed
 
@@ -45,7 +45,7 @@
 * mode to perform operations on grids: abs, sum, diff, mask...
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
-* add tests for the "average" operation.
+* add tests for the "average" and "summary" operations.
 
 
 <!-- ----------------------------------------------------------------------- -->
