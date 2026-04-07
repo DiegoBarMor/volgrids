@@ -61,7 +61,7 @@ DO_SMIF_HYDROPHOBIC=False
 DO_SMIF_HYDROPHILIC=False
 DO_SMIF_APBS=False
 
-### configured trimming/cavity options
+;;; configured trimming/cavity options
 DO_TRIMMING_OCCUPANCY=${do_trimming_occupancy}
 DO_TRIMMING_CAVITIES=${do_trimming_cavities}
 SAVE_TRIMMING_MASK=${save_trimming_mask}

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.1] - 2026-04-07
+- INI parser now considers the standard `;` as comment start character.
+    - This affects the `config.ini` files for the parameters and the `.chem` tables.
+
 ## [0.5.0] - 2026-04-05
 - Implemented experimental **cavities** trimming operation.
 - Added a `vgtools` utility for summarizing grids.

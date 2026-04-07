@@ -2,8 +2,8 @@
 protein and not (name H*)
 
 [RES_HPHOBICITY]
-ASP: -1.23 # WW hydrophobicity scale
-GLU: -2.02 # negative means hydrophilic
+ASP: -1.23 ; WW hydrophobicity scale
+GLU: -2.02 ; negative means hydrophilic
 SER: -0.13
 THR: -0.14
 ASN: -0.42
@@ -33,12 +33,12 @@ TRP: CD1 CD2 CE2 CE3 CG CH2 CZ2 CZ3 NE1
 TYR: CD1 CD2 CE1 CE2 CG CZ
 
 [NAMES_HBACCEPTORS]
-# https://chemistry.stackexchange.com/questions/42085/can-an-amide-nitrogen-be-a-hydrogen-bond-acceptor
+; https://chemistry.stackexchange.com/questions/42085/can-an-amide-nitrogen-be-a-hydrogen-bond-acceptor
 ALA: O=C->O
 ARG: O=C->O
 ASN: O=C->O OD1=CG->OD1
 ASP: O=C->O OD1=CG->OD1 OD2=CG->OD2
-CYS: O=C->O SG=CB->SG # https://link.springer.com/chapter/10.1007/978-3-319-14163-3_2
+CYS: O=C->O SG=CB->SG ; https://link.springer.com/chapter/10.1007/978-3-319-14163-3_2
 GLU: O=C->O OE1=CD->OE1 OE2=CD->OE2
 GLN: O=C->O OE1=CD->OE1
 GLY: O=C->O
@@ -56,7 +56,7 @@ TYR: O=C->O OH=CZ->OH
 VAL: O=C->O
 
 [NAMES_HBDONORS]
-ALA: N=C.CA->N # in peptide bonds it's hbdonors_fixed, that's handled internally in the code
+ALA: N=C.CA->N ; in peptide bonds it's hbdonors_fixed, that's handled internally in the code
 ARG: N=C.CA->N NE=CD.CZ->NE! NH1=NH2->CZ! NH1=NE->CZ! NH2=NH1->CZ! NH2=NE->CZ!
 ASN: N=C.CA->N ND2=OD1->CG! ND2=CB->CG!
 ASP: N=C.CA->N
