@@ -136,16 +136,18 @@ class Math:
     ) -> np.ndarray:
         """the `reverse` flag reverses both the order of the rotations and the signs of the angles,
         so that the same function can be used to rotate back to the original orientation"""
+        def rot(angle, axes):
+            if angle == 0.0: return coords
+            return scipy_ndimage.rotate( # takes angles in degrees
+                coords, angle, axes = axes, reshape = False,
+                order = 0, mode = "nearest", prefilter = False
+            )
 
         if not in_degrees:
             angle_xy = np.rad2deg(angle_xy)
             angle_yz = np.rad2deg(angle_yz)
             angle_xz = np.rad2deg(angle_xz)
 
-        def rot(angle, axes): return scipy_ndimage.rotate( # takes angles in degrees
-            coords, angle, axes = axes, reshape = False,
-            order = 0, mode = "nearest", prefilter = False
-        )
         if not reverse:
             coords = rot( angle_xy, axes = (0,1))
             coords = rot( angle_yz, axes = (1,2))

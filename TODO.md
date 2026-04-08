@@ -28,6 +28,9 @@
 * Generate a warning when saving empty smifs
 * check whether the trimmer can still be saved when no smifs are calculated
 
+* implement `DO_CAVITIES_WEIGHTING` as an alternative for cavities usage.
+* add tests for different values of `CAVITIES_NPASSES`.
+
 
 <!-- ----------------------------------------------------------------------- -->
 ## VEINS

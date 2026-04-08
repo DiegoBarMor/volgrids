@@ -1,6 +1,7 @@
 import numpy as np
 
 import volgrids as vg
+import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class Cavities:
@@ -54,24 +55,26 @@ class Cavities:
         vgrid.grid = np.copy(cavities)
         return vgrid
 
+
     # --------------------------------------------------------------------------
     @staticmethod
-    def find_cavities_naive_double_pass(occupancy: vg.Grid) -> vg.Grid:
-        ### Step 1: consider the original occupancy grid, and a copy of it rotated by 45 degrees in all dimensions
-        occupy_00deg = occupancy
-        occupy_45deg = vg.Grid(occupancy.ms, init_grid = False)
-        occupy_45deg.grid = vg.Math.rotate_3d(occupancy.grid, 45, 45, 45)
+    def find_cavities_naive_multi_pass(occupancy: vg.Grid) -> vg.Grid:
+        def get_cavities_rot(angle: float):
+            occupy_rot = vg.Grid(occupancy.ms, init_grid = False)
+            occupy_rot.grid = vg.Math.rotate_3d(occupancy.grid, angle, angle, angle)
+            cavities_rot = Cavities.find_cavities_naive(occupy_rot)
+            cavities_rot.grid = vg.Math.rotate_3d(cavities_rot.grid, angle, angle, angle, reverse = True)
+            return cavities_rot
 
-        ### Step 2: find the cavities in both grids with the naive method.
-        cavities_00deg = Cavities.find_cavities_naive(occupy_00deg)
-        cavities_45deg = Cavities.find_cavities_naive(occupy_45deg)
+        cavities_orig = Cavities.find_cavities_naive(occupancy)
 
-        ### Step 3: revert the rotated cavities grid back to the original orientation
-        cavities_45deg.grid = vg.Math.rotate_3d(cavities_45deg.grid, 45, 45, 45, reverse = True)
+        cavities_rot = (
+            get_cavities_rot(i*90 / sm.CAVITIES_NPASSES)
+            for i in range(1, sm.CAVITIES_NPASSES)
+        )
 
-        ### Step 4: average the two cavity grids. Discrete values will now be 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0.
-        cavities_00deg.grid = (cavities_00deg.grid + cavities_45deg.grid) / 2
-        return cavities_00deg
+        cavities_orig.grid = (cavities_orig.grid + sum(cav.grid for cav in cavities_rot)) / sm.CAVITIES_NPASSES
+        return cavities_orig
 
 
 # //////////////////////////////////////////////////////////////////////////////
