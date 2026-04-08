@@ -3,8 +3,10 @@
 <!-- ----------------------------------------------------------------------- -->
 ## General
 * improve help strings. Add annotations, docstrings and overall cleaning
-* try out cavities-finder ideas
 * replace mdanalysis with another PDB parser?
+    * find out how to handle trajectory files in this case
+* improve the CLI parsing
+    * e.g. passing another positional arguments after `volgrids smiffer rna path_input.pdb` shouldn't be allowed
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -12,7 +14,6 @@
 * implement: raise an error if a format file is opened with the wrong function
 * add possibility for config parameters being passed via the CLI, as well as passing multiple config files
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
-* standard ini files use ; instead of # for comments
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -25,6 +26,7 @@
 * add tests for apbs
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
 * Generate a warning when saving empty smifs
+* check whether the trimmer can still be saved when no smifs are calculated
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -39,11 +41,10 @@
 ## VGTools
 * check what happens if performing "fix_cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
-* mode to describe grids
 * mode to perform operations on grids: abs, sum, diff, mask...
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
-* add tests for the "average" operation.
+* add tests for the "average" and "summary" operations.
 
 
 <!-- ----------------------------------------------------------------------- -->

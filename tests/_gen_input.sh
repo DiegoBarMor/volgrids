@@ -71,7 +71,7 @@ tmp_config_cmap=$fvgtools/cmap.config
 tmp_config_smifs=$fvgtools/smifs.config
 
 cat > $tmp_config_dx <<- EOM
-GRID_FORMAT=DX
+GRID_FORMAT_OUTPUT=DX
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
 DO_SMIF_HYDROPHOBIC=False
@@ -81,7 +81,7 @@ SAVE_TRIMMING_MASK=False
 EOM
 
 cat > $tmp_config_mrc <<- EOM
-GRID_FORMAT=MRC
+GRID_FORMAT_OUTPUT=MRC
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
 DO_SMIF_HYDROPHOBIC=False
@@ -91,7 +91,7 @@ SAVE_TRIMMING_MASK=False
 EOM
 
 cat > $tmp_config_ccp4 <<- EOM
-GRID_FORMAT=CCP4
+GRID_FORMAT_OUTPUT=CCP4
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
 DO_SMIF_HYDROPHOBIC=False
@@ -101,7 +101,7 @@ SAVE_TRIMMING_MASK=False
 EOM
 
 cat > $tmp_config_cmap <<- EOM
-GRID_FORMAT=CMAP
+GRID_FORMAT_OUTPUT=CMAP
 DO_SMIF_HBA=False
 DO_SMIF_HBD=False
 DO_SMIF_HYDROPHOBIC=False
@@ -111,7 +111,7 @@ SAVE_TRIMMING_MASK=False
 EOM
 
 cat > $tmp_config_smifs <<- EOM
-GRID_FORMAT=MRC
+GRID_FORMAT_OUTPUT=MRC
 DO_SMIF_HBA=True
 DO_SMIF_HBD=True
 DO_SMIF_HYDROPHOBIC=True

@@ -3,7 +3,7 @@ import re
 # //////////////////////////////////////////////////////////////////////////////
 class ParserIni:
     """Parser for INI-like files, extracting sections and their corresponding lines."""
-    _CHAR_COMMENT = '#'
+    _CHAR_COMMENT = ';'
 
     # --------------------------------------------------------------------------
     def __init__(self, path_ini):
