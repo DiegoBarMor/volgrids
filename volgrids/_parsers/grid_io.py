@@ -270,6 +270,14 @@ class GridIO:
             return list(h5["Chimera"].keys())
 
 
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def restore_boolean_dtype(grid: "vg.Grid") -> "vg.Grid":
+        """Restores the boolean data type of a grid that was saved as int (0 and 1) due to format limitations."""
+        if not set(np.unique(grid.grid)).issubset({0, 1}): return
+        grid.grid = grid.grid.astype(bool)
+
+
 # //////////////////////////////////////////////////////////////////////////////
 
 # ------------------------------------------------------------------------------

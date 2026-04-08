@@ -171,6 +171,7 @@ class VGOperations:
         in_degrees: bool = True
     ) -> None:
         grid = vg.GridIO.read_auto(path_in)
+        vg.GridIO.restore_boolean_dtype(grid)
         grid.grid = vg.Math.rotate_3d(grid.grid, rotate_xy, rotate_yz, rotate_xz, in_degrees)
         vg.GridIO.write_auto(path_out, grid)
 

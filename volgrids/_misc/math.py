@@ -130,7 +130,13 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def rotate_3d(coords, angle_xy: float, angle_yz: float, angle_xz: float, in_degrees: bool = True):
+    def rotate_3d(coords,
+        angle_xy: float, angle_yz: float, angle_xz: float,
+        in_degrees: bool = True, reverse = False
+    ) -> np.ndarray:
+        """the `reverse` flag reverses both the order of the rotations and the signs of the angles,
+        so that the same function can be used to rotate back to the original orientation"""
+
         if not in_degrees:
             angle_xy = np.rad2deg(angle_xy)
             angle_yz = np.rad2deg(angle_yz)
@@ -138,11 +144,16 @@ class Math:
 
         def rot(angle, axes): return scipy_ndimage.rotate( # takes angles in degrees
             coords, angle, axes = axes, reshape = False,
-            order = 1, mode = "nearest", prefilter = False
+            order = 0, mode = "nearest", prefilter = False
         )
-        coords = rot(angle_xy, axes=(0,1))
-        coords = rot(angle_yz, axes=(1,2))
-        coords = rot(angle_xz, axes=(0,2))
+        if not reverse:
+            coords = rot( angle_xy, axes = (0,1))
+            coords = rot( angle_yz, axes = (1,2))
+            coords = rot( angle_xz, axes = (0,2))
+        else:
+            coords = rot(-angle_xz, axes = (0,2))
+            coords = rot(-angle_yz, axes = (1,2))
+            coords = rot(-angle_xy, axes = (0,1))
         return coords
 
     # --------------------------------------------------------------------------

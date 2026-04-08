@@ -111,11 +111,12 @@ class Trimmer:
 
         if not self._should_do_cavities(): return
 
+        cavities_finder: callable = sm.Cavities.find_cavities_naive_double_pass
+
         keys = self.specific_masks.keys() \
             if sm.DO_TRIMMING_CAVITIES else [self.KEY_INIT_COMMON_MASK]
         dict_cavities = {
-            k: sm.Cavities.find_cavities_naive(self.get_mask(k))
-            for k in keys
+            k: cavities_finder(self.get_mask(k)) for k in keys
         }
 
         if sm.DO_TRIMMING_CAVITIES:
