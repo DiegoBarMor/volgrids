@@ -53,6 +53,11 @@ class AppVGTools(vg.App):
             )
             return
 
+        if vgt.OPERATION == "rotate":
+            print(f">>> Rotating grid: {vgt.PATH_ROTATE_IN} by {vgt.ROTATE_XY}° (xy), {vgt.ROTATE_YZ}° (yz), {vgt.ROTATE_XZ}° (xz)")
+            vgt.VGOperations.rotate(vgt.PATH_ROTATE_IN, vgt.PATH_ROTATE_OUT, vgt.ROTATE_XY, vgt.ROTATE_YZ, vgt.ROTATE_XZ)
+            return
+
         raise ValueError(f"Unknown mode: {vgt.OPERATION}")
 
 

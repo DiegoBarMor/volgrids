@@ -1,5 +1,7 @@
 import numpy as np
-from scipy import interpolate
+from scipy import \
+    interpolate as scipy_interpolate,\
+    ndimage as scipy_ndimage
 
 import volgrids as vg
 
@@ -122,9 +124,26 @@ class Math:
     # --------------------------------------------------------------------------
     @staticmethod
     def interpolate_3d(x0, y0, z0, data_0, new_coords):
-        return interpolate.RegularGridInterpolator(
+        return scipy_interpolate.RegularGridInterpolator(
             (x0, y0, z0), data_0, bounds_error = False, fill_value = 0
         )(new_coords).T
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def rotate_3d(coords, angle_xy: float, angle_yz: float, angle_xz: float, in_degrees: bool = True):
+        if not in_degrees:
+            angle_xy = np.rad2deg(angle_xy)
+            angle_yz = np.rad2deg(angle_yz)
+            angle_xz = np.rad2deg(angle_xz)
+
+        def rot(angle, axes): return scipy_ndimage.rotate( # takes angles in degrees
+            coords, angle, axes = axes, reshape = False,
+            order = 1, mode = "nearest", prefilter = False
+        )
+        coords = rot(angle_xy, axes=(0,1))
+        coords = rot(angle_yz, axes=(1,2))
+        coords = rot(angle_xz, axes=(0,2))
+        return coords
 
     # --------------------------------------------------------------------------
     @staticmethod

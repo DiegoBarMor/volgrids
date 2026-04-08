@@ -3,7 +3,7 @@ VolGrids is a framework for volumetric calculations, with emphasis in biological
   - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
   - **SMIF Calculator** via `volgrids smiffer`
   - **Volgrid Tools** via `volgrids vgtools`.
-  - **Volumetric Energy INSpector (VEINS)** via `volgrids veins`. WORK IN PROGRESS
+  - **Volumetric Energy INSpector (VEINS)** via `volgrids veins`. [WIP] WORK IN PROGRESS
 
 You can read more in their respective sections.
 
@@ -253,7 +253,9 @@ Run `python3 volgrids vgtools [mode] [options...]` and provide the parameters of
     - `unpack`: Unpack a CMAP series-file into multiple grid files.
     - `average`: Average all grids in a CMAP series-file into a single grid.
     - `fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
+    - `summary`: Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.
     - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
+    - `rotate`: Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
   - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 volgrids vgtools [mode] -h`).
 
 
@@ -262,6 +264,7 @@ Run `python3 volgrids vgtools [mode] [options...]` and provide the parameters of
 <!-- -------------------------------- VEINS -------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Volumetric Energy INSpector (VEINS)
+**[WIP] WORK IN PROGRESS**
 This tool allows to visualize interaction energies in space by portraying them as a volumetric grid. Apart from the usual structure/trajectory files (PDB, XTC...), a CSV with energy values and the indices of the atoms/residues involved must be given. Interactions between 2, 3 and 4 particles are supported and represented accordingly
 
 ## Usage
