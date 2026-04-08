@@ -12,6 +12,9 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "ccp4"   : ("-p", "--ccp4"),
             "cmap"   : ("-c", "--cmap"),
             "thresh" : ("-t", "--threshold"),
+            "rot_x"  : ("-x", "--yz"),
+            "rot_y"  : ("-y", "--xz"),
+            "rot_z"  : ("-z", "--xy"),
     }
     _DEFAULT_COMPARISON_THRESHOLD = 1e-5
 
@@ -28,6 +31,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             "    fix_cmap - Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.",
             "    summary  - Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.",
             "    compare  - Compare two grid files by printing the number of differing points and their accumulated difference.",
+            "    rotate   - Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).",
             "\nRun 'volgrids vgtools [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
@@ -42,6 +46,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
             average  = self._parse_average,
             summary  = self._parse_summary,
             compare  = self._parse_compare,
+            rotate   = self._parse_rotate,
         )
         func()
 
@@ -144,7 +149,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
     def _parse_summary(self) -> None:
         self._set_help_str(
             "usage: volgrids vgtools summary [input_grid] [options...]",
-            "    Available options:",
+            "Available options:",
             "    -h, --help  Show this help message and exit.",
         )
         if self._has_param_kwds("help"):
@@ -181,6 +186,34 @@ class ParamHandlerVGTools(vg.ParamHandler):
         )
 
         vgt.THRESHOLD_COMPARE = self._safe_kwd_float("thresh", default = self._DEFAULT_COMPARISON_THRESHOLD)
+
+
+    # --------------------------------------------------------------------------
+    def _parse_rotate(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools rotate [input_grid] [output_grid]",
+            "Available options:",
+            "    -h, --help  Show this help message and exit.",
+            "    -x, --yz    Rotation angle in degrees along the yz plane (in degrees).",
+            "    -y, --xz    Rotation angle in degrees along the xz plane (in degrees).",
+            "    -z, --xy    Rotation angle in degrees along the xy plane (in degrees).",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_ROTATE_IN = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No input grid file provided. Provide a path to the grid file as second positional argument."
+            )
+        )
+        vgt.PATH_ROTATE_OUT = self._safe_path_file_out(
+            self._safe_get_param_pos(2,
+               err_msg = "No output grid file provided. Provide a path where to save the rotated grid as third positional argument."
+            )
+        )
+        vgt.ROTATE_YZ = self._safe_kwd_float("rot_x", default = 0.0)
+        vgt.ROTATE_XZ = self._safe_kwd_float("rot_y", default = 0.0)
+        vgt.ROTATE_XY = self._safe_kwd_float("rot_z", default = 0.0)
 
 
 # //////////////////////////////////////////////////////////////////////////////

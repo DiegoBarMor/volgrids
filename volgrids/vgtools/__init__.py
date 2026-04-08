@@ -14,7 +14,7 @@ __config_keys__ = set()
 ### These are global variables that are to be set by
 ### an instance of ParamHandler (or its inherited classes)
 
-OPERATION: str = '' # mode of the application, i.e. "convert", "pack", "unpack", "fix_cmap", "average", "compare"
+OPERATION: str = '' # mode of the application, i.e. "convert", "pack", "unpack", "fix_cmap", "average", "summary", "compare", "rotate"
 
 import pathlib as _pathlib
 
@@ -48,3 +48,10 @@ PATH_SUMMARY_IN: _pathlib.Path = None # "path/input/grid.dx" or "path/input/grid
 PATH_COMPARE_IN_0: _pathlib.Path = None # "path/input/grid_0.mrc"
 PATH_COMPARE_IN_1: _pathlib.Path = None # "path/input/grid_1.mrc"
 THRESHOLD_COMPARE: float # threshold for comparison (default 1e-5)
+
+### Rotate
+PATH_ROTATE_IN:  _pathlib.Path = None # "path/input/grid.mrc"
+PATH_ROTATE_OUT: _pathlib.Path = None # "path/output/grid.mrc"
+ROTATE_XY: float # angle in degrees (default 0)
+ROTATE_YZ: float # angle in degrees (default 0)
+ROTATE_XZ: float # angle in degrees (default 0)

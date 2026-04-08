@@ -118,7 +118,6 @@ class VGOperations:
         print()
 
 
-
     # --------------------------------------------------------------------------
     @staticmethod
     def compare(path_in_0: Path, path_in_1: Path, threshold: float) -> "vgt.ComparisonResult":
@@ -163,6 +162,17 @@ class VGOperations:
 
         return vgt.ComparisonResult(npoints_diff, npoints_total, cumulative_diff, avg_diff, warnings)
 
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def rotate(
+        path_in: Path, path_out: Path,
+        rotate_xy: float, rotate_yz: float, rotate_xz: float,
+        in_degrees: bool = True
+    ) -> None:
+        grid = vg.GridIO.read_auto(path_in)
+        grid.grid = vg.Math.rotate_3d(grid.grid, rotate_xy, rotate_yz, rotate_xz, in_degrees)
+        vg.GridIO.write_auto(path_out, grid)
 
 
 # //////////////////////////////////////////////////////////////////////////////
