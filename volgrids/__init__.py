@@ -34,6 +34,10 @@ REMOVE_OLD_CMAP_OUTPUT: bool = True
 GZIP_COMPRESSION: int = 9
 WARNING_GRID_SIZE: float = 5.0e7
 
+USE_FIXED_DELTAS: bool = True
+ENSURE_EQUILATERAL: bool = False
+EXTRA_BOX_SIZE: int = 5
+
 GRID_DX: float = 0.25
 GRID_DY: float = 0.25
 GRID_DZ: float = 0.25
@@ -41,9 +45,6 @@ GRID_DZ: float = 0.25
 GRID_XRES: int = 200
 GRID_YRES: int = 200
 GRID_ZRES: int = 200
-
-EXTRA_BOX_SIZE: int = 5
-USE_FIXED_DELTAS: bool = True
 
 __config_keys__ = set(globals().keys()) - _keys_other
 

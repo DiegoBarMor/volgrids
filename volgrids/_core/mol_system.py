@@ -70,8 +70,8 @@ class MolSystem:
             self.frame = None
 
         self._infer_box_attributes()
-
         self._set_deltas_resolution()
+        self._enforce_equilateral_grid()
 
         self._warning_big_grid()
 
@@ -120,6 +120,22 @@ class MolSystem:
         else:
             self.resolution = np.array([vg.GRID_XRES, vg.GRID_YRES, vg.GRID_ZRES], dtype = int)
             self.deltas = box_size / self.resolution
+
+
+    # --------------------------------------------------------------------------
+    def _enforce_equilateral_grid(self):
+        if not vg.ENSURE_EQUILATERAL: return
+
+        max_resolution = np.max(self.resolution)
+        res_diff = max_resolution - self.resolution
+
+        pad_0 = np.ceil (res_diff / 2).astype(int)
+        pad_1 = np.floor(res_diff / 2).astype(int)
+
+        self.resolution = np.array([max_resolution, max_resolution, max_resolution], dtype = int)
+        self.minCoords -= pad_0 * self.deltas
+        self.maxCoords += pad_1 * self.deltas
+        self._calc_radius_and_cog()
 
 
     # --------------------------------------------------------------------------
