@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 # //////////////////////////////////////////////////////////////////////////////
 class ParserIni:
@@ -6,11 +7,18 @@ class ParserIni:
     _CHAR_COMMENT = ';'
 
     # --------------------------------------------------------------------------
-    def __init__(self, path_ini):
-        self._path_ini = path_ini
+    def __init__(self, data_ini: str):
         self._ini_sections: dict[str, list[str]] = {}
-        with open(path_ini, 'r') as file:
-            self._extract_sections(file.read())
+        self._extract_sections(data_ini)
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def from_file(cls, path_ini: Path) -> "ParserIni":
+        path_ini = Path(path_ini)
+        if not path_ini.is_file():
+            raise FileNotFoundError(f"The specified INI file '{path_ini}' does not exist or is not a file.")
+        return cls(path_ini.read_text())
 
 
     # --------------------------------------------------------------------------
@@ -21,8 +29,10 @@ class ParserIni:
         """
         line = line.split(cls._CHAR_COMMENT)[0].strip() # Remove comments
         pair = tuple(map(str.strip, line.split(sep)))
-        if len(pair) != 2:
+        if len(pair) < 2:
             raise ValueError(f"Line '{line}' does not contain '{sep}'")
+        if len(pair) > 2:
+            raise ValueError(f"Line '{line}' contains multiple '{sep}' characters, which is not allowed.")
         return pair
 
 

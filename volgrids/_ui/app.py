@@ -28,17 +28,21 @@ class App(ABC):
 
 
     # --------------------------------------------------------------------------
-    def load_configs(self):
-        if vg.PATH_DEFAULT_CONFIG is not None:
-            self._load_config_file(vg.PATH_DEFAULT_CONFIG)
-
+    def load_configs(self) -> None:
+        self._load_config(vg.PATH_DEFAULT_CONFIG)
         for path_config in vg.PATHS_CUSTOM_CONFIG:
-            self._load_config_file(path_config)
+            self._load_config(path_config)
+        self._load_config(vg.STR_CUSTOM_CONFIG, is_file = False)
 
 
     # --------------------------------------------------------------------------
-    def _load_config_file(self, path_config: Path) -> None:
-        parser = vg.ParserConfig(path_config)
+    def _load_config(self, config: Path | str, is_file = True) -> None:
+        if is_file:
+            if config is None: return
+            parser = vg.ParserConfig.from_file(config)
+        else:
+            if not config.strip(): return
+            parser = vg.ParserConfig(config)
 
         all_known_keys = set(k for scope_module in self.CONFIG_MODULES for k in scope_module.__config_keys__)
         for scope_module in self.CONFIG_MODULES:

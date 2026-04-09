@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import volgrids as vg
 import volgrids.smiffer as sm
 
@@ -37,13 +39,13 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         self._set_help_str(
             f"usage: volgrids smiffer {mode} [path/input/struct.pdb] [options...]",
             "Available options:",
-            "-h, --help        Show this help message and exit.",
-            "-o, --output      Folder path where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
-            "-t, --traj        File path to a trajectory file (e.g. XTC) supported by MDAnalysis. Activates 'traj' mode: calculate SMIFs for all the frames and save them as a CMAP-series file.",
-            "-a, --apbs        File path to a cached output of APBS for the respective structure file. Prevents the automatic calculation of APBS performed by volgrids' smiffer.",
-            "-b, --table       File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
-            "-c, --config      File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).",
-            "-s, --sphere      Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere. If not provided, 'whole' mode is assumed.",
+            "-h, --help      Show this help message and exit.",
+            "-o, --output    Folder path where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
+            "-t, --traj      File path to a trajectory file (e.g. XTC) supported by MDAnalysis. Activates 'traj' mode: calculate SMIFs for all the frames and save them as a CMAP-series file.",
+            "-a, --apbs      File path to a cached output of APBS for the respective structure file. Prevents the automatic calculation of APBS performed by volgrids' smiffer.",
+            "-b, --table     File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
+            "-c, --config    File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini). Alternatively, it can be a list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).",
+            "-s, --sphere    Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere. If not provided, 'whole' mode is assumed.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()
@@ -81,9 +83,19 @@ class ParamHandlerSmiffer(vg.ParamHandler):
 
     # --------------------------------------------------------------------------
     def _handle_params_configs(self):
-        path_config = self._safe_kwd_file_in("config") # [WIP]
-        if path_config is None: return
-        vg.PATHS_CUSTOM_CONFIG = [path_config]
+        if not self._has_param_kwds("config"): return
+
+        for val in self._safe_get_param_kwd_list("config"):
+            if '=' in val:
+                vg.STR_CUSTOM_CONFIG += f"{val.replace(' ', '\n')}\n"
+                continue
+
+            val_as_path = Path(val)
+            if not val_as_path.exists():
+                self._exit_with_help(self.InvalidPathError, f"The specified config path '{val}' does not exist.")
+            if val_as_path.is_dir():
+                self._exit_with_help(self.InvalidPathError, f"The specified config path '{val}' is a folder, but a file was expected.")
+            vg.PATHS_CUSTOM_CONFIG.append(val_as_path)
 
 
     # --------------------------------------------------------------------------

@@ -37,7 +37,7 @@ def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str, bool]:
 class ParserChemTable:
     def __init__(self, path_table):
         self.selection_query: str = ''
-        self._parser_ini = vg.ParserIni(path_table)
+        self._parser_ini = vg.ParserIni.from_file(path_table)
         self._residues_hphob: dict[str, float] = {}
         self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
         self._names_stk: dict[str, str] = {}

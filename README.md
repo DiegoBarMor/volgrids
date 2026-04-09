@@ -123,7 +123,8 @@ Run `python3 volgrids smiffer [mode] [path_structure] [options...]` and provide 
     - `-a (path_apbs)` where `(path_apbs)` is the path to a cached output of APBS. Prevents the automatic calculation of APBS performed by volgrids' smiffer.
     - `-s [x] [y] [z] [r]` where `[x]`, `[y]`, `[z]` and `[r]` are the float values for the X,Y,Z coordinates and the radius of a sphere in space, respectively. This activates "pocket sphere" mode, where the SMIFs will only be calculated inside the sphere provided.
     - `-b [path_table]` where `[path_table]` is the path to a *.chem* table file to use for ligand mode, or to override the default macromolecules' tables. This flag is mandatory for "ligand" mode.
-    - `-c [path_config]` where `[path_config]` is the path to a configuration file with global settings, to override the default settings (e.g. `config_volgrids.ini`).
+    - `-c [config]` where `[config]` is the path to a configuration file with global settings, to override the default settings (e.g. `config_volgrids.ini`).
+      - Alternatively, `[config]` can be a list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
 
 
 <!-- ----------------------------------------------------------------------- -->

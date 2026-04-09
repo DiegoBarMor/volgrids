@@ -7,7 +7,7 @@ folder_vgtools="testdata/vgtools"
 
 rm -rf $folder_env
 
-rm -rf "$folder_smiffer/apbs"
+# rm -rf "$folder_smiffer/apbs"
 rm  -f "$folder_smiffer/toy_systems/"*.cmap
 rm -rf "$folder_smiffer/pocket_sphere"
 rm -rf "$folder_smiffer/whole"

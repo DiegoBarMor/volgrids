@@ -58,6 +58,7 @@ __config_keys__ = set(globals().keys()) - _keys_other
 import pathlib as _pathlib
 PATH_DEFAULT_CONFIG:      _pathlib.Path  = None # "./config_volgrids.ini"
 PATHS_CUSTOM_CONFIG: list[_pathlib.Path] = []   # "path/input/config.ini"
+STR_CUSTOM_CONFIG : str = ""  # "key0=value0 key1=value1 ..."
 
 
 ############################### RUNTIME GLOBALS ################################
