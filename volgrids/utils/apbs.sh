@@ -9,7 +9,7 @@ set -euo pipefail
 ### Requires: pdb2pqr, apbs
 ### Optional: python3 with volgrids installed (for MRC conversion)
 ### Usage: apbs.sh <path_pdb> [--mrc] [--pqr] [--verbose]
-### Example: apbs.sh testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --pqr --verbose
+### Example: apbs.sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --pqr --verbose
 
 
 ### default parameters
@@ -20,7 +20,7 @@ VERBOSE=false        # print verbose output from APBS?
 help_message() {
     name_sh=$(basename "$0")
     echo "Usage: $name_sh <path_pdb> [--mrc] [--verbose]"
-    echo "Example: $name_sh testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --verbose"
+    echo "Example: $name_sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose"
 }
 
 if [[ "$#" -lt 1 ]]; then

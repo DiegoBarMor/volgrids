@@ -3,7 +3,7 @@ set -eu
 
 ### TEMPLATE: change this sh accordingly if using another dataset
 
-fpdb="testdata/smiffer/pdb-nosolv"
+fpdb="testdata/smiffer/pdb_clean"
 fout="testdata/smiffer/pocket_sphere"
 config="examples/pocket_scores/config.ini"
 rm -rf $fout; mkdir -p $fout

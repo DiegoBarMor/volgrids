@@ -4,8 +4,8 @@ set -eu
 echo
 echo ">>> TEST SMIFFER 5: Cavities"
 
-fpdb="testdata/smiffer/pdb-nosolv"
-fpdb_orig="testdata/_raw_input/smiffer_benchmark"
+fpdb="testdata/smiffer/pdb_clean"
+fpdb_orig="testdata/smiffer/pdb_orig"
 fout="testdata/smiffer/cavities"
 fout_benchmark=$fout/benchmark
 fout_pocketsphere=$fout/pocket_sphere

@@ -5,9 +5,9 @@ echo
 echo ">>> TEST SMIFFER 2: Benchmark, Whole mode"
 
 fapbs="testdata/smiffer/apbs"
-fpdb="testdata/smiffer/pdb-nosolv"
+fpdb="testdata/smiffer/pdb_clean"
 fout="testdata/smiffer/whole"
-rm -rf $fout; mkdir -p $fout
+mkdir -p $fout
 
 names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
 for name in "${names[@]}"; do

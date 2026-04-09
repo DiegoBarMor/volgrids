@@ -4,16 +4,10 @@ set -eu
 echo
 echo ">>> TEST SMIFFER 0: Toy systems"
 
-fpdb="testdata/_raw_input/toy_systems"
 fout="testdata/smiffer/toy_systems"
-tmp_config_ignore_h="$fpdb/ignore_h.config.tmp"
-tmp_config_no_apbs="$fpdb/no_apbs.config.tmp"
-tmp_config_equilateral="$fpdb/equilateral.config.tmp"
-rm -rf $fout; mkdir -p $fout
-
-cp "$fpdb"/*.pdb "$fout/"
-cp "$fpdb/ribose_gua.pdb" "$fout/ribose_gua_no_h.pdb"
-cp "$fout/peptide.pdb" "$fout/peptide_no_h.pdb" # for visualization purposes
+tmp_config_ignore_h="$fout/ignore_h.config.tmp"
+tmp_config_no_apbs="$fout/no_apbs.config.tmp"
+tmp_config_equilateral="$fout/equilateral.config.tmp"
 
 cat > $tmp_config_no_apbs <<- EOM
 DO_SMIF_APBS=False

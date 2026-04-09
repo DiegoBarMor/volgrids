@@ -130,12 +130,12 @@ Run `python3 volgrids smiffer [mode] [path_structure] [options...]` and provide 
 ## Commands examples
 - Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-s`).
 ```bash
-python3 volgrids smiffer prot testdata/smiffer/pdb-nosolv/1iqj.pdb -s 4.682 21.475 7.161 14.675
+python3 volgrids smiffer prot testdata/smiffer/pdb_clean/1iqj.pdb -s 4.682 21.475 7.161 14.675
 ```
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```bash
-python3 volgrids smiffer rna testdata/smiffer/pdb-nosolv/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pdb.mrc
+python3 volgrids smiffer rna testdata/smiffer/pdb_clean/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pdb.mrc
 ```
 
 - Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.
@@ -223,17 +223,17 @@ sudo apt-get install apbs
 ### Commands examples
 - Running APBS with Volgrids (recommended).
 ```bash
-python3 volgrids apbs testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --verbose
+python3 volgrids apbs testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
 ```
 
 - Alternative (calling directly `apbs.sh`).
 ```bash
-volgrids/utils/apbs.sh apbs testdata/smiffer/pdb-nosolv/1iqj.pdb --mrc --verbose
+volgrids/utils/apbs.sh apbs testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
 ```
 
 - Running APBS without Volgrids.
 ```bash
-pdb2pqr --ff=AMBER testdata/smiffer/pdb-nosolv/1iqj.pdb testdata/smiffer/pqr/1iqj.pqr --apbs-input testdata/smiffer/1iqj.in
+pdb2pqr --ff=AMBER testdata/smiffer/pdb_clean/1iqj.pdb testdata/smiffer/pqr/1iqj.pqr --apbs-input testdata/smiffer/1iqj.in
 apbs testdata/smiffer/1iqj.in
 ```
 

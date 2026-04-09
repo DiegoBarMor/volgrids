@@ -2,43 +2,15 @@
 set -eu
 
 ### folders that should already exist
-folder_raw="testdata/_raw_input"
-fpdb_orig="$folder_raw/smiffer_benchmark"
-fframes="$folder_raw/inconsistent_frames"
+fframes="testdata/vgtools/_inconsistent_frames"
+fpdb_nosolv="testdata/smiffer/pdb_clean"
+fapbs="testdata/smiffer/apbs"
 
-### folders that will be created
-fsmiffer="testdata/smiffer"
-fpdb_nosolv="$fsmiffer/pdb-nosolv"
-fapbs="$fsmiffer/apbs"
-
-rm   -rf $fsmiffer
-mkdir -p $fpdb_nosolv $fapbs
-
-### folders that will just be copied
-cp -r "$folder_raw/ligands" "$fsmiffer/ligands"
-cp -r "$folder_raw/trajs"   "$fsmiffer/trajs"
-
-
+mkdir -p $fapbs
 
 ################################################################################
 ##################################### APBS #####################################
 ################################################################################
-
-tmp_py=$folder_raw/remove_solvent.tmp.py
-cat > $tmp_py <<- EOM
-import sys
-import MDAnalysis as mda
-from pathlib import Path
-folder_in = Path(sys.argv[1]); folder_out = Path(sys.argv[2])
-benchmark_prots = ["1bg0","1eby","1ehe","1h7l","1iqj","1ofz","3dd0","3ee4", "5m9w", "6e9a"]
-benchmark_rnas  = ["1akx","1i9v","2esj","4f8u","5bjo","5kx9","6tf3","7oax0","7oax1","8eyv"]
-def remove_solv(path_in, path_out, selection): mda.Universe(path_in).select_atoms(selection).write(path_out)
-for name in benchmark_prots: remove_solv(folder_in / f"{name}.pdb", folder_out / f"{name}.pdb", "protein")
-for name in benchmark_rnas:  remove_solv(folder_in / f"{name}.pdb", folder_out / f"{name}.pdb", "nucleic")
-EOM
-echo ">>> Removing solvent from PDB files..."
-python3 -W ignore $tmp_py $fpdb_orig $fpdb_nosolv
-rm -f $tmp_py
 
 names=(1akx 1bg0 1eby 1ehe 1h7l 1i9v 1iqj 1ofz 2esj 3dd0 3ee4 4f8u 5bjo 5kx9 5m9w 6e9a 6tf3 7oax0 7oax1 8eyv)
 for name in "${names[@]}"; do

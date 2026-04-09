@@ -2,7 +2,7 @@
 set -eu
 
 ##### Generate input data (if needed)
-if [[ ! -d testdata/smiffer ]]; then
+if [[ ! -d testdata/smiffer/apbs ]]; then
     echo "Generating input data..."
     bash tests/_gen_input.sh
 else
