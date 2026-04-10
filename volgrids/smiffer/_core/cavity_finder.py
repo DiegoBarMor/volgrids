@@ -4,10 +4,37 @@ import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
-class Cavities:
+class CavityFinder:
+    def __init__(self):
+        self.grid: vg.Grid = None
+
+
+    # --------------------------------------------------------------------------
+    def has_data(self) -> bool:
+        return self.grid is not None
+
+
+    # --------------------------------------------------------------------------
+    def populate_cavities_grid(self, occupancy: vg.Grid):
+        func: callable = self._find_cavities_naive_multi_pass \
+            if sm.CAVITIES_NPASSES > 1 else self._find_cavities_naive
+        self.grid = func(occupancy)
+
+
+    # --------------------------------------------------------------------------
+    def apply_cavities_weighting(self, smif: "sm.Smif"):
+        if sm.CAVITIES_WEIGHT == 0.0: return
+        if not self.has_data(): return
+        if not self.grid.has_equivalent_box(smif):
+            print("WARNING: Cavity grid and smif grid do not have the same box. Cavity weighting aborted.")
+            return
+
+        smif.arr *= (1 + self.grid.arr * sm.CAVITIES_WEIGHT)
+
+
     # --------------------------------------------------------------------------
     @staticmethod
-    def find_cavities_naive(occupancy: vg.Grid) -> vg.Grid:
+    def _find_cavities_naive(occupancy: vg.Grid) -> vg.Grid:
         arr: np.ndarray = occupancy.arr.astype(bool)
 
         ### STEP 1: find the occupancy surface with XOR
@@ -58,15 +85,15 @@ class Cavities:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def find_cavities_naive_multi_pass(occupancy: vg.Grid) -> vg.Grid:
+    def _find_cavities_naive_multi_pass(occupancy: vg.Grid) -> vg.Grid:
         def get_cavities_rot(angle: float):
             occupy_rot = vg.Grid(occupancy.ms, init_grid = False)
             occupy_rot.arr = vg.Math.rotate_3d(occupancy.arr, angle, angle, angle)
-            cavities_rot = Cavities.find_cavities_naive(occupy_rot)
+            cavities_rot = CavityFinder._find_cavities_naive(occupy_rot)
             cavities_rot.arr = vg.Math.rotate_3d(cavities_rot.arr, angle, angle, angle, reverse = True)
             return cavities_rot
 
-        cavities_orig = Cavities.find_cavities_naive(occupancy)
+        cavities_orig = CavityFinder._find_cavities_naive(occupancy)
 
         cavities_rot = (
             get_cavities_rot(i*90 / sm.CAVITIES_NPASSES)

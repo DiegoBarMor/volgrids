@@ -23,7 +23,7 @@ class SmifAPBS(sm.Smif):
             sm.APBS_ELAPSED_TIME = timer.end(text = "APBS", end = ' ')
 
         apbs = vg.GridIO.read_auto(path_apbs_in)
-        apbs.reshape_as_other(self)
+        apbs.reshape_as(self)
         self.arr = apbs.arr
 
 

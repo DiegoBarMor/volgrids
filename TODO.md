@@ -31,9 +31,6 @@
 * reduce the number of file writes performed during trajectory mode
   * introduce multithreading for calculating multiple frames concurrently?
 
-* implement `DO_CAVITIES_WEIGHTING` as an alternative for cavities usage.
-* add tests for different values of `CAVITIES_NPASSES`.
-
 
 <!-- ----------------------------------------------------------------------- -->
 ## VEINS
@@ -52,6 +49,7 @@
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
 * add tests for the "average", "summary", "rotate" operations.
 * give a warning if "convert" doesn't take any output option.
+* improve CMAP keys automatically assigne when packing.
 
 
 <!-- ----------------------------------------------------------------------- -->

@@ -109,7 +109,16 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
-    def reshape_as_other(self, other: "Grid"):
+    def has_equivalent_box(self, other: "Grid") -> bool:
+        return not np.any(
+            (self.ms.resolution - other.ms.resolution) +\
+            (self.ms.min_coords - other.ms.min_coords) +\
+            (self.ms.max_coords - other.ms.max_coords)
+        )
+
+
+    # --------------------------------------------------------------------------
+    def reshape_as(self, other: "Grid"):
         self.reshape(
             new_min = other.ms.min_coords,
             new_max = other.ms.max_coords,

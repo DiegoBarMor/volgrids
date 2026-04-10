@@ -2,7 +2,7 @@
 set -eu
 
 echo
-echo ">>> TEST SMIFFER 5: Cavities"
+echo ">>> TEST SMIFFER 5: CavityFinder"
 
 fpdb="testdata/smiffer/pdb_clean"
 fpdb_orig="testdata/smiffer/pdb_orig"
@@ -21,16 +21,34 @@ conf_just_stak="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMI
 
 
 ############################# BENCHMARK SYSTEMS
-conf_benchmark="$conf_no_smifs $(conf_cavities True False True True 3)"
+conf_benchmark="$conf_no_smifs $(conf_cavities True False False True 3)"
 
-for name in 1bg0 1eby 1ehe 1h7l 1iqj 1ofz 3dd0 3ee4 5m9w 6e9a ; do
-    python3 volgrids smiffer prot  $fpdb/$name.pdb -o $fout_benchmark --config "$conf_benchmark"
-    cp $fpdb_orig/$name.pdb $fout_benchmark/
-done
-for name in 1akx 1i9v 2esj 4f8u 5bjo 5kx9 6tf3 7oax0 7oax1 8eyv; do
-    python3 volgrids smiffer rna  $fpdb/$name.pdb -o $fout_benchmark --config "$conf_benchmark"
-    cp $fpdb_orig/$name.pdb $fout_benchmark/
-done
+run_benchmarks() {
+    local moltype=$1
+    local names=$2
+    for name in $names; do
+        for i in 1 2 3; do
+            python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_benchmark" CAVITIES_NPASSES=$i
+            mv "$fout_benchmark/$name.cmap" $fout_benchmark/npasses_$i.cmap
+        done
+        python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_just_stak" CAVITIES_WEIGHT=1.0
+        mv "$fout_benchmark/$name.cmap" $fout_benchmark/stak.weighted.cmap
+
+        python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_just_stak" SAVE_TRIMMING_MASK=true
+        (
+            shopt -s nullglob
+            cmaps=( "$fout_benchmark"/npasses*.cmap "$fout_benchmark/stak.weighted.cmap" )
+            ### no need to include the last CMAP created, as "pack" will append the other files to this one
+            python3 volgrids vgtools pack -i "${cmaps[@]}" -o "$fout_benchmark/$name.cmap"
+        )
+        cp "$fpdb_orig/$name.pdb" $fout_benchmark/
+
+    done
+    rm -f $fout_benchmark/npasses_*
+}
+
+run_benchmarks "prot" "1bg0 1eby 1ehe 1h7l 1iqj 1ofz 3dd0 3ee4 5m9w 6e9a"
+run_benchmarks "rna" "1akx 1i9v 2esj 4f8u 5bjo 5kx9 6tf3 7oax0 7oax1 8eyv"
 
 
 ############################# OPTIONS

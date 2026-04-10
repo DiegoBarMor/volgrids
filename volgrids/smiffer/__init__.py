@@ -1,6 +1,6 @@
 from ._core.mol_system import MolType, MolSystemSmiffer
+from ._core.cavity_finder import CavityFinder
 from ._core.trimmer import Trimmer
-from ._core.cavities import Cavities
 
 from ._parsers.parser_chem_table import ParserChemTable
 
@@ -36,8 +36,10 @@ DO_TRIMMING_OCCUPANCY: bool = True
 DO_TRIMMING_RNDS:      bool = True
 DO_TRIMMING_FARAWAY:   bool = True
 DO_TRIMMING_CAVITIES:  bool = False
+
 TRIMMING_CAVITIES_THRESHOLD: int = 3
 CAVITIES_NPASSES: int = 2
+CAVITIES_WEIGHT: float = 0.0
 
 SAVE_TRIMMING_MASK: bool = False
 SAVE_CAVITIES: bool = False

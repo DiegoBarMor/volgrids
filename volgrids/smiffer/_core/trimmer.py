@@ -14,6 +14,7 @@ class Trimmer:
         self.common_mask: vg.Grid = None
         self.specific_masks: dict[str, vg.Grid] = None
 
+
     # --------------------------------------------------------------------------
     @classmethod
     def init_infer_dists(cls, ms: "sm.MolSystemSmiffer") -> "sm.Trimmer":
@@ -40,17 +41,18 @@ class Trimmer:
 
 
     # --------------------------------------------------------------------------
-    def trim(self):
+    def trim(self, cavfinder: "sm.CavityFinder"):
         self.reset_masks()
 
-        self._trim_occupancies_and_cavities()
+        if sm.DO_TRIMMING_OCCUPANCY:
+            self._trim_occupancies()
+            self._trim_cavities(cavfinder)
 
         if self._should_use_common_mask():
             self._init_common_mask()
             self._run_common_mask_operations()
             self._apply_common_mask_to_specific_masks()
             self._discard_common_mask()
-
 
 
     # --------------------------------------------------------------------------
@@ -65,10 +67,18 @@ class Trimmer:
 
 
     # --------------------------------------------------------------------------
+    def _get_smallest_mask(self) -> vg.Grid:
+        key_smallest = min(self.specific_masks.keys(), key = lambda k: self.distances[k])
+        return self.specific_masks[key_smallest]
+
+
+    # --------------------------------------------------------------------------
     @staticmethod
     def _should_do_cavities() -> bool:
-        return sm.DO_TRIMMING_CAVITIES or sm.SAVE_CAVITIES
-
+        return any((
+            sm.DO_TRIMMING_CAVITIES, sm.SAVE_CAVITIES,
+            sm.CAVITIES_WEIGHT != 0.0
+        ))
 
     # --------------------------------------------------------------------------
     def _should_use_common_mask(self) -> bool:
@@ -104,40 +114,25 @@ class Trimmer:
 
 
     # --------------------------------------------------------------------------
-    def _trim_occupancies_and_cavities(self):
-        if not sm.DO_TRIMMING_OCCUPANCY: return
-
-        self._trim_occupancies()
-
-        if not self._should_do_cavities(): return
-
-        cavities_finder: callable = sm.Cavities.find_cavities_naive_multi_pass
-
-        keys = self.specific_masks.keys() \
-            if sm.DO_TRIMMING_CAVITIES else [self.KEY_INIT_COMMON_MASK]
-        dict_cavities = {
-            k: cavities_finder(self.get_mask(k)) for k in keys
-        }
-
-        if sm.DO_TRIMMING_CAVITIES:
-            for k,mask in self.specific_masks.items():
-                cavities_arr = dict_cavities[k].arr
-                mask.arr |= (cavities_arr < sm.TRIMMING_CAVITIES_THRESHOLD)
-
-        if sm.SAVE_CAVITIES:
-            cavities = dict_cavities[self.KEY_INIT_COMMON_MASK]
-            cavities.save_data(sm.FOLDER_OUT, "cavities")
-
-        dict_cavities.clear()
-
-
-    # --------------------------------------------------------------------------
     def _trim_occupancies(self):
         for k,radius in self.distances.items():
             mask = self.specific_masks[k]
             kernel = vg.KernelSphere(radius, self.ms.deltas, bool)
             for a in self.ms.get_relevant_atoms_broad(radius):
                 kernel.stamp(mask, a.position)
+
+
+    # --------------------------------------------------------------------------
+    def _trim_cavities(self, cavfinder: "sm.CavityFinder"):
+        """must be called immediately after `_trim_occupancies`, before any other trimming operations"""
+
+        if not self._should_do_cavities(): return
+
+        cavfinder.populate_cavities_grid(self._get_smallest_mask())
+
+        if sm.DO_TRIMMING_CAVITIES:
+            for mask in self.specific_masks.values():
+                mask.arr |= (cavfinder.grid.arr < sm.TRIMMING_CAVITIES_THRESHOLD)
 
 
     # --------------------------------------------------------------------------

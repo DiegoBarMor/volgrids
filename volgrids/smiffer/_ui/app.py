@@ -18,6 +18,7 @@ class AppSmiffer(vg.App):
 
         self.ms: sm.MolSystemSmiffer = self._CLASS_MOL_SYSTEM(sm.PATH_STRUCT, sm.PATH_TRAJ)
         self.trimmer: sm.Trimmer = self._CLASS_TRIMMER.init_infer_dists(self.ms)
+        self.cavfinder: sm.CavityFinder = sm.CavityFinder()
         self.timer = vg.Timer(
             f">>> Now processing {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}'"+\
             f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
@@ -90,10 +91,10 @@ class AppSmiffer(vg.App):
                 self.trimmer.ms = sm.MolSystemSmiffer.from_pqr_data(vg.PQR_CONTENTS_TEMP)
                 self.trimmer.ms.molname = self.ms.molname
 
-        self.trimmer.trim()
+        self.trimmer.trim(self.cavfinder)
 
         if sm.DO_SMIF_APBS:
-            smif_apbs.reshape_as_other(self.trimmer.specific_masks["large"])
+            smif_apbs.reshape_as(self.trimmer.specific_masks["large"])
             self._trim_and_save_smif(
                 smif_apbs, key_trimming = "large", title = "apbs"
             )
@@ -133,11 +134,14 @@ class AppSmiffer(vg.App):
             )
 
 
-        ### Calculate additional grids
+        ### Calculate / store additional grids
         if sm.SAVE_TRIMMING_MASK:
             mask = self.trimmer.get_mask("mid")
             reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
             reverse.save_data(sm.FOLDER_OUT, "trimming")
+
+        if sm.SAVE_CAVITIES and self.cavfinder.has_data():
+            self.cavfinder.grid.save_data(sm.FOLDER_OUT, "cavities")
 
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
             grid_hpdiff = smif_hphob - smif_hphil
@@ -162,6 +166,7 @@ class AppSmiffer(vg.App):
     # --------------------------------------------------------------------------
     def _trim_and_save_smif(self, smif: sm.Smif, key_trimming: str, title: str) -> None:
         self.trimmer.mask_grid(smif, key_trimming)
+        self.cavfinder.apply_cavities_weighting(smif)
         smif.save_data(sm.FOLDER_OUT, title)
 
 
