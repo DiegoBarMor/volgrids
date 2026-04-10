@@ -10,7 +10,7 @@ class SmifHydrophilic(SmifHydro):
         kernel = vg.KernelGaussianUnivariateDist(
             radius, self.ms.deltas, vg.FLOAT_DTYPE, sm.PARAMS_HPHIL
         )
-        kernel.link_to_grid(self.grid, self.ms.minCoords)
+        kernel.link_to_grid(self)
 
         for particle, mul_factor in self.iter_particles():
             if mul_factor > 0: continue

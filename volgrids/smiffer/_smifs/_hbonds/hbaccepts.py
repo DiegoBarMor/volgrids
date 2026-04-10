@@ -13,7 +13,7 @@ class SmifHBAccepts(SmifHBonds):
             radius = sm.MU_DIST_HBA + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA,
             deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBA
         )
-        self.kernel.link_to_grid(self.grid, self.ms.minCoords)
+        self.kernel.link_to_grid(self)
         self.hbond_getter = sm.ParserChemTable.get_names_hba
 
 

@@ -12,7 +12,7 @@ class SmifStacking(sm.Smif):
             deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_STACK
         )
 
-        kernel.link_to_grid(self.grid, self.ms.minCoords)
+        kernel.link_to_grid(self)
         for res_atoms in self.iter_particles():
             cog = res_atoms.center_of_geometry()
             a,b,c = res_atoms.positions[:3]

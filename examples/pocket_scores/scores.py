@@ -83,14 +83,14 @@ class PocketScoreCalculator:
             self.data_pdb.append(name_pdb)
 
             ### boolean grid, points in space that are part of the pocket are "True"
-            pocket = vg.GridIO.read_cmap(path_ps, f"{name_pdb}.trimming").grid.astype(bool)
+            pocket = vg.GridIO.read_cmap(path_ps, f"{name_pdb}.trimming").arr.astype(bool)
 
             keys = set(vg.GridIO.get_cmap_keys(path_ps))
             for key in keys:
                 if key.startswith(name_pdb + ".trimming"): continue
 
-                smif_ps = vg.GridIO.read_cmap(path_ps, key).grid
-                smif_wh = vg.GridIO.read_cmap(path_wh, key).grid
+                smif_ps = vg.GridIO.read_cmap(path_ps, key).arr
+                smif_wh = vg.GridIO.read_cmap(path_wh, key).arr
                 kind = key.split('.')[-1]
 
                 if kind == "apbs":

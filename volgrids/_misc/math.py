@@ -8,7 +8,7 @@ import volgrids as vg
 # //////////////////////////////////////////////////////////////////////////////
 class Math:
     @staticmethod
-    def normalize(vector):
+    def normalize(vector) -> np.ndarray:
         """
         input:  (3,)
         output: (3,)
@@ -17,7 +17,7 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def dot_product(m_vectors, vector):
+    def dot_product(m_vectors, vector) -> np.ndarray:
         """
         input (m_vectors): (xres, yres, zres, 3)
         input (vector):    (3,)
@@ -30,7 +30,7 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_norm(m_vectors):
+    def get_norm(m_vectors) -> np.ndarray:
         """
         input:  (xres, yres, zres, 3)
         output: (xres, yres, zres)
@@ -44,7 +44,7 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_angle(m_vectors, vector, in_degrees = True, flag_corrections = ''):
+    def get_angle(m_vectors, vector, in_degrees = True, flag_corrections = '') -> np.ndarray:
         """
         input (m): (xres, yres, zres, 3)
         input (v): (3,)
@@ -75,7 +75,7 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_projection(m_vectors, vector):
+    def get_projection(m_vectors, vector) -> np.ndarray:
         """
         projection of the m_vectors on the vector
         input (m): (xres, yres, zres, 3)
@@ -88,7 +88,7 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_projection_height(m_vectors, vector):
+    def get_projection_height(m_vectors, vector) -> np.ndarray:
         """
         given the projection of the m_vectors on the vector, consider the "height"
         as the distance from the projection to the vector
@@ -104,7 +104,7 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def univariate_gaussian(x, mu, sigma):
+    def univariate_gaussian(x, mu, sigma) -> np.ndarray:
         """ input_mat "x" shape: (xsize, ysize, zsize), values: dist """
         u = x - mu
         s = 1 / (sigma ** 2)
@@ -112,7 +112,7 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def bivariate_gaussian(x, mu, cov_inv):
+    def bivariate_gaussian(x, mu, cov_inv) -> np.ndarray:
         """ input_mat "x" shape: (xsize, ysize, zsize, 2 = (dist, beta)) """
         u = x - mu
         sigma = cov_inv
@@ -123,7 +123,7 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def interpolate_3d(x0, y0, z0, data_0, new_coords):
+    def interpolate_3d(x0, y0, z0, data_0, new_coords) -> np.ndarray:
         return scipy_interpolate.RegularGridInterpolator(
             (x0, y0, z0), data_0, bounds_error = False, fill_value = 0
         )(new_coords).T
@@ -160,27 +160,27 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_coords_array(resolution, deltas, minCoords = None):
+    def get_coords_array(resolution, deltas, min_coords = None) -> np.ndarray:
         """
         input:  resolution (3,)
                 deltas (3,)
-                minCoords (3,)
+                min_coords (3,)
         output: coords (xres, yres, zres, 3)
         """
         xres, yres, zres = resolution
         dx, dy, dz = deltas
-        x0, y0, z0 = (0,0,0) if minCoords is None else minCoords
+        x0, y0, z0 = (0,0,0) if min_coords is None else min_coords
 
         xrange = x0 + np.linspace(0, dx * (xres - 1), xres)
         yrange = y0 + np.linspace(0, dy * (yres - 1), yres)
         zrange = z0 + np.linspace(0, dz * (zres - 1), zres)
         x,y,z = np.meshgrid(xrange, yrange, zrange, indexing = "ij")
 
-        grid = np.empty((xres, yres, zres, 3), dtype = vg.FLOAT_DTYPE)
-        grid[:,:,:,0] = x
-        grid[:,:,:,1] = y
-        grid[:,:,:,2] = z
-        return grid
+        arr = np.empty((xres, yres, zres, 3), dtype = vg.FLOAT_DTYPE)
+        arr[:,:,:,0] = x
+        arr[:,:,:,1] = y
+        arr[:,:,:,2] = z
+        return arr
 
 
 # //////////////////////////////////////////////////////////////////////////////

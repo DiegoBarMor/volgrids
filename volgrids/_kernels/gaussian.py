@@ -15,7 +15,7 @@ class KernelGaussianUnivariateDist(KernelGaussian):
     """For generating univariate gaussian spheres (e.g. for hydrophob)"""
     def __init__(self, radius, deltas, dtype, params: "vg.ParamsGaussianUnivariate"):
         super().__init__(radius, deltas, dtype, params)
-        self.kernel = vg.Math.univariate_gaussian(self.dist, params.mu, params.sigma)
+        self.arr = vg.Math.univariate_gaussian(self.dist, params.mu, params.sigma)
 
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ class KernelGaussianBivariateAngleDist(KernelGaussian):
             ),
             axis = 3
         )
-        self.kernel = vg.Math.bivariate_gaussian(input_mat, self.params.mu, self.params.cov_inv)
+        self.arr = vg.Math.bivariate_gaussian(input_mat, self.params.mu, self.params.cov_inv)
 
 
 # //////////////////////////////////////////////////////////////////////////////

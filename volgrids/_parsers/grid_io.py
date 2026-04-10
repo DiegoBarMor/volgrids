@@ -10,16 +10,16 @@ class GridIO:
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
     @staticmethod
     def read_dx(path_dx) -> "vg.Grid":
-        parser_dx = gd.Grid(path_dx)
+        parser = gd.Grid(path_dx)
         ms = vg.MolSystem.from_box_data(
-            resolution = parser_dx.grid.shape,
-            origin = parser_dx.origin,
-            deltas = parser_dx.delta
+            resolution = parser.grid.shape,
+            origin = parser.origin,
+            deltas = parser.delta
         )
-        obj = vg.Grid(ms, init_grid = False)
-        obj.grid = parser_dx.grid
-        obj.fmt = vg.GridFormat.DX
-        return obj
+        vgrid = vg.Grid(ms, init_grid = False)
+        vgrid.arr = parser.grid
+        vgrid.fmt = vg.GridFormat.DX
+        return vgrid
 
 
     # --------------------------------------------------------------------------
@@ -30,9 +30,9 @@ class GridIO:
             orig = parser.header["origin"]
             used_origin = np.array([orig['x'], orig['y'], orig['z']])
 
-        obj = _read_mrc_ccp4(path_mrc, used_origin)
-        obj.fmt = vg.GridFormat.MRC
-        return obj
+        vgrid = _read_mrc_ccp4(path_mrc, used_origin)
+        vgrid.fmt = vg.GridFormat.MRC
+        return vgrid
 
 
     # --------------------------------------------------------------------------
@@ -52,9 +52,9 @@ class GridIO:
                 ##### assume the origin follows the "real space" MRC convention, so use that one
                 used_origin = np.array([orig['x'], orig['y'], orig['z']])
 
-        obj = _read_mrc_ccp4(path_ccp4, used_origin)
-        obj.fmt = vg.GridFormat.CCP4
-        return obj
+        vgrid = _read_mrc_ccp4(path_ccp4, used_origin)
+        vgrid.fmt = vg.GridFormat.CCP4
+        return vgrid
 
 
     # --------------------------------------------------------------------------
@@ -70,13 +70,13 @@ class GridIO:
                 origin = np.array([ox, oy, oz]),
                 deltas = np.array([dx, dy, dz])
             )
-            obj = vg.Grid(ms, init_grid = False)
-            obj.grid = frame["data_zyx"][()].transpose(2,1,0)
+            vgrid = vg.Grid(ms, init_grid = False)
+            vgrid.arr = frame["data_zyx"][()].transpose(2,1,0)
 
             n_keys = len(parser["Chimera"].keys())
-            obj.fmt = vg.GridFormat.CMAP_PACKED \
+            vgrid.fmt = vg.GridFormat.CMAP_PACKED \
                 if (n_keys > 1) else vg.GridFormat.CMAP
-        return obj
+        return vgrid
 
 
     # --------------------------------------------------------------------------
@@ -85,20 +85,20 @@ class GridIO:
         ints = (int, np.int8, np.int16, np.int32, np.int64)
         floats = (float, np.float16, np.float32, np.float64)
 
-        if data.grid.dtype in floats:
-            grid_data = data.grid
+        if data.arr.dtype in floats:
+            grid_data = data.arr
             dtype = '"float"'
             fmt = "%.3f"
-        elif data.grid.dtype in ints:
-            grid_data = data.grid
+        elif data.arr.dtype in ints:
+            grid_data = data.arr
             dtype = '"int"'
             fmt = "%i"
-        elif data.grid.dtype == bool:
-            grid_data = data.grid.astype(int)
+        elif data.arr.dtype == bool:
+            grid_data = data.arr.astype(int)
             dtype = '"int"'
             fmt = "%i"
         else:
-            raise TypeError(f"Unsupported data type for DX output: {data.grid.dtype}")
+            raise TypeError(f"Unsupported data type for DX output: {data.arr.dtype}")
 
         header = '\n'.join((
             "# OpenDX density file written by volgrids",
@@ -106,13 +106,13 @@ class GridIO:
             "# Data are embedded in the header and tied to the grid positions.",
             "# Data is written in C array order: In grid[x,y,z] the axis z is fastest",
             "# varying, then y, then finally x, i.e. z is the innermost loop.",
-            f"object 1 class gridpositions counts {data.xres} {data.yres} {data.zres}",
-            f"origin {data.xmin:6e} {data.ymin:6e} {data.zmin:6e}",
-            f"delta {data.dx:6e} {0:6e} {0:6e}",
-            f"delta {0:6e} {data.dy:6e} {0:6e}",
-            f"delta {0:6e} {0:6e} {data.dz:6e}",
-            f"object 2 class gridconnections counts  {data.xres} {data.yres} {data.zres}",
-            f"object 3 class array type {dtype} rank 0 items {data.xres*data.yres*data.zres}, data follows",
+            f"object 1 class gridpositions counts {data.xres()} {data.yres()} {data.zres()}",
+            f"origin {data.xmin():6e} {data.ymin():6e} {data.zmin():6e}",
+            f"delta {data.dx():6e} {0:6e} {0:6e}",
+            f"delta {0:6e} {data.dy():6e} {0:6e}",
+            f"delta {0:6e} {0:6e} {data.dz():6e}",
+            f"object 2 class gridconnections counts  {data.xres()} {data.yres()} {data.zres()}",
+            f"object 3 class array type {dtype} rank 0 items {data.npoints()}, data follows",
         ))
         footer = '\n'.join((
             '',
@@ -147,11 +147,11 @@ class GridIO:
     @staticmethod
     def write_mrc(path_mrc, data: "vg.Grid"):
         with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as parser:
-            parser.set_data(data.grid.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
-            parser.voxel_size = [data.dx, data.dy, data.dz]
-            parser.header["origin"]['x'] = data.xmin # MRC convention
-            parser.header["origin"]['y'] = data.ymin
-            parser.header["origin"]['z'] = data.zmin
+            parser.set_data(data.arr.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
+            parser.voxel_size = [data.dx(), data.dy(), data.dz()]
+            parser.header["origin"]['x'] = data.xmin() # MRC convention
+            parser.header["origin"]['y'] = data.ymin()
+            parser.header["origin"]['z'] = data.zmin()
             parser.update_header_from_data()
             parser.update_header_stats()
 
@@ -160,14 +160,14 @@ class GridIO:
     @staticmethod
     def write_ccp4(path_ccp4, data: "vg.Grid"):
         with gd.mrc.mrcfile.new(path_ccp4, overwrite = True) as parser:
-            parser.set_data(data.grid.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
-            parser.voxel_size = [data.dx, data.dy, data.dz]
-            parser.header["origin"]['x'] = data.xmin # MRC convention
-            parser.header["origin"]['y'] = data.ymin
-            parser.header["origin"]['z'] = data.zmin
-            parser.header["nxstart"] = int(data.xmin / data.dx) # CCP4 convention
-            parser.header["nystart"] = int(data.ymin / data.dy)
-            parser.header["nzstart"] = int(data.zmin / data.dz)
+            parser.set_data(data.arr.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
+            parser.voxel_size = [data.dx(), data.dy(), data.dz()]
+            parser.header["origin"]['x'] = data.xmin() # MRC convention
+            parser.header["origin"]['y'] = data.ymin()
+            parser.header["origin"]['z'] = data.zmin()
+            parser.header["nxstart"] = int(data.xmin() / data.dx()) # CCP4 convention
+            parser.header["nystart"] = int(data.ymin() / data.dy())
+            parser.header["nzstart"] = int(data.zmin() / data.dz())
             parser.update_header_from_data()
             parser.update_header_stats()
 
@@ -201,12 +201,12 @@ class GridIO:
                 frame.attrs["chimera_map_version"] = np.int64(1)
                 frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
                 frame.attrs["name"] = np.bytes_(key)
-                frame.attrs["origin"] = np.array([data.xmin, data.ymin, data.zmin], dtype = vg.FLOAT_DTYPE)
-                frame.attrs["step"] = np.array([data.dz, data.dy, data.dx], dtype = vg.FLOAT_DTYPE)
+                frame.attrs["origin"] = data.ms.min_coords.astype(vg.FLOAT_DTYPE)
+                frame.attrs["step"] = data.ms.deltas.astype(vg.FLOAT_DTYPE)
                 _add_generic_attrs(frame)
 
             framedata = frame.create_dataset(
-                "data_zyx", data = data.grid.transpose(2,1,0), dtype = vg.FLOAT_DTYPE,
+                "data_zyx", data = data.arr.transpose(2,1,0), dtype = vg.FLOAT_DTYPE,
                 compression = "gzip", compression_opts = vg.GZIP_COMPRESSION
             )
             _add_generic_attrs(framedata, "CARRAY")
@@ -274,8 +274,8 @@ class GridIO:
     @staticmethod
     def restore_boolean_dtype(grid: "vg.Grid") -> "vg.Grid":
         """Restores the boolean data type of a grid that was saved as int (0 and 1) due to format limitations."""
-        if not set(np.unique(grid.grid)).issubset({0, 1}): return
-        grid.grid = grid.grid.astype(bool)
+        if not set(np.unique(grid.arr)).issubset({0, 1}): return
+        grid.arr = grid.arr.astype(bool)
 
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -310,7 +310,7 @@ def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
                 resolution = res.copy(), origin = origin.copy(), deltas = vsize.copy()
             )
             obj = vg.Grid(ms, init_grid = False)
-            obj.grid = data.transpose(2,1,0)
+            obj.arr = data.transpose(2,1,0)
             return obj
 
         if axes_correspondance == (3, 2, 1):
@@ -318,7 +318,7 @@ def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
                 resolution = res[::-1], origin = origin[::-1], deltas = vsize[::-1]
             )
             obj = vg.Grid(ms, init_grid = False)
-            obj.grid = data
+            obj.arr = data
             return obj
 
         raise NotImplementedError(

@@ -63,8 +63,8 @@ class MolSystemSmiffer(vg.MolSystem):
     def _infer_box_attributes(self):
         if self.do_ps:
             self.cog = np.array([sm.SPHERE.x, sm.SPHERE.y, sm.SPHERE.z])
-            self.minCoords = self.cog - sm.SPHERE.radius
-            self.maxCoords = self.cog + sm.SPHERE.radius
+            self.min_coords = self.cog - sm.SPHERE.radius
+            self.max_coords = self.cog + sm.SPHERE.radius
             self.radius = sm.SPHERE.radius
             return
 

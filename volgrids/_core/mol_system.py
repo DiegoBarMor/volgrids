@@ -10,8 +10,8 @@ class MolSystem:
         path_struct: Path = None, path_traj: Path = None,
         box_data: dict = None
     ):
-        self.minCoords  : np.ndarray[float]   # minimum coordinates of the bounding box
-        self.maxCoords  : np.ndarray[float]   # maximum coordinates of the bounding box
+        self.min_coords : np.ndarray[float]   # minimum coordinates of the bounding box
+        self.max_coords : np.ndarray[float]   # maximum coordinates of the bounding box
         self.resolution : np.ndarray[int]     # number of grid points in each dimension
         self.deltas     : np.ndarray[float]   # size of each grid point in each dimension
         self.cog        : np.ndarray[float]   # center of geometry of the bounding box
@@ -41,7 +41,7 @@ class MolSystem:
         molname: str = "grid"
     ) -> "MolSystem":
         """
-        Create a MolSystem instance from box data. 'maxCoords' is inferred
+        Create a MolSystem instance from box data. 'max_coords' is inferred
         :param resolution: The resolution of the grid (number of points in each dimension).
         :param origin: The origin of the grid (minimum coordinates of the bounding box).
         :param deltas: The size of each grid point in each dimension.
@@ -50,8 +50,8 @@ class MolSystem:
         """
         return cls(box_data = {
             "resolution": resolution,
-            "minCoords": origin,
-            "maxCoords": origin + deltas * resolution,
+            "min_coords": origin,
+            "max_coords": origin + deltas * resolution,
             "deltas": deltas,
             "molname": molname
         })
@@ -79,7 +79,7 @@ class MolSystem:
     # --------------------------------------------------------------------------
     def _init_attrs_from_box_data(self, box_data: dict):
         keys_box_data = set(box_data.keys())
-        required_keys = {"molname", "minCoords", "maxCoords", "resolution", "deltas"}
+        required_keys = {"molname", "min_coords", "max_coords", "resolution", "deltas"}
         if not keys_box_data.issuperset(required_keys):
             raise ValueError(f"Box data must contain the keys: {required_keys}. Provided keys: {keys_box_data}")
 
@@ -89,8 +89,8 @@ class MolSystem:
         self.system  = None
         self.frame   = None
 
-        self.minCoords  = np.array(box_data["minCoords"],  dtype = float)
-        self.maxCoords  = np.array(box_data["maxCoords"],  dtype = float)
+        self.min_coords = np.array(box_data["min_coords"],  dtype = float)
+        self.max_coords = np.array(box_data["max_coords"],  dtype = float)
         self.resolution = np.array(box_data["resolution"], dtype = int  )
         self.deltas     = np.array(box_data["deltas"],     dtype = float)
         self._calc_radius_and_cog()
@@ -100,20 +100,20 @@ class MolSystem:
 
     # --------------------------------------------------------------------------
     def _infer_box_attributes(self):
-        self.minCoords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
-        self.maxCoords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
+        self.min_coords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
+        self.max_coords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
         self._calc_radius_and_cog()
 
 
     # --------------------------------------------------------------------------
     def _calc_radius_and_cog(self):
-        self.radius = np.linalg.norm(self.maxCoords - self.minCoords) / 2
-        self.cog = (self.minCoords + self.maxCoords) / 2
+        self.radius = np.linalg.norm(self.max_coords - self.min_coords) / 2
+        self.cog = (self.min_coords + self.max_coords) / 2
 
 
     # --------------------------------------------------------------------------
     def _set_deltas_resolution(self):
-        box_size = self.maxCoords - self.minCoords
+        box_size = self.max_coords - self.min_coords
         if vg.USE_FIXED_DELTAS:
             self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
             self.resolution = np.round(box_size / self.deltas).astype(int)
@@ -133,8 +133,8 @@ class MolSystem:
         pad_1 = np.floor(res_diff / 2).astype(int)
 
         self.resolution = np.array([max_resolution, max_resolution, max_resolution], dtype = int)
-        self.minCoords -= pad_0 * self.deltas
-        self.maxCoords += pad_1 * self.deltas
+        self.min_coords -= pad_0 * self.deltas
+        self.max_coords += pad_1 * self.deltas
         self._calc_radius_and_cog()
 
 
@@ -142,14 +142,14 @@ class MolSystem:
     def _warning_big_grid(self):
         rx, ry, rz = self.resolution
         grid_size = rx*ry*rz
-        if grid_size > vg.WARNING_GRID_SIZE:
-            print()
-            while True:
-                choice = input(
-                    f">>> WARNING: resulting ({rx}x{ry}x{rz}) grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n"
-                ).upper()
-                if choice == 'Y': break
-                if choice == 'N': exit()
+        if grid_size < vg.WARNING_GRID_SIZE: return
+        print()
+        while True:
+            choice = input(
+                f">>> WARNING: resulting ({rx}x{ry}x{rz}) grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n"
+            ).upper()
+            if choice.startswith('Y'): break
+            if choice.startswith('N'): exit(3)
 
     # --------------------------------------------------------------------------
     def get_relevant_atoms(self):

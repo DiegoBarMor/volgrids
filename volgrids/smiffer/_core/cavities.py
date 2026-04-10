@@ -8,7 +8,7 @@ class Cavities:
     # --------------------------------------------------------------------------
     @staticmethod
     def find_cavities_naive(occupancy: vg.Grid) -> vg.Grid:
-        arr: np.ndarray = occupancy.grid.astype(bool)
+        arr: np.ndarray = occupancy.arr.astype(bool)
 
         ### STEP 1: find the occupancy surface with XOR
         xsurf = np.zeros_like(arr, dtype = bool)
@@ -52,7 +52,7 @@ class Cavities:
         cavities[arr] = 0
 
         vgrid = vg.Grid(occupancy.ms, init_grid = False)
-        vgrid.grid = np.copy(cavities)
+        vgrid.arr = np.copy(cavities)
         return vgrid
 
 
@@ -61,9 +61,9 @@ class Cavities:
     def find_cavities_naive_multi_pass(occupancy: vg.Grid) -> vg.Grid:
         def get_cavities_rot(angle: float):
             occupy_rot = vg.Grid(occupancy.ms, init_grid = False)
-            occupy_rot.grid = vg.Math.rotate_3d(occupancy.grid, angle, angle, angle)
+            occupy_rot.arr = vg.Math.rotate_3d(occupancy.arr, angle, angle, angle)
             cavities_rot = Cavities.find_cavities_naive(occupy_rot)
-            cavities_rot.grid = vg.Math.rotate_3d(cavities_rot.grid, angle, angle, angle, reverse = True)
+            cavities_rot.arr = vg.Math.rotate_3d(cavities_rot.arr, angle, angle, angle, reverse = True)
             return cavities_rot
 
         cavities_orig = Cavities.find_cavities_naive(occupancy)
@@ -73,7 +73,7 @@ class Cavities:
             for i in range(1, sm.CAVITIES_NPASSES)
         )
 
-        cavities_orig.grid = (cavities_orig.grid + sum(cav.grid for cav in cavities_rot)) / sm.CAVITIES_NPASSES
+        cavities_orig.arr = (cavities_orig.arr + sum(cav.arr for cav in cavities_rot)) / sm.CAVITIES_NPASSES
         return cavities_orig
 
 

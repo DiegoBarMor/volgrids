@@ -54,9 +54,9 @@ class Trimmer:
 
 
     # --------------------------------------------------------------------------
-    def mask_grid(self, smif: "vg.Grid", key: str):
+    def mask_grid(self, smif: "sm.Smif", key: str):
         """Removes `smif` points wherever the mask (for the given `key`) is `True`."""
-        smif.grid[self.get_mask(key).grid] = 0
+        smif.arr[self.get_mask(key).arr] = 0
 
 
     # --------------------------------------------------------------------------
@@ -94,7 +94,7 @@ class Trimmer:
     # --------------------------------------------------------------------------
     def _apply_common_mask_to_specific_masks(self):
         for mask in self.specific_masks.values():
-            mask.grid |= self.common_mask.grid
+            mask.arr |= self.common_mask.arr
 
 
     # --------------------------------------------------------------------------
@@ -121,8 +121,8 @@ class Trimmer:
 
         if sm.DO_TRIMMING_CAVITIES:
             for k,mask in self.specific_masks.items():
-                cavities_grid = dict_cavities[k].grid
-                mask.grid |= (cavities_grid < sm.TRIMMING_CAVITIES_THRESHOLD)
+                cavities_arr = dict_cavities[k].arr
+                mask.arr |= (cavities_arr < sm.TRIMMING_CAVITIES_THRESHOLD)
 
         if sm.SAVE_CAVITIES:
             cavities = dict_cavities[self.KEY_INIT_COMMON_MASK]
@@ -136,7 +136,7 @@ class Trimmer:
         for k,radius in self.distances.items():
             mask = self.specific_masks[k]
             kernel = vg.KernelSphere(radius, self.ms.deltas, bool)
-            kernel.link_to_grid(mask.grid, self.ms.minCoords)
+            kernel.link_to_grid(mask)
 
             for a in self.ms.get_relevant_atoms_broad(radius):
                 kernel.stamp(a.position)
@@ -144,10 +144,10 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     def _trim_sphere(self):
-        coords = vg.Math.get_coords_array(self.ms.resolution, self.ms.deltas, self.ms.minCoords)
+        coords = vg.Math.get_coords_array(self.ms.resolution, self.ms.deltas, self.ms.min_coords)
         shifted_coords = coords - self.ms.cog
         dist_from_cog = vg.Math.get_norm(shifted_coords)
-        self.common_mask.grid[dist_from_cog > self.ms.radius] = True
+        self.common_mask.arr[dist_from_cog > self.ms.radius] = True
 
 
     # --------------------------------------------------------------------------
@@ -191,22 +191,22 @@ class Trimmer:
                 search_dist[neigh] = min(search_dist[node] + 1, search_dist[neigh])
                 if search_dist[neigh] > sm.MAX_RNDS_DIST: continue
                 if visited[neigh]: continue
-                if self.common_mask.grid[neigh]: continue
+                if self.common_mask.arr[neigh]: continue
 
                 queue.add(neigh)
 
-        self.common_mask.grid[np.logical_not(visited)] = True
+        self.common_mask.arr[np.logical_not(visited)] = True
 
 
     # --------------------------------------------------------------------------
     def _trim_faraway(self):
-        arr = np.zeros_like(self.common_mask.grid, dtype = bool)
+        grid = self.common_mask.copy()
         kernel = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.deltas, bool)
-        kernel.link_to_grid(arr, self.ms.minCoords)
+        kernel.link_to_grid(grid)
         for a in self.ms.get_relevant_atoms_broad(sm.TRIM_FARAWAY_DIST):
             kernel.stamp(a.position)
 
-        self.common_mask.grid[~arr] = True
+        self.common_mask.arr[~grid.arr] = True
 
 
 # //////////////////////////////////////////////////////////////////////////////

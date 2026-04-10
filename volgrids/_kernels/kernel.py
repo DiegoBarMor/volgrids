@@ -20,14 +20,10 @@ def _clamp_indices(g_idx0, g_idx1, k_idx0, k_idx1, g_res, k_res):
 class Kernel:
     def __init__(self, radius, deltas, dtype, operation = "sum"):
         ##### store kernel values
-        self.kernel_res = (np.ceil(radius / deltas) * 2 + 1).astype(int)
-        self.deltas = deltas
-        self.kernel = np.zeros(self.kernel_res, dtype = dtype)
-
-        ##### initialize empty big-grid values (assign them later with link_to_grid)
-        self.grid = None
-        self.grid_origin = None
-        self.grid_res = None
+        self.kernel_res: np.ndarray = (np.ceil(radius / deltas) * 2 + 1).astype(int)
+        self.deltas: np.ndarray = deltas
+        self.arr: np.ndarray = np.zeros(self.kernel_res, dtype = dtype)
+        self.grid: vg.Grid = None # initialize empty grid (assign it later with link_to_grid)
 
         ##### initizalize auxiliary kernel of distance values
         self.center = np.floor(self.kernel_res / 2) * self.deltas
@@ -44,10 +40,8 @@ class Kernel:
 
 
     # --------------------------------------------------------------------------
-    def link_to_grid(self, grid, grid_origin):
+    def link_to_grid(self, grid: vg.Grid):
         self.grid = grid
-        self.grid_origin = grid_origin
-        self.grid_res = np.array(grid.shape)
 
 
     # --------------------------------------------------------------------------
@@ -57,13 +51,13 @@ class Kernel:
 
         ##### infer the position where to stamp the kernel at the big grid
         stamp_orig = center_stamp_at - self.deltas * self.kernel_res / 2
-        rel_orig = stamp_orig - self.grid_origin
+        rel_orig = stamp_orig - self.grid.ms.min_coords
         idx_start = np.round(rel_orig / self.deltas).astype(int)
         idx_end = idx_start + self.kernel_res
 
         ##### skip cases where the kernel would be stamped outside the big grid
         if (idx_end < 0).any(): return
-        if (idx_start > self.grid_res).any(): return
+        if (idx_start > self.grid.ms.resolution).any(): return
 
         ##### initialize the grid (g_*) and kernel (k_*) indices
         g_i0, g_j0, g_k0 = idx_start
@@ -71,7 +65,7 @@ class Kernel:
         k_i0, k_j0, k_k0 = 0, 0, 0
         k_i1, k_j1, k_k1 = self.kernel_res
 
-        g_rx, g_ry, g_rz = self.grid_res
+        g_rx, g_ry, g_rz = self.grid.ms.resolution
         k_rx, k_ry, k_rz = self.kernel_res
 
         ##### clamp the indices of both the big grid and the kernel
@@ -80,13 +74,13 @@ class Kernel:
         g_k0, g_k1, k_k0, k_k1 = _clamp_indices(g_k0, g_k1, k_k0, k_k1, g_rz, k_rz)
 
         ##### stamp the kernel on the big grid
-        subkernel = self.kernel[k_i0:k_i1, k_j0:k_j1, k_k0:k_k1]
-        subgrid   = self.grid  [g_i0:g_i1, g_j0:g_j1, g_k0:g_k1]
+        subkernel = self.arr     [k_i0:k_i1, k_j0:k_j1, k_k0:k_k1]
+        subgrid   = self.grid.arr[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1]
 
         ### multiplication_factor defaults to None (instead of 1) to avoid problems with bool grids
         scaled_subkernel = subkernel if (multiplication_factor is None) else multiplication_factor * subkernel
 
-        self.grid[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] = self.operation(subgrid, scaled_subkernel)
+        self.grid.arr[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] = self.operation(subgrid, scaled_subkernel)
 
 
 # //////////////////////////////////////////////////////////////////////////////

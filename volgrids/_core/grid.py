@@ -7,14 +7,8 @@ import volgrids as vg
 class Grid:
     def __init__(self, ms: "vg.MolSystem", init_grid = True, dtype = None):
         self.ms = ms
-        self.xres, self.yres, self.zres = ms.resolution
-        self.xmin, self.ymin, self.zmin = ms.minCoords
-        self.xmax, self.ymax, self.zmax = ms.maxCoords
-        self.dx, self.dy, self.dz = ms.deltas
-
-        if dtype is None: dtype = vg.FLOAT_DTYPE
-        self.grid = np.zeros(ms.resolution, dtype = dtype) if init_grid else None
-        self.dtype = dtype
+        self.dtype: type = vg.FLOAT_DTYPE if dtype is None else dtype
+        self.arr: np.ndarray|None = np.zeros(ms.resolution, dtype = self.dtype) if init_grid else None
         self.fmt: vg.GridFormat = None
 
 
@@ -22,10 +16,10 @@ class Grid:
     def __add__(self, other: "Grid|float|int") -> "Grid":
         obj = Grid(self.ms, init_grid = False)
         if isinstance(other, Grid):
-            obj.grid = self.grid + other.grid
+            obj.arr = self.arr + other.arr
             return obj
         try:
-            obj.grid = self.grid + other
+            obj.arr = self.arr + other
             return obj
         except TypeError:
             raise TypeError(f"Cannot add {type(other)} to Grid. Use another Grid or a numeric value.")
@@ -35,10 +29,10 @@ class Grid:
     def __sub__(self, other: "Grid|float|int") -> "Grid":
         obj = Grid(self.ms, init_grid = False)
         if isinstance(other, Grid):
-            obj.grid = self.grid - other.grid
+            obj.arr = self.arr - other.arr
             return obj
         try:
-            obj.grid = self.grid - other
+            obj.arr = self.arr - other
             return obj
         except TypeError:
             raise TypeError(f"Cannot substract {type(other)} from Grid. Use another Grid or a numeric value.")
@@ -47,7 +41,7 @@ class Grid:
     # --------------------------------------------------------------------------
     def __abs__(self) -> "Grid":
         obj = Grid(self.ms, init_grid = False)
-        obj.grid = np.abs(self.grid)
+        obj.arr = np.abs(self.arr)
         return obj
 
 
@@ -59,27 +53,35 @@ class Grid:
         For numeric grids, the reverse is the negation of the values.
         """
         obj = cls(other.ms, init_grid = False)
-        obj.grid = np.logical_not(other.grid) if (other.dtype == bool) else -other.grid
+        obj.arr = np.logical_not(other.arr) if (other.dtype == bool) else -other.arr
         return obj
 
+    # -------------------------------------------------------------------------- GETTERS
+    def xres(self): return self.ms.resolution[0]
+    def yres(self): return self.ms.resolution[1]
+    def zres(self): return self.ms.resolution[2]
+    def xmin(self): return self.ms.min_coords[0]
+    def ymin(self): return self.ms.min_coords[1]
+    def zmin(self): return self.ms.min_coords[2]
+    def xmax(self): return self.ms.max_coords[0]
+    def ymax(self): return self.ms.max_coords[1]
+    def zmax(self): return self.ms.max_coords[2]
+    def   dx(self): return self.ms.deltas[0]
+    def   dy(self): return self.ms.deltas[1]
+    def   dz(self): return self.ms.deltas[2]
+
+    def npoints(self): return self.xres() * self.yres() * self.zres()
 
     # --------------------------------------------------------------------------
     def copy(self):
         obj = Grid(self.ms, init_grid = False)
-        obj.grid = np.copy(self.grid)
+        obj.arr = np.copy(self.arr)
         return obj
 
 
     # --------------------------------------------------------------------------
     def is_empty(self):
-        return np.all(self.grid == 0)
-
-
-    # --------------------------------------------------------------------------
-    def get_deltas    (self): return np.array((self.dx  , self.dy  , self.dz  ))
-    def get_resolution(self): return np.array((self.xres, self.yres, self.zres))
-    def get_min_coords(self): return np.array((self.xmin, self.ymin, self.zmin))
-    def get_max_coords(self): return np.array((self.xmax, self.ymax, self.zmax))
+        return np.all(self.arr == 0)
 
 
     # --------------------------------------------------------------------------
@@ -88,11 +90,11 @@ class Grid:
         new_xmax, new_ymax, new_zmax = new_max
         new_xres, new_yres, new_zres = new_res
 
-        self.grid = vg.Math.interpolate_3d(
-            x0 = np.linspace(self.xmin, self.xmax, self.xres),
-            y0 = np.linspace(self.ymin, self.ymax, self.yres),
-            z0 = np.linspace(self.zmin, self.zmax, self.zres),
-            data_0 = self.grid,
+        self.arr = vg.Math.interpolate_3d(
+            x0 = np.linspace(self.xmin(), self.xmax(), self.xres()),
+            y0 = np.linspace(self.ymin(), self.ymax(), self.yres()),
+            z0 = np.linspace(self.zmin(), self.zmax(), self.zres()),
+            data_0 = self.arr,
             new_coords = np.mgrid[
                 new_xmin : new_xmax : complex(0, new_xres),
                 new_ymin : new_ymax : complex(0, new_yres),
@@ -100,25 +102,18 @@ class Grid:
             ].T
         ).astype(vg.FLOAT_DTYPE)
 
-        self.xmin, self.ymin, self.zmin = new_xmin, new_ymin, new_zmin
-        self.xmax, self.ymax, self.zmax = new_xmax, new_ymax, new_zmax
-        self.xres, self.yres, self.zres = new_xres, new_yres, new_zres
-        self.dx = (self.xmax - self.xmin) / (self.xres - 1)
-        self.dy = (self.ymax - self.ymin) / (self.yres - 1)
-        self.dz = (self.zmax - self.zmin) / (self.zres - 1)
-
-        self.ms.minCoords = np.array([self.xmin, self.ymin, self.zmin])
-        self.ms.maxCoords = np.array([self.xmax, self.ymax, self.zmax])
-        self.ms.resolution = np.array([self.xres, self.yres, self.zres])
-        self.ms.deltas = np.array([self.dx, self.dy, self.dz])
+        self.ms.min_coords = np.array([new_xmin, new_ymin, new_zmin])
+        self.ms.max_coords = np.array([new_xmax, new_ymax, new_zmax])
+        self.ms.resolution = np.array([new_xres, new_yres, new_zres])
+        self.ms.deltas = (self.ms.max_coords - self.ms.min_coords) / (self.ms.resolution - 1)
 
 
     # --------------------------------------------------------------------------
     def reshape_as_other(self, other: "Grid"):
         self.reshape(
-            new_min = (other.xmin, other.ymin, other.zmin),
-            new_max = (other.xmax, other.ymax, other.zmax),
-            new_res = (other.xres, other.yres, other.zres)
+            new_min = other.ms.min_coords,
+            new_max = other.ms.max_coords,
+            new_res = other.ms.resolution,
         )
 
 

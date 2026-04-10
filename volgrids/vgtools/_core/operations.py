@@ -31,9 +31,9 @@ class VGOperations:
         for path_in in paths_in:
             grid = vg.GridIO.read_auto(path_in)
             if resolution is None:
-                resolution = f"{grid.xres} {grid.yres} {grid.zres}"
+                resolution = f"{grid.xres()} {grid.yres()} {grid.zres()}"
 
-            new_res = f"{grid.xres} {grid.yres} {grid.zres}"
+            new_res = f"{grid.xres()} {grid.yres()} {grid.zres()}"
             if (new_res != resolution) and not warned:
                 print(
                     f">>> Warning: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\
@@ -63,13 +63,10 @@ class VGOperations:
         keys = vg.GridIO.get_cmap_keys(path_in)
         for key in keys:
             grid = vg.GridIO.read_cmap(path_in, key)
-
-            minCoords = (grid.xmin, grid.ymin, grid.zmin)
-            maxCoords = (grid.xmax, grid.ymax, grid.zmax)
             if resolution is None:
-                resolution = (grid.xres, grid.yres, grid.zres)
+                resolution = grid.ms.resolution
 
-            grid.reshape(minCoords, maxCoords, resolution)
+            grid.reshape(grid.ms.min_coords, grid.ms.max_coords, resolution)
             vg.GridIO.write_cmap(path_out, grid, key)
 
 
@@ -80,14 +77,14 @@ class VGOperations:
         nframes = len(keys)
 
         grid = vg.GridIO.read_cmap(path_in, keys[0])
-        avg = np.zeros_like(grid.grid)
+        avg = np.zeros_like(grid.arr)
         for key in keys:
             print(key)
-            avg += vg.GridIO.read_cmap(path_in, key).grid
+            avg += vg.GridIO.read_cmap(path_in, key).arr
         avg /= nframes
 
         grid_avg: vg.Grid = vg.Grid(grid.ms, init_grid = False)
-        grid_avg.grid = avg
+        grid_avg.arr = avg
 
         vg.GridIO.write_auto(path_out, grid_avg)
 
@@ -96,18 +93,18 @@ class VGOperations:
     @staticmethod
     def summary(path_in: Path):
         def numerics(g: vg.Grid, key: str):
-            n_total = g.grid.size
-            n_nonzero = len(g.grid[g.grid != 0])
+            n_total = g.arr.size
+            n_nonzero = len(g.arr[g.arr != 0])
             print(f"... grid: {key}")
-            print(f"...... min: {g.grid.min():2.2e}; max: {g.grid.max():2.2e}; mean: {g.grid.mean():2.2e}")
+            print(f"...... min: {g.arr.min():2.2e}; max: {g.arr.max():2.2e}; mean: {g.arr.mean():2.2e}")
             print(f"...... non-zero points: {n_nonzero}/{n_total} ({100*n_nonzero/n_total:.2f}%)")
 
         grid = vg.GridIO.read_auto(path_in)
         grid_names = vg.GridIO.get_cmap_keys(path_in) if grid.fmt.is_cmap() else [path_in.stem]
 
         print(f"... fmt: {grid.fmt}, ngrids: {len(grid_names)}")
-        print(f"... resolution: {grid.xres}x{grid.yres}x{grid.zres}; deltas: ({grid.dx:.2f},{grid.dy:.2f},{grid.dz:.2f})")
-        print(f"... box: ({grid.xmin:.2f},{grid.ymin:.2f},{grid.zmin:.2f})->({grid.xmax:.2f},{grid.ymax:.2f},{grid.zmax:.2f})")
+        print(f"... resolution: {grid.xres()}x{grid.yres()}x{grid.zres()}; deltas: ({grid.dx():.2f},{grid.dy():.2f},{grid.dz():.2f})")
+        print(f"... box: ({grid.xmin():.2f},{grid.ymin():.2f},{grid.zmin():.2f})->({grid.xmax():.2f},{grid.ymax():.2f},{grid.zmax():.2f})")
 
         if not grid.fmt.is_cmap():
             numerics(grid, path_in.stem); print()
@@ -128,10 +125,10 @@ class VGOperations:
         grid_0 = vg.GridIO.read_auto(path_in_0)
         grid_1 = vg.GridIO.read_auto(path_in_1)
 
-        deltas_0     = grid_0.get_deltas();     deltas_1     = grid_1.get_deltas()
-        resolution_0 = grid_0.get_resolution(); resolution_1 = grid_1.get_resolution()
-        min_coords_0 = grid_0.get_min_coords(); min_coords_1 = grid_1.get_min_coords()
-        max_coords_0 = grid_0.get_max_coords(); max_coords_1 = grid_1.get_max_coords()
+        deltas_0     = grid_0.ms.deltas;     deltas_1     = grid_1.ms.deltas
+        resolution_0 = grid_0.ms.resolution; resolution_1 = grid_1.ms.resolution
+        min_coords_0 = grid_0.ms.min_coords; min_coords_1 = grid_1.ms.min_coords
+        max_coords_0 = grid_0.ms.max_coords; max_coords_1 = grid_1.ms.max_coords
 
         if _are_different_vector(resolution_0, resolution_1):
             return vgt.ComparisonResult(0, 0, 0.0, 0.0,
@@ -153,11 +150,11 @@ class VGOperations:
             )
 
         diff = abs(grid_1 - grid_0)
-        mask = diff.grid > threshold
+        mask = diff.arr > threshold
 
         npoints_diff  = len(mask[mask])
-        npoints_total = grid_0.xres * grid_0.yres * grid_0.zres
-        cumulative_diff = np.sum(diff.grid[mask])
+        npoints_total = grid_0.npoints()
+        cumulative_diff = np.sum(diff.arr[mask])
         avg_diff = (cumulative_diff / npoints_diff) if (npoints_diff > 0) else 0
 
         return vgt.ComparisonResult(npoints_diff, npoints_total, cumulative_diff, avg_diff, warnings)
@@ -172,7 +169,7 @@ class VGOperations:
     ) -> None:
         grid = vg.GridIO.read_auto(path_in)
         vg.GridIO.restore_boolean_dtype(grid)
-        grid.grid = vg.Math.rotate_3d(grid.grid, rotate_xy, rotate_yz, rotate_xz, in_degrees)
+        grid.arr = vg.Math.rotate_3d(grid.arr, rotate_xy, rotate_yz, rotate_xz, in_degrees)
         vg.GridIO.write_auto(path_out, grid)
 
 
