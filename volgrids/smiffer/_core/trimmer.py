@@ -136,10 +136,8 @@ class Trimmer:
         for k,radius in self.distances.items():
             mask = self.specific_masks[k]
             kernel = vg.KernelSphere(radius, self.ms.deltas, bool)
-            kernel.link_to_grid(mask)
-
             for a in self.ms.get_relevant_atoms_broad(radius):
-                kernel.stamp(a.position)
+                kernel.stamp(mask, a.position)
 
 
     # --------------------------------------------------------------------------
@@ -202,10 +200,8 @@ class Trimmer:
     def _trim_faraway(self):
         grid = self.common_mask.copy()
         kernel = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.deltas, bool)
-        kernel.link_to_grid(grid)
         for a in self.ms.get_relevant_atoms_broad(sm.TRIM_FARAWAY_DIST):
-            kernel.stamp(a.position)
-
+            kernel.stamp(grid, a.position)
         self.common_mask.arr[~grid.arr] = True
 
 

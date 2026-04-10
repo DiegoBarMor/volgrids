@@ -103,9 +103,8 @@ class GridVolumetricEnergy(vg.Grid):
 
     # --------------------------------------------------------------------------
     def _apply_kernel(self, kernel: vg.Kernel, position, energy):
-        operation = "max" if energy > 0 else "min"
-        kernel.link_to_grid(self)
-        kernel.stamp(position, multiplication_factor = energy, operation = operation)
+        kernel.operation = np.maximum if energy > 0 else np.minimum
+        kernel.stamp(self, position, multiply_by = energy)
 
 
 # //////////////////////////////////////////////////////////////////////////////
