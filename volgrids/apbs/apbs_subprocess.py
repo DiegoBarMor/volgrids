@@ -7,7 +7,7 @@ import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class APBSSubprocess:
-    _PATH_SCRIPT = vg.resolve_path_package("utils/apbs.sh")
+    _PATH_SCRIPT = vg.resolve_path_package("apbs/apbs.sh")
 
     # --------------------------------------------------------------------------
     def __init__(self, atoms: AtomGroup, name_pdb: str, keep_pqr: bool = False):
@@ -29,7 +29,11 @@ class APBSSubprocess:
 
         if proc.returncode != 0:
             self._tmpdir.cleanup()
-            raise RuntimeError(f"apbs.sh failed (code={proc.returncode}):\n{proc.stderr}")
+            raise RuntimeError('\n'.join((
+                f"apbs.sh failed (code={proc.returncode}):",
+                proc.stderr or "<empty_stderr>",
+                proc.stdout or "<empty_stdout>",
+            )))
         if not path_tmp_apbs.exists():
             self._tmpdir.cleanup()
             raise FileNotFoundError(f"Expected APBS output not found: {path_tmp_apbs}")

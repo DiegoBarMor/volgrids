@@ -1,12 +1,25 @@
 # Changelog
 
+## [0.6.0] - 2026-04-10
+- Added a `vgtools` utility for rotating grids.
+- Implemented config option for ensuring *equilateral grids*.
+    - These are grids that have the same amount of points in every dimension i.e. an homogeneous resolution. This is independent from the deltas.
+    - Equilateral grids are naturally heavier, but they could be convenient for some operations.
+- Improved the naive cavities finder by adding the possibility to perform multiple passes in evenly spaced rotations (controlled by the `CAVITIES_NPASSES` configuration)
+- The `--config` (`-c`) flag can now also take a list of either config files or *keyword=value* pairs, or a mix of both.
+- the **apbs** application and the `apbs.sh` utility now displayer errors properly.
+- Some general code improvements.
+
+
 ## [0.5.1] - 2026-04-07
 - INI parser now considers the standard `;` as comment start character.
     - This affects the `config.ini` files for the parameters and the `.chem` tables.
 
+
 ## [0.5.0] - 2026-04-05
 - Implemented experimental **cavities** trimming operation.
 - Added a `vgtools` utility for summarizing grids.
+
 
 ## [0.4.2] - 2026-04-03
 - Bugfixes:

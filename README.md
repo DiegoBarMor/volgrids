@@ -229,7 +229,7 @@ python3 volgrids apbs testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
 
 - Alternative (calling directly `apbs.sh`).
 ```bash
-volgrids/utils/apbs.sh apbs testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
+volgrids/apbs/apbs.sh apbs testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
 ```
 
 - Running APBS without Volgrids.

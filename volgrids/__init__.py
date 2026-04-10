@@ -23,7 +23,7 @@ from ._parsers.grid_io import GridIO
 from ._ui.param_handler import ParamHandler
 from ._ui.app import App
 
-from ._misc.apbs_subprocess import APBSSubprocess
+from .apbs.apbs_subprocess import APBSSubprocess
 
 
 ############################# CONFIG FILE GLOBALS ##############################

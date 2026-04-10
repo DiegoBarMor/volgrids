@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
 
 ### Automatic calculation of electrostatic potential grids using APBS.
 ### The grid will be saved in the same folder as the input PDB file,
@@ -22,10 +21,13 @@ help_message() {
     echo "Usage: $name_sh <path_pdb> [--mrc] [--verbose]"
     echo "Example: $name_sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose"
 }
+echo_red() {
+    printf "\e[%sm%s\e[0m\n" "91" "$1"
+}
 
 if [[ "$#" -lt 1 ]]; then
     help_message
-    exit 1
+    exit 255
 fi
 
 path_pdb=$(realpath "$1")
@@ -48,20 +50,18 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
         *)
             echo "Unknown option: $1"
             help_message
-            exit 1
+            exit 254
             ;;
     esac
 done
 
-cwd=$(pwd)
-
 if [[ ! -f "$path_pdb" ]]; then
     echo "Error: PDB file '$path_pdb' does not exist."
-    exit 1
+    exit 253
 fi
 
 folder_out=$(dirname "$path_pdb")
-cd "$folder_out" # ------------------------------ inside output folder vvvvv
+cd "$folder_out" || exit 252 # ------------------------------ inside output folder vvvvv
 
 name_pdb=$(basename "$path_pdb")
 path_pqr=$name_pdb.pqr
@@ -79,8 +79,8 @@ else
     rc=$?
 fi
 if [[ $rc -ne 0 ]]; then
-    echo "pdb2pqr failed (exit code $rc). Full output in: $tmp_log" >&2
     cat "$tmp_log" >&2
+    echo_red "pdb2pqr failed (exit code $rc). See output above."
     exit "$rc"
 fi
 
@@ -93,16 +93,16 @@ else
     rc=$?
 fi
 if [[ $rc -ne 0 ]]; then
-    echo "APBS failed (exit code $rc). Full output in: $tmp_log" >&2
     cat "$tmp_log" >&2
+    echo_red "APBS failed (exit code $rc). See output above."
     exit "$rc"
 fi
 
 log=$(grep -m1 "Writing potential to" "$tmp_log" || true)
 if [[ -z "$log" ]]; then
-    echo "Could not find 'Writing potential to' in APBS output. Full output below:" >&2
     cat "$tmp_log" >&2
-    exit 1
+    echo_red "Could not find 'Writing potential to' in APBS output. See output above."
+    exit 251
 fi
 path_grid=$(echo "$log" | awk '{print $NF}')
 
@@ -113,7 +113,7 @@ if [[ "$KEEP_PQR" == "false" ]]; then
     rm -f "$path_pqr"
 fi
 
-cd "$cwd"  # ------------------------------------ back to original folder vvvvv
+cd - >/dev/null || exit 250 # ------------------------------------ back to original folder vvvvv
 
 if [[ "$CONVERT_TO_MRC" == "true" ]]; then
     root_volgrids=$(dirname "$(dirname "$(realpath "$0")")")
