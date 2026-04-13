@@ -17,6 +17,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
+* check what happens with structure files with multiple models.
 * maybe: replace the RNDS trimming with a faster method
 * change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
@@ -49,7 +50,7 @@
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
 * add tests for the "average", "summary", "rotate" operations.
 * give a warning if "convert" doesn't take any output option.
-* improve CMAP keys automatically assigne when packing.
+* improve CMAP keys automatically assigned when packing.
 
 
 <!-- ----------------------------------------------------------------------- -->

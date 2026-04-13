@@ -5,6 +5,9 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class CavityFinder:
+    CAVITIES_MAX_VAL = 3
+
+    # --------------------------------------------------------------------------
     def __init__(self):
         self.grid: vg.Grid = None
 
@@ -33,8 +36,8 @@ class CavityFinder:
 
 
     # --------------------------------------------------------------------------
-    @staticmethod
-    def _find_cavities_naive(occupancy: vg.Grid) -> vg.Grid:
+    @classmethod
+    def _find_cavities_naive(cls, occupancy: vg.Grid) -> vg.Grid:
         arr: np.ndarray = occupancy.arr.astype(bool)
 
         ### STEP 1: find the occupancy surface with XOR
@@ -75,7 +78,7 @@ class CavityFinder:
 
         ### STEP 4: sum 3 dimesions and invert the values, so that deeper cavities have higher values.
         ### Set the occupied volume to 0. At the end, this grid has discrete values 0,1,2,3.
-        cavities = 3 - (available_x + available_y + available_z)
+        cavities = cls.CAVITIES_MAX_VAL - (available_x + available_y + available_z)
         cavities[arr] = 0
 
         vgrid = vg.Grid(occupancy.ms, init_grid = False)

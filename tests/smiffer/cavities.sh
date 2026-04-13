@@ -18,6 +18,7 @@ conf_cavities() { # trim_occ, trim_cav, save_trim, save_cav, threshold
 }
 conf_no_smifs="DO_SMIF_STACKING=False DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
 conf_just_stak="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
+conf_simple_smifs="DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
 
 
 ############################# BENCHMARK SYSTEMS
@@ -31,16 +32,23 @@ run_benchmarks() {
             python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_benchmark" CAVITIES_NPASSES=$i
             mv "$fout_benchmark/$name.cmap" $fout_benchmark/npasses_$i.cmap
         done
-        python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_just_stak" CAVITIES_WEIGHT=1.0
-        mv "$fout_benchmark/$name.cmap" $fout_benchmark/stak.weighted.cmap
 
-        python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_just_stak" SAVE_TRIMMING_MASK=true
+        python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" \
+            CAVITIES_WEIGHT=1.0 GRID_FORMAT_OUTPUT=CMAP CAVITIES_NPASSES=2
+
+        for smif in stacking hbacceptors hbdonors; do
+            mv "$fout_benchmark/$name.$smif.cmap" "$fout_benchmark/$name.$smif.weighted.cmap"
+        done
+
+        python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" SAVE_TRIMMING_MASK=true
         (
             shopt -s nullglob
-            cmaps=( "$fout_benchmark"/npasses*.cmap "$fout_benchmark/stak.weighted.cmap" )
+            cmaps=( "$fout_benchmark"/npasses*.cmap "$fout_benchmark/$name".*.cmap )
             ### no need to include the last CMAP created, as "pack" will append the other files to this one
             python3 volgrids vgtools pack -i "${cmaps[@]}" -o "$fout_benchmark/$name.cmap"
         )
+        rm -f "$fout_benchmark/$name".*.weighted.cmap
+
         cp "$fpdb_orig/$name.pdb" $fout_benchmark/
 
     done
