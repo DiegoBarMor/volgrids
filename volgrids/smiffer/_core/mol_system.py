@@ -81,7 +81,8 @@ class MolSystemSmiffer(vg.MolSystem):
             return vg.resolve_path_package(folder_default_tables / "prot.chem")
 
         if sm.CURRENT_MOLTYPE == MolType.RNA:
-            return vg.resolve_path_package(folder_default_tables / "rna.chem")
+            name = "rna_simple_hb" if sm.DO_SIMPLE_HBONDS_RNA else "rna"
+            return vg.resolve_path_package(folder_default_tables / f"{name}.chem")
 
         raise ValueError(f"No default table for the specified molecular type '{sm.CURRENT_MOLTYPE}'. Please provide a path to a custom table.")
 

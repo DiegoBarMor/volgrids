@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.1] - 2026-04-10
+- Cavities can now also be used to *weight* the smifs instead of trimming them.
+    - The `CAVITIES_WEIGHT` configuration controls how much the smifs inside cavities should be taken into account.
+    - Positive `CAVITIES_WEIGHT` values give more weight to smifs inside cavities; negative values give more weight to smifs outside.
+- Added `DO_SIMPLE_HBONDS_RNA` configuration (default: false)
+    - When set to true, the RNA hbonds will only consider atoms from the nucleobases.
+    - It can remove a significant amount of noise from the grid, at the cost of some relevant interactions lost.
+
+
 ## [0.6.0] - 2026-04-10
 - Added a `vgtools` utility for rotating grids.
 - Implemented config option for ensuring *equilateral grids*.
