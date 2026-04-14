@@ -21,6 +21,8 @@ from ._ui.app import AppSmiffer
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
+GRID_FORMAT_OUTPUT: str = "CMAP_PACKED"
+
 DO_SMIF_STACKING:    bool = True
 DO_SMIF_HBA:         bool = True
 DO_SMIF_HBD:         bool = True

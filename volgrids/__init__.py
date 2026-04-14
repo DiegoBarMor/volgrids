@@ -30,7 +30,6 @@ from .apbs.apbs_subprocess import APBSSubprocess
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
-GRID_FORMAT_OUTPUT: str = "CMAP_PACKED"
 REMOVE_OLD_CMAP_OUTPUT: bool = True
 GZIP_COMPRESSION: int = 9
 WARNING_GRID_SIZE: float = 5.0e7

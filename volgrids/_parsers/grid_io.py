@@ -272,6 +272,13 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def clear_cmap(path_out: Path) -> None:
+        if not vg.REMOVE_OLD_CMAP_OUTPUT: return
+        path_out.unlink(missing_ok = True)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def restore_boolean_dtype(grid: "vg.Grid") -> "vg.Grid":
         """Restores the boolean data type of a grid that was saved as int (0 and 1) due to format limitations."""
         if not set(np.unique(grid.arr)).issubset({0, 1}): return

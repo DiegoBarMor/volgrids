@@ -14,7 +14,7 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def __add__(self, other: "Grid|float|int") -> "Grid":
-        obj = Grid(self.ms, init_grid = False)
+        obj = self.__class__(self.ms, init_grid = False)
         if isinstance(other, Grid):
             obj.arr = self.arr + other.arr
             return obj
@@ -27,7 +27,7 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def __sub__(self, other: "Grid|float|int") -> "Grid":
-        obj = Grid(self.ms, init_grid = False)
+        obj = self.__class__(self.ms, init_grid = False)
         if isinstance(other, Grid):
             obj.arr = self.arr - other.arr
             return obj
@@ -40,7 +40,7 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def __abs__(self) -> "Grid":
-        obj = Grid(self.ms, init_grid = False)
+        obj = self.__class__(self.ms, init_grid = False)
         obj.arr = np.abs(self.arr)
         return obj
 
@@ -74,7 +74,7 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def copy(self):
-        obj = Grid(self.ms, init_grid = False)
+        obj = self.__class__(self.ms, init_grid = False)
         obj.arr = np.copy(self.arr)
         return obj
 
@@ -127,46 +127,33 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
-    def save_data(self, folder_out: Path, title: str):
-        def clear_cmap(path_out: Path) -> Path:
-            if vg.REMOVE_OLD_CMAP_OUTPUT:
-                path_out.unlink(missing_ok = True)
-            return path_out
+    def save_data(self, path_out: Path, grid_format: "vg.GridFormat", cmap_key = "grid"):
+        path_out = Path(path_out)
 
-        path_prefix = folder_out / f"{self.ms.molname}.{title}"
+        if grid_format == vg.GridFormat.DX:
+            vg.GridIO.write_dx(path_out, self)
+            return
 
-        if self.ms.do_traj: # ignores the GRID_FORMAT_OUTPUT config -> CMAP is the only format that supports multiple frames
-            path_cmap = clear_cmap(folder_out / f"{self.ms.molname}.{title}.cmap")
+        if grid_format == vg.GridFormat.MRC:
+            vg.GridIO.write_mrc(path_out, self)
+            return
+
+        if grid_format == vg.GridFormat.CCP4:
+            vg.GridIO.write_ccp4(path_out, self)
+            return
+
+        if grid_format == vg.GridFormat.CMAP:
+            vg.GridIO.clear_cmap(path_out)
+            vg.GridIO.write_cmap(path_out, self, cmap_key)
+            return
+
+        if grid_format == vg.GridFormat.CMAP_PACKED:
+            vg.GridIO.clear_cmap(path_out)
             vg.REMOVE_OLD_CMAP_OUTPUT = False
-            vg.GridIO.write_cmap(path_cmap, self, f"{self.ms.molname}.{self.ms.frame:04}")
+            vg.GridIO.write_cmap(path_out, self, cmap_key)
             return
 
-        gf = vg.GridFormat.from_str(vg.GRID_FORMAT_OUTPUT)
-
-        if gf == vg.GridFormat.DX:
-            vg.GridIO.write_dx(f"{path_prefix}.dx", self)
-            return
-
-        if gf == vg.GridFormat.MRC:
-            vg.GridIO.write_mrc(f"{path_prefix}.mrc", self)
-            return
-
-        if gf == vg.GridFormat.CCP4:
-            vg.GridIO.write_ccp4(f"{path_prefix}.ccp4", self)
-            return
-
-        if gf == vg.GridFormat.CMAP:
-            path_cmap = clear_cmap(folder_out / f"{self.ms.molname}.{title}.cmap")
-            vg.GridIO.write_cmap(path_cmap, self, self.ms.molname)
-            return
-
-        if gf == vg.GridFormat.CMAP_PACKED:
-            path_cmap = clear_cmap(folder_out / f"{self.ms.molname}.cmap")
-            vg.REMOVE_OLD_CMAP_OUTPUT = False
-            vg.GridIO.write_cmap(path_cmap, self, f"{self.ms.molname}.{title}")
-            return
-
-        raise ValueError(f"Unknown output format: {vg.GRID_FORMAT_OUTPUT}.")
+        raise ValueError(f"Unknown output format: {grid_format}.")
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -20,7 +20,7 @@ class AppSmiffer(vg.App):
         self.trimmer: sm.Trimmer = self._CLASS_TRIMMER.init_infer_dists(self.ms)
         self.cavfinder: sm.CavityFinder = sm.CavityFinder()
         self.timer = vg.Timer(
-            f">>> Now processing {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}'"+\
+            f">>> SMIFs {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}'"+\
             f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
         )
 
@@ -45,7 +45,7 @@ class AppSmiffer(vg.App):
         else: # SINGLE PDB MODE
             self._process_grids()
 
-        self.timer.end(text = "SMIFS", minus = sm.APBS_ELAPSED_TIME)
+        self.timer.end(text = "SMIFs", minus = sm.APBS_ELAPSED_TIME)
 
 
     # --------------------------------------------------------------------------
@@ -137,19 +137,21 @@ class AppSmiffer(vg.App):
         ### Calculate / store additional grids
         if sm.SAVE_TRIMMING_MASK:
             mask = self.trimmer.get_mask("mid")
-            reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
-            reverse.save_data(sm.FOLDER_OUT, "trimming")
+            pseudo_smif = sm.Smif.from_grid(mask, self.ms)
+            reverse = sm.Smif.reverse(pseudo_smif) # save the points that are NOT trimmed
+            reverse.save_data_smif(sm.FOLDER_OUT, "trimming")
 
         if sm.SAVE_CAVITIES and self.cavfinder.has_data():
-            self.cavfinder.grid.save_data(sm.FOLDER_OUT, "cavities")
+            pseudo_smif = sm.Smif.from_grid(self.cavfinder.grid, self.ms)
+            pseudo_smif.save_data_smif(sm.FOLDER_OUT, "cavities")
 
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
-            grid_hpdiff = smif_hphob - smif_hphil
-            grid_hpdiff.save_data(sm.FOLDER_OUT, "hydrodiff")
+            smif_hpdiff = smif_hphob - smif_hphil
+            smif_hpdiff.save_data_smif(sm.FOLDER_OUT, "hydrodiff")
 
         if sm.DO_SMIF_LOG_APBS:
             smif_apbs.apply_logabs_transform()
-            smif_apbs.save_data(sm.FOLDER_OUT, "apbslog")
+            smif_apbs.save_data_smif(sm.FOLDER_OUT, "apbslog")
 
         if not self.ms.do_traj and vg.PQR_CONTENTS_TEMP:
             path_pqr = sm.FOLDER_OUT / f"{self.ms.molname}.pqr"
@@ -167,7 +169,7 @@ class AppSmiffer(vg.App):
     def _trim_and_save_smif(self, smif: sm.Smif, key_trimming: str, title: str) -> None:
         self.trimmer.mask_grid(smif, key_trimming)
         self.cavfinder.apply_cavities_weighting(smif)
-        smif.save_data(sm.FOLDER_OUT, title)
+        smif.save_data_smif(sm.FOLDER_OUT, title)
 
 
 # //////////////////////////////////////////////////////////////////////////////
