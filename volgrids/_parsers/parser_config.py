@@ -5,7 +5,7 @@ class ParserConfig(vg.ParserIni):
     def apply_config(self,
         scope_module: dict[str,],
         this_module_keys: set[str],
-        all_known_keys: set[str],
+        known_configs: set[str],
     ) -> None:
         """
         Applies the configuration to the provided global dictionary.
@@ -13,10 +13,8 @@ class ParserConfig(vg.ParserIni):
         for section in self._ini_sections.keys():
             for k, value in self.iter_splitted_lines(section):
                 k = k.upper()
-                if k not in this_module_keys:
-                    continue
-                if k not in all_known_keys:
-                    raise ValueError(f"Unknown configuration: {k}.")
+                if k not in known_configs: raise ValueError(f"Unknown configuration: {k}.")
+                if k not in this_module_keys: continue
                 scope_module[k] = self._parse_str(value)
 
 

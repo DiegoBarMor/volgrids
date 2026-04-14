@@ -7,6 +7,11 @@ import volgrids as vg
 class App(ABC):
     # --------------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
+        self.known_configs = set(
+            k for scope_module in self.CONFIG_MODULES for k in scope_module.__config_keys__
+        )
+        vg._KNOWN_CONFIGS = self.known_configs
+
         handler = self._CLASS_PARAM_HANDLER(*args, **kwargs)
         handler.assign_globals()
         self.load_configs()
@@ -44,12 +49,11 @@ class App(ABC):
             if not config.strip(): return
             parser = vg.ParserConfig(config)
 
-        all_known_keys = set(k for scope_module in self.CONFIG_MODULES for k in scope_module.__config_keys__)
         for scope_module in self.CONFIG_MODULES:
             parser.apply_config(
                 scope_module = scope_module.__dict__,
                 this_module_keys = scope_module.__config_keys__,
-                all_known_keys = all_known_keys
+                known_configs = self.known_configs
             )
 
 
@@ -57,8 +61,10 @@ class App(ABC):
     @property
     @abstractmethod
     def CONFIG_MODULES() -> tuple:
-        """class variable that links the pertinent keys from the config file, to the module to be configured.
-        For example: `{"VOLGRIDS": vg, "SMIFFER": sm}`, assuming `import volgrids.vgrids as vg` and `import volgrids.smiffer as sm`."""
+        """
+        Class variable that stores the modules that will be configured by this app.
+        This is necessary for the config parser to know which keys to look for in the config file, and where to apply them.
+        For example: `(vg, sm)`, assuming `import volgrids.vgrids as vg` and `import volgrids.smiffer as sm` beforehand."""
         raise NotImplementedError()
 
 

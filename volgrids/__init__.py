@@ -47,6 +47,7 @@ GRID_YRES: int = 200
 GRID_ZRES: int = 200
 
 __config_keys__ = set(globals().keys()) - _keys_other
+__config_keys__.remove("_keys_other")
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
@@ -65,3 +66,5 @@ STR_CUSTOM_CONFIG : str = ""  # "key0=value0 key1=value1 ..."
 import numpy as _np
 PQR_CONTENTS_TEMP: str = ""
 FLOAT_DTYPE: type = _np.float32
+
+_KNOWN_CONFIGS: set[str] = set()

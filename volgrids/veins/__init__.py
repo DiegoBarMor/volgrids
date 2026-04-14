@@ -6,6 +6,7 @@ from ._ui.app import AppVeins
 
 ############################# CONFIG FILE GLOBALS ##############################
 __config_keys__ = set()
+__config_keys__.remove("_keys_other")
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################

@@ -85,7 +85,14 @@ class ParamHandlerSmiffer(vg.ParamHandler):
     def _handle_params_configs(self):
         if not self._has_param_kwds("config"): return
 
-        for val in self._safe_get_param_kwd_list("config"):
+        try:
+            configs = self._safe_get_param_kwd_list("config")
+        except vg.ParamHandler.MissingArgsError:
+            ### [WIP] this is not a good solution, it's part of what needs to be refactored when changing the param handler
+            available = "\n    " + "\n    ".join(sorted(vg._KNOWN_CONFIGS))
+            self._exit_with_help(self.InvalidParamError, f"Available configuration keys:{available}")
+
+        for val in configs:
             if '=' in val:
                 vg.STR_CUSTOM_CONFIG += f"{val.replace(' ', '\n')}\n"
                 continue

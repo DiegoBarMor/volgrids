@@ -91,6 +91,7 @@ APBS_MIN_CUTOFF: int = -2
 APBS_MAX_CUTOFF: int = 3
 
 __config_keys__ = set(globals().keys()) - _keys_other
+__config_keys__.remove("_keys_other")
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
