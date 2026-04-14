@@ -81,7 +81,7 @@ class CavityFinder:
         cavities = cls.CAVITIES_MAX_VAL - (available_x + available_y + available_z)
         cavities[arr] = 0
 
-        vgrid = vg.Grid(occupancy.ms, init_grid = False)
+        vgrid = vg.Grid(occupancy.box, init_grid = False)
         vgrid.arr = np.copy(cavities)
         return vgrid
 
@@ -90,7 +90,7 @@ class CavityFinder:
     @staticmethod
     def _find_cavities_naive_multi_pass(occupancy: vg.Grid) -> vg.Grid:
         def get_cavities_rot(angle: float):
-            occupy_rot = vg.Grid(occupancy.ms, init_grid = False)
+            occupy_rot = vg.Grid(occupancy.box, init_grid = False)
             occupy_rot.arr = vg.Math.rotate_3d(occupancy.arr, angle, angle, angle)
             cavities_rot = CavityFinder._find_cavities_naive(occupy_rot)
             cavities_rot.arr = vg.Math.rotate_3d(cavities_rot.arr, angle, angle, angle, reverse = True)

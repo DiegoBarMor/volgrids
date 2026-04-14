@@ -8,7 +8,7 @@ class SmifHydrophobic(SmifHydro):
     def populate_grid(self):
         radius = sm.MU_HYDROPHOBIC + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_HYDROPHOBIC
         kernel = vg.KernelGaussianUnivariateDist(
-            radius, self.ms.deltas, vg.FLOAT_DTYPE, sm.PARAMS_HPHOB
+            radius, self.ms.get_deltas(), vg.FLOAT_DTYPE, sm.PARAMS_HPHOB
         )
         for particle, mul_factor in self.iter_particles():
             if mul_factor < 0: continue

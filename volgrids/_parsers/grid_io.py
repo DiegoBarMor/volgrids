@@ -11,12 +11,8 @@ class GridIO:
     @staticmethod
     def read_dx(path_dx) -> "vg.Grid":
         parser = gd.Grid(path_dx)
-        ms = vg.MolSystem.from_box_data(
-            resolution = parser.grid.shape,
-            origin = parser.origin,
-            deltas = parser.delta
-        )
-        vgrid = vg.Grid(ms, init_grid = False)
+        box = vg.Box(parser.origin, parser.grid.shape, parser.delta)
+        vgrid = vg.Grid(box, init_grid = False)
         vgrid.arr = parser.grid
         vgrid.fmt = vg.GridFormat.DX
         return vgrid
@@ -62,15 +58,8 @@ class GridIO:
     def read_cmap(path_cmap, key) -> "vg.Grid":
         with h5py.File(path_cmap, 'r') as parser:
             frame = parser["Chimera"][key]
-            rz, ry, rx = frame["data_zyx"].shape
-            ox, oy, oz = frame.attrs["origin"]
-            dz, dy, dx = frame.attrs["step"]
-            ms = vg.MolSystem.from_box_data(
-                resolution = np.array([rx, ry, rz]),
-                origin = np.array([ox, oy, oz]),
-                deltas = np.array([dx, dy, dz])
-            )
-            vgrid = vg.Grid(ms, init_grid = False)
+            box = vg.Box(frame.attrs["origin"], frame["data_zyx"].shape, frame.attrs["step"])
+            vgrid = vg.Grid(box, init_grid = False)
             vgrid.arr = frame["data_zyx"][()].transpose(2,1,0)
 
             n_keys = len(parser["Chimera"].keys())
@@ -201,8 +190,8 @@ class GridIO:
                 frame.attrs["chimera_map_version"] = np.int64(1)
                 frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
                 frame.attrs["name"] = np.bytes_(key)
-                frame.attrs["origin"] = data.ms.min_coords.astype(vg.FLOAT_DTYPE)
-                frame.attrs["step"] = data.ms.deltas.astype(vg.FLOAT_DTYPE)
+                frame.attrs["origin"] = data.box.min_coords.astype(vg.FLOAT_DTYPE)
+                frame.attrs["step"] = data.box.deltas.astype(vg.FLOAT_DTYPE)
                 _add_generic_attrs(frame)
 
             framedata = frame.create_dataset(
@@ -313,18 +302,14 @@ def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
             parser.header.mapc, parser.header.mapr, parser.header.maps
 
         if axes_correspondance == (1, 2, 3):
-            ms = vg.MolSystem.from_box_data(
-                resolution = res.copy(), origin = origin.copy(), deltas = vsize.copy()
-            )
-            obj = vg.Grid(ms, init_grid = False)
+            box = vg.Box(res, origin, vsize)
+            obj = vg.Grid(box, init_grid = False)
             obj.arr = data.transpose(2,1,0)
             return obj
 
         if axes_correspondance == (3, 2, 1):
-            ms = vg.MolSystem.from_box_data(
-                resolution = res[::-1], origin = origin[::-1], deltas = vsize[::-1]
-            )
-            obj = vg.Grid(ms, init_grid = False)
+            box = vg.Box(res[::-1], origin[::-1], vsize[::-1])
+            obj = vg.Grid(box, init_grid = False)
             obj.arr = data
             return obj
 

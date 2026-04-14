@@ -1,31 +1,16 @@
 import tempfile
 import numpy as np
 from pathlib import Path
-from enum import Enum, auto
 
 import volgrids as vg
 import volgrids.smiffer as sm
-
-# //////////////////////////////////////////////////////////////////////////////
-class MolType(Enum):
-    NONE = auto()
-    PROT = auto()
-    RNA = auto()
-    LIGAND = auto()
-
-    # --------------------------------------------------------------------------
-    def is_none(self):   return self == MolType.NONE
-    def is_prot(self):   return self == MolType.PROT
-    def is_rna(self):    return self == MolType.RNA
-    def is_ligand(self): return self == MolType.LIGAND
-
 
 # //////////////////////////////////////////////////////////////////////////////
 class MolSystemSmiffer(vg.MolSystem):
     def __init__(self, path_struct: Path, path_traj: Path = None):
         self.do_ps = sm.SPHERE is not None
         self.chemtable = sm.ParserChemTable(self._get_path_table())
-        self._init_attrs_from_molecules(path_struct, path_traj)
+        super().__init__(path_struct, path_traj)
 
 
     # --------------------------------------------------------------------------
@@ -35,6 +20,15 @@ class MolSystemSmiffer(vg.MolSystem):
             tmp_pqr.write(pqr_data)
             tmp_pqr.flush()
             return cls(Path(tmp_pqr.name), None)
+
+
+    # --------------------------------------------------------------------------
+    def get_min_coords(self): return self.box.min_coords
+    def get_max_coords(self): return self.box.max_coords
+    def get_resolution(self): return self.box.resolution
+    def get_deltas(self):     return self.box.deltas
+    def get_cog(self):        return self.box.cog
+    def get_radius(self):     return self.box.radius
 
 
     # --------------------------------------------------------------------------
@@ -60,15 +54,17 @@ class MolSystemSmiffer(vg.MolSystem):
 
 
     # --------------------------------------------------------------------------
-    def _infer_box_attributes(self):
+    def _get_init_box(self) -> vg.Box: # override base class to add pocket_sphere behavior
         if self.do_ps:
-            self.cog = np.array([sm.SPHERE.x, sm.SPHERE.y, sm.SPHERE.z])
-            self.min_coords = self.cog - sm.SPHERE.radius
-            self.max_coords = self.cog + sm.SPHERE.radius
-            self.radius = sm.SPHERE.radius
-            return
+            box = vg.Box(None, None, None, do_init = False)
+            box.cog = np.array([sm.SPHERE.x, sm.SPHERE.y, sm.SPHERE.z])
+            box.min_coords = box.cog - sm.SPHERE.radius
+            box.max_coords = box.cog + sm.SPHERE.radius
+            box.radius = sm.SPHERE.radius
+            box.infer_deltas_resolution()
+            return box
 
-        super()._infer_box_attributes()
+        return super()._get_init_box()
 
 
     # --------------------------------------------------------------------------
@@ -77,10 +73,10 @@ class MolSystemSmiffer(vg.MolSystem):
 
         folder_default_tables = Path("_tables")
 
-        if sm.CURRENT_MOLTYPE == MolType.PROT:
+        if sm.CURRENT_MOLTYPE == sm.MolType.PROT:
             return vg.resolve_path_package(folder_default_tables / "prot.chem")
 
-        if sm.CURRENT_MOLTYPE == MolType.RNA:
+        if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
             name = "rna_simple_hb" if sm.DO_SIMPLE_HBONDS_RNA else "rna"
             return vg.resolve_path_package(folder_default_tables / f"{name}.chem")
 

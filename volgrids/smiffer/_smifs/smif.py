@@ -9,7 +9,7 @@ import volgrids.smiffer as sm
 class Smif(vg.Grid):
     # --------------------------------------------------------------------------
     def __init__(self, ms: "sm.MolSystemSmiffer", init_grid = True, dtype = None):
-        super().__init__(ms, init_grid, dtype)
+        super().__init__(ms.box, init_grid, dtype)
         self.ms: "sm.MolSystemSmiffer" = ms
 
 
