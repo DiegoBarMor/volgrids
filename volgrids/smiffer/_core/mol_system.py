@@ -23,6 +23,17 @@ class MolSystemSmiffer(vg.MolSystem):
 
 
     # --------------------------------------------------------------------------
+    @staticmethod
+    def copy_attributes_except_system(src: "MolSystemSmiffer", dst: "MolSystemSmiffer"):
+        dst.molname = src.molname
+        dst.do_traj = src.do_traj
+        dst.frame = src.frame
+        dst.box = src.box
+        dst.do_ps = src.do_ps
+        dst.chemtable = src.chemtable
+
+
+    # --------------------------------------------------------------------------
     def get_min_coords(self): return self.box.min_coords
     def get_max_coords(self): return self.box.max_coords
     def get_resolution(self): return self.box.resolution

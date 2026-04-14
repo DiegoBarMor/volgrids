@@ -56,6 +56,14 @@ class Grid:
         obj.arr = np.logical_not(other.arr) if (other.dtype == bool) else -other.arr
         return obj
 
+
+    # --------------------------------------------------------------------------
+    def copy(self):
+        obj = self.__class__(self.box, init_grid = False)
+        obj.arr = np.copy(self.arr)
+        return obj
+
+
     # -------------------------------------------------------------------------- GETTERS
     def xres(self): return self.box.resolution[0]
     def yres(self): return self.box.resolution[1]
@@ -71,12 +79,6 @@ class Grid:
     def   dz(self): return self.box.deltas[2]
 
     def npoints(self): return self.xres() * self.yres() * self.zres()
-
-    # --------------------------------------------------------------------------
-    def copy(self):
-        obj = self.__class__(self.box, init_grid = False)
-        obj.arr = np.copy(self.arr)
-        return obj
 
 
     # --------------------------------------------------------------------------
@@ -106,23 +108,24 @@ class Grid:
         self.box.max_coords = np.array([new_xmax, new_ymax, new_zmax])
         self.box.resolution = np.array([new_xres, new_yres, new_zres])
         self.box.deltas = (self.box.max_coords - self.box.min_coords) / (self.box.resolution - 1)
+        self.box.infer_radius_and_cog()
 
 
     # --------------------------------------------------------------------------
-    def has_equivalent_box(self, other: "Grid") -> bool:
+    def has_equivalent_box(self, box: "vg.Box") -> bool:
         return not np.any(
-            (self.box.resolution - other.box.resolution) +\
-            (self.box.min_coords - other.box.min_coords) +\
-            (self.box.max_coords - other.box.max_coords)
+            (self.box.resolution - box.resolution) +\
+            (self.box.min_coords - box.min_coords) +\
+            (self.box.max_coords - box.max_coords)
         )
 
 
     # --------------------------------------------------------------------------
-    def reshape_as(self, other: "Grid"):
+    def reshape_as_box(self, box: "vg.Box"):
         self.reshape(
-            new_min = other.box.min_coords,
-            new_max = other.box.max_coords,
-            new_res = other.box.resolution,
+            new_min = box.min_coords,
+            new_max = box.max_coords,
+            new_res = box.resolution,
         )
 
 

@@ -19,7 +19,7 @@ class SmifStacking(sm.Smif):
             normal = vg.Math.normalize(np.cross(u, v))
 
             kernel.recalculate_kernel(normal, isStacking = True)
-            kernel.stamp(self, cog, multiply_by = sm.ENERGY_SCALE)
+            kernel.stamp(self.grid, cog, multiply_by = sm.ENERGY_SCALE)
 
 
     # --------------------------------------------------------------------------

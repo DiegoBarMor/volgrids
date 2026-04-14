@@ -12,7 +12,7 @@ class SmifHydrophobic(SmifHydro):
         )
         for particle, mul_factor in self.iter_particles():
             if mul_factor < 0: continue
-            kernel.stamp(self, particle.position, multiply_by =  mul_factor)
+            kernel.stamp(self.grid, particle.position, multiply_by =  mul_factor)
 
 
 # //////////////////////////////////////////////////////////////////////////////

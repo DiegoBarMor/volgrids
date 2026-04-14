@@ -302,13 +302,13 @@ def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
             parser.header.mapc, parser.header.mapr, parser.header.maps
 
         if axes_correspondance == (1, 2, 3):
-            box = vg.Box(res, origin, vsize)
+            box = vg.Box(origin, res, vsize)
             obj = vg.Grid(box, init_grid = False)
             obj.arr = data.transpose(2,1,0)
             return obj
 
         if axes_correspondance == (3, 2, 1):
-            box = vg.Box(res[::-1], origin[::-1], vsize[::-1])
+            box = vg.Box(origin[::-1], res[::-1], vsize[::-1])
             obj = vg.Grid(box, init_grid = False)
             obj.arr = data
             return obj
