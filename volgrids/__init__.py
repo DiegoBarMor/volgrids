@@ -14,6 +14,7 @@ from ._misc.params_gaussian import ParamsGaussian, \
     ParamsGaussianUnivariate, ParamsGaussianBivariate
 from ._misc.timer import Timer
 from ._misc.utils import resolve_path_package
+from ._misc.known_configs import KNOWN_CONFIGS
 
 from ._parsers.parser_ini import ParserIni
 from ._parsers.parser_config import ParserConfig
@@ -66,5 +67,3 @@ STR_CUSTOM_CONFIG : str = ""  # "key0=value0 key1=value1 ..."
 import numpy as _np
 PQR_CONTENTS_TEMP: str = ""
 FLOAT_DTYPE: type = _np.float32
-
-_KNOWN_CONFIGS: set[str] = set()

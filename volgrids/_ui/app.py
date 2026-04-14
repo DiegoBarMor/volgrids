@@ -7,11 +7,6 @@ import volgrids as vg
 class App(ABC):
     # --------------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
-        self.known_configs = set(
-            k for scope_module in self.CONFIG_MODULES for k in scope_module.__config_keys__
-        )
-        vg._KNOWN_CONFIGS = self.known_configs
-
         handler = self._CLASS_PARAM_HANDLER(*args, **kwargs)
         handler.assign_globals()
         self.load_configs()
@@ -53,7 +48,6 @@ class App(ABC):
             parser.apply_config(
                 scope_module = scope_module.__dict__,
                 this_module_keys = scope_module.__config_keys__,
-                known_configs = self.known_configs
             )
 
 
