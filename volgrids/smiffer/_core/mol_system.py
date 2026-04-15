@@ -38,25 +38,27 @@ class MolSystemSmiffer(vg.MolSystem):
 
 
     # --------------------------------------------------------------------------
-    def get_relevant_atoms(self):
+    def get_relevant_atoms(self, use_custom = True):
+        query = self.chemtable.get_selection_query(use_custom)
+
         if self.do_ps:
             point = f"{sm.SPHERE.x} {sm.SPHERE.y} {sm.SPHERE.z} {sm.SPHERE.radius}"
             return self.system.select_atoms(
-                f"{self.chemtable.selection_query} and point {point}"
+                f"{query} and point {point}"
             )
-
-        return self.system.select_atoms(self.chemtable.selection_query)
+        return self.system.select_atoms(query)
 
 
     # --------------------------------------------------------------------------
-    def get_relevant_atoms_broad(self, trimming_dist):
+    def get_relevant_atoms_broad(self, trimming_dist, use_custom = True):
+        query = self.chemtable.get_selection_query(use_custom)
+
         if self.do_ps:
             point = f"{sm.SPHERE.x} {sm.SPHERE.y} {sm.SPHERE.z} {sm.SPHERE.radius + trimming_dist}"
             return self.system.select_atoms(
-                f"{self.chemtable.selection_query} and point {point}"
+                f"{query} and point {point}"
             )
-
-        return self.system.select_atoms(self.chemtable.selection_query)
+        return self.system.select_atoms(query)
 
 
     # --------------------------------------------------------------------------
@@ -81,7 +83,7 @@ class MolSystemSmiffer(vg.MolSystem):
             return vg.resolve_path_package(folder_default_tables / "prot.chem")
 
         if sm.CURRENT_MOLTYPE == MolType.RNA:
-            name = "rna_simple_hb" if sm.DO_SIMPLE_HBONDS_RNA else "rna"
+            name = "rna_simple_hb" if sm.HBONDS_ONLY_NUCLEOBASE else "rna"
             return vg.resolve_path_package(folder_default_tables / f"{name}.chem")
 
         raise ValueError(f"No default table for the specified molecular type '{sm.CURRENT_MOLTYPE}'. Please provide a path to a custom table.")

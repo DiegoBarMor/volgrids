@@ -13,6 +13,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         "sphere": ("-s", "--sphere"),
         "table" : ("-b", "--table"),
         "config": ("-c", "--config"),
+        "resids": ("-i", "--resids"),
     }
 
 
@@ -46,6 +47,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             "-b, --table     File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.",
             "-c, --config    File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini). Alternatively, it can be a list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).",
             "-s, --sphere    Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere. If not provided, 'whole' mode is assumed.",
+            "-i, --resids    File path to a text file containing the residue indices to consider for SMIF calculations (one-based indexing, space separated). Alternatively, a string of space-separated indices can be passed directly as argument. If not provided, all residues will be considered.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()
@@ -62,6 +64,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         sm.PATH_TABLE = self._safe_kwd_file_in("table")
 
         self._handle_params_configs()
+        self._handle_params_resids()
         self._handle_params_sphere()
         self._assert_traj_apbs()
         self._assert_ligand_has_table()
@@ -103,6 +106,34 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             if val_as_path.is_dir():
                 self._exit_with_help(self.InvalidPathError, f"The specified config path '{val}' is a folder, but a file was expected.")
             vg.PATHS_CUSTOM_CONFIG.append(val_as_path)
+
+
+    # --------------------------------------------------------------------------
+    def _handle_params_resids(self):
+        def _handle_path(val: str) -> list[str]:
+            possible_path = Path(resids[0])
+            if not possible_path.exists():
+                return resids
+            if possible_path.is_dir():
+                self._exit_with_help(self.InvalidPathError, f"The specified resids path '{val}' is a folder, but a file was expected.")
+            return possible_path.read_text().strip().split()
+
+        def _assert_resid(resid: str) -> int:
+            if not resid.isdigit():
+                self._exit_with_help(self.InvalidParamError, f"Invalid residue index '{resid}' provided for --resids option. All indices must be integers.")
+            return resid
+
+        if not self._has_param_kwds("resids"): return
+
+        resids = self._safe_get_param_kwd_list("resids")
+
+        if not resids:
+            self._exit_with_help(self.InvalidParamError, "No residue indices provided for --resids option.")
+
+        if len(resids) == 1:
+            resids = _handle_path(resids[0])
+
+        sm.CUSTOM_RESIDS = " ".join(_assert_resid(resid) for resid in resids)
 
 
     # --------------------------------------------------------------------------

@@ -125,6 +125,8 @@ Run `python3 volgrids smiffer [mode] [path_structure] [options...]` and provide 
     - `-b [path_table]` where `[path_table]` is the path to a *.chem* table file to use for ligand mode, or to override the default macromolecules' tables. This flag is mandatory for "ligand" mode.
     - `-c [config]` where `[config]` is the path to a configuration file with global settings, to override the default settings (e.g. `config_volgrids.ini`).
       - Alternatively, `[config]` can be a list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
+    - `-i [resids]`, where `[resids]` is a file path to a text file containing the residue indices to consider for SMIF calculations (one-based indexing, space separated).
+      - Alternatively, a string of space-separated indices can be passed directly as argument. If not provided, all residues will be considered.
 
 
 <!-- ----------------------------------------------------------------------- -->

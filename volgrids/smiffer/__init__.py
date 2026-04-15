@@ -45,7 +45,7 @@ SAVE_TRIMMING_MASK: bool = False
 SAVE_CAVITIES: bool = False
 
 USE_STRUCTURE_HYDROGENS: bool = True
-DO_SIMPLE_HBONDS_RNA: bool = False
+HBONDS_ONLY_NUCLEOBASE: bool = False
 
 TRIMMING_DIST_SMALL: float = 2.5
 TRIMMING_DIST_MID:   float = 3.0
@@ -107,6 +107,8 @@ FOLDER_OUT:  _pathlib.Path = None # "folder/output/"
 
 SPHERE: SphereInfo  = None              # pocket sphere info: [x, y, z, radius]
 CURRENT_MOLTYPE: MolType = MolType.NONE # type of the current molecule
+
+CUSTOM_RESIDS: str = "" # "1 2 4 5 ..."
 
 
 ############################### RUNTIME GLOBALS ################################

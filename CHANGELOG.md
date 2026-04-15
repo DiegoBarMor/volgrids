@@ -1,5 +1,9 @@
 # Changelog
 
+## [] -
+- Renamed `DO_SIMPLE_HBONDS_RNA` to `HBONDS_ONLY_NUCLEOBASE`
+
+
 ## [0.6.1] - 2026-04-10
 - Cavities can now also be used to *weight* the smifs instead of trimming them.
     - The `CAVITIES_WEIGHT` configuration controls how much the smifs inside cavities should be taken into account.
