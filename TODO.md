@@ -17,6 +17,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
+* add warning if atom selection is empty.
 * check what happens with structure files with multiple models.
 * maybe: replace the RNDS trimming with a faster method
 * change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED

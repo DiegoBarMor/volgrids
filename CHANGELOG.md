@@ -1,7 +1,26 @@
 # Changelog
 
-## [] -
-- Renamed `DO_SIMPLE_HBONDS_RNA` to `HBONDS_ONLY_NUCLEOBASE`
+## [0.7.0] - 2026-04-16
+- New features:
+    - Started the **Smiffer Utilities** application. Use it via `volgrids smutils`.
+        - First utility: `volgrids smutils resids_nonpb`.
+            - Use it to print a space-separated list of RNA residue indices for nucleotides that are not currently engaged in a canonical base-pairing interaction.
+            - Requires **rnapolis** to be installed (`pip install rnapolis`).
+    - Added `--resids` (`-i`) flag to **Smiffer**.
+        - A custom list of residue indices can now be specified. SMIFs will be calculated for only those residues.
+        - Trimming and APBS remain unaffected.
+        - Combine it with `resids_nonpb` to have more polished hbond results, e.g.:
+        ```bash
+        python3 volgrids smiffer rna 1akx.pdb \
+            -i "$(python3 volgrids smutils resids_nonbp 1akx.pdb)" \
+            -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
+                DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
+        ```
+- Tweaks:
+    - Renamed `DO_SIMPLE_HBONDS_RNA` to `HBONDS_ONLY_NUCLEOBASE`.
+    - An error is now raised for invalid configuration keys.
+    - A list of known configuration keys can be printed by passing the -c flag with no values following.
+        - It still needs to have the required arguments behind. So use it like e.g. `volgrids smiffer rna 1akx.pdb -c`.
 
 
 ## [0.6.1] - 2026-04-10
