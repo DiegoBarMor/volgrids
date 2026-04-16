@@ -5,44 +5,16 @@ import warnings
 from contextlib import redirect_stdout, redirect_stderr
 from pathlib import Path
 import MDAnalysis as mda
-import pandas as pd
 
+from rnapolis.common import Structure2D
 from rnapolis.annotator import  (
     extract_base_interactions,
     handle_input_file,
     read_3d_structure,
-    write_csv,
 )
 
 # ------------------------------------------------------------------------------
-def run_rnapolis(path_pdb: Path, path_csv: Path):
-    file = handle_input_file(path_pdb)
-    structure3d = read_3d_structure(file, None)
-    base_interactions = extract_base_interactions(structure3d)
-    structure2d, _ = structure3d.extract_secondary_structure(
-        base_interactions, False, False
-    )
-    write_csv(path_csv, structure2d)
-
-
-# ------------------------------------------------------------------------------
-def get_idxs_canonical(path_csv: Path) -> set[int]:
-    df = pd.read_csv(path_csv)
-    df = df[
-        (df["type"] == "base pair") &
-        (df["classification-1"] == "cWW") & (
-            (df["classification-2"] == "XIX") |
-            (df["classification-2"] == "XX")
-        )
-    ]
-    resid_0 = df["nt1"].apply(lambda x: int(x[3:]))
-    resid_1 = df["nt2"].apply(lambda x: int(x[3:]))
-    idxs_canonical = set(resid_0) | set(resid_1)
-    return idxs_canonical
-
-
-# ------------------------------------------------------------------------------
-def get_mda_universe_quiet(path_pdb) -> mda.Universe:
+def _create_mda_universe_quiet(path_pdb) -> mda.Universe:
     buf = io.StringIO()
     logger = logging.getLogger("MDAnalysis")
     old_level = logger.getEffectiveLevel()
@@ -58,28 +30,47 @@ def get_mda_universe_quiet(path_pdb) -> mda.Universe:
 
 
 # ------------------------------------------------------------------------------
-def get_idxs_all(path_pdb) -> set[int]:
-    u = get_mda_universe_quiet(path_pdb)
-    idxs_all = set(int(i) for i in u.residues.resids)
-    return idxs_all
+def _get_rnapolis_struct2d(path_pdb: Path) -> Structure2D:
+    file = handle_input_file(path_pdb)
+    structure3d = read_3d_structure(file, None)
+    base_interactions = extract_base_interactions(structure3d)
+    structure2d, _ = structure3d.extract_secondary_structure(
+        base_interactions, False, False
+    )
+    return structure2d
 
 
 # ------------------------------------------------------------------------------
-def main():
-    run_rnapolis(PATH_PDB, PATH_CSV)
-    idxs_canonical = get_idxs_canonical(PATH_CSV)
-    idxs_all = get_idxs_all(PATH_PDB)
-    idxs_available = idxs_all - idxs_canonical
-    print(' '.join(str(i) for i in idxs_available))
+def get_resids_bp_canonical(path_pdb: Path) -> set[int]:
+    structure2d = _get_rnapolis_struct2d(path_pdb)
+    base_pairs = [bp for bp in structure2d.base_pairs if bp.saenger is not None]
+    bp_full_names = [
+        [bp.nt1.full_name, bp.nt2.full_name] for bp in base_pairs
+        if bp.lw.value == "cWW" and bp.saenger.value in ("XIX", "XX")
+    ]
+    resids_0 = { int(bp[0][3:]) for bp in bp_full_names }
+    resids_1 = { int(bp[1][3:]) for bp in bp_full_names }
+    return resids_0 | resids_1
+
+
+# ------------------------------------------------------------------------------
+def get_all_resids(path_pdb) -> set[int]:
+    u = _create_mda_universe_quiet(path_pdb)
+    return set(int(i) for i in u.residues.resids)
+
+
+# ------------------------------------------------------------------------------
+def get_resids_nonbp(path_pdb: str | Path) -> str:
+    path_pdb = Path(path_pdb)
+    idxs_canonical = get_resids_bp_canonical(path_pdb)
+    idxs_all = get_all_resids(path_pdb)
+    idxs_nonpb = sorted(idxs_all - idxs_canonical)
+    return ' '.join(str(i) for i in idxs_nonpb)
 
 
 ################################################################################
 if __name__ == "__main__":
-    warnings.filterwarnings("ignore", module = "MDAnalysis.*")
-    PATH_PDB = Path(sys.argv[1])
-    PATH_CSV = Path(sys.argv[2]) if len(sys.argv) > 2 else\
-        PATH_PDB.with_suffix(".csv")
-    main()
+    print(get_resids_nonbp(path_pdb = sys.argv[1]))
 
 
 ################################################################################
