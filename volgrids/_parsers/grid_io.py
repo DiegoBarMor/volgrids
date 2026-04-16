@@ -58,7 +58,11 @@ class GridIO:
     def read_cmap(path_cmap, key) -> "vg.Grid":
         with h5py.File(path_cmap, 'r') as parser:
             frame = parser["Chimera"][key]
-            box = vg.Box(frame.attrs["origin"], frame["data_zyx"].shape, frame.attrs["step"])
+            box = vg.Box(
+                origin = frame.attrs["origin"],
+                resolution = frame["data_zyx"].shape[::-1],
+                deltas = frame.attrs["step"],
+            )
             vgrid = vg.Grid(box, init_grid = False)
             vgrid.arr = frame["data_zyx"][()].transpose(2,1,0)
 
