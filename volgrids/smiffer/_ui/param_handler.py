@@ -14,6 +14,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         "table" : ("-b", "--table"),
         "config": ("-c", "--config"),
         "resids": ("-i", "--resids"),
+        "pp"    : ("-pp", "--probe-probe"),
     }
 
 
@@ -48,6 +49,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             "-c, --config    File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini). Alternatively, it can be a list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).",
             "-s, --sphere    Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere. If not provided, 'whole' mode is assumed.",
             "-i, --resids    File path to a text file containing the residue indices to consider for SMIF calculations (one-based indexing, space separated). Alternatively, a string of space-separated indices can be passed directly as argument. If not provided, all residues will be considered.",
+            "-pp, --probe-probe Generate Probe-Probe (PP) fields: spherical accessibility regions (radius 2.0 Å) around interaction sites. Generates hbaPP, hbdPP, stkPP, hpPP fields following overlap-gio2 approach.",
         )
         if self._has_param_kwds("help"):
             self._exit_with_help()
@@ -66,6 +68,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         self._handle_params_configs()
         self._handle_params_resids()
         self._handle_params_sphere()
+        self._handle_params_pp()
         self._assert_traj_apbs()
         self._assert_ligand_has_table()
 
@@ -107,7 +110,6 @@ class ParamHandlerSmiffer(vg.ParamHandler):
                 self._exit_with_help(self.InvalidPathError, f"The specified config path '{val}' is a folder, but a file was expected.")
             vg.PATHS_CUSTOM_CONFIG.append(val_as_path)
 
-
     # --------------------------------------------------------------------------
     def _handle_params_resids(self):
         def _handle_path(val: str) -> list[str]:
@@ -134,6 +136,25 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             resids = _handle_path(resids[0])
 
         sm.CUSTOM_RESIDS = " ".join(_assert_resid(resid) for resid in resids)
+
+    # --------------------------------------------------------------------------
+    def _handle_params_pp(self):
+        """Handle probe-probe (PP) field generation flag."""
+        if not self._has_param_kwds("pp"):
+            return
+
+        # Enable all PP field generation
+        sm.DO_SMIF_PP = True
+        sm.DO_SMIF_HBA_PP = True
+        sm.DO_SMIF_HBD_PP = True
+        sm.DO_SMIF_STACKING_PP = True
+        sm.DO_SMIF_HYDRO_PP = True
+
+        print(">>> Enabled Probe-Probe (PP) field generation:")
+        print("    • hbaPP: HB acceptor spherical accessibility (radius 2.0 Å)")
+        print("    • hbdPP: HB donor spherical accessibility (radius 2.0 Å)")
+        print("    • stkPP: Stacking spherical accessibility (radius 2.0 Å)")
+        print("    • hpPP: Hydrophobic spherical accessibility (radius 2.0 Å)")
 
 
     # --------------------------------------------------------------------------

@@ -39,6 +39,19 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def __mul__(self, other: "Grid|float|int") -> "Grid":
+        obj = Grid(self.ms, init_grid = False)
+        if isinstance(other, Grid):
+            obj.arr = self.arr * other.arr
+            return obj
+        try:
+            obj.arr = self.arr * other
+            return obj
+        except TypeError:
+            raise TypeError(f"Cannot multiply {type(other)} with Grid. Use another Grid or a numeric value.")
+
+
+    # --------------------------------------------------------------------------
     def __abs__(self) -> "Grid":
         obj = Grid(self.ms, init_grid = False)
         obj.arr = np.abs(self.arr)

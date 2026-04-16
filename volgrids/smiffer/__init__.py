@@ -12,6 +12,12 @@ from ._smifs._hydro.hydrophilic import SmifHydrophilic
 from ._smifs._hydro.hydrophobic import SmifHydrophobic
 from ._smifs.stacking import SmifStacking
 
+# Probe-Probe (PP) fields - spherical accessibility regions
+from ._smifs._hbonds.hbaccepts_pp import SmifHBAcceptsPP
+from ._smifs._hbonds.hbdonors_pp import SmifHBDonorsPP
+from ._smifs.stacking_pp import SmifStackingPP
+from ._smifs._hydro.hydro_pp import SmifHydroPP
+
 from ._misc.sphere_info import SphereInfo
 
 from ._ui.param_handler import ParamHandlerSmiffer
@@ -27,6 +33,13 @@ DO_SMIF_HBD:         bool = True
 DO_SMIF_HYDROPHOBIC: bool = True
 DO_SMIF_HYDROPHILIC: bool = True
 DO_SMIF_APBS:        bool = True
+
+# Probe-Probe (PP) fields - spherical accessibility regions
+DO_SMIF_PP:          bool = False  # Generate all PP fields
+DO_SMIF_HBA_PP:      bool = False  # HB acceptor probe-probe (hbaPP)
+DO_SMIF_HBD_PP:      bool = False  # HB donor probe-probe (hbdPP)
+DO_SMIF_STACKING_PP: bool = False  # Stacking probe-probe (stkPP)
+DO_SMIF_HYDRO_PP:    bool = False  # Hydrophobic probe-probe (hpPP)
 
 DO_SMIF_LOG_APBS:  bool = False
 DO_SMIF_HYDRODIFF: bool = False
@@ -47,6 +60,7 @@ SAVE_CAVITIES: bool = False
 USE_STRUCTURE_HYDROGENS: bool = True
 HBONDS_ONLY_NUCLEOBASE: bool = False
 
+TRIMMING_DIST_TINY:  float = 1.0
 TRIMMING_DIST_SMALL: float = 2.5
 TRIMMING_DIST_MID:   float = 3.0
 TRIMMING_DIST_LARGE: float = 3.5

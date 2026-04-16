@@ -58,6 +58,21 @@ class AppVGTools(vg.App):
             vgt.VGOperations.rotate(vgt.PATH_ROTATE_IN, vgt.PATH_ROTATE_OUT, vgt.ROTATE_XY, vgt.ROTATE_YZ, vgt.ROTATE_XZ)
             return
 
+        if vgt.OPERATION == "overlap":
+            print(f">>> Computing overlap ({vgt.OVERLAP_OPERATION}) between: {vgt.PATH_OVERLAP_GRID1} and {vgt.PATH_OVERLAP_GRID2}")
+            vgt.VGOperations.overlap(vgt.PATH_OVERLAP_GRID1, vgt.PATH_OVERLAP_GRID2, vgt.PATH_OVERLAP_OUT, vgt.OVERLAP_OPERATION)
+            return
+
+        if vgt.OPERATION == "overlap_cross":
+            print(f">>> Computing cross-comparison overlap between: {vgt.PATH_OVERLAP_CROSS_GRID1} and {vgt.PATH_OVERLAP_CROSS_GRID2}")
+            vgt.VGOperations.overlap_cross_comparison(vgt.PATH_OVERLAP_CROSS_GRID1, vgt.PATH_OVERLAP_CROSS_GRID2, vgt.PATH_OVERLAP_CROSS_OUT)
+            return
+
+        if vgt.OPERATION == "overlap_diff":
+            print(f">>> Computing difference overlap between: {vgt.PATH_OVERLAP_DIFF_GRID1} and {vgt.PATH_OVERLAP_DIFF_GRID2}")
+            vgt.VGOperations.overlap_difference(vgt.PATH_OVERLAP_DIFF_GRID1, vgt.PATH_OVERLAP_DIFF_GRID2, vgt.PATH_OVERLAP_DIFF_OUT)
+            return
+
         raise ValueError(f"Unknown mode: {vgt.OPERATION}")
 
 
