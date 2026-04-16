@@ -55,9 +55,9 @@
 
 
 <!-- ----------------------------------------------------------------------- -->
-## SMTools
-* start implementing SMTools, example operations:
-    * `sphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
+## SMUtils
+* example operations:
+    * `findsphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
     * `smifhist` for an interactive matplotlib visualization of the SMIFs' histograms.
 
 
