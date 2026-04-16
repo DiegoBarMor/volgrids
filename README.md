@@ -243,6 +243,8 @@ pdb2pqr --ff=AMBER testdata/smiffer/pdb_clean/1iqj.pdb testdata/smiffer/pqr/1iqj
 apbs testdata/smiffer/1iqj.in
 ```
 
+- Reference for the `.in` file: https://apbs.readthedocs.io/en/latest/using/input/old/elec/mg-auto.html
+
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->

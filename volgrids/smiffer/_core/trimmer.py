@@ -37,7 +37,7 @@ class Trimmer:
     # --------------------------------------------------------------------------
     def reset_masks(self):
         self.common_mask: vg.Grid = None
-        self.specific_masks = {k : vg.Grid(self.ms, dtype = bool) for k in self.distances.keys()}
+        self.specific_masks = {k : vg.Grid(self.ms.box, dtype = bool) for k in self.distances.keys()}
 
 
     # --------------------------------------------------------------------------
@@ -58,7 +58,7 @@ class Trimmer:
     # --------------------------------------------------------------------------
     def mask_grid(self, smif: "sm.Smif", key: str):
         """Removes `smif` points wherever the mask (for the given `key`) is `True`."""
-        smif.arr[self.get_mask(key).arr] = 0
+        smif.grid.arr[self.get_mask(key).arr] = 0
 
 
     # --------------------------------------------------------------------------
@@ -117,7 +117,7 @@ class Trimmer:
     def _trim_occupancies(self):
         for k,radius in self.distances.items():
             mask = self.specific_masks[k]
-            kernel = vg.KernelSphere(radius, self.ms.deltas, bool)
+            kernel = vg.KernelSphere(radius, self.ms.get_deltas(), bool)
             for a in self.ms.get_relevant_atoms_broad(radius, use_custom = False):
                 kernel.stamp(mask, a.position)
 
@@ -137,10 +137,10 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     def _trim_sphere(self):
-        coords = vg.Math.get_coords_array(self.ms.resolution, self.ms.deltas, self.ms.min_coords)
-        shifted_coords = coords - self.ms.cog
+        coords = vg.Math.get_coords_array(self.ms.get_resolution(), self.ms.get_deltas(), self.ms.get_min_coords())
+        shifted_coords = coords - self.ms.get_cog()
         dist_from_cog = vg.Math.get_norm(shifted_coords)
-        self.common_mask.arr[dist_from_cog > self.ms.radius] = True
+        self.common_mask.arr[dist_from_cog > self.ms.get_radius()] = True
 
 
     # --------------------------------------------------------------------------
@@ -149,12 +149,12 @@ class Trimmer:
         Perform a random search to remove isolated regions.
         Can be problematic (e.g. slow, aggressive trimming); use with caution.
         """
-        visited = np.zeros(self.ms.resolution, dtype = bool)
+        visited = np.zeros(self.ms.get_resolution(), dtype = bool)
 
         directions = np.array([[i,j,k] for i in range(-1,2) for j in range(-1,2) for k in range(-1,2) if i&j&k])
 
-        xres, yres, zres = self.ms.resolution
-        xcog, ycog, zcog = np.floor(self.ms.resolution / 2).astype(int)
+        xres, yres, zres = self.ms.get_resolution()
+        xcog, ycog, zcog = np.floor(self.ms.get_resolution() / 2).astype(int)
         cog_cube = set((x,y,z)
             for x in range(xcog - sm.COG_CUBE_RADIUS, xcog + sm.COG_CUBE_RADIUS + 1)
             for y in range(ycog - sm.COG_CUBE_RADIUS, ycog + sm.COG_CUBE_RADIUS + 1)
@@ -162,7 +162,7 @@ class Trimmer:
         )
         queue = cog_cube.copy()
 
-        search_dist = np.full(self.ms.resolution, np.inf)
+        search_dist = np.full(self.ms.get_resolution(), np.inf)
         for point in cog_cube: search_dist[point] = 0
 
         while queue:
@@ -194,7 +194,7 @@ class Trimmer:
     # --------------------------------------------------------------------------
     def _trim_faraway(self):
         grid = self.common_mask.copy()
-        kernel = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.deltas, bool)
+        kernel = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.get_deltas(), bool)
         for a in self.ms.get_relevant_atoms_broad(sm.TRIM_FARAWAY_DIST, use_custom = False):
             kernel.stamp(grid, a.position)
         self.common_mask.arr[~grid.arr] = True
