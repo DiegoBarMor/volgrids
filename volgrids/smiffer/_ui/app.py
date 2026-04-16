@@ -134,6 +134,32 @@ class AppSmiffer(vg.App):
             )
 
 
+        ### Calculate Probe-Probe (PP) fields - spherical accessibility regions
+        if sm.DO_SMIF_HBA_PP:
+            self._trim_and_save_smif(
+                self._calc_smif(sm.SmifHBAcceptsPP),
+                key_trimming = "tiny", title = "hbaPP"
+            )
+
+        if sm.DO_SMIF_HBD_PP:
+            self._trim_and_save_smif(
+                self._calc_smif(sm.SmifHBDonorsPP),
+                key_trimming = "tiny", title = "hbdPP"
+            )
+
+        if sm.DO_SMIF_STACKING_PP:
+            self._trim_and_save_smif(
+                self._calc_smif(sm.SmifStackingPP),
+                key_trimming = "tiny", title = "stkPP"
+            )
+
+        if sm.DO_SMIF_HYDRO_PP:
+            self._trim_and_save_smif(
+                self._calc_smif(sm.SmifHydroPP),
+                key_trimming = "tiny", title = "hpPP"
+            )
+
+
         ### Calculate / store additional grids
         if sm.SAVE_TRIMMING_MASK:
             mask = self.trimmer.get_mask("mid")

@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 import volgrids as vg
+import volgrids.smiffer as sm
 
 # ------------------------------------------------------------------------------
 def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str, bool]:
@@ -36,7 +37,8 @@ def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str, bool]:
 # //////////////////////////////////////////////////////////////////////////////
 class ParserChemTable:
     def __init__(self, path_table):
-        self.selection_query: str = ''
+        self._selection_query: str = ''
+        self._selection_query_custom: str = ''
         self._parser_ini = vg.ParserIni.from_file(path_table)
         self._residues_hphob: dict[str, float] = {}
         self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
@@ -44,6 +46,15 @@ class ParserChemTable:
         self._names_hba: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._names_hbd: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._parse_table()
+
+
+    # --------------------------------------------------------------------------
+    def get_selection_query(self, use_custom):
+        """
+        Custom query includes an additional condition to select only the residues specified in the `CUSTOM_RESIDS` parameter.
+        Otherwise, the standard query is returned (i.e. that one specified in the .chem table), which does not filter by residue index.
+        """
+        return self._selection_query_custom if use_custom else self._selection_query
 
 
     # --------------------------------------------------------------------------
@@ -78,7 +89,11 @@ class ParserChemTable:
         ### extract values from the lines
         query = self._parser_ini.get("SELECTION_QUERY")
         if query is None: raise ValueError("No selection query found in the table file.")
-        self.selection_query = query[0]
+
+        self._selection_query = query[0]
+        self._selection_query_custom = self._selection_query + (
+            f" and resid {sm.CUSTOM_RESIDS}" if sm.CUSTOM_RESIDS else ''
+        )
 
         for resname, value in self._parser_ini.iter_splitted_lines("RES_HPHOBICITY", sep = ':'):
             self._residues_hphob[resname] = float(value)

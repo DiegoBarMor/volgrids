@@ -24,6 +24,7 @@
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
 * add safeguard when there's no atoms for the specified molecule type
 * add tests for apbs
+* add tests for -i flag
 * add flag for displaying all config options.
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)

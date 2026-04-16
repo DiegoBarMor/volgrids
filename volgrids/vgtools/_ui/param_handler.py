@@ -4,17 +4,18 @@ import volgrids.vgtools as vgt
 # //////////////////////////////////////////////////////////////////////////////
 class ParamHandlerVGTools(vg.ParamHandler):
     _EXPECTED_CLI_FLAGS = {
-            "help"   : ("-h", "--help"),
-            "input"  : ("-i", "--input"),
-            "output" : ("-o", "--output"),
-            "dx"     : ("-d", "--dx"),
-            "mrc"    : ("-m", "--mrc"),
-            "ccp4"   : ("-p", "--ccp4"),
-            "cmap"   : ("-c", "--cmap"),
-            "thresh" : ("-t", "--threshold"),
-            "rot_x"  : ("-x", "--yz"),
-            "rot_y"  : ("-y", "--xz"),
-            "rot_z"  : ("-z", "--xy"),
+            "help"      : ("-h", "--help"),
+            "input"     : ("-i", "--input"),
+            "output"    : ("-o", "--output"),
+            "dx"        : ("-d", "--dx"),
+            "mrc"       : ("-m", "--mrc"),
+            "ccp4"      : ("-p", "--ccp4"),
+            "cmap"      : ("-c", "--cmap"),
+            "thresh"    : ("-t", "--threshold"),
+            "rot_x"     : ("-x", "--yz"),
+            "rot_y"     : ("-y", "--xz"),
+            "rot_z"     : ("-z", "--xy"),
+            "operation" : ("--op", "--operation"),
     }
     _DEFAULT_COMPARISON_THRESHOLD = 1e-5
 
@@ -22,16 +23,19 @@ class ParamHandlerVGTools(vg.ParamHandler):
     # --------------------------------------------------------------------------
     def assign_globals(self):
         self._set_help_str(
-            "usage: volgrids vgtools [convert|pack|unpack|average|fix_cmap] [options...]",
+            "usage: volgrids vgtools [convert|pack|unpack|average|fix_cmap|overlap|overlap_cross|overlap_diff] [options...]",
             "Available modes:",
-            "    convert  - Convert grid files between formats.",
-            "    pack     - Pack multiple grid files into a single CMAP series-file.",
-            "    unpack   - Unpack a CMAP series-file into multiple grid files.",
-            "    average  - Average all grids in a CMAP series-file into a single grid.",
-            "    fix_cmap - Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.",
-            "    summary  - Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.",
-            "    compare  - Compare two grid files by printing the number of differing points and their accumulated difference.",
-            "    rotate   - Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).",
+            "    convert      - Convert grid files between formats.",
+            "    pack         - Pack multiple grid files into a single CMAP series-file.",
+            "    unpack       - Unpack a CMAP series-file into multiple grid files.",
+            "    average      - Average all grids in a CMAP series-file into a single grid.",
+            "    fix_cmap     - Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.",
+            "    summary      - Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.",
+            "    compare      - Compare two grid files by printing the number of differing points and their accumulated difference.",
+            "    rotate       - Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).",
+            "    overlap      - Compute overlap between two molecular interaction fields.",
+            "    overlap_cross - Smart cross-comparison overlap analysis between different field types.",
+            "    overlap_diff  - Compute difference grids between two molecular interaction fields.",
             "\nRun 'volgrids vgtools [mode] --help' for more details on each mode.",
         )
         if self._has_param_kwds("help") and not self._has_params_pos():
@@ -39,14 +43,17 @@ class ParamHandlerVGTools(vg.ParamHandler):
 
         vgt.OPERATION = self._safe_get_param_pos(0).lower()
         func: callable = self._safe_map_value(vgt.OPERATION,
-            convert  = self._parse_convert,
-            pack     = self._parse_pack,
-            unpack   = self._parse_unpack,
-            fix_cmap = self._parse_fix_cmap,
-            average  = self._parse_average,
-            summary  = self._parse_summary,
-            compare  = self._parse_compare,
-            rotate   = self._parse_rotate,
+            convert       = self._parse_convert,
+            pack          = self._parse_pack,
+            unpack        = self._parse_unpack,
+            fix_cmap      = self._parse_fix_cmap,
+            average       = self._parse_average,
+            summary       = self._parse_summary,
+            compare       = self._parse_compare,
+            rotate        = self._parse_rotate,
+            overlap       = self._parse_overlap,
+            overlap_cross = self._parse_overlap_cross,
+            overlap_diff  = self._parse_overlap_diff,
         )
         func()
 
@@ -214,6 +221,100 @@ class ParamHandlerVGTools(vg.ParamHandler):
         vgt.ROTATE_YZ = self._safe_kwd_float("rot_x", default = 0.0)
         vgt.ROTATE_XZ = self._safe_kwd_float("rot_y", default = 0.0)
         vgt.ROTATE_XY = self._safe_kwd_float("rot_z", default = 0.0)
+
+
+    # --------------------------------------------------------------------------
+    def _parse_overlap(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools overlap [grid1] [grid2] [output] [options...]",
+            "Compute overlap between two molecular interaction fields.",
+            "The first grid will be interpolated to match the coordinate system of the second grid.",
+            "Available options:",
+            "    -h, --help         Show this help message and exit.",
+            "    --op, --operation  Operation type: 'multiply' (default), 'subtract', 'add'.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_OVERLAP_GRID1 = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No first grid file provided. Provide a path to the first grid file as second positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_GRID2 = self._safe_path_file_in(
+            self._safe_get_param_pos(2,
+               err_msg = "No second grid file provided. Provide a path to the second grid file as third positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_OUT = self._safe_path_file_out(
+            self._safe_get_param_pos(3,
+               err_msg = "No output grid file provided. Provide a path where to save the overlap grid as fourth positional argument."
+            )
+        )
+
+        vgt.OVERLAP_OPERATION = self._safe_kwd_str("operation", default="multiply")
+
+
+    # --------------------------------------------------------------------------
+    def _parse_overlap_cross(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools overlap_cross [grid1] [grid2] [output]",
+            "Cross-comparison overlap analysis (multiplication).",
+            "Available options:",
+            "    -h, --help  Show this help message and exit.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_OVERLAP_CROSS_GRID1 = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No first grid file provided. Provide a path to the first grid file as second positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_CROSS_GRID2 = self._safe_path_file_in(
+            self._safe_get_param_pos(2,
+               err_msg = "No second grid file provided. Provide a path to the second grid file as third positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_CROSS_OUT = self._safe_path_file_out(
+            self._safe_get_param_pos(3,
+               err_msg = "No output grid file provided. Provide a path where to save the overlap grid as fourth positional argument."
+            )
+        )
+
+
+    # --------------------------------------------------------------------------
+    def _parse_overlap_diff(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools overlap_diff [grid1] [grid2] [output]",
+            "Difference overlap analysis (subtraction: grid1 - grid2).",
+            "Available options:",
+            "    -h, --help  Show this help message and exit.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_OVERLAP_DIFF_GRID1 = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No first grid file provided. Provide a path to the first grid file as second positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_DIFF_GRID2 = self._safe_path_file_in(
+            self._safe_get_param_pos(2,
+               err_msg = "No second grid file provided. Provide a path to the second grid file as third positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_DIFF_OUT = self._safe_path_file_out(
+            self._safe_get_param_pos(3,
+               err_msg = "No output grid file provided. Provide a path where to save the difference grid as fourth positional argument."
+            )
+        )
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,44 @@
+import volgrids as vg
+import volgrids.smiffer as sm
+
+from .hb import SmifHBonds
+from .triplet import Triplet
+
+# //////////////////////////////////////////////////////////////////////////////
+class SmifHBAcceptsPP(SmifHBonds):
+    """
+    Hydrogen Bond Acceptor Probe-Probe (PP) field.
+
+    Following overlap-gio2 approach: uses SphereKernel with radius 2.0 Å
+    """
+
+    # --------------------------------------------------------------------------
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # PP fields use simple sphere kernel (radius 2.0 Å)
+        self.kernel = vg.KernelSphere(
+            radius = 2.0,
+            deltas = self.ms.deltas,
+            dtype = vg.FLOAT_DTYPE
+        )
+        self.hbond_getter = sm.ParserChemTable.get_names_hba
+
+    # --------------------------------------------------------------------------
+    def find_tail_head_positions(self, triplet: Triplet) -> None:
+        # PP fields only use head position (acceptor site)
+        triplet.set_pos_head(self.res_atoms)
+
+    # --------------------------------------------------------------------------
+    def populate_grid(self):
+        """Populate grid with spherical accessibility regions."""
+        for triplet in self._iter_triplets():
+            if triplet.pos_interactor is not None:
+                # Stamp sphere at acceptor position (radius 2.0 Å)
+                self.kernel.stamp(self, triplet.pos_interactor)
+
+    # --------------------------------------------------------------------------
+    def save_data(self, folder_out, title):
+        super().save_data(folder_out, title)
+
+
+# //////////////////////////////////////////////////////////////////////////////

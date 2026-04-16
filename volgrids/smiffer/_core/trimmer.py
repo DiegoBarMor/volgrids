@@ -19,6 +19,12 @@ class Trimmer:
     @classmethod
     def init_infer_dists(cls, ms: "sm.MolSystemSmiffer") -> "sm.Trimmer":
         trimming_dists = {}
+        if any((
+            sm.DO_SMIF_PP, sm.DO_SMIF_HBA_PP, sm.DO_SMIF_HBD_PP,
+            sm.DO_SMIF_STACKING_PP, sm.DO_SMIF_HYDRO_PP
+        )):
+            trimming_dists["tiny"] = sm.TRIMMING_DIST_TINY
+
         if sm.DO_SMIF_HYDROPHILIC:
             trimming_dists["small"] = sm.TRIMMING_DIST_SMALL
 
@@ -118,7 +124,7 @@ class Trimmer:
         for k,radius in self.distances.items():
             mask = self.specific_masks[k]
             kernel = vg.KernelSphere(radius, self.ms.deltas, bool)
-            for a in self.ms.get_relevant_atoms_broad(radius):
+            for a in self.ms.get_relevant_atoms_broad(radius, use_custom = False):
                 kernel.stamp(mask, a.position)
 
 
@@ -195,7 +201,7 @@ class Trimmer:
     def _trim_faraway(self):
         grid = self.common_mask.copy()
         kernel = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.deltas, bool)
-        for a in self.ms.get_relevant_atoms_broad(sm.TRIM_FARAWAY_DIST):
+        for a in self.ms.get_relevant_atoms_broad(sm.TRIM_FARAWAY_DIST, use_custom = False):
             kernel.stamp(grid, a.position)
         self.common_mask.arr[~grid.arr] = True
 
