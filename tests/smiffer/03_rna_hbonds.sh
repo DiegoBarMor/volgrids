@@ -2,7 +2,7 @@
 set -eu
 
 echo
-echo ">>> TEST SMIFFER 6: Benchmark RNA, Hydrogen bonds details"
+echo ">>> TEST SMIFFER 3: Benchmark RNA, Hydrogen bonds details"
 
 fapbs="testdata/smiffer/apbs"
 fpdb_orig="testdata/smiffer/pdb_orig"
