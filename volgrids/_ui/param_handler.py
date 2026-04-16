@@ -1,198 +1,320 @@
-import os
-from pathlib import Path
-from abc import ABC, abstractmethod
+import volgrids as vg
+import volgrids.vgtools as vgt
 
 # //////////////////////////////////////////////////////////////////////////////
-class ParamHandler(ABC):
-    class InvalidPathError(Exception): pass
-    class InvalidParamError(Exception): pass
-    class MissingParamError(Exception): pass
-    class MissingArgsError(Exception): pass
+class ParamHandlerVGTools(vg.ParamHandler):
+    _EXPECTED_CLI_FLAGS = {
+            "help"      : ("-h", "--help"),
+            "input"     : ("-i", "--input"),
+            "output"    : ("-o", "--output"),
+            "dx"        : ("-d", "--dx"),
+            "mrc"       : ("-m", "--mrc"),
+            "ccp4"      : ("-p", "--ccp4"),
+            "cmap"      : ("-c", "--cmap"),
+            "thresh"    : ("-t", "--threshold"),
+            "rot_x"     : ("-x", "--yz"),
+            "rot_y"     : ("-y", "--xz"),
+            "rot_z"     : ("-z", "--xy"),
+            "operation" : ("--op", "--operation"),
+    }
+    _DEFAULT_COMPARISON_THRESHOLD = 1e-5
+
 
     # --------------------------------------------------------------------------
-    def __init__(self, *params_pos: str, **params_kwd: list[str]):
-        self._params_pos = params_pos
-        self._params_kwd = params_kwd
-        self._help_str: str = ""
-
-
-    # --------------------------------------------------------------------------
-    @abstractmethod
     def assign_globals(self):
-        return
+        self._set_help_str(
+            "usage: volgrids vgtools [convert|pack|unpack|average|fix_cmap|overlap|overlap_cross|overlap_diff] [options...]",
+            "Available modes:",
+            "    convert      - Convert grid files between formats.",
+            "    pack         - Pack multiple grid files into a single CMAP series-file.",
+            "    unpack       - Unpack a CMAP series-file into multiple grid files.",
+            "    average      - Average all grids in a CMAP series-file into a single grid.",
+            "    fix_cmap     - Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.",
+            "    summary      - Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.",
+            "    compare      - Compare two grid files by printing the number of differing points and their accumulated difference.",
+            "    rotate       - Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).",
+            "    overlap      - Compute overlap between two molecular interaction fields.",
+            "    overlap_cross - Smart cross-comparison overlap analysis between different field types.",
+            "    overlap_diff  - Compute difference grids between two molecular interaction fields.",
+            "\nRun 'volgrids vgtools [mode] --help' for more details on each mode.",
+        )
+        if self._has_param_kwds("help") and not self._has_params_pos():
+            self._exit_with_help()
+
+        vgt.OPERATION = self._safe_get_param_pos(0).lower()
+        func: callable = self._safe_map_value(vgt.OPERATION,
+            convert       = self._parse_convert,
+            pack          = self._parse_pack,
+            unpack        = self._parse_unpack,
+            fix_cmap      = self._parse_fix_cmap,
+            average       = self._parse_average,
+            summary       = self._parse_summary,
+            compare       = self._parse_compare,
+            rotate        = self._parse_rotate,
+            overlap       = self._parse_overlap,
+            overlap_cross = self._parse_overlap_cross,
+            overlap_diff  = self._parse_overlap_diff,
+        )
+        func()
 
 
     # --------------------------------------------------------------------------
-    @property
-    @abstractmethod
-    def _EXPECTED_CLI_FLAGS() -> dict[str, tuple[str]]:
-        raise NotImplementedError()
+    def _parse_convert(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools convert [input_grid] [options...]",
+            "Available options:",
+            "    -h, --help  Show this help message and exit.",
+            "    -d, --dx    File path where to save the converted grid in DX format.",
+            "    -m, --mrc   File path where to save the converted grid in MRC format.",
+            "    -p, --ccp4  File path where to save the converted grid in CCP4 format.",
+            "    -c, --cmap  File path where to save the converted grid in CMAP format. The stem of the input file will be used as the CMAP key.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_CONVERT_IN = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No input grid file provided. Provide a path to the grid file as second positional argument."
+            )
+        )
+
+        vgt.PATH_CONVERT_DX   = self._safe_kwd_file_out("dx")
+        vgt.PATH_CONVERT_MRC  = self._safe_kwd_file_out("mrc")
+        vgt.PATH_CONVERT_CCP4 = self._safe_kwd_file_out("ccp4")
+        vgt.PATH_CONVERT_CMAP = self._safe_kwd_file_out("cmap")
 
 
     # --------------------------------------------------------------------------
-    @classmethod
-    def parse_cli_args(cls, argv) -> tuple[list[str], dict[str, list[str]]]:
-        """_EXPECTED_CLI_FLAGS is a dict where keys are flag identifiers, each associated with a list of aliases for said flag.
-        This method then outputs a dict where the keys are the flag identifiers actually found in self._args,
-        together with their correspondant values."""
+    def _parse_pack(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools pack [options...]",
+            "Available options:",
+            "    -h, --help    Show this help message and exit.",
+            "    -i, --input   List of file paths with the input grids to be packed. At least one grid file must be provided.",
+            "    -o, --output  File path where to save the packed grid in CMAP format. Must be provided.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
 
-        if cls._EXPECTED_CLI_FLAGS is None:
-            raise NotImplementedError("The _EXPECTED_CLI_FLAGS attribute must be defined in the subclass.")
+        vgt.PATHS_PACK_IN = [
+            self._safe_path_file_in(path) for path in \
+            self._safe_get_param_kwd_list("input")
+        ]
 
-        alias_to_flagname = {}
-        for name,aliases in cls._EXPECTED_CLI_FLAGS.items():
-            alias_to_flagname = {**alias_to_flagname, **{alias:name for alias in aliases}}
-
-        current_name = '' # '' is used for options at the start that are not associated with any flag
-        params_kwd: dict[str, list[str]] = {current_name: []}
-
-        for arg in argv:
-            if arg.lower() in alias_to_flagname: # arg is a flag
-                current_name = alias_to_flagname[arg.lower()]
-                if current_name in params_kwd:
-                    raise ValueError(f"Flag '{current_name}' is defined multiple times in the arguments.")
-                params_kwd[current_name] = []
-
-            else: # arg is a flag's option
-                params_kwd[current_name].append(arg)
-
-        params_pos = params_kwd.pop('')
-        return params_pos, params_kwd
+        vgt.PATH_PACK_OUT = self._safe_kwd_file_out("output", required = True)
 
 
     # --------------------------------------------------------------------------
-    def _set_help_str(self, *lines: str) -> None:
-        self._help_str = '\n'.join(lines)
+    def _parse_unpack(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools unpack [options...]",
+            "Available options:",
+            "    -h, --help    Show this help message and exit.",
+            "    -i, --input   File path to the CMAP series-file to be unpacked. Must be provided.",
+            "    -o, --output  Folder path where to save the unpacked grids. If not provided, the parent folder of the input packed file will be used.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_UNPACK_IN  = self._safe_kwd_file_in("input", required = True)
+        vgt.PATH_UNPACK_OUT = self._safe_kwd_folder_out("output", default = vgt.PATH_UNPACK_IN.parent)
 
 
     # --------------------------------------------------------------------------
-    def _exit_with_help(self, cls_error: type[Exception] = ValueError, err_msg: str = '') -> None:
-        if not err_msg: # assume exit code 0 when no error message is provided
-            print(f"{self._help_str}")
-            exit(0)
+    def _parse_fix_cmap(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools fix_cmap [options...]",
+            "Available options:",
+            "    -h, --help    Show this help message and exit.",
+            "    -i, --input   File path to the CMAP file to be fixed. Must be provided.",
+            "    -o, --output  File path where to save the fixed CMAP file. Must be provided.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
 
-        raise cls_error(f"\n{self._help_str}\n\nError while parsing CLI arguments:\n{err_msg}")
-
-
-    # --------------------------------------------------------------------------
-    def _has_params_pos(self) -> bool:
-        return len(self._params_pos) > 0
-
-
-    # --------------------------------------------------------------------------
-    def _has_param_kwds(self, *names: str) -> bool:
-        return all(name in self._params_kwd for name in names)
+        vgt.PATH_FIXCMAP_IN  = self._safe_kwd_file_in("input", required = True)
+        vgt.PATH_FIXCMAP_OUT = self._safe_kwd_file_out("output", required = True)
 
 
     # --------------------------------------------------------------------------
-    def _safe_idx(self, lst: list, idx: int, err_msg: str) -> str:
-        if idx < 0: idx += len(lst)
+    def _parse_average(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools average [options...]",
+            "Available options:",
+            "    -h, --help    Show this help message and exit.",
+            "    -i, --input   File path to the CMAP series-file to be averaged. Must be provided.",
+            "    -o, --output  File path where to save the averaged CMAP file. Must be provided.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
 
-        try:
-            n_elements = len(lst)
-        except TypeError:
-            if idx == 0:
-                return lst
-        else:
-            if idx < n_elements:
-                return lst[idx]
-
-        self._exit_with_help(err_msg)
-
-
-    # --------------------------------------------------------------------------
-    def _safe_map_value(self, key: str, **values):
-        value = values.get(key, None)
-        if value is None:
-            self._exit_with_help(self.InvalidParamError, f"Invalid parameter '{key}'. Expected one of the following: {', '.join(values.keys())}.")
-        return value
+        vgt.PATH_AVERAGE_IN  = self._safe_kwd_file_in("input", required = True)
+        vgt.PATH_AVERAGE_OUT = self._safe_kwd_file_out("output", required = True)
 
 
     # --------------------------------------------------------------------------
-    def _safe_get_param_pos(self, idx: int, err_msg: str = "") -> str:
-        return self._safe_idx(self._params_pos, idx, err_msg)
+    def _parse_summary(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools summary [input_grid] [options...]",
+            "Available options:",
+            "    -h, --help  Show this help message and exit.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_SUMMARY_IN = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No input grid file provided. Provide a path to the grid file as second positional argument."
+            )
+        )
 
 
     # --------------------------------------------------------------------------
-    def _safe_get_param_kwd_list(self, name: str, min_len: int = 1) -> list[str]:
-        if not self._has_param_kwds(name):
-            self._exit_with_help(self.MissingParamError, f"The flag '{name}' was not provided.")
-        lst = self._params_kwd[name]
-        if len(lst) < min_len:
-            self._exit_with_help(self.MissingArgsError, f"The flag '{name}' was used but not enough values were provided. At least {min_len} value(s) expected.")
-        return lst
+    def _parse_compare(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools compare [input_grid_0] [input_grid_1] [options...]",
+            "Available options:",
+            "    -h, --help       Show this help message and exit.",
+            "    -t, --threshold  Threshold for comparison. Default is 1e-3.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_COMPARE_IN_0 = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No first input grid file provided. Provide a path to the first grid file as second positional argument."
+            )
+        )
+
+        vgt.PATH_COMPARE_IN_1 = self._safe_path_file_in(
+            self._safe_get_param_pos(2,
+               err_msg = "No second input grid file provided. Provide a path to the second grid file as third positional argument."
+            )
+        )
+
+        vgt.THRESHOLD_COMPARE = self._safe_kwd_float("thresh", default = self._DEFAULT_COMPARISON_THRESHOLD)
 
 
     # --------------------------------------------------------------------------
-    def _safe_get_param_kwd(self, name: str, required = False, default: str = None) -> str:
-        if self._has_param_kwds(name):
-            lst = self._params_kwd[name]
-            if lst: return lst[0]
-            self._exit_with_help(self.MissingArgsError, f"The flag '{name}' was used but no value was provided.")
+    def _parse_rotate(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools rotate [input_grid] [output_grid]",
+            "Available options:",
+            "    -h, --help  Show this help message and exit.",
+            "    -x, --yz    Rotation angle in degrees along the yz plane (in degrees).",
+            "    -y, --xz    Rotation angle in degrees along the xz plane (in degrees).",
+            "    -z, --xy    Rotation angle in degrees along the xy plane (in degrees).",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
 
-        if required:
-            self._exit_with_help(self.MissingParamError, f"The mandatory flag '{name}' was not provided.")
-
-        return default
-
-
-    # --------------------------------------------------------------------------
-    def _safe_path_file_in(self, path: str) -> Path:
-        obj = Path(path)
-        if not obj.exists():
-            self._exit_with_help(self.InvalidPathError, f"The specified file path '{path}' does not exist.")
-        if obj.is_dir():
-            self._exit_with_help(self.InvalidPathError, f"The specified file path '{path}' is a folder.")
-        return obj
-
-
-    # --------------------------------------------------------------------------
-    def _safe_path_file_out(self, path: str) -> Path:
-        obj = Path(path)
-        if obj.is_dir():
-            self._exit_with_help(self.InvalidPathError, f"The specified file path '{path}' is a folder.")
-        os.makedirs(obj.parent, exist_ok = True)
-        return obj
+        vgt.PATH_ROTATE_IN = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No input grid file provided. Provide a path to the grid file as second positional argument."
+            )
+        )
+        vgt.PATH_ROTATE_OUT = self._safe_path_file_out(
+            self._safe_get_param_pos(2,
+               err_msg = "No output grid file provided. Provide a path where to save the rotated grid as third positional argument."
+            )
+        )
+        vgt.ROTATE_YZ = self._safe_kwd_float("rot_x", default = 0.0)
+        vgt.ROTATE_XZ = self._safe_kwd_float("rot_y", default = 0.0)
+        vgt.ROTATE_XY = self._safe_kwd_float("rot_z", default = 0.0)
 
 
     # --------------------------------------------------------------------------
-    def _safe_path_folder_out(self, path: str) -> Path:
-        obj = Path(path)
-        if obj.is_file():
-            self._exit_with_help(self.InvalidPathError, f"The specified folder path '{path}' is a file.")
-        os.makedirs(obj, exist_ok = True)
-        return obj
+    def _parse_overlap(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools overlap [grid1] [grid2] [output] [options...]",
+            "Compute overlap between two molecular interaction fields.",
+            "The first grid will be interpolated to match the coordinate system of the second grid.",
+            "Available options:",
+            "    -h, --help         Show this help message and exit.",
+            "    --op, --operation  Operation type: 'multiply' (default), 'subtract', 'add'.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_OVERLAP_GRID1 = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No first grid file provided. Provide a path to the first grid file as second positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_GRID2 = self._safe_path_file_in(
+            self._safe_get_param_pos(2,
+               err_msg = "No second grid file provided. Provide a path to the second grid file as third positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_OUT = self._safe_path_file_out(
+            self._safe_get_param_pos(3,
+               err_msg = "No output grid file provided. Provide a path where to save the overlap grid as fourth positional argument."
+            )
+        )
+
+        vgt.OVERLAP_OPERATION = self._safe_kwd_str("operation", default="multiply")
 
 
     # --------------------------------------------------------------------------
-    def _safe_kwd_file_in(self, name: str, required = False, default: str = None) -> Path | None:
-        path = self._safe_get_param_kwd(name, required, default)
-        if path is None: return
-        return self._safe_path_file_in(path)
+    def _parse_overlap_cross(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools overlap_cross [grid1] [grid2] [output]",
+            "Cross-comparison overlap analysis (multiplication).",
+            "Available options:",
+            "    -h, --help  Show this help message and exit.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
+
+        vgt.PATH_OVERLAP_CROSS_GRID1 = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No first grid file provided. Provide a path to the first grid file as second positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_CROSS_GRID2 = self._safe_path_file_in(
+            self._safe_get_param_pos(2,
+               err_msg = "No second grid file provided. Provide a path to the second grid file as third positional argument."
+            )
+        )
+
+        vgt.PATH_OVERLAP_CROSS_OUT = self._safe_path_file_out(
+            self._safe_get_param_pos(3,
+               err_msg = "No output grid file provided. Provide a path where to save the overlap grid as fourth positional argument."
+            )
+        )
 
 
     # --------------------------------------------------------------------------
-    def _safe_kwd_file_out(self, name: str, required = False, default: str = None) -> Path | None:
-        path = self._safe_get_param_kwd(name, required, default)
-        if path is None: return
-        return self._safe_path_file_out(path)
+    def _parse_overlap_diff(self) -> None:
+        self._set_help_str(
+            "usage: volgrids vgtools overlap_diff [grid1] [grid2] [output]",
+            "Difference overlap analysis (subtraction: grid1 - grid2).",
+            "Available options:",
+            "    -h, --help  Show this help message and exit.",
+        )
+        if self._has_param_kwds("help"):
+            self._exit_with_help()
 
+        vgt.PATH_OVERLAP_DIFF_GRID1 = self._safe_path_file_in(
+            self._safe_get_param_pos(1,
+               err_msg = "No first grid file provided. Provide a path to the first grid file as second positional argument."
+            )
+        )
 
-    # --------------------------------------------------------------------------
-    def _safe_kwd_folder_out(self, name: str, required = False, default: str = None) -> Path | None:
-        path = self._safe_get_param_kwd(name, required, default)
-        if path is None: return
-        return self._safe_path_folder_out(path)
+        vgt.PATH_OVERLAP_DIFF_GRID2 = self._safe_path_file_in(
+            self._safe_get_param_pos(2,
+               err_msg = "No second grid file provided. Provide a path to the second grid file as third positional argument."
+            )
+        )
 
-
-    # --------------------------------------------------------------------------
-    def _safe_kwd_float(self, name: str, required = False, default: float = 0.0) -> float:
-        val_str: str = self._safe_get_param_kwd(name, required)
-        if val_str is None: return default
-        try:
-            return float(val_str)
-        except ValueError:
-            self._exit_with_help(self.InvalidParamError, f"The value for the flag '{name}' must be a float. Got '{val_str}' instead.")
+        vgt.PATH_OVERLAP_DIFF_OUT = self._safe_path_file_out(
+            self._safe_get_param_pos(3,
+               err_msg = "No output grid file provided. Provide a path where to save the difference grid as fourth positional argument."
+            )
+        )
 
 
 # //////////////////////////////////////////////////////////////////////////////

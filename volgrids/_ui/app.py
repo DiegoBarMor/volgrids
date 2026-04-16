@@ -1,78 +1,92 @@
-from abc import ABC, abstractmethod
-from pathlib import Path
-
 import volgrids as vg
+import volgrids.vgtools as vgt
 
 # //////////////////////////////////////////////////////////////////////////////
-class App(ABC):
-    # --------------------------------------------------------------------------
-    def __init__(self, *args, **kwargs):
-        handler = self._CLASS_PARAM_HANDLER(*args, **kwargs)
-        handler.assign_globals()
-        self.load_configs()
-
+class AppVGTools(vg.App):
+    CONFIG_MODULES = (vg,)
+    _CLASS_PARAM_HANDLER = vgt.ParamHandlerVGTools
 
     # --------------------------------------------------------------------------
-    @classmethod
-    def from_cli(cls, argv):
-        params_pos, params_kwd = cls._CLASS_PARAM_HANDLER.parse_cli_args(argv)
-        return cls(*params_pos, **params_kwd)
+    def run(self) -> None:
+        if vgt.OPERATION == "convert":
+            self._run_convert()
+            return
 
+        if vgt.OPERATION == "pack":
+            print(f">>> Packing {len(vgt.PATHS_PACK_IN)} grids into '{vgt.PATH_PACK_OUT}'")
+            vgt.VGOperations.pack(vgt.PATHS_PACK_IN, vgt.PATH_PACK_OUT)
+            return
 
-    # --------------------------------------------------------------------------
-    @classmethod
-    def from_str_argv(cls, str_argv: str):
-        argv = str_argv.split()
-        params_pos, params_kwd = cls._CLASS_PARAM_HANDLER.parse_cli_args(argv)
-        return cls(*params_pos, **params_kwd)
+        if vgt.OPERATION == "unpack":
+            print(f">>> Unpacking '{vgt.PATH_UNPACK_IN}' into '{vgt.PATH_UNPACK_OUT}'")
+            vgt.VGOperations.unpack(vgt.PATH_UNPACK_IN, vgt.PATH_UNPACK_OUT)
+            return
 
+        if vgt.OPERATION == "fix_cmap":
+            print(f">>> Fixing CMAP file: {vgt.PATH_FIXCMAP_IN}")
+            vgt.VGOperations.fix_cmap(vgt.PATH_FIXCMAP_IN, vgt.PATH_FIXCMAP_OUT)
+            return
 
-    # --------------------------------------------------------------------------
-    def load_configs(self) -> None:
-        self._load_config(vg.PATH_DEFAULT_CONFIG)
-        for path_config in vg.PATHS_CUSTOM_CONFIG:
-            self._load_config(path_config)
-        self._load_config(vg.STR_CUSTOM_CONFIG, is_file = False)
+        if vgt.OPERATION == "average":
+            print(f">>> Averaging CMAP file: {vgt.PATH_AVERAGE_IN}")
+            vgt.VGOperations.average(vgt.PATH_AVERAGE_IN, vgt.PATH_AVERAGE_OUT)
+            return
 
+        if vgt.OPERATION == "summary":
+            print(f">>> Grid summary: {vgt.PATH_SUMMARY_IN}")
+            vgt.VGOperations.summary(vgt.PATH_SUMMARY_IN)
+            return
 
-    # --------------------------------------------------------------------------
-    def _load_config(self, config: Path | str, is_file = True) -> None:
-        if is_file:
-            if config is None: return
-            parser = vg.ParserConfig.from_file(config)
-        else:
-            if not config.strip(): return
-            parser = vg.ParserConfig(config)
+        if vgt.OPERATION == "compare":
+            print(f">>> Comparing grids: {vgt.PATH_COMPARE_IN_0} vs {vgt.PATH_COMPARE_IN_1} (threshold={vgt.THRESHOLD_COMPARE:2.2e})")
+            result = vgt.VGOperations.compare(vgt.PATH_COMPARE_IN_0, vgt.PATH_COMPARE_IN_1, vgt.THRESHOLD_COMPARE)
 
-        for scope_module in self.CONFIG_MODULES:
-            parser.apply_config(
-                scope_module = scope_module.__dict__,
-                this_module_keys = scope_module.__config_keys__,
+            for message in result.messages:
+                print(f"...>>> {message}")
+            if result.npoints_total == 0: return
+
+            print(
+                f"...>>> {result.npoints_diff}/{result.npoints_total} points differ " +\
+                f"({100 * result.npoints_diff / result.npoints_total:.2f}%)\n" +\
+                f"...>>> Accumulated difference: {result.cumulative_diff:2.2e} " +\
+                f"(avg {result.avg_diff:2.2e} per point)"
             )
+            return
+
+        if vgt.OPERATION == "rotate":
+            print(f">>> Rotating grid: {vgt.PATH_ROTATE_IN} by {vgt.ROTATE_XY}° (xy), {vgt.ROTATE_YZ}° (yz), {vgt.ROTATE_XZ}° (xz)")
+            vgt.VGOperations.rotate(vgt.PATH_ROTATE_IN, vgt.PATH_ROTATE_OUT, vgt.ROTATE_XY, vgt.ROTATE_YZ, vgt.ROTATE_XZ)
+            return
+
+        if vgt.OPERATION == "overlap":
+            print(f">>> Computing overlap ({vgt.OVERLAP_OPERATION}) between: {vgt.PATH_OVERLAP_GRID1} and {vgt.PATH_OVERLAP_GRID2}")
+            vgt.VGOperations.overlap(vgt.PATH_OVERLAP_GRID1, vgt.PATH_OVERLAP_GRID2, vgt.PATH_OVERLAP_OUT, vgt.OVERLAP_OPERATION)
+            return
+
+        if vgt.OPERATION == "overlap_cross":
+            print(f">>> Computing cross-comparison overlap between: {vgt.PATH_OVERLAP_CROSS_GRID1} and {vgt.PATH_OVERLAP_CROSS_GRID2}")
+            vgt.VGOperations.overlap_cross_comparison(vgt.PATH_OVERLAP_CROSS_GRID1, vgt.PATH_OVERLAP_CROSS_GRID2, vgt.PATH_OVERLAP_CROSS_OUT)
+            return
+
+        if vgt.OPERATION == "overlap_diff":
+            print(f">>> Computing difference overlap between: {vgt.PATH_OVERLAP_DIFF_GRID1} and {vgt.PATH_OVERLAP_DIFF_GRID2}")
+            vgt.VGOperations.overlap_difference(vgt.PATH_OVERLAP_DIFF_GRID1, vgt.PATH_OVERLAP_DIFF_GRID2, vgt.PATH_OVERLAP_DIFF_OUT)
+            return
+
+        raise ValueError(f"Unknown mode: {vgt.OPERATION}")
 
 
     # --------------------------------------------------------------------------
-    @property
-    @abstractmethod
-    def CONFIG_MODULES() -> tuple:
-        """
-        Class variable that stores the modules that will be configured by this app.
-        This is necessary for the config parser to know which keys to look for in the config file, and where to apply them.
-        For example: `(vg, sm)`, assuming `import volgrids.vgrids as vg` and `import volgrids.smiffer as sm` beforehand."""
-        raise NotImplementedError()
+    def _run_convert(self):
+        def _convert(path_out, fmt_out: vg.GridFormat):
+            if path_out is None: return
+            print(f">>> Converting {vgt.PATH_CONVERT_IN} file to {fmt_out.name}: {path_out}")
+            vgt.VGOperations.convert(vgt.PATH_CONVERT_IN, path_out, fmt_out)
 
-
-    # --------------------------------------------------------------------------
-    @property
-    @abstractmethod
-    def _CLASS_PARAM_HANDLER() -> type["vg.ParamHandler"]:
-        raise NotImplementedError()
-
-
-    # --------------------------------------------------------------------------
-    @abstractmethod
-    def run(self):
-        raise NotImplementedError()
+        _convert(vgt.PATH_CONVERT_DX,   vg.GridFormat.DX)
+        _convert(vgt.PATH_CONVERT_MRC,  vg.GridFormat.MRC)
+        _convert(vgt.PATH_CONVERT_CCP4, vg.GridFormat.CCP4)
+        _convert(vgt.PATH_CONVERT_CMAP, vg.GridFormat.CMAP)
 
 
 # //////////////////////////////////////////////////////////////////////////////
