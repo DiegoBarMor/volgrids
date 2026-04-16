@@ -133,7 +133,8 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         if len(resids) == 1:
             resids = _handle_path(resids[0])
 
-        sm.CUSTOM_RESIDS = " ".join(_assert_resid(resid) for resid in resids)
+        splitted = (x for resid in resids for x in resid.split())
+        sm.CUSTOM_RESIDS = " ".join(_assert_resid(resid) for resid in splitted)
 
 
     # --------------------------------------------------------------------------
