@@ -19,7 +19,7 @@ __config_keys__.remove("_keys_other")
 ### These are global variables that are to be set by
 ### an instance of ParamHandler (or its inherited classes)
 
-OPERATION: str = '' # mode of the application, i.e. "convert", "pack", "unpack", "fix_cmap", "average", "summary", "compare", "rotate", "overlap", "overlap_cross", "overlap_diff"
+OPERATION: str = '' # mode of the application, i.e. "convert", "pack", "unpack", "fix_cmap", "average", "summary", "compare", "rotate"
 
 import pathlib as _pathlib
 
@@ -60,19 +60,3 @@ PATH_ROTATE_OUT: _pathlib.Path = None # "path/output/grid.mrc"
 ROTATE_XY: float # angle in degrees (default 0)
 ROTATE_YZ: float # angle in degrees (default 0)
 ROTATE_XZ: float # angle in degrees (default 0)
-
-### Overlap
-PATH_OVERLAP_GRID1: _pathlib.Path = None # "path/input/grid1.dx" (first grid, will be interpolated)
-PATH_OVERLAP_GRID2: _pathlib.Path = None # "path/input/grid2.dx" (second grid, defines target coordinate system)
-PATH_OVERLAP_OUT:   _pathlib.Path = None # "path/output/overlap.dx" (output overlap grid)
-OVERLAP_OPERATION:  str = "multiply"     # operation type: "multiply", "subtract", "add"
-
-### Overlap Cross-Comparison
-PATH_OVERLAP_CROSS_GRID1: _pathlib.Path = None # "path/input/grid1.dx"
-PATH_OVERLAP_CROSS_GRID2: _pathlib.Path = None # "path/input/grid2.dx"
-PATH_OVERLAP_CROSS_OUT:   _pathlib.Path = None # "path/output/cross_overlap.dx"
-
-### Overlap Difference
-PATH_OVERLAP_DIFF_GRID1: _pathlib.Path = None # "path/input/grid1.dx" (minuend)
-PATH_OVERLAP_DIFF_GRID2: _pathlib.Path = None # "path/input/grid2.dx" (subtrahend)
-PATH_OVERLAP_DIFF_OUT:   _pathlib.Path = None # "path/output/diff_overlap.dx"
