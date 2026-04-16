@@ -17,6 +17,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
+* add warning if atom selection is empty.
 * check what happens with structure files with multiple models.
 * maybe: replace the RNDS trimming with a faster method
 * change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
@@ -24,6 +25,7 @@
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
 * add safeguard when there's no atoms for the specified molecule type
 * add tests for apbs
+* add tests for -i flag
 * add flag for displaying all config options.
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
@@ -54,9 +56,9 @@
 
 
 <!-- ----------------------------------------------------------------------- -->
-## SMTools
-* start implementing SMTools, example operations:
-    * `sphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
+## SMUtils
+* example operations:
+    * `findsphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
     * `smifhist` for an interactive matplotlib visualization of the SMIFs' histograms.
 
 

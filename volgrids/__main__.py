@@ -16,9 +16,10 @@ def help_and_exit(exit_code: int):
         "Available applications:",
         "    apbs     - Generate raw APBS potential grids for biomolecular structures.",
         "    smiffer  - Calculate SMIFs for biomolecular structures.",
-        "    veins    - Calculate VEINS for biomolecular structures.",
-        "    vgtools  - Miscellaneous tools for volumetric grids.\n",
-        "Run 'volgrids [app] --help' for more details on each application.\n",
+        "    vgtools  - Miscellaneous tools for generic volumetric grids.",
+        "    smutils  - Utilities related to more advanced SMIF usage.",
+        "    veins    - [WIP] not fully implemented. Calculate VEINS for biomolecular structures.",
+        "\nRun 'volgrids [app] --help' for more details on each application.\n",
         sep = '\n'
     )
     exit(exit_code)
@@ -55,14 +56,19 @@ def main():
         sm.AppSmiffer.from_cli(app_args).run()
         exit(0)
 
-    if app_name == "veins":
-        import volgrids.veins as ve
-        ve.AppVeins.from_cli(app_args).run()
-        exit(0)
-
     if app_name == "vgtools":
         import volgrids.vgtools as vgt
         vgt.AppVGTools.from_cli(app_args).run()
+        exit(0)
+
+    if app_name == "smutils":
+        import volgrids.smutils as su
+        su.AppSMUtils.from_cli(app_args).run()
+        exit(0)
+
+    if app_name == "veins":
+        import volgrids.veins as ve
+        ve.AppVeins.from_cli(app_args).run()
         exit(0)
 
     help_and_exit(2)
