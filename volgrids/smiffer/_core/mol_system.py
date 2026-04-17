@@ -1,4 +1,5 @@
 import tempfile
+import warnings
 import numpy as np
 from pathlib import Path
 
@@ -43,27 +44,16 @@ class MolSystemSmiffer(vg.MolSystem):
 
 
     # --------------------------------------------------------------------------
-    def get_relevant_atoms(self, use_custom = True):
+    def get_relevant_atoms(self, use_custom = True, extra_dist: float = 0.0):
         query = self.chemtable.get_selection_query(use_custom)
+        if self.do_ps: query += f"and point {sm.SPHERE.get_str_query(extra_dist)}"
 
-        if self.do_ps:
-            point = f"{sm.SPHERE.x} {sm.SPHERE.y} {sm.SPHERE.z} {sm.SPHERE.radius}"
-            return self.system.select_atoms(
-                f"{query} and point {point}"
-            )
-        return self.system.select_atoms(query)
-
-
-    # --------------------------------------------------------------------------
-    def get_relevant_atoms_broad(self, trimming_dist, use_custom = True):
-        query = self.chemtable.get_selection_query(use_custom)
-
-        if self.do_ps:
-            point = f"{sm.SPHERE.x} {sm.SPHERE.y} {sm.SPHERE.z} {sm.SPHERE.radius + trimming_dist}"
-            return self.system.select_atoms(
-                f"{query} and point {point}"
-            )
-        return self.system.select_atoms(query)
+        atoms = self.system.select_atoms(query)
+        if len(atoms) == 0: warnings.warn(
+            f"\n\n... The selection query '{query}' did not return any atoms. "+\
+            "Are you using the adequate 'prot'/'rna'/'ligand' mode?\n"
+        )
+        return atoms
 
 
     # --------------------------------------------------------------------------
