@@ -2,7 +2,7 @@
 set -eu
 
 echo
-echo ">>> TEST SMIFFER 5: CavityFinder"
+echo ">>> TEST SMIFFER 6: CavityFinder"
 
 fpdb="testdata/smiffer/pdb_clean"
 fpdb_orig="testdata/smiffer/pdb_orig"
