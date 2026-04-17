@@ -17,8 +17,8 @@ class SmifHBDonorsPP(SmifHBonds):
         super().__init__(*args, **kwargs)
         # PP fields use simple sphere kernel (radius 2.0 Å)
         self.kernel = vg.KernelSphere(
-            radius = 2.0,
-            deltas = self.ms.deltas,
+            radius = 2.0, # [WIP] hardcoded value -> config
+            deltas = self.ms.get_deltas(),
             dtype = vg.FLOAT_DTYPE
         )
         self.hbond_getter = sm.ParserChemTable.get_names_hbd
@@ -33,13 +33,10 @@ class SmifHBDonorsPP(SmifHBonds):
     def populate_grid(self):
         """Populate grid with spherical accessibility regions."""
         for triplet in self._iter_triplets():
-            if triplet.pos_interactor is not None:
-                # Stamp sphere at donor position (radius 2.0 Å)
-                self.kernel.stamp(self, triplet.pos_interactor)
+            if triplet.pos_interactor is None: continue
+            # Stamp sphere at donor position (radius 2.0 Å)
+            self.kernel.stamp(self.grid, triplet.pos_interactor)
 
-    # --------------------------------------------------------------------------
-    def save_data(self, folder_out, title):
-        super().save_data(folder_out, title)
 
 
 # //////////////////////////////////////////////////////////////////////////////

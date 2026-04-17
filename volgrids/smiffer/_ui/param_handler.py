@@ -146,7 +146,6 @@ class ParamHandlerSmiffer(vg.ParamHandler):
             return
 
         # Enable all PP field generation
-        sm.DO_SMIF_PP = True
         sm.DO_SMIF_HBA_PP = True
         sm.DO_SMIF_HBD_PP = True
         sm.DO_SMIF_STACKING_PP = True

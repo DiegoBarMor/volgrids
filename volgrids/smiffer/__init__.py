@@ -38,7 +38,6 @@ DO_SMIF_HYDROPHILIC: bool = True
 DO_SMIF_APBS:        bool = True
 
 # Probe-Probe (PP) fields - spherical accessibility regions
-DO_SMIF_PP:          bool = False  # Generate all PP fields
 DO_SMIF_HBA_PP:      bool = False  # HB acceptor probe-probe (hbaPP)
 DO_SMIF_HBD_PP:      bool = False  # HB donor probe-probe (hbdPP)
 DO_SMIF_STACKING_PP: bool = False  # Stacking probe-probe (stkPP)
