@@ -17,7 +17,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
-* add warning if atom selection is empty.
+* list of spheres for trajectory+pocket_sphere mode
 * check what happens with structure files with multiple models.
 * maybe: replace the RNDS trimming with a faster method
 * change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
@@ -26,10 +26,8 @@
 * add safeguard when there's no atoms for the specified molecule type
 * add tests for apbs
 * add tests for -i flag
-* add flag for displaying all config options.
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
-* Generate a warning when saving empty smifs
 * check whether the trimmer can still be saved when no smifs are calculated
 * reduce the number of file writes performed during trajectory mode
   * introduce multithreading for calculating multiple frames concurrently?

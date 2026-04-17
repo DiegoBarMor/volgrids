@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 
 import volgrids as vg
 import volgrids.smiffer as sm
@@ -41,6 +42,7 @@ class AppSmiffer(vg.App):
                 timer_frame.start()
                 self._process_grids()
                 timer_frame.end()
+            self._delete_traj_locks()
 
         else: # SINGLE PDB MODE
             self._process_grids()
@@ -169,6 +171,15 @@ class AppSmiffer(vg.App):
         self.trimmer.mask_grid(smif, key_trimming)
         self.cavfinder.apply_cavities_weighting(smif)
         smif.save_data_smif(smif.grid, self.ms, sm.FOLDER_OUT, title)
+
+
+    # --------------------------------------------------------------------------
+    def _delete_traj_locks(self):
+        if sm.PATH_TRAJ.suffix != ".xtc": return
+
+        preffix = str(sm.PATH_TRAJ.parent / f".{sm.PATH_TRAJ.stem}.xtc_offsets")
+        Path(f"{preffix}.lock").unlink(missing_ok = True)
+        Path(f"{preffix}.npz").unlink(missing_ok = True)
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -1,10 +1,10 @@
 # Volumetric Grids (VolGrids)
-VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. Some tools are also provided:
-  - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
+VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. The following applications are provided:
   - [**SMIF Calculator**](#statistical-molecular-interaction-fields-smif-calculator) via `volgrids smiffer`
-  - [**Volgrid Tools**](#volgrid-tools) via `volgrids vgtools`.
   - [**Smiffer Utilities**](#smiffer-utilities)  via `volgrids smutils`
-  - ~~[**Volumetric Energy INSpector**](#volumetric-energy-inspector-veins) via `volgrids veins`.~~ [WIP] WORK IN PROGRESS
+    - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
+  - [**Volgrid Tools**](#volgrid-tools) via `volgrids vgtools`.
+  - ~~[**Volumetric Energy INSpector**](#volumetric-energy-inspector-veins) via `volgrids veins`. [WIP] WORK IN PROGRESS~~
 
 You can read more in their respective sections.
 
@@ -248,6 +248,29 @@ apbs testdata/smiffer/1iqj.in
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- -------------------------- SMIFFER UTILITIES -------------------------- -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+# Smiffer Utilities
+Utilities related to more advanced SMIF usage.
+
+## Usage
+Run `volgrids smutils [mode] [options...]` and provide the parameters of the calculation via arguments.
+  - Replace `[mode]` with one of the following available modes:
+    - `resids_nonbp`: Print the set of non-base-paired residue indices in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires [rnapolis](#optional-requirements).
+  - `[options...]` will depend on the mode, check the respective help string for more information (run `volgrids smutils [mode] -h`).
+
+### Examples
+- Combine `resids_nonpb` with smiffer's `--resids` (`-i`) flag to have more polished hbond results, e.g.:
+```bash
+python3 volgrids smiffer rna 1akx.pdb \
+    -i "$(python3 volgrids smutils resids_nonbp 1akx.pdb)" \
+    -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
+        DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
+```
+
+
+
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- ---------------------------- VOLGRID TOOLS ---------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Volgrid Tools
@@ -265,20 +288,6 @@ Run `volgrids vgtools [mode] [options...]` and provide the parameters of the cal
     - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
     - `rotate`: Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
   - `[options...]` will depend on the mode, check the respective help string for more information (run `volgrids vgtools [mode] -h`).
-
-
-
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- -------------------------- SMIFFER UTILITIES -------------------------- -->
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-# Smiffer Utilities
-Utilities related to more advanced SMIF usage.
-
-## Usage
-Run `volgrids smutils [mode] [options...]` and provide the parameters of the calculation via arguments.
-  - Replace `[mode]` with one of the following available modes:
-    - `resids_nonbp`: Print the set of non-base-paired residue indices in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires [rnapolis](#optional-requirements).
-  - `[options...]` will depend on the mode, check the respective help string for more information (run `volgrids smutils [mode] -h`).
 
 
 
