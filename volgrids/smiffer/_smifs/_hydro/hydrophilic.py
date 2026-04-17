@@ -8,11 +8,11 @@ class SmifHydrophilic(SmifHydro):
     def populate_grid(self):
         radius = sm.MU_HYDROPHILIC + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_HYDROPHILIC
         kernel = vg.KernelGaussianUnivariateDist(
-            radius, self.ms.deltas, vg.FLOAT_DTYPE, sm.PARAMS_HPHIL
+            radius, self.ms.get_deltas(), vg.FLOAT_DTYPE, sm.PARAMS_HPHIL
         )
         for particle, mul_factor in self.iter_particles():
             if mul_factor > 0: continue
-            kernel.stamp(self, particle.position, multiply_by = -mul_factor)
+            kernel.stamp(self.grid, particle.position, multiply_by = -mul_factor)
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 
 import volgrids as vg
 import volgrids.smiffer as sm
@@ -20,7 +21,7 @@ class AppSmiffer(vg.App):
         self.trimmer: sm.Trimmer = self._CLASS_TRIMMER.init_infer_dists(self.ms)
         self.cavfinder: sm.CavityFinder = sm.CavityFinder()
         self.timer = vg.Timer(
-            f">>> Now processing {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}'"+\
+            f">>> SMIFs {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}'"+\
             f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
         )
 
@@ -41,11 +42,12 @@ class AppSmiffer(vg.App):
                 timer_frame.start()
                 self._process_grids()
                 timer_frame.end()
+            self._delete_traj_locks()
 
         else: # SINGLE PDB MODE
             self._process_grids()
 
-        self.timer.end(text = "SMIFS", minus = sm.APBS_ELAPSED_TIME)
+        self.timer.end(text = "SMIFs", minus = sm.APBS_ELAPSED_TIME)
 
 
     # --------------------------------------------------------------------------
@@ -88,13 +90,14 @@ class AppSmiffer(vg.App):
         if sm.DO_SMIF_APBS:
             smif_apbs: sm.SmifAPBS = self._calc_smif(sm.SmifAPBS)
             if vg.PQR_CONTENTS_TEMP:
-                self.trimmer.ms = sm.MolSystemSmiffer.from_pqr_data(vg.PQR_CONTENTS_TEMP)
-                self.trimmer.ms.molname = self.ms.molname
+                new_ms = sm.MolSystemSmiffer.from_pqr_data(vg.PQR_CONTENTS_TEMP)
+                sm.MolSystemSmiffer.copy_attributes_except_system(src = self.ms, dst = new_ms)
+                self.trimmer.ms = new_ms
 
         self.trimmer.trim(self.cavfinder)
 
         if sm.DO_SMIF_APBS:
-            smif_apbs.reshape_as(self.trimmer.specific_masks["large"])
+            smif_apbs.grid.reshape_as_box(self.trimmer.specific_masks["large"].box)
             self._trim_and_save_smif(
                 smif_apbs, key_trimming = "large", title = "apbs"
             )
@@ -164,18 +167,18 @@ class AppSmiffer(vg.App):
         if sm.SAVE_TRIMMING_MASK:
             mask = self.trimmer.get_mask("mid")
             reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
-            reverse.save_data(sm.FOLDER_OUT, "trimming")
+            sm.Smif.save_data_smif(reverse, self.ms, sm.FOLDER_OUT, "trimming")
 
         if sm.SAVE_CAVITIES and self.cavfinder.has_data():
-            self.cavfinder.grid.save_data(sm.FOLDER_OUT, "cavities")
+            sm.Smif.save_data_smif(self.cavfinder.grid, self.ms, sm.FOLDER_OUT, "cavities")
 
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
-            grid_hpdiff = smif_hphob - smif_hphil
-            grid_hpdiff.save_data(sm.FOLDER_OUT, "hydrodiff")
+            grid_hpdiff = smif_hphob.grid - smif_hphil.grid
+            sm.Smif.save_data_smif(grid_hpdiff, self.ms, sm.FOLDER_OUT, "hydrodiff")
 
-        if sm.DO_SMIF_LOG_APBS:
+        if sm.DO_SMIF_APBS and sm.DO_SMIF_LOG_APBS:
             smif_apbs.apply_logabs_transform()
-            smif_apbs.save_data(sm.FOLDER_OUT, "apbslog")
+            sm.Smif.save_data_smif(smif_apbs.grid, self.ms, sm.FOLDER_OUT, "apbslog")
 
         if not self.ms.do_traj and vg.PQR_CONTENTS_TEMP:
             path_pqr = sm.FOLDER_OUT / f"{self.ms.molname}.pqr"
@@ -193,7 +196,16 @@ class AppSmiffer(vg.App):
     def _trim_and_save_smif(self, smif: sm.Smif, key_trimming: str, title: str) -> None:
         self.trimmer.mask_grid(smif, key_trimming)
         self.cavfinder.apply_cavities_weighting(smif)
-        smif.save_data(sm.FOLDER_OUT, title)
+        smif.save_data_smif(smif.grid, self.ms, sm.FOLDER_OUT, title)
+
+
+    # --------------------------------------------------------------------------
+    def _delete_traj_locks(self):
+        if sm.PATH_TRAJ.suffix != ".xtc": return
+
+        preffix = str(sm.PATH_TRAJ.parent / f".{sm.PATH_TRAJ.stem}.xtc_offsets")
+        Path(f"{preffix}.lock").unlink(missing_ok = True)
+        Path(f"{preffix}.npz").unlink(missing_ok = True)
 
 
 # //////////////////////////////////////////////////////////////////////////////

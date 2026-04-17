@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-bash tests/env/rebuild.sh
+bash scripts/reinstall.sh
 
 echo
 echo ">>> TEST ENV 1: Environment WITH volgrids and its dependencies installed"

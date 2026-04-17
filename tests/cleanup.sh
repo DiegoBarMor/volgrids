@@ -10,7 +10,7 @@ rm -rf $folder_env
 # rm -rf "$folder_smiffer/apbs"
 rm  -f "$folder_smiffer/toy_systems/"*.cmap
 rm -rf "$folder_smiffer/pocket_sphere"
-rm -rf "$folder_smiffer/whole"
+rm -rf "$folder_smiffer/whole"*
 rm  -f "$folder_smiffer/trajs/few_frames/"*.cmap
 rm  -f "$folder_smiffer/trajs/few_resids/"*.cmap
 rm  -f "$folder_smiffer/ligands/all_interactions/"*.cmap

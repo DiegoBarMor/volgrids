@@ -26,7 +26,7 @@ class SmifHBonds(sm.Smif, ABC):
     def populate_grid(self):
         for pos_interactor, vec_direction in self.iter_particles():
             self.kernel.recalculate_kernel(vec_direction, isStacking = False)
-            self.kernel.stamp(self, pos_interactor, multiply_by = sm.ENERGY_SCALE)
+            self.kernel.stamp(self.grid, pos_interactor, multiply_by = sm.ENERGY_SCALE)
 
 
     # --------------------------------------------------------------------------

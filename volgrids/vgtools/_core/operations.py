@@ -64,9 +64,9 @@ class VGOperations:
         for key in keys:
             grid = vg.GridIO.read_cmap(path_in, key)
             if resolution is None:
-                resolution = grid.ms.resolution
+                resolution = grid.box.resolution
 
-            grid.reshape(grid.ms.min_coords, grid.ms.max_coords, resolution)
+            grid.reshape(grid.box.min_coords, grid.box.max_coords, resolution)
             vg.GridIO.write_cmap(path_out, grid, key)
 
 
@@ -83,7 +83,7 @@ class VGOperations:
             avg += vg.GridIO.read_cmap(path_in, key).arr
         avg /= nframes
 
-        grid_avg: vg.Grid = vg.Grid(grid.ms, init_grid = False)
+        grid_avg: vg.Grid = vg.Grid(grid.box, init_grid = False)
         grid_avg.arr = avg
 
         vg.GridIO.write_auto(path_out, grid_avg)
@@ -125,10 +125,10 @@ class VGOperations:
         grid_0 = vg.GridIO.read_auto(path_in_0)
         grid_1 = vg.GridIO.read_auto(path_in_1)
 
-        deltas_0     = grid_0.ms.deltas;     deltas_1     = grid_1.ms.deltas
-        resolution_0 = grid_0.ms.resolution; resolution_1 = grid_1.ms.resolution
-        min_coords_0 = grid_0.ms.min_coords; min_coords_1 = grid_1.ms.min_coords
-        max_coords_0 = grid_0.ms.max_coords; max_coords_1 = grid_1.ms.max_coords
+        deltas_0     = grid_0.box.deltas;     deltas_1     = grid_1.box.deltas
+        resolution_0 = grid_0.box.resolution; resolution_1 = grid_1.box.resolution
+        min_coords_0 = grid_0.box.min_coords; min_coords_1 = grid_1.box.min_coords
+        max_coords_0 = grid_0.box.max_coords; max_coords_1 = grid_1.box.max_coords
 
         if _are_different_vector(resolution_0, resolution_1):
             return vgt.ComparisonResult(0, 0, 0.0, 0.0,

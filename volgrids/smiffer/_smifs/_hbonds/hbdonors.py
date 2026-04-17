@@ -25,11 +25,11 @@ class SmifHBDonors(SmifHBonds, ABC):
         self.hbond_getter = sm.ParserChemTable.get_names_hbd
         self._kernel_hbd_free = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_HBD_FREE + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FREE,
-            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD_FREE
+            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD_FREE
         )
         self._kernel_hbd_fixed = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_HBD_FIXED + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FIXED,
-            deltas = self.ms.deltas, dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD_FIXED
+            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD_FIXED
         )
 
 

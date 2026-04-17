@@ -23,7 +23,7 @@ class ParamHandlerVGTools(vg.ParamHandler):
     # --------------------------------------------------------------------------
     def assign_globals(self):
         self._set_help_str(
-            "usage: volgrids vgtools [convert|pack|unpack|average|fix_cmap|overlap|overlap_cross|overlap_diff] [options...]",
+            "usage: volgrids vgtools [convert|pack|unpack|...] [options...]",
             "Available modes:",
             "    convert      - Convert grid files between formats.",
             "    pack         - Pack multiple grid files into a single CMAP series-file.",

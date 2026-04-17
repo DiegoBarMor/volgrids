@@ -1,9 +1,10 @@
 # Volumetric Grids (VolGrids)
-VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. Some tools are also provided:
-  - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
-  - **SMIF Calculator** via `volgrids smiffer`
-  - **Volgrid Tools** via `volgrids vgtools`.
-  - **Volumetric Energy INSpector (VEINS)** via `volgrids veins`. [WIP] WORK IN PROGRESS
+VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. The following applications are provided:
+  - [**SMIF Calculator**](#statistical-molecular-interaction-fields-smif-calculator) via `volgrids smiffer`
+  - [**Smiffer Utilities**](#smiffer-utilities)  via `volgrids smutils`
+    - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
+  - [**Volgrid Tools**](#volgrid-tools) via `volgrids vgtools`.
+  - ~~[**Volumetric Energy INSpector**](#volumetric-energy-inspector-veins) via `volgrids veins`. [WIP] WORK IN PROGRESS~~
 
 You can read more in their respective sections.
 
@@ -27,9 +28,15 @@ python3 volgrids --help
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 # Setup
 ## Requirements
+### Hard requirements
 - Grid operations are based on **NumPy** arrays.
-- Molecular structures and trajectories data are parsed by **MDAnalysis**.
+- Molecular structures and trajectories data are parsed by [**MDAnalysis**](https://github.com/MDAnalysis/mdanalysis).
 - CMAP files are parsed by **h5py**.
+
+### Optional requirements
+- [**APBS**]: Follow the instructions from [here](#installation-ubuntu).
+- [**rnapolis**](https://github.com/tzok/rnapolis-py) for running the `volgrids smutils resids_nonbp` utility.
+  - Can be installed via pip if needed `pip install rnapolis`.
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -63,11 +70,6 @@ pip install mdanalysis h5py
 
 
 <!-- ----------------------------------------------------------------------- -->
-### APBS (optional)
-Follow the instructions from [here](#installation-ubuntu).
-
-
-<!-- ----------------------------------------------------------------------- -->
 ## Usage
 ### Running the CLI utilities (without VolGrids installed)
 You can use the tools provided by VolGrids without installing it, by calling any of the scripts in the root directory of this repository (it doesn't have to be the current directory, you can call them from anywhere). Leave `[options...]` empty to read more about the available options.
@@ -75,8 +77,9 @@ You can use the tools provided by VolGrids without installing it, by calling any
 ```bash
 python3 volgrids apbs    [options...]
 python3 volgrids smiffer [options...]
-python3 volgrids veins   [options...]
+python3 volgrids smutils [options...]
 python3 volgrids vgtools [options...]
+python3 volgrids veins   [options...]
 ```
 
 <!-- ----------------------------------------------------------------------- -->
@@ -114,7 +117,7 @@ Follow the instructions at the [test data repo](https://github.com/DiegoBarMor/v
 This is an implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
 
 ## Usage
-Run `python3 volgrids smiffer [mode] [path_structure] [options...]` and provide the parameters of the calculation via arguments:
+Run `volgrids smiffer [mode] [path_structure] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `prot`, `rna` or `ligand` according to the structure of interest.
   - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
   - Optionally, replace `[options...]` with any combination of the following:
@@ -133,17 +136,17 @@ Run `python3 volgrids smiffer [mode] [path_structure] [options...]` and provide 
 ## Commands examples
 - Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-s`).
 ```bash
-python3 volgrids smiffer prot testdata/smiffer/pdb_clean/1iqj.pdb -s 4.682 21.475 7.161 14.675
+volgrids smiffer prot testdata/smiffer/pdb_clean/1iqj.pdb -s 4.682 21.475 7.161 14.675
 ```
 
 - Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
 ```bash
-python3 volgrids smiffer rna testdata/smiffer/pdb_clean/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pdb.mrc
+volgrids smiffer rna testdata/smiffer/pdb_clean/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pdb.mrc
 ```
 
 - Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.
 ```bash
-python3 volgrids smiffer rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
+volgrids smiffer rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
 ```
 
 
@@ -226,18 +229,43 @@ sudo apt-get install apbs
 ### Commands examples
 - Running APBS with Volgrids (recommended).
 ```bash
-python3 volgrids apbs testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
+volgrids apbs testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
 ```
 
 - Alternative (calling directly `apbs.sh`).
 ```bash
-volgrids/apbs/apbs.sh apbs testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
+bash volgrids/apbs/apbs.sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
 ```
 
 - Running APBS without Volgrids.
 ```bash
 pdb2pqr --ff=AMBER testdata/smiffer/pdb_clean/1iqj.pdb testdata/smiffer/pqr/1iqj.pqr --apbs-input testdata/smiffer/1iqj.in
 apbs testdata/smiffer/1iqj.in
+```
+
+- Reference for the `.in` file: https://apbs.readthedocs.io/en/latest/using/input/old/elec/mg-auto.html
+
+
+
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<!-- -------------------------- SMIFFER UTILITIES -------------------------- -->
+<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+# Smiffer Utilities
+Utilities related to more advanced SMIF usage.
+
+## Usage
+Run `volgrids smutils [mode] [options...]` and provide the parameters of the calculation via arguments.
+  - Replace `[mode]` with one of the following available modes:
+    - `resids_nonbp`: Print the set of non-base-paired residue indices in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires [rnapolis](#optional-requirements).
+  - `[options...]` will depend on the mode, check the respective help string for more information (run `volgrids smutils [mode] -h`).
+
+### Examples
+- Combine `resids_nonpb` with smiffer's `--resids` (`-i`) flag to have more polished hbond results, e.g.:
+```bash
+python3 volgrids smiffer rna 1akx.pdb \
+    -i "$(python3 volgrids smutils resids_nonbp 1akx.pdb)" \
+    -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
+        DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
 ```
 
 
@@ -249,7 +277,7 @@ apbs testdata/smiffer/1iqj.in
 Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
 
 ## Usage
-Run `python3 volgrids vgtools [mode] [options...]` and provide the parameters of the calculation via arguments.
+Run `volgrids vgtools [mode] [options...]` and provide the parameters of the calculation via arguments.
   - Replace `[mode]` with one of the following available modes:
     - `convert`: Convert grid files between formats.
     - `pack`: Pack multiple grid files into a single CMAP series-file.
@@ -259,7 +287,7 @@ Run `python3 volgrids vgtools [mode] [options...]` and provide the parameters of
     - `summary`: Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.
     - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
     - `rotate`: Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
-  - `[options...]` will depend on the mode, check the respective help string for more information (run `python3 volgrids vgtools [mode] -h`).
+  - `[options...]` will depend on the mode, check the respective help string for more information (run `volgrids vgtools [mode] -h`).
 
 
 
@@ -271,7 +299,7 @@ Run `python3 volgrids vgtools [mode] [options...]` and provide the parameters of
 This tool allows to visualize interaction energies in space by portraying them as a volumetric grid. Apart from the usual structure/trajectory files (PDB, XTC...), a CSV with energy values and the indices of the atoms/residues involved must be given. Interactions between 2, 3 and 4 particles are supported and represented accordingly
 
 ## Usage
-Run `python3 volgrids veins [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
+Run `volgrids veins [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
   - replace `[mode]` with `energies`.
   - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
   - replace `[path_csv]` with the path to the energies CSV file. Mandatory positional argument. It must contain the following rows:

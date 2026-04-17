@@ -21,7 +21,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
     # --------------------------------------------------------------------------
     def assign_globals(self):
         self._set_help_str(
-            "usage: volgrids smiffer [prot|rna|convert|pack|unpack] [options...]",
+            "usage: volgrids smiffer [prot|rna|ligand] [path.pdb] [options...]",
             "Available modes:",
             "  prot     - Calculate SMIFs for protein structures.",
             "  rna      - Calculate SMIFs for RNA structures.",
@@ -39,7 +39,7 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         )
 
         self._set_help_str(
-            f"usage: volgrids smiffer {mode} [path/input/struct.pdb] [options...]",
+            f"usage: volgrids smiffer {mode} [path.pdb] [options...]",
             "Available options:",
             "-h, --help      Show this help message and exit.",
             "-o, --output    Folder path where the output SMIFs should be stored. If not provided, the parent folder of the input structure file will be used.",
@@ -96,7 +96,8 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         except vg.ParamHandler.MissingArgsError:
             ### [WIP] this is not a good solution, it's part of what needs to be refactored when changing the param handler
             available = "\n    " + "\n    ".join(sorted(vg.KNOWN_CONFIGS))
-            self._exit_with_help(self.InvalidParamError, f"Available configuration keys:{available}")
+            print(f"Available configuration keys:{available}")
+            exit(0)
 
         for val in configs:
             if '=' in val:
@@ -135,7 +136,8 @@ class ParamHandlerSmiffer(vg.ParamHandler):
         if len(resids) == 1:
             resids = _handle_path(resids[0])
 
-        sm.CUSTOM_RESIDS = " ".join(_assert_resid(resid) for resid in resids)
+        splitted = (x for resid in resids for x in resid.split())
+        sm.CUSTOM_RESIDS = " ".join(_assert_resid(resid) for resid in splitted)
 
     # --------------------------------------------------------------------------
     def _handle_params_pp(self):
