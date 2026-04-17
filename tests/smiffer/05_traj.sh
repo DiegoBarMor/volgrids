@@ -2,7 +2,7 @@
 set -eu
 
 echo
-echo ">>> TEST SMIFFER 3: Trajectory mode"
+echo ">>> TEST SMIFFER 5: Trajectory mode"
 
 folder_trajs=testdata/smiffer/trajs
 folder_few_frames=$folder_trajs/few_frames

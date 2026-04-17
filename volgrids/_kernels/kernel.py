@@ -42,13 +42,13 @@ class Kernel:
     def stamp(self, grid: vg.Grid, center_stamp_at: np.ndarray, multiply_by = None) -> None:
         ##### infer the position where to stamp the kernel at the big grid
         stamp_orig = center_stamp_at - self.deltas * self.kernel_res / 2
-        rel_orig = stamp_orig - grid.ms.min_coords
+        rel_orig = stamp_orig - grid.box.min_coords
         idx_start = np.round(rel_orig / self.deltas).astype(int)
         idx_end = idx_start + self.kernel_res
 
         ##### skip cases where the kernel would be stamped outside the big grid
         if (idx_end < 0).any(): return
-        if (idx_start > grid.ms.resolution).any(): return
+        if (idx_start > grid.box.resolution).any(): return
 
         ##### initialize the grid (g_*) and kernel (k_*) indices
         g_i0, g_j0, g_k0 = idx_start
@@ -56,7 +56,7 @@ class Kernel:
         k_i0, k_j0, k_k0 = 0, 0, 0
         k_i1, k_j1, k_k1 = self.kernel_res
 
-        g_rx, g_ry, g_rz = grid.ms.resolution
+        g_rx, g_ry, g_rz = grid.box.resolution
         k_rx, k_ry, k_rz = self.kernel_res
 
         ##### clamp the indices of both the big grid and the kernel

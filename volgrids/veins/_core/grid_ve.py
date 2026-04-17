@@ -11,7 +11,8 @@ class GridVolumetricEnergy(vg.Grid):
 
     # --------------------------------------------------------------------------
     def __init__(self, ms: vg.MolSystem, df: pd.DataFrame, kind: str):
-        super().__init__(ms)
+        super().__init__(ms.box)
+        self.ms = ms
         self.df = df[df["kind"] == kind].copy()
         self.kind = kind
 
@@ -36,7 +37,7 @@ class GridVolumetricEnergy(vg.Grid):
         radius = np.linalg.norm(direction) * self.RADIUS_FIX
         kernel = vg.KernelCylinder(
             radius = radius, vdirection = direction, width = self.WIDTH_CYLINDERS,
-            deltas = self.ms.deltas, dtype = np.float32
+            deltas = self.box.deltas, dtype = np.float32
         )
         self._apply_kernel(kernel, pos, row["energy"])
 
@@ -58,7 +59,7 @@ class GridVolumetricEnergy(vg.Grid):
         kernel = vg.KernelDiskConecut(
             radius = 2, vnormal = normal, height = self.HEIGHT_DISKS,
             vdirection = direction, max_angle = angle,
-            deltas = self.ms.deltas, dtype = np.float32
+            deltas = self.box.deltas, dtype = np.float32
         )
         self._apply_kernel(kernel, pos, row["energy"])
 
@@ -76,11 +77,11 @@ class GridVolumetricEnergy(vg.Grid):
         radius1 = np.linalg.norm(normal) * self.RADIUS_FIX
         kernel0 = vg.KernelCylinder(
             radius = radius0, vdirection = direction, width = self.WIDTH_CYLINDERS,
-            deltas = self.ms.deltas, dtype = np.float32
+            deltas = self.box.deltas, dtype = np.float32
         )
         kernel1 = vg.KernelCylinder(
             radius = radius1, vdirection = normal, width = self.WIDTH_CYLINDERS,
-            deltas = self.ms.deltas, dtype = np.float32
+            deltas = self.box.deltas, dtype = np.float32
         )
         self._apply_kernel(kernel0, pos, row["energy"])
         self._apply_kernel(kernel1, pos, row["energy"])
