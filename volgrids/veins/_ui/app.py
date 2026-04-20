@@ -3,6 +3,8 @@ import pandas as pd
 import volgrids as vg
 import volgrids.veins as ve
 
+DEFAULT_ENERGY_CUTOFF = 1e-3 # [TODO] this should be a config
+
 # ------------------------------------------------------------------------------
 def _assert_df(df: pd.DataFrame, *cols_metadata):
     if not set(df.columns).issuperset(cols_metadata):
@@ -14,14 +16,48 @@ def _assert_df(df: pd.DataFrame, *cols_metadata):
 
 
 # //////////////////////////////////////////////////////////////////////////////
-class AppVeins(vg.App):
-    CONFIG_MODULES = (vg,)
-    _CLASS_PARAM_HANDLER = ve.ParamHandlerVeins
+class AppVeins(vg.AppSubcommand):
+    def __init__(self, app_main: "vg.AppMain"):
+        super().__init__(app_main)
+        self.func_operation: callable = None
+
 
     # --------------------------------------------------------------------------
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def assign_globals(self):
+        ve.MODE = self.main.subcommands.pop(0)
+        self.func_operation = {
+            "energies" : self._run_energies,
+            "forces"   : self._run_forces,
+        }[ve.MODE]
 
+
+    # --------------------------------------------------------------------------
+    def run(self):
+        self.func_operation()
+
+
+    # --------------------------------------------------------------------------
+    def _run_energies(self) -> None:
+        self.main.assert_paths(
+            keys_file_in = ["path_struct", "path_csv"],
+            allow_none = False,
+        )
+        ve.PATH_STRUCT       = self.main.get_arg_path("path_struct")
+        ve.PATH_ENERGIES_CSV = self.main.get_arg_path("path_csv")
+
+        if self.main.get_arg_value("folder_out") is None:
+            self.main.set_arg_value("folder_out", ve.PATH_STRUCT.parent)
+
+        self.main.assert_paths(keys_dir_out = ["folder_out"], allow_none = False)
+        ve.FOLDER_OUT = self.main.get_arg_path("folder_out")
+
+        ve.PATH_TRAJ = self.main.get_arg_path("path_traj")
+        ve.ENERGY_CUTOFF = self.main.get_arg_float("cutoff")
+        if ve.ENERGY_CUTOFF is None: ve.ENERGY_CUTOFF = DEFAULT_ENERGY_CUTOFF
+
+
+        ### [TODO] update this below
+        ### init phase
         self.ms = vg.MolSystem(ve.PATH_STRUCT, ve.PATH_TRAJ)
         self.df = pd.read_csv(ve.PATH_ENERGIES_CSV).dropna(how = "any")
         self.cols_frames: list = None
@@ -46,9 +82,7 @@ class AppVeins(vg.App):
             f">>> Now processing '{self.ms.molname}' ({ve.MODE})"
         )
 
-
-    # --------------------------------------------------------------------------
-    def run(self):
+        ### run phase
         self.timer.start()
 
         if self.ms.do_traj: # TRAJECTORY MODE
@@ -69,6 +103,11 @@ class AppVeins(vg.App):
 
 
     # --------------------------------------------------------------------------
+    def _run_forces(self) -> None:
+        raise NotImplementedError("VEINS Forces mode is not yet implemented.")
+
+
+    # --------------------------------------------------------------------------
     def _process_grids(self):
         for kind in self.df["kind"].unique():
             grid = ve.GridVolumetricEnergy(self.ms, self.df, kind)
@@ -76,4 +115,4 @@ class AppVeins(vg.App):
             grid.save_data(ve.FOLDER_OUT, grid.kind)
 
 
-# # //////////////////////////////////////////////////////////////////////////////
+# # # //////////////////////////////////////////////////////////////////////////////

@@ -16,7 +16,10 @@ setup(
     url="https://github.com/diegobarmor/volgrids",
     license="MIT",
     packages=find_packages(),
-    package_data={"volgrids": ["_tables/*", "apbs/*"]},
+    package_data={"volgrids": [
+        "_tables/*", "apbs/*",
+        "_ui/fy_help.fyh", "_ui/fy_rules.fyr",
+    ]},
     install_requires=["MDAnalysis==2.10.0", "h5py==3.15.1"],
     entry_points={
         "console_scripts": [

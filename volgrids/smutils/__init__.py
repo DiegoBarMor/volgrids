@@ -1,7 +1,6 @@
 from ._core.rna_resids import RNAResids
 from ._core.operations import SMOperations
 
-from ._ui.param_handler import ParamHandlerSMUtils
 from ._ui.app import AppSMUtils
 
 

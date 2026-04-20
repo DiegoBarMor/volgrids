@@ -15,7 +15,6 @@ from ._smifs.stacking import SmifStacking
 
 from ._misc.sphere_info import SphereInfo
 
-from ._ui.param_handler import ParamHandlerSmiffer
 from ._ui.app import AppSmiffer
 
 

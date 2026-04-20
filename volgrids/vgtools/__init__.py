@@ -2,7 +2,6 @@ from ._core.operations import VGOperations
 
 from ._misc.comparison_result import ComparisonResult
 
-from ._ui.param_handler import ParamHandlerVGTools
 from ._ui.app import AppVGTools
 
 

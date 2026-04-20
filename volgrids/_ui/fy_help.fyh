@@ -1,0 +1,123 @@
+!fyh:_ volgrids is a framework for volumetric calculations, with emphasis in biological molecular systems.
+
+@smiffer
+    !fyh:_ Calculate SMIFs for biomolecular structures.
+    @prot
+        !fyh:_ Calculate SMIFs for protein structures.
+        !use:_smif_mode
+    !@
+    @rna
+        !fyh:_ Calculate SMIFs for RNA structures.
+        !use:_smif_mode
+    !@
+    @ligand
+        !fyh:_ Calculate SMIFs for ligand structures. A .chem table must be provided.
+        !use:_smif_mode
+    !@
+!@
+
+@smutils
+    !fyh:_ Utilities related to more advanced SMIF usage.
+    @resids_nonbp
+        !fyh:_ Print the set of non-base-paired residue indices in a given RNA structure.
+            A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue.
+            Requires rnapolis.
+        !fyh:path_in
+            File path to a molecular structure e.g. a PDB file.
+    !@
+!@
+
+@apbs
+    !fyh:_ Generate raw APBS potential grids for biomolecular structures.
+    !fyh:path_in Path of a molecular structure supported by pdb2pqr and APBS.
+    !fyh:conv2mrc whether to store the output in MRC format (instead of APBS default DX format).
+    !fyh:keep_pqr whether to keep the intermediary PQR molecular structure file.
+    !fyh:verbose whether to display all the outputs produced by APBS.
+!@
+
+@vgtools
+    !fyh:_ Miscellaneous tools for generic volumetric grids.
+        Grids can be for any kind of data, not necessarily SMIFs.
+    @convert
+        !fyh:_ Convert grid files between formats.
+        !fyh:path_in Path of the grid to be converted.
+        !fyh:out_dx Path where to save the converted grid in DX format.
+        !fyh:out_mrc Path where to save the converted grid in MRC format.
+        !fyh:out_ccp4 Path where to save the converted grid in CCP4 format.
+        !fyh:out_cmap Path where to save the converted grid in CMAP format.
+            The stem of the input file will be used as the CMAP key.
+    !@
+    @pack
+        !fyh:_ Pack multiple grid files into a single CMAP series-file.
+        !fyh:paths_in List of file paths with the input grids to be packed.
+            At least one grid file must be provided.
+        !fyh:path_out Path where to save the packed grid in CMAP format.
+    !@
+    @unpack
+        !fyh:_ Unpack a CMAP series-file into multiple grid files.
+        !fyh:path_in Path to the CMAP series-file to be unpacked.
+        !fyh:folder_out Folder path where to save the unpacked grids.
+            If not provided, the parent folder of the input packed file will be used.
+    !@
+    @fix_cmap
+        !fyh:_ Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
+        !fyh:path_in Path to the CMAP file to be fixed.
+        !fyh:path_out Path where to save the fixed CMAP file.
+    !@
+    @average
+        !fyh:_ Average all grids in a CMAP series-file into a single grid.
+        !fyh:path_in Path to the CMAP series-file to be averaged.
+        !fyh:path_out Path where to save the averaged CMAP file.
+    !@
+    @summary
+        !fyh:_ Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.
+        !fyh:path_in Path to a grid file.
+    !@
+    @compare
+        !fyh:_ Compare two grid files by printing the number of differing points and their accumulated difference.
+        !fyh:path_0 Path to a first grid file.
+        !fyh:path_1 Path to a second grid file.
+        !fyh:threshold Threshold for comparison.
+            Points whose difference is higher than this threshold will be counted as "different".
+            Default is 1e-3.
+    !@
+    @rotate
+        !fyh:_ Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
+        !fyh:path_in Path to a grid file.
+        !fyh:path_out Path for the rotated grid output.
+        !fyh:x Rotation angle in degrees along the yz plane (in degrees).
+        !fyh:y Rotation angle in degrees along the xz plane (in degrees).
+        !fyh:z Rotation angle in degrees along the xy plane (in degrees).
+    !@
+!@
+
+
+!def _smif_mode
+    !fyh:path_in
+        File path to a molecular structure e.g. a PDB file.
+    !fyh:folder_out
+        Folder path where the output SMIFs should be stored.
+        If not provided, the parent folder of the input structure file will be used.
+    !fyh:path_traj
+        File path to a trajectory file (e.g. XTC) supported by MDAnalysis.
+        Activates 'traj' mode: calculate SMIFs for all the frames and save them as a CMAP-series file.
+    !fyh:path_apbs
+        File path to a cached output of APBS for the respective structure file.
+        Prevents the automatic calculation of APBS performed by volgrids' smiffer.
+    !fyh:path_chem
+        File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.
+    !fyh:configs
+        File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
+        Alternatively, it can be a list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
+    !fyh:sphere
+        Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere.
+        If not provided, 'whole' mode is assumed.
+    !fyh:resids
+        File path to a text file containing the residue indices to consider for SMIF calculations (one-based indexing, space separated).
+        Alternatively, a string of space-separated indices can be passed directly as argument.
+        If not provided, all residues will be considered.
+!fed
+
+### macros are just text substitution. In this case,
+### the macro _io_simple isn't considered because a more specific
+### help is written for each case.

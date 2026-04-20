@@ -1,6 +1,5 @@
 from ._core.grid_ve import GridVolumetricEnergy
 
-from ._ui.param_handler import ParamHandlerVeins
 from ._ui.app import AppVeins
 
 

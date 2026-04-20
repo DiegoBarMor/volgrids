@@ -5,21 +5,48 @@ import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
-class AppSmiffer(vg.App):
-    CONFIG_MODULES = (vg, sm)
-    _CLASS_PARAM_HANDLER = sm.ParamHandlerSmiffer
+class AppSmiffer(vg.AppSubcommand):
+    # --------------------------------------------------------------------------
+    def __init__(self, app_main: "vg.AppMain"):
+        super().__init__(app_main)
+        self.ms: sm.MolSystemSmiffer
+        self.trimmer: sm.Trimmer
+        self.cavfinder: sm.CavityFinder
+        self.timer = vg.Timer
 
-    _CLASS_TRIMMER = sm.Trimmer
-    _CLASS_MOL_SYSTEM = sm.MolSystemSmiffer
 
     # --------------------------------------------------------------------------
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._init_globals()
+    def assign_globals(self):
+        mode = self.main.subcommands.pop(0)
+        sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
 
-        self.ms: sm.MolSystemSmiffer = self._CLASS_MOL_SYSTEM(sm.PATH_STRUCT, sm.PATH_TRAJ)
-        self.trimmer: sm.Trimmer = self._CLASS_TRIMMER.init_infer_dists(self.ms)
-        self.cavfinder: sm.CavityFinder = sm.CavityFinder()
+        self.main.assert_paths( # this one needs to be validated first
+            keys_file_in = ["path_in"],
+        )
+        sm.PATH_STRUCT = self.main.get_arg_path("path_in")
+
+        if self.main.get_arg_value("folder_out") is None:
+            self.main.set_arg_value("folder_out", sm.PATH_STRUCT.parent)
+
+        self.main.assert_paths(
+            keys_file_in = ["path_apbs", "path_traj", "path_chem"],
+            keys_dir_out = ["folder_out"],
+            allow_none = True,
+        )
+        sm.FOLDER_OUT = self.main.get_arg_path("folder_out")
+        sm.PATH_APBS  = self.main.get_arg_path("path_apbs")
+        sm.PATH_TRAJ  = self.main.get_arg_path("path_traj")
+        sm.PATH_TABLE = self.main.get_arg_path("path_chem")
+
+        self._handle_params_configs()
+        self._handle_params_resids()
+        self._handle_params_sphere()
+        self._assert_traj_apbs()
+        self._assert_ligand_has_table()
+
+        self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, sm.PATH_TRAJ)
+        self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
+        self.cavfinder = sm.CavityFinder()
         self.timer = vg.Timer(
             f">>> SMIFs {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}'"+\
             f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
@@ -27,31 +54,8 @@ class AppSmiffer(vg.App):
 
 
     # --------------------------------------------------------------------------
-    def run(self):
-        if sm.CURRENT_MOLTYPE.is_ligand():
-            sm.DO_SMIF_APBS = False
-            print("\n...--- ligand: skipping APBS SMIF calculation.", end = ' ', flush = True)
-
-        self.timer.start()
-
-        if self.ms.do_traj: # TRAJECTORY MODE
-            print()
-            for _ in self.ms.system.trajectory:
-                self.ms.frame += 1
-                timer_frame = vg.Timer(f"...>>> Frame {self.ms.frame}/{len(self.ms.system.trajectory)}")
-                timer_frame.start()
-                self._process_grids()
-                timer_frame.end()
-            self._delete_traj_locks()
-
-        else: # SINGLE PDB MODE
-            self._process_grids()
-
-        self.timer.end(text = "SMIFs", minus = sm.APBS_ELAPSED_TIME)
-
-
-    # --------------------------------------------------------------------------
-    def _init_globals(self):
+    def init_smif_parameters(self):
+        """Run after calling `AppMain._load_all_configs`."""
         sm.PARAMS_HPHOB = vg.ParamsGaussianUnivariate(
             mu = sm.MU_HYDROPHOBIC, sigma = sm.SIGMA_HYDROPHOBIC,
         )
@@ -81,6 +85,30 @@ class AppSmiffer(vg.App):
 
         ### square root of the DIST contribution to sm.COV_STACKING,
         sm.SIGMA_DIST_STACKING = np.sqrt(sm.COV_STACKING_11)
+
+
+    # --------------------------------------------------------------------------
+    def run(self):
+        if sm.CURRENT_MOLTYPE.is_ligand():
+            sm.DO_SMIF_APBS = False
+            print("\n...--- ligand: skipping APBS SMIF calculation.", end = ' ', flush = True)
+
+        self.timer.start()
+
+        if self.ms.do_traj: # TRAJECTORY MODE
+            print()
+            for _ in self.ms.system.trajectory:
+                self.ms.frame += 1
+                timer_frame = vg.Timer(f"...>>> Frame {self.ms.frame}/{len(self.ms.system.trajectory)}")
+                timer_frame.start()
+                self._process_grids()
+                timer_frame.end()
+            self._delete_traj_locks()
+
+        else: # SINGLE PDB MODE
+            self._process_grids()
+
+        self.timer.end(text = "SMIFs", minus = sm.APBS_ELAPSED_TIME)
 
 
     # --------------------------------------------------------------------------
@@ -182,4 +210,89 @@ class AppSmiffer(vg.App):
         Path(f"{preffix}.npz").unlink(missing_ok = True)
 
 
-# //////////////////////////////////////////////////////////////////////////////
+    # --------------------------------------------------------------------------
+    def _handle_params_configs(self):
+        configs = self.main.get_arg_str("configs")
+        if not configs: return
+
+        if isinstance(configs, bool):
+            ### this happens when -c is passed without any value to it
+            ### `True` is stored instead of any string value
+            available = "\n    " + "\n    ".join(sorted(vg.KNOWN_CONFIGS))
+            print(f"Available configuration keys:{available}")
+            exit(0)
+
+        for val in configs:
+            if '=' in val:
+                vg.STR_CUSTOM_CONFIG += f"{val.replace(' ', '\n')}\n"
+                continue
+
+            val_as_path = Path(val)
+            if not val_as_path.exists(): self.main.help_and_exit(1,
+                f"The specified config path '{val}' does not exist."
+            )
+            if val_as_path.is_dir(): self.main.help_and_exit(1,
+                f"The specified config path '{val}' is a folder, but a file was expected."
+            )
+            vg.PATHS_CUSTOM_CONFIG.append(val_as_path)
+
+
+    # --------------------------------------------------------------------------
+    def _handle_params_resids(self):
+        def _handle_possible_path(val: str) -> str:
+            possible_path = Path(resids[0])
+            if not possible_path.exists(): return resids
+            if possible_path.is_dir(): self.main.help_and_exit(1,
+                f"The specified resids path '{val}' is a folder, but a file was expected."
+            )
+            return possible_path.read_text().strip()
+
+        def _assert_resid(resid: str) -> int:
+            if not resid.isdigit(): self.main.help_and_exit(1,
+                f"Invalid residue index '{resid}' provided for --resids option. All indices must be integers."
+            )
+            return resid
+
+        resids = self.main.get_arg_str("resids")
+        if not resids: return
+
+        if not resids: self.main.help_and_exit(1,
+            "No residue indices provided for --resids option."
+        )
+
+        if len(resids) == 1: # [NOTE] when passing a path, only one input file is currrently supported
+            resids = _handle_possible_path(resids[0])
+
+        splitted = (x for resid in resids for x in resid.split())
+        sm.CUSTOM_RESIDS = " ".join(_assert_resid(resid) for resid in splitted)
+
+
+    # --------------------------------------------------------------------------
+    def _handle_params_sphere(self):
+        sphere = self.main.get_arg_list_float("sphere")
+        if not sphere: return
+
+        sm.SPHERE = sm.SphereInfo(*sphere)
+
+
+    # --------------------------------------------------------------------------
+    def _assert_traj_apbs(self):
+        if not sm.DO_SMIF_APBS: return
+        if (sm.PATH_TRAJ is None) or (sm.PATH_APBS is None): return
+        self.main.help_and_exit(1,
+            f"The APBS output '{sm.PATH_APBS}' was provided. However, "+
+            "trajectory mode is enabled, so this file would be ambiguous. "+
+            "Please either disable trajectory mode or remove the APBS file input. "
+        )
+
+
+    # --------------------------------------------------------------------------
+    def _assert_ligand_has_table(self):
+        if not sm.CURRENT_MOLTYPE.is_ligand(): return
+        if sm.PATH_TABLE is not None: return
+        self.main.help_and_exit(1,
+            "No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file."
+        )
+
+
+# # //////////////////////////////////////////////////////////////////////////////

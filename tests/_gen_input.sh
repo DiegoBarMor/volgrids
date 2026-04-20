@@ -71,7 +71,7 @@ python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fu -s 4.682 21.475 7.161
 
 cd $fu
 python3 ../../../volgrids vgtools pack \
-    -i 1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc \
+    1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc \
     -o 1iqj.cmap
 cd ../../..
 
@@ -79,7 +79,7 @@ rm -f $fu/1iqj.*.mrc
 
 
 ############################# FIX CMAP
-python3 volgrids vgtools pack -i \
+python3 volgrids vgtools pack \
     $fframes/smiffer_126.hbdonors.cmap $fframes/smiffer_142.hbdonors.cmap \
     $fframes/smiffer_3.hbdonors.cmap   $fframes/smiffer_127.hbdonors.cmap \
     $fframes/smiffer_32.hbdonors.cmap  $fframes/smiffer_50.hbdonors.cmap  \

@@ -18,7 +18,7 @@ VERBOSE=false        # print verbose output from APBS?
 
 help_message() {
     name_sh=$(basename "$0")
-    echo "Usage: $name_sh <path_pdb> [--mrc] [--verbose]"
+    echo "Usage: $name_sh <path_pdb> [--mrc] [--pqr] [--verbose]"
     echo "Example: $name_sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose"
 }
 echo_red() {

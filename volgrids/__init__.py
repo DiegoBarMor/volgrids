@@ -22,10 +22,10 @@ from ._parsers.parser_config import ParserConfig
 from ._parsers.grid_format import GridFormat
 from ._parsers.grid_io import GridIO
 
-from ._ui.param_handler import ParamHandler
-from ._ui.app import App
-
 from .apbs.apbs_subprocess import APBSSubprocess
+
+from ._ui.app_subcommand import AppSubcommand
+from ._ui.app_main import AppMain
 
 
 ############################# CONFIG FILE GLOBALS ##############################
