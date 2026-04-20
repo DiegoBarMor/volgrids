@@ -1,6 +1,6 @@
 from ._core.grid_ve import GridVolumetricEnergy
 
-from ._ui.app import AppVeins
+from ._core.app_veins import AppVeins
 
 
 ############################# CONFIG FILE GLOBALS ##############################
@@ -13,8 +13,8 @@ __config_keys__.remove("_keys_other")
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
-### These are global variables that are to be set by
-### an instance of ParamHandler (or its inherited classes)
+### These are global variables that are to be set by inherited `AppSubcommand` classes.
+### CLI parsed by freyacli.
 
 MODE: str = '' # mode of the application, i.e. "energies"
 

@@ -2,7 +2,7 @@ from ._core.operations import VGOperations
 
 from ._misc.comparison_result import ComparisonResult
 
-from ._ui.app import AppVGTools
+from ._core.app_vgtools import AppVGTools
 
 
 ############################# CONFIG FILE GLOBALS ##############################
@@ -15,8 +15,8 @@ __config_keys__.remove("_keys_other")
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
-### These are global variables that are to be set by
-### an instance of ParamHandler (or its inherited classes)
+### These are global variables that are to be set by inherited `AppSubcommand` classes.
+### CLI parsed by freyacli.
 
 OPERATION: str = '' # mode of the application, i.e. "convert", "pack", "unpack", "fix_cmap", "average", "summary", "compare", "rotate"
 

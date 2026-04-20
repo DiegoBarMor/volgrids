@@ -1,7 +1,7 @@
 from ._core.rna_resids import RNAResids
 from ._core.operations import SMOperations
 
-from ._ui.app import AppSMUtils
+from ._core.app_smutils import AppSMUtils
 
 
 ############################# CONFIG FILE GLOBALS ##############################
@@ -14,8 +14,8 @@ __config_keys__.remove("_keys_other")
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
-### These are global variables that are to be set by
-### an instance of ParamHandler (or its inherited classes)
+### These are global variables that are to be set by inherited `AppSubcommand` classes.
+### CLI parsed by freyacli.
 
 OPERATION: str = '' # mode of the application, i.e. "resids_nonbp",
 

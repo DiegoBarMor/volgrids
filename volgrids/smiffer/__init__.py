@@ -1,5 +1,5 @@
 from ._core.mol_type import MolType
-from ._core.mol_system import MolSystemSmiffer
+from ._core.mol_system_smiffer import MolSystemSmiffer
 from ._core.cavity_finder import CavityFinder
 from ._core.trimmer import Trimmer
 
@@ -15,7 +15,7 @@ from ._smifs.stacking import SmifStacking
 
 from ._misc.sphere_info import SphereInfo
 
-from ._ui.app import AppSmiffer
+from ._core.app_smiffer import AppSmiffer
 
 
 ############################# CONFIG FILE GLOBALS ##############################
@@ -97,8 +97,8 @@ __config_keys__.remove("_keys_other")
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
-### These are global variables that are to be set by
-### an instance of ParamHandler (or its inherited classes)
+### These are global variables that are to be set by inherited `AppSubcommand` classes.
+### CLI parsed by freyacli.
 
 import pathlib as _pathlib
 PATH_STRUCT: _pathlib.Path = None # "path/input/struct.pdb"
