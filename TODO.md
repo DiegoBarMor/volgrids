@@ -2,15 +2,14 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## General
-* improve help strings. Add annotations, docstrings and overall cleaning
+* Add annotations, docstrings and overall cleaning
 * replace mdanalysis with another PDB parser?
     * find out how to handle trajectory files in this case
-* improve the CLI parsing
-    * e.g. passing another positional arguments after `volgrids smiffer rna path_input.pdb` shouldn't be allowed
 
 
 <!-- ----------------------------------------------------------------------- -->
 ## VolGrids
+* add explanations to the list of configs printed with the empty `-c` flag
 * implement: raise an error if a format file is opened with the wrong function
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 
@@ -61,3 +60,6 @@
 
 
 <!-- ----------------------------------------------------------------------- -->
+## Refactoring
+- add freyacli as included vendor
+- add color to printed outputs

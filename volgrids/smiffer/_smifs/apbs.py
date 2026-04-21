@@ -12,7 +12,7 @@ class SmifAPBS(sm.Smif):
             return
 
         timer = vg.Timer().start()
-        with vg.APBSSubprocess(
+        with vg.APBSSubprocess( # "sm.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
             self.ms.system.atoms, sm.PATH_STRUCT.name, keep_pqr = True
         ) as path_apbs: self.apbs_to_smif(path_apbs, timer)
 

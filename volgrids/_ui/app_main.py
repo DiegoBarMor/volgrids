@@ -12,6 +12,8 @@ class AppMain(fy.App):
     `AppMain` then dispatches to the specific application (e.g. `AppSmiffer`) based on the first CLI argument, which is expected to be the application's name.
     These specific applications derive from `AppSubcommand`.
     """
+    _APP_NAME = "volgrids"
+    _VERSION = vg.__version__
 
     # --------------------------------------------------------------------------
     def __init__(self,  argv: list[str]):
@@ -43,7 +45,6 @@ class AppMain(fy.App):
     def _init_smiffer(self) -> "vg.AppSubcommand":
         import volgrids.smiffer as sm
         app = sm.AppSmiffer(self)
-        app.assign_globals()
         self._load_all_configs(vg, sm)
         app.init_smif_parameters()
         return app
@@ -53,7 +54,6 @@ class AppMain(fy.App):
     def _init_smutils(self) -> "vg.AppSubcommand":
         import volgrids.smutils as su
         app = su.AppSMUtils(self)
-        app.assign_globals()
         self._load_all_configs(vg)
         return app
 
@@ -77,7 +77,6 @@ class AppMain(fy.App):
     def _init_vgtools(self) -> "vg.AppSubcommand":
         import volgrids.vgtools as vgt
         app = vgt.AppVGTools(self)
-        app.assign_globals()
         self._load_all_configs(vg)
         return app
 
@@ -86,7 +85,6 @@ class AppMain(fy.App):
     def _init_veins(self) -> "vg.AppSubcommand":
         import volgrids.veins as ve
         app = ve.AppVeins(self)
-        app.assign_globals()
         self._load_all_configs(vg)
         return app
 

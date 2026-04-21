@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 
 import volgrids as vg
@@ -6,10 +7,10 @@ import volgrids.veins as ve
 DEFAULT_ENERGY_CUTOFF = 1e-3 # [TODO] this should be a config
 
 # ------------------------------------------------------------------------------
-def _assert_df(df: pd.DataFrame, *cols_metadata):
+def _assert_df(path_csv, df: pd.DataFrame, *cols_metadata):
     if not set(df.columns).issuperset(cols_metadata):
         raise ValueError(
-            f"CSV file '{ve.PATH_ENERGIES_CSV}' must contain the columns: " +\
+            f"CSV file '{path_csv}' must contain the columns: " +\
             ", ".join(map(lambda x: f"'{x}'", cols_metadata)) + " " +\
             f"Found columns: {df.columns}"
         )
@@ -19,21 +20,14 @@ def _assert_df(df: pd.DataFrame, *cols_metadata):
 class AppVeins(vg.AppSubcommand):
     def __init__(self, app_main: "vg.AppMain"):
         super().__init__(app_main)
-        self.func_operation: callable = None
-
-
-    # --------------------------------------------------------------------------
-    def assign_globals(self):
-        ve.MODE = self.main.subcommands.pop(0)
-        self.func_operation = {
-            "energies" : self._run_energies,
-            "forces"   : self._run_forces,
-        }[ve.MODE]
+        self.folder_out: Path = None
 
 
     # --------------------------------------------------------------------------
     def run(self):
-        self.func_operation()
+        mode = self.main.subcommands.pop(0)
+        if mode == "energies": return self._run_energies()
+        if mode == "forces"  : return self._run_forces()
 
 
     # --------------------------------------------------------------------------
@@ -42,41 +36,41 @@ class AppVeins(vg.AppSubcommand):
             keys_file_in = ["path_struct", "path_csv"],
             allow_none = False,
         )
-        ve.PATH_STRUCT       = self.main.get_arg_path("path_struct")
-        ve.PATH_ENERGIES_CSV = self.main.get_arg_path("path_csv")
+        path_struct       = self.main.get_arg_path("path_struct")
+        path_csv_energy = self.main.get_arg_path("path_csv")
 
         if self.main.get_arg_value("folder_out") is None:
-            self.main.set_arg_value("folder_out", ve.PATH_STRUCT.parent)
+            self.main.set_arg_value("folder_out", path_struct.parent)
 
         self.main.assert_paths(keys_dir_out = ["folder_out"], allow_none = False)
-        ve.FOLDER_OUT = self.main.get_arg_path("folder_out")
+        self.folder_out = self.main.get_arg_path("folder_out")
 
-        ve.PATH_TRAJ = self.main.get_arg_path("path_traj")
-        ve.ENERGY_CUTOFF = self.main.get_arg_float("cutoff")
-        if ve.ENERGY_CUTOFF is None: ve.ENERGY_CUTOFF = DEFAULT_ENERGY_CUTOFF
+        path_traj = self.main.get_arg_path("path_traj")
+        energy_cutoff = self.main.get_arg_float("cutoff")
+        if energy_cutoff is None: energy_cutoff = DEFAULT_ENERGY_CUTOFF
 
 
         ### [TODO] update this below
         ### init phase
-        self.ms = vg.MolSystem(ve.PATH_STRUCT, ve.PATH_TRAJ)
-        self.df = pd.read_csv(ve.PATH_ENERGIES_CSV).dropna(how = "any")
+        self.ms = vg.MolSystem(path_struct, path_traj)
+        self.df = pd.read_csv(path_csv_energy).dropna(how = "any")
         self.cols_frames: list = None
 
         if self.ms.do_traj:
-            _assert_df(self.df, "kind", "npoints", "idxs", "idxs_are_residues")
+            _assert_df(path_csv_energy, self.df, "kind", "npoints", "idxs", "idxs_are_residues")
             self.cols_frames = sorted(filter(lambda x: x.startswith("frame"), self.df.columns))
             if not self.cols_frames:
                 raise ValueError(
-                    f"CSV file '{ve.PATH_ENERGIES_CSV}' must contain at least one column starting with 'frame' "
+                    f"CSV file '{path_csv_energy}' must contain at least one column starting with 'frame' "
                     "when running in trajectory mode."
                 )
             mat = self.df[self.cols_frames].to_numpy()
-            mat[mat < ve.ENERGY_CUTOFF] = 0.0
+            mat[mat < energy_cutoff] = 0.0
             self.df.loc[:, self.cols_frames] = mat
 
         else:
-            _assert_df(self.df, "kind", "npoints", "idxs", "idxs_are_residues", "energy")
-            self.df = self.df[self.df["energy"].abs() > ve.ENERGY_CUTOFF]
+            _assert_df(path_csv_energy, self.df, "kind", "npoints", "idxs", "idxs_are_residues", "energy")
+            self.df = self.df[self.df["energy"].abs() > energy_cutoff]
 
         self.timer = vg.Timer(
             f">>> Now processing '{self.ms.molname}' ({ve.MODE})"
@@ -112,7 +106,7 @@ class AppVeins(vg.AppSubcommand):
         for kind in self.df["kind"].unique():
             grid = ve.GridVolumetricEnergy(self.ms, self.df, kind)
             grid.populate_grid()
-            grid.save_data(ve.FOLDER_OUT, grid.kind)
+            grid.save_data(self.folder_out, grid.kind)
 
 
-# # # //////////////////////////////////////////////////////////////////////////////
+# //////////////////////////////////////////////////////////////////////////////

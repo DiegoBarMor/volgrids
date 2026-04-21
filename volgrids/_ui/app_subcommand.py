@@ -16,12 +16,6 @@ class AppSubcommand(ABC):
 
     # --------------------------------------------------------------------------
     @abstractmethod
-    def assign_globals(self):
-        raise NotImplementedError()
-
-
-    # --------------------------------------------------------------------------
-    @abstractmethod
     def run(self):
         raise NotImplementedError()
 

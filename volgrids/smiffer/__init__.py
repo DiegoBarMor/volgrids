@@ -102,10 +102,8 @@ __config_keys__.remove("_keys_other")
 
 import pathlib as _pathlib
 PATH_STRUCT: _pathlib.Path = None # "path/input/struct.pdb"
-PATH_TRAJ:   _pathlib.Path = None # "path/input/traj.xtc"
-PATH_APBS:   _pathlib.Path = None # "path/input/apbs.pqr.dx"
-PATH_TABLE:  _pathlib.Path = None # "path/input/table.chem"
-FOLDER_OUT:  _pathlib.Path = None # "folder/output/"
+PATH_APBS:        _pathlib.Path = None # "path/input/apbs.pqr.dx"
+PATH_CHEM_CUSTOM: _pathlib.Path = None # "path/input/table.chem"
 
 SPHERE: SphereInfo  = None              # pocket sphere info: [x, y, z, radius]
 CURRENT_MOLTYPE: MolType = MolType.NONE # type of the current molecule

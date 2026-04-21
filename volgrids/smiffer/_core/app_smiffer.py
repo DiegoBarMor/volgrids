@@ -12,11 +12,10 @@ class AppSmiffer(vg.AppSubcommand):
         self.ms: sm.MolSystemSmiffer
         self.trimmer: sm.Trimmer
         self.cavfinder: sm.CavityFinder
-        self.timer = vg.Timer
+        self.timer: vg.Timer
+        self.folder_out: Path
+        self.path_traj: Path
 
-
-    # --------------------------------------------------------------------------
-    def assign_globals(self):
         mode = self.main.subcommands.pop(0)
         sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
 
@@ -33,10 +32,10 @@ class AppSmiffer(vg.AppSubcommand):
             keys_dir_out = ["folder_out"],
             allow_none = True,
         )
-        sm.FOLDER_OUT = self.main.get_arg_path("folder_out")
-        sm.PATH_APBS  = self.main.get_arg_path("path_apbs")
-        sm.PATH_TRAJ  = self.main.get_arg_path("path_traj")
-        sm.PATH_TABLE = self.main.get_arg_path("path_chem")
+        self.folder_out     = self.main.get_arg_path("folder_out")
+        sm.PATH_APBS        = self.main.get_arg_path("path_apbs")
+        self.path_traj      = self.main.get_arg_path("path_traj")
+        sm.PATH_CHEM_CUSTOM = self.main.get_arg_path("path_chem")
 
         self._handle_params_configs()
         self._handle_params_resids()
@@ -44,7 +43,7 @@ class AppSmiffer(vg.AppSubcommand):
         self._assert_traj_apbs()
         self._assert_ligand_has_table()
 
-        self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, sm.PATH_TRAJ)
+        self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, self.path_traj)
         self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
         self.cavfinder = sm.CavityFinder()
         self.timer = vg.Timer(
@@ -169,21 +168,21 @@ class AppSmiffer(vg.AppSubcommand):
         if sm.SAVE_TRIMMING_MASK:
             mask = self.trimmer.get_mask("mid")
             reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
-            sm.Smif.save_data_smif(reverse, self.ms, sm.FOLDER_OUT, "trimming")
+            sm.Smif.save_data_smif(reverse, self.ms, self.folder_out, "trimming")
 
         if sm.SAVE_CAVITIES and self.cavfinder.has_data():
-            sm.Smif.save_data_smif(self.cavfinder.grid, self.ms, sm.FOLDER_OUT, "cavities")
+            sm.Smif.save_data_smif(self.cavfinder.grid, self.ms, self.folder_out, "cavities")
 
         if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
             grid_hpdiff = smif_hphob.grid - smif_hphil.grid
-            sm.Smif.save_data_smif(grid_hpdiff, self.ms, sm.FOLDER_OUT, "hydrodiff")
+            sm.Smif.save_data_smif(grid_hpdiff, self.ms, self.folder_out, "hydrodiff")
 
         if sm.DO_SMIF_APBS and sm.DO_SMIF_LOG_APBS:
             smif_apbs.apply_logabs_transform()
-            sm.Smif.save_data_smif(smif_apbs.grid, self.ms, sm.FOLDER_OUT, "apbslog")
+            sm.Smif.save_data_smif(smif_apbs.grid, self.ms, self.folder_out, "apbslog")
 
         if not self.ms.do_traj and vg.PQR_CONTENTS_TEMP:
-            path_pqr = sm.FOLDER_OUT / f"{self.ms.molname}.pqr"
+            path_pqr = self.folder_out / f"{self.ms.molname}.pqr"
             path_pqr.write_text(vg.PQR_CONTENTS_TEMP)
 
 
@@ -198,14 +197,14 @@ class AppSmiffer(vg.AppSubcommand):
     def _trim_and_save_smif(self, smif: sm.Smif, key_trimming: str, title: str) -> None:
         self.trimmer.mask_grid(smif, key_trimming)
         self.cavfinder.apply_cavities_weighting(smif)
-        smif.save_data_smif(smif.grid, self.ms, sm.FOLDER_OUT, title)
+        smif.save_data_smif(smif.grid, self.ms, self.folder_out, title)
 
 
     # --------------------------------------------------------------------------
     def _delete_traj_locks(self):
-        if sm.PATH_TRAJ.suffix != ".xtc": return
+        if self.path_traj.suffix != ".xtc": return
 
-        preffix = str(sm.PATH_TRAJ.parent / f".{sm.PATH_TRAJ.stem}.xtc_offsets")
+        preffix = str(self.path_traj.parent / f".{self.path_traj.stem}.xtc_offsets")
         Path(f"{preffix}.lock").unlink(missing_ok = True)
         Path(f"{preffix}.npz").unlink(missing_ok = True)
 
@@ -278,7 +277,7 @@ class AppSmiffer(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _assert_traj_apbs(self):
         if not sm.DO_SMIF_APBS: return
-        if (sm.PATH_TRAJ is None) or (sm.PATH_APBS is None): return
+        if (self.path_traj is None) or (sm.PATH_APBS is None): return
         self.main.help_and_exit(1,
             f"The APBS output '{sm.PATH_APBS}' was provided. However, "+
             "trajectory mode is enabled, so this file would be ambiguous. "+
@@ -289,10 +288,10 @@ class AppSmiffer(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _assert_ligand_has_table(self):
         if not sm.CURRENT_MOLTYPE.is_ligand(): return
-        if sm.PATH_TABLE is not None: return
+        if sm.PATH_CHEM_CUSTOM is not None: return
         self.main.help_and_exit(1,
             "No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file."
         )
 
 
-# # //////////////////////////////////////////////////////////////////////////////
+# //////////////////////////////////////////////////////////////////////////////

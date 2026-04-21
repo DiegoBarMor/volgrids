@@ -9,16 +9,9 @@ class AppSMUtils(vg.AppSubcommand):
 
 
     # --------------------------------------------------------------------------
-    def assign_globals(self):
-        su.OPERATION = self.main.subcommands.pop(0)
-        self.func_operation = {
-            "resids_nonbp" : self._run_resids_nonbp,
-        }[su.OPERATION]
-
-
-    # --------------------------------------------------------------------------
     def run(self):
-        self.func_operation()
+        operation = self.main.subcommands.pop(0)
+        if operation == "resids_nonbp": return self._run_resids_nonbp()
 
 
     # --------------------------------------------------------------------------
@@ -27,9 +20,9 @@ class AppSMUtils(vg.AppSubcommand):
             keys_file_in = ["path_in"],
             allow_none = False,
         )
-        su.PATH_STRUCT = self.main.get_arg_path("path_in")
-
-        su.SMOperations.print_resids_nonbp(su.PATH_STRUCT)
+        su.SMOperations.print_resids_nonbp(
+            self.main.get_arg_path("path_in")
+        )
 
 
 # //////////////////////////////////////////////////////////////////////////////
