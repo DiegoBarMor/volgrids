@@ -3,7 +3,7 @@ set -eu
 
 ### Build and upload the package to PyPI
 
-bash scripts/_prebuild.sh
+bash scripts/_prepare.sh
 
 # pip install build twine
 python3 -m build

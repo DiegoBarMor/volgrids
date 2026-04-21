@@ -3,7 +3,7 @@ set -eu
 
 ### Re-install the package locally
 
-bash scripts/_prebuild.sh
+bash scripts/_prepare.sh
 
 pip uninstall volgrids -y || true
 pip install .

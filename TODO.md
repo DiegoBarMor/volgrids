@@ -61,5 +61,4 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## Refactoring
-- add freyacli as included vendor
 - add color to printed outputs
