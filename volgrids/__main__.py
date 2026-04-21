@@ -9,23 +9,6 @@ except ImportError:
     import volgrids as vg
 
 # ------------------------------------------------------------------------------
-def help_and_exit(exit_code: int):
-    print(
-        f"VOLGRIDS (v{vg.__version__}). Usage:",
-        "    volgrids [smiffer|smutils|apbs|vgtools|veins] [options...]\n",
-        "Available applications:",
-        "    smiffer  - Calculate SMIFs for biomolecular structures.",
-        "    smutils  - Utilities related to more advanced SMIF usage.",
-        "    apbs     - Generate raw APBS potential grids for biomolecular structures.",
-        "    vgtools  - Miscellaneous tools for generic volumetric grids. Grids can be for any kind of data, not necessarily SMIFs.",
-        "    veins    - [WIP] not fully implemented. Calculate VEINS for biomolecular structures.",
-        "\nRun 'volgrids [app] --help' for more details on each application.\n",
-        sep = '\n'
-    )
-    exit(exit_code)
-
-
-# ------------------------------------------------------------------------------
 def path_default_config() -> Path | None:
     if not (__package__ == '' or __package__ is None):
         return None
@@ -35,44 +18,9 @@ def path_default_config() -> Path | None:
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def main():
-    vg.PATH_DEFAULT_CONFIG = path_default_config()
-
-    argv = sys.argv[1:]
-    if not argv: help_and_exit(1)
-    if argv[0] in ("-h", "--help"): help_and_exit(0)
-
     warnings.filterwarnings("ignore", module = "MDAnalysis.*")
-    app_name = argv[0].lower()
-    app_args = argv[1:]
-
-    if app_name == "smiffer":
-        import volgrids.smiffer as sm
-        sm.AppSmiffer.from_cli(app_args).run()
-        exit(0)
-
-    if app_name == "smutils":
-        import volgrids.smutils as su
-        su.AppSMUtils.from_cli(app_args).run()
-        exit(0)
-
-    if app_name == "apbs":
-        print(f">>> Launching APBS subprocess for '{app_args[0]}'...", flush = True)
-        apbs = vg.APBSSubprocess.run_subprocess(app_args)
-        print(f"{apbs.stdout}\n{apbs.stderr}".strip(), flush = True)
-        exit(apbs.returncode)
-
-    if app_name == "vgtools":
-        import volgrids.vgtools as vgt
-        vgt.AppVGTools.from_cli(app_args).run()
-        exit(0)
-
-    if app_name == "veins":
-        raise NotImplementedError("The 'veins' application is not fully implemented yet.")
-        # import volgrids.veins as ve
-        # ve.AppVeins.from_cli(app_args).run()
-        # exit(0)
-
-    help_and_exit(2)
+    vg.PATH_DEFAULT_CONFIG = path_default_config()
+    vg.AppMain(sys.argv).run()
 
 
 ################################################################################

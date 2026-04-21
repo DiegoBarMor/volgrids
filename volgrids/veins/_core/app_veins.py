@@ -1,0 +1,107 @@
+from pathlib import Path
+import pandas as pd
+
+import volgrids as vg
+import volgrids.veins as ve
+
+DEFAULT_ENERGY_CUTOFF = 1e-3 # [TODO] this should be a config
+
+# ------------------------------------------------------------------------------
+def _assert_df(path_csv, df: pd.DataFrame, *cols_metadata):
+    if not set(df.columns).issuperset(cols_metadata):
+        raise ValueError(
+            f"CSV file '{path_csv}' must contain the columns: " +\
+            ", ".join(map(lambda x: f"'{x}'", cols_metadata)) + " " +\
+            f"Found columns: {df.columns}"
+        )
+
+
+# //////////////////////////////////////////////////////////////////////////////
+class AppVeins(vg.AppSubcommand):
+    def __init__(self, app_main: "vg.AppMain"):
+        super().__init__(app_main)
+        self.folder_out: Path = None
+
+
+    # --------------------------------------------------------------------------
+    def run(self):
+        mode = self.main.subcommands.pop(0)
+        if mode == "energies": return self._run_energies()
+        if mode == "forces"  : return self._run_forces()
+
+
+    # --------------------------------------------------------------------------
+    def _run_energies(self) -> None:
+        path_struct     = self.main.get_arg_path("path_struct")
+        path_traj       = self.main.get_arg_path("path_traj")
+        path_csv_energy = self.main.get_arg_path("path_csv")
+        self.folder_out = self.main.get_arg_path("folder_out", default = path_struct.parent)
+
+        self.main.assert_file_in(path_struct)
+        self.main.assert_file_in(path_traj)
+        self.main.assert_file_in(path_csv_energy)
+        self.main.assert_dir_out(self.folder_out)
+
+        energy_cutoff = self.main.get_arg_float("cutoff", default = DEFAULT_ENERGY_CUTOFF)
+
+
+        ### [TODO] update this below
+        ### init phase
+        self.ms = vg.MolSystem(path_struct, path_traj)
+        self.df = pd.read_csv(path_csv_energy).dropna(how = "any")
+        self.cols_frames: list = None
+
+        if self.ms.do_traj:
+            _assert_df(path_csv_energy, self.df, "kind", "npoints", "idxs", "idxs_are_residues")
+            self.cols_frames = sorted(filter(lambda x: x.startswith("frame"), self.df.columns))
+            if not self.cols_frames:
+                raise ValueError(
+                    f"CSV file '{path_csv_energy}' must contain at least one column starting with 'frame' "
+                    "when running in trajectory mode."
+                )
+            mat = self.df[self.cols_frames].to_numpy()
+            mat[mat < energy_cutoff] = 0.0
+            self.df.loc[:, self.cols_frames] = mat
+
+        else:
+            _assert_df(path_csv_energy, self.df, "kind", "npoints", "idxs", "idxs_are_residues", "energy")
+            self.df = self.df[self.df["energy"].abs() > energy_cutoff]
+
+        self.timer = vg.Timer(
+            f">>> Now processing '{self.ms.molname}' ({ve.MODE})"
+        )
+
+        ### run phase
+        self.timer.start()
+
+        if self.ms.do_traj: # TRAJECTORY MODE
+            for _ in self.ms.system.trajectory:
+                current_col = self.cols_frames[self.ms.frame]
+                self.df["energy"] = self.df[current_col]
+                self.ms.frame += 1
+
+                timer_frame = vg.Timer(f"...>>> Frame {self.ms.frame}/{len(self.ms.system.trajectory)}")
+                timer_frame.start()
+                self._process_grids()
+                timer_frame.end()
+
+        else: # SINGLE PDB MODE
+            self._process_grids()
+
+        self.timer.end()
+
+
+    # --------------------------------------------------------------------------
+    def _run_forces(self) -> None:
+        raise NotImplementedError("VEINS Forces mode is not yet implemented.")
+
+
+    # --------------------------------------------------------------------------
+    def _process_grids(self):
+        for kind in self.df["kind"].unique():
+            grid = ve.GridVolumetricEnergy(self.ms, self.df, kind)
+            grid.populate_grid()
+            grid.save_data(self.folder_out, grid.kind)
+
+
+# //////////////////////////////////////////////////////////////////////////////

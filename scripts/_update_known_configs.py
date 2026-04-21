@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 # ------------------------------------------------------------------------------
@@ -25,11 +26,12 @@ def main():
 
 ################################################################################
 if __name__ == "__main__":
-    ROOT = Path(__file__).resolve().parent.parent / "volgrids"
+    ROOT = Path(sys.argv[1])
     PATH_PY = ROOT / "_misc" / "known_configs.py"
     PATHS_INIT = [
         ROOT / "__init__.py",
         ROOT / "smiffer" / "__init__.py",
+        ROOT / "smutils" / "__init__.py",
         ROOT / "vgtools" / "__init__.py",
         ROOT / "veins"   / "__init__.py",
     ]
@@ -37,4 +39,4 @@ if __name__ == "__main__":
 
 
 ################################################################################
-# python3 scripts/update_known_configs.py
+# python3 scripts/dev/update_known_configs.py volgrids

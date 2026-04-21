@@ -5,7 +5,7 @@ import MDAnalysis as mda
 import volgrids as vg
 import volgrids.smiffer as sm
 
-from .hb import SmifHBonds
+from .hbonds import SmifHBonds
 from .triplet import Triplet
 
 # ------------------------------------------------------------------------------
