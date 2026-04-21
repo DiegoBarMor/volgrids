@@ -1,0 +1,75 @@
+### subcommands section for the root app starts here
+@smiffer
+    ### subcommands section for the "smiffer" sub-app starts here
+    @prot   !use:_smif_mode !@
+    @rna    !use:_smif_mode !@
+    @ligand !use:_smif_mode !@
+!@
+
+@smutils
+    @resids_nonbp
+        path_in[]1.PATH
+    !@
+!@
+
+@apbs
+    path_in[]1.PATH
+    ~conv2mrc[m,mrc]
+    ~keep_pqr[p,pqr]
+    ~verbose[v,verbose]
+!@
+
+@vgtools
+    ### subcommands section for the "vgtools" sub-app starts here
+    @convert
+        path_in[]1.PATH
+        ~out_dx[d,dx]1?.PATH
+        ~out_mrc[m,mrc]1?.PATH
+        ~out_ccp4[p,ccp4]1?.PATH
+        ~out_cmap[c,cmap]1?.PATH
+    !@
+    @pack
+        paths_in[]1+.PATH
+        path_out[o,out]1.PATH
+    !@
+    @unpack
+        path_in[]1.PATH
+        ~folder_out[]1.PATH
+    !@
+    @fix_cmap
+        !use:_io_simple
+    !@
+    @average
+        !use:_io_simple
+    !@
+    @summary
+        path_in[]1.PATH
+    !@
+    @compare
+        path_0[]1.PATH
+        path_1[]1.PATH
+        ~threshold[t,threshold]1.FLOAT=1e-3
+    !@
+    @rotate
+        !use:_io_simple
+        ~x[x,yz]1.FLOAT=0.0
+        ~y[y,xz]1.FLOAT=0.0
+        ~z[z,xy]1.FLOAT=0.0
+    !@
+!@
+
+### macros can be placed anywhere, even at the end
+### just dont place macro definitions inside other macro definitions
+!def _smif_mode
+    path_in[]1.PATH
+    ~folder_out[o,out]1.PATH
+    ~path_traj[t,traj]1.PATH
+    ~path_apbs[a,apbs]1.PATH
+    ~path_chem[b,table]1.PATH
+    ~configs[c,config]*.STR
+    ~sphere[s,sphere]4.FLOAT
+    ~resids[i,resids]1+.STR
+!fed
+
+### one-liners are also allowed, as long as spacing rules are respected
+!def _io_simple path_in[]1.PATH path_out[]1.PATH !fed

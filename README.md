@@ -2,7 +2,7 @@
 VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. The following applications are provided:
   - [**SMIF Calculator**](#statistical-molecular-interaction-fields-smif-calculator) via `volgrids smiffer`
   - [**Smiffer Utilities**](#smiffer-utilities)  via `volgrids smutils`
-    - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
+  - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
   - [**Volgrid Tools**](#volgrid-tools) via `volgrids vgtools`.
   - ~~[**Volumetric Energy INSpector**](#volumetric-energy-inspector-veins) via `volgrids veins`. [WIP] WORK IN PROGRESS~~
 
@@ -19,6 +19,7 @@ volgrids --help
 git clone https://github.com/DiegoBarMor/volgrids
 cd volgrids
 pip install -r requirements.txt
+bash scripts/_prepare.sh # fetch vendors that are packed only in the pip distribution
 python3 volgrids --help
 ```
 
@@ -35,8 +36,9 @@ python3 volgrids --help
 
 ### Optional requirements
 - [**APBS**]: Follow the instructions from [here](#installation-ubuntu).
-- [**rnapolis**](https://github.com/tzok/rnapolis-py) for running the `volgrids smutils resids_nonbp` utility.
-  - Can be installed via pip if needed `pip install rnapolis`.
+- [**rnapolis**](https://github.com/tzok/rnapolis-py) (`pip install rnapolis`) for running the `volgrids smutils resids_nonbp` utility.
+- [**freyacli**](https://github.com/tzok/freyacli) (`pip install freyacli`) for CLI management
+  - included as vendor in `volgrid`'s pip distribution. If you don't want to use pip, it will be fetched automatically the first time you run `volgrids`. Alternatively, run `bash volgrids/_prepare.sh` in your local `volgrids` copy to fetch the vendor packages manually.
 
 
 <!-- ----------------------------------------------------------------------- -->

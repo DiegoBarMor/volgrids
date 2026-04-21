@@ -46,3 +46,6 @@ python3 volgrids vgtools convert "$path_ccp4_input" \
 python3 volgrids vgtools convert "$path_cmap_input" \
     --dx "$path_cmap_to_dx"     --mrc "$path_cmap_to_mrc" \
     --ccp4 "$path_cmap_to_ccp4" --cmap "$path_cmap_to_cmap"
+
+cp "$folder/1iqj.stk.cmap" "$folder/empty_flag.cmap"
+python3 volgrids vgtools convert "$folder/empty_flag.cmap" --dx --mrc --ccp4

@@ -45,7 +45,7 @@ run_benchmarks() {
             shopt -s nullglob
             cmaps=( "$fout_benchmark"/npasses*.cmap "$fout_benchmark/$name".*.cmap )
             ### no need to include the last CMAP created, as "pack" will append the other files to this one
-            python3 volgrids vgtools pack -i "${cmaps[@]}" -o "$fout_benchmark/$name.cmap"
+            python3 volgrids vgtools pack "${cmaps[@]}" -o "$fout_benchmark/$name.cmap"
         )
         rm -f "$fout_benchmark/$name".*.weighted.cmap
 
