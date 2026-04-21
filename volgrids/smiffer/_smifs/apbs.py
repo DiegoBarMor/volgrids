@@ -3,6 +3,9 @@ import numpy as np
 import volgrids as vg
 import volgrids.smiffer as sm
 
+try: import freyacli as fy # to display colored text
+except ImportError: from volgrids._vendors import freyacli as fy
+
 # //////////////////////////////////////////////////////////////////////////////
 class SmifAPBS(sm.Smif):
     # --------------------------------------------------------------------------
@@ -19,8 +22,9 @@ class SmifAPBS(sm.Smif):
 
     # --------------------------------------------------------------------------
     def apbs_to_smif(self, path_apbs_in, timer: vg.Timer = None):
-        if timer is not None:
-            sm.APBS_ELAPSED_TIME = timer.end(text = "APBS", end = ' ')
+        if timer is not None: sm.APBS_ELAPSED_TIME = timer.end(
+            text = fy.Color.red("APBS"), end = ' '
+        )
 
         apbs = vg.GridIO.read_auto(path_apbs_in)
         apbs.reshape_as_box(self.grid.box)
@@ -30,7 +34,7 @@ class SmifAPBS(sm.Smif):
     # --------------------------------------------------------------------------
     def apply_logabs_transform(self):
         if self.grid.is_empty():
-            print(f"...--- APBS potential grid is empty. Skipping logabs transform.", flush = True)
+            print(f"...--- {fy.Color.red('APBS potential grid is empty')}. Skipping logabs transform.", flush = True)
             return
 
         logpos = np.log10( self.grid.arr[self.grid.arr > 0])

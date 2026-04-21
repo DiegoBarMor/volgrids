@@ -4,6 +4,9 @@ from pathlib import Path
 import volgrids as vg
 import volgrids.vgtools as vgt
 
+try: import freyacli as fy # to display colored text
+except ImportError: from volgrids._vendors import freyacli as fy
+
 # //////////////////////////////////////////////////////////////////////////////
 class VGOperations:
     @staticmethod
@@ -36,7 +39,7 @@ class VGOperations:
             new_res = f"{grid.xres()} {grid.yres()} {grid.zres()}"
             if (new_res != resolution) and not warned:
                 print(
-                    f">>> Warning: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\
+                    f">>> {fy.Color.red('Warning')}: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\
                     "Chimera won't recognize it as a volume series and open every grid in a separate representation. " +\
                     "Use `volgrids vgtools fix_cmap` if you want to fix this."
                 )
@@ -79,7 +82,6 @@ class VGOperations:
         grid = vg.GridIO.read_cmap(path_in, keys[0])
         avg = np.zeros_like(grid.arr)
         for key in keys:
-            print(key)
             avg += vg.GridIO.read_cmap(path_in, key).arr
         avg /= nframes
 
@@ -95,16 +97,25 @@ class VGOperations:
         def numerics(g: vg.Grid, key: str):
             n_total = g.arr.size
             n_nonzero = len(g.arr[g.arr != 0])
-            print(f"... grid: {key}")
-            print(f"...... min: {g.arr.min():2.2e}; max: {g.arr.max():2.2e}; mean: {g.arr.mean():2.2e}")
-            print(f"...... non-zero points: {n_nonzero}/{n_total} ({100*n_nonzero/n_total:.2f}%)")
+
+            str_min_ = fy.Color.red(f"{g.arr.min():.2e}")
+            str_max_ = fy.Color.blue(f"{g.arr.max():.2e}")
+            str_perc = fy.Color.yellow(f"{100*n_nonzero/n_total:.2f}%")
+
+            print(f"... grid: {fy.Color.cyan(key)}")
+            print(f"...... min: {str_min_}; max: {str_max_}; mean: {g.arr.mean():2.2e}")
+            print(f"...... non-zero points: {n_nonzero}/{n_total} ({str_perc})")
 
         grid = vg.GridIO.read_auto(path_in)
         grid_names = vg.GridIO.get_cmap_keys(path_in) if grid.fmt.is_cmap() else [path_in.stem]
 
-        print(f"... fmt: {grid.fmt}, ngrids: {len(grid_names)}")
-        print(f"... resolution: {grid.xres()}x{grid.yres()}x{grid.zres()}; deltas: ({grid.dx():.2f},{grid.dy():.2f},{grid.dz():.2f})")
-        print(f"... box: ({grid.xmin():.2f},{grid.ymin():.2f},{grid.zmin():.2f})->({grid.xmax():.2f},{grid.ymax():.2f},{grid.zmax():.2f})")
+        str_res = fy.Color.green(f"{grid.xres()}x{grid.yres()}x{grid.zres()}")
+        str_min = fy.Color.red(f"{grid.xmin():.2f},{grid.ymin():.2f},{grid.zmin():.2f}")
+        str_max = fy.Color.blue(f"{grid.xmax():.2f},{grid.ymax():.2f},{grid.zmax():.2f}")
+
+        print(f"... fmt: {fy.Color.magenta(grid.fmt.name)}, ngrids: {fy.Color.yellow(len(grid_names))}")
+        print(f"... resolution: {str_res}; deltas: ({grid.dx():.2f},{grid.dy():.2f},{grid.dz():.2f})")
+        print(f"... box: ({str_min})->({str_max})")
 
         if not grid.fmt.is_cmap():
             numerics(grid, path_in.stem); print()
@@ -130,23 +141,25 @@ class VGOperations:
         min_coords_0 = grid_0.box.min_coords; min_coords_1 = grid_1.box.min_coords
         max_coords_0 = grid_0.box.max_coords; max_coords_1 = grid_1.box.max_coords
 
+        str_warning = fy.Color.red("Warning:")
+
         if _are_different_vector(resolution_0, resolution_1):
             return vgt.ComparisonResult(0, 0, 0.0, 0.0,
-                [f"Warning: Grids {path_in_0} and {path_in_1} have different shapes: {resolution_0} vs {resolution_1}. Aborting."]
+                [f"{str_warning}: Grids {path_in_0} and {path_in_1} have different shapes: {resolution_0} vs {resolution_1}. Aborting."]
             )
 
         warnings = []
         if _are_different_vector(min_coords_0, min_coords_1):
             warnings.append(
-                f"Warning: Grids {path_in_0} and {path_in_1} have different origin: {min_coords_0} vs {min_coords_1}. Comparison may not be accurate."
+                f"{str_warning}: Grids {path_in_0} and {path_in_1} have different origin: {min_coords_0} vs {min_coords_1}. Comparison may not be accurate."
             )
         if _are_different_vector(max_coords_0, max_coords_1):
             warnings.append(
-                f"Warning: Grids {path_in_0} and {path_in_1} have different max coordinate: {max_coords_0} vs {max_coords_1}. Comparison may not be accurate."
+                f"{str_warning}: Grids {path_in_0} and {path_in_1} have different max coordinate: {max_coords_0} vs {max_coords_1}. Comparison may not be accurate."
             )
         if _are_different_vector(deltas_0, deltas_1):
             warnings.append(
-                f"Warning: Grids {path_in_0} and {path_in_1} have different deltas: {deltas_0} vs {deltas_1}. Comparison may not be accurate."
+                f"{str_warning}: Grids {path_in_0} and {path_in_1} have different deltas: {deltas_0} vs {deltas_1}. Comparison may not be accurate."
             )
 
         diff = abs(grid_1 - grid_0)

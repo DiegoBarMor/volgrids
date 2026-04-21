@@ -4,6 +4,9 @@ from pathlib import Path
 import volgrids as vg
 import volgrids.smiffer as sm
 
+try: import freyacli as fy # to display colored text
+except ImportError: from volgrids._vendors import freyacli as fy
+
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):
     # --------------------------------------------------------------------------
@@ -47,7 +50,7 @@ class AppSmiffer(vg.AppSubcommand):
         self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
         self.cavfinder = sm.CavityFinder()
         self.timer = vg.Timer(
-            f">>> SMIFs {sm.CURRENT_MOLTYPE.name:>4} '{self.ms.molname}'"+\
+            f">>> SMIFs {sm.CURRENT_MOLTYPE.name:>4} '{fy.Color.yellow(self.ms.molname)}'"+\
             f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
         )
 
@@ -90,7 +93,7 @@ class AppSmiffer(vg.AppSubcommand):
     def run(self):
         if sm.CURRENT_MOLTYPE.is_ligand():
             sm.DO_SMIF_APBS = False
-            print("\n...--- ligand: skipping APBS SMIF calculation.", end = ' ', flush = True)
+            print(f"\n...--- ligand: {fy.Color.red('skipping APBS')} SMIF calculation.", end = ' ', flush = True)
 
         self.timer.start()
 
@@ -107,7 +110,7 @@ class AppSmiffer(vg.AppSubcommand):
         else: # SINGLE PDB MODE
             self._process_grids()
 
-        self.timer.end(text = "SMIFs", minus = sm.APBS_ELAPSED_TIME)
+        self.timer.end(text = fy.Color.green("SMIFs"), minus = sm.APBS_ELAPSED_TIME)
 
 
     # --------------------------------------------------------------------------

@@ -1,6 +1,9 @@
 import volgrids as vg
 import volgrids.vgtools as vgt
 
+try: import freyacli as fy # to display colored text
+except ImportError: from volgrids._vendors import freyacli as fy
+
 DEFAULT_COMPARISON_THRESHOLD = 1e-5 # [TODO] this should be a config
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -33,7 +36,7 @@ class AppVGTools(vg.AppSubcommand):
 
         def _convert(path_out, fmt_out: vg.GridFormat):
             if path_out is None: return
-            print(f">>> Converting {path_in} file to {fmt_out.name}: {path_out}")
+            print(f">>> Converting {fy.Color.yellow(path_in)} file to {fy.Color.magenta(fmt_out.name)}: {fy.Color.blue(path_out)}")
             vgt.VGOperations.convert(path_in, path_out, fmt_out)
 
         _convert(path_out_dx,   vg.GridFormat.DX)
@@ -52,7 +55,8 @@ class AppVGTools(vg.AppSubcommand):
         paths_in = self.main.get_arg_list_path("paths_in")
         path_out = self.main.get_arg_path("path_out")
 
-        print(f">>> Packing {len(paths_in)} grids into '{path_out}'")
+        str_npaths = fy.Color.yellow(f"{len(paths_in)}")
+        print(f">>> Packing {str_npaths} grids into '{fy.Color.blue(path_out)}'")
         vgt.VGOperations.pack(paths_in, path_out)
 
 
@@ -67,7 +71,7 @@ class AppVGTools(vg.AppSubcommand):
         self.main.assert_paths(keys_dir_out = ["folder_out"], allow_none = True)
         path_out = self.main.get_arg_path("folder_out")
 
-        print(f">>> Unpacking '{path_in}' into '{path_out}'")
+        print(f">>> Unpacking '{fy.Color.yellow(path_in)}' into '{fy.Color.blue(path_out)}'")
         vgt.VGOperations.unpack(path_in, path_out)
 
 
@@ -81,7 +85,7 @@ class AppVGTools(vg.AppSubcommand):
         path_in  = self.main.get_arg_path("path_in")
         path_out = self.main.get_arg_path("path_out")
 
-        print(f">>> Fixing CMAP file: {path_in}")
+        print(f">>> Fixing CMAP file: {fy.Color.yellow(path_in)}")
         vgt.VGOperations.fix_cmap(path_in, path_out)
 
 
@@ -95,7 +99,7 @@ class AppVGTools(vg.AppSubcommand):
         path_in  = self.main.get_arg_path("path_in")
         path_out = self.main.get_arg_path("path_out")
 
-        print(f">>> Averaging CMAP file: {path_in}")
+        print(f">>> Averaging CMAP file: {fy.Color.yellow(path_in)}")
         vgt.VGOperations.average(path_in, path_out)
 
 
@@ -107,7 +111,7 @@ class AppVGTools(vg.AppSubcommand):
         )
         path_in = self.main.get_arg_path("path_in")
 
-        print(f">>> Grid summary: {path_in}")
+        print(f">>> Grid summary: {fy.Color.yellow(path_in)}")
         vgt.VGOperations.summary(path_in)
 
 
@@ -124,18 +128,19 @@ class AppVGTools(vg.AppSubcommand):
         if threshold is None:
             threshold = DEFAULT_COMPARISON_THRESHOLD
 
-        print(f">>> Comparing grids: {path_in_0} vs {path_in_1} (threshold={threshold:2.2e})")
+        print(f">>> Comparing grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)} (threshold={threshold:2.2e})")
         result = vgt.VGOperations.compare(path_in_0, path_in_1, threshold)
 
         for message in result.messages:
             print(f"...>>> {message}")
         if result.npoints_total == 0: return
 
+        str_perc = fy.Color.yellow(f"{100 * result.npoints_diff / result.npoints_total:.2f}%")
+        str_avg_diff = fy.Color.red(f"{result.avg_diff:2.2e}")
+
         print(
-            f"...>>> {result.npoints_diff}/{result.npoints_total} points differ " +\
-            f"({100 * result.npoints_diff / result.npoints_total:.2f}%)\n" +\
-            f"...>>> Accumulated difference: {result.cumulative_diff:2.2e} " +\
-            f"(avg {result.avg_diff:2.2e} per point)"
+            f"...>>> {result.npoints_diff}/{result.npoints_total} points differ ({str_perc})\n" +\
+            f"...>>> Accumulated difference: {result.cumulative_diff:2.2e} (avg {str_avg_diff} per point)"
         )
 
 
@@ -153,7 +158,7 @@ class AppVGTools(vg.AppSubcommand):
         rotate_xz = self.main.get_arg_float("y")
         rotate_xy = self.main.get_arg_float("z")
 
-        print(f">>> Rotating grid: {path_in} by {rotate_xy}° (xy), {rotate_yz}° (yz), {rotate_xz}° (xz)")
+        print(f">>> Rotating grid: {fy.Color.yellow(path_in)} by {rotate_xy}° (xy), {rotate_yz}° (yz), {rotate_xz}° (xz)")
         vgt.VGOperations.rotate(path_in, path_out, rotate_xy, rotate_yz, rotate_xz)
 
 
