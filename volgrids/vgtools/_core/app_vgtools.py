@@ -23,30 +23,29 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_convert(self):
-        self.main.assert_paths(
-            keys_file_in = ["path_in"],
-            allow_none = True,
-        )
         path_in       = self.main.get_arg_path("path_in")
-
         path_out_dx   = self.main.get_arg_path("out_dx")
         path_out_mrc  = self.main.get_arg_path("out_mrc")
         path_out_ccp4 = self.main.get_arg_path("out_ccp4")
         path_out_cmap = self.main.get_arg_path("out_cmap")
 
-        if self.main.get_arg_value("out_dx") is True: # -d flag with no path specified
-            self.main.set_arg_value("out_dx", path_in.with_suffix(".dx"))
-        if self.main.get_arg_value("out_mrc") is True: # -m flag with no path specified
-            self.main.set_arg_value("out_mrc", path_in.with_suffix(".mrc"))
-        if self.main.get_arg_value("out_ccp4") is True: # -p flag with no path specified
-            self.main.set_arg_value("out_ccp4", path_in.with_suffix(".ccp4"))
-        if self.main.get_arg_value("out_cmap") is True: # -c flag with no path specified
-            self.main.set_arg_value("out_cmap", path_in.with_suffix(".cmap"))
+        if path_out_dx is True: # -d flag with no path specified
+            path_out_dx = path_in.with_suffix(".dx")
 
-        self.main.assert_paths(
-            keys_file_out = ["out_dx", "out_mrc", "out_ccp4", "out_cmap"],
-            allow_none = True,
-        )
+        if path_out_mrc is True: # -m flag with no path specified
+            path_out_mrc = path_in.with_suffix(".mrc")
+
+        if path_out_ccp4 is True: # -p flag with no path specified
+            path_out_ccp4 = path_in.with_suffix(".ccp4")
+
+        if path_out_cmap is True: # -c flag with no path specified
+            path_out_cmap = path_in.with_suffix(".cmap")
+
+        self.main.assert_file_in(path_in)
+        self.main.assert_file_out(path_out_dx, allow_none = True)
+        self.main.assert_file_out(path_out_mrc, allow_none = True)
+        self.main.assert_file_out(path_out_ccp4, allow_none = True)
+        self.main.assert_file_out(path_out_cmap, allow_none = True)
 
 
         def _convert(path_out, fmt_out: vg.GridFormat):
@@ -62,13 +61,11 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_pack(self):
-        self.main.assert_paths(
-            keys_file_in = ["paths_in"],
-            keys_file_out = ["path_out"],
-            allow_none = False,
-        )
         paths_in = self.main.get_arg_list_path("paths_in")
         path_out = self.main.get_arg_path("path_out")
+
+        for path in paths_in: self.main.assert_file_in(path)
+        self.main.assert_file_out(path_out)
 
         str_npaths = fy.Color.yellow(f"{len(paths_in)}")
         print(f">>> Packing {str_npaths} grids into '{fy.Color.blue(path_out)}'")
@@ -77,14 +74,11 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_unpack(self):
-        self.main.assert_paths(keys_file_in = ["path_in"], allow_none = False)
-        path_in = self.main.get_arg_path("path_in")
+        path_in  = self.main.get_arg_path("path_in")
+        path_out = self.main.get_arg_path("folder_out", default = path_in.parent)
 
-        if self.main.get_arg_value("folder_out") is None:
-            self.main.set_arg_value("folder_out", path_in.parent)
-
-        self.main.assert_paths(keys_dir_out = ["folder_out"], allow_none = True)
-        path_out = self.main.get_arg_path("folder_out")
+        self.main.assert_file_in(path_in)
+        self.main.assert_dir_out(path_out)
 
         print(f">>> Unpacking '{fy.Color.yellow(path_in)}' into '{fy.Color.blue(path_out)}'")
         vgt.VGOperations.unpack(path_in, path_out)
@@ -92,13 +86,11 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_fix_cmap(self):
-        self.main.assert_paths(
-            keys_file_in = ["path_in"],
-            keys_file_out = ["path_out"],
-            allow_none = False,
-        )
         path_in  = self.main.get_arg_path("path_in")
         path_out = self.main.get_arg_path("path_out")
+
+        self.main.assert_file_in(path_in)
+        self.main.assert_file_out(path_out)
 
         print(f">>> Fixing CMAP file: {fy.Color.yellow(path_in)}")
         vgt.VGOperations.fix_cmap(path_in, path_out)
@@ -106,13 +98,11 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_average(self):
-        self.main.assert_paths(
-            keys_file_in = ["path_in"],
-            keys_file_out = ["path_out"],
-            allow_none = False,
-        )
         path_in  = self.main.get_arg_path("path_in")
         path_out = self.main.get_arg_path("path_out")
+
+        self.main.assert_file_in(path_in)
+        self.main.assert_dir_out(path_out)
 
         print(f">>> Averaging CMAP file: {fy.Color.yellow(path_in)}")
         vgt.VGOperations.average(path_in, path_out)
@@ -120,11 +110,8 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_summary(self):
-        self.main.assert_paths(
-            keys_file_in = ["path_in"],
-            allow_none = False,
-        )
         path_in = self.main.get_arg_path("path_in")
+        self.main.assert_file_in(path_in)
 
         print(f">>> Grid summary: {fy.Color.yellow(path_in)}")
         vgt.VGOperations.summary(path_in)
@@ -132,16 +119,13 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_compare(self):
-        self.main.assert_paths(
-            keys_file_in = ["path_0", "path_1"],
-            allow_none = False,
-        )
         path_in_0 = self.main.get_arg_path("path_0")
         path_in_1 = self.main.get_arg_path("path_1")
 
-        threshold = self.main.get_arg_float("threshold")
-        if threshold is None:
-            threshold = DEFAULT_COMPARISON_THRESHOLD
+        self.main.assert_file_in(path_in_0)
+        self.main.assert_file_in(path_in_1)
+
+        threshold = self.main.get_arg_float("threshold", default = DEFAULT_COMPARISON_THRESHOLD)
 
         print(f">>> Comparing grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)} (threshold={threshold:2.2e})")
         result = vgt.VGOperations.compare(path_in_0, path_in_1, threshold)
@@ -161,13 +145,11 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_rotate(self):
-        self.main.assert_paths(
-            keys_file_in = ["path_in"],
-            keys_file_out = ["path_out"],
-            allow_none = False,
-        )
         path_in  = self.main.get_arg_path("path_in")
         path_out = self.main.get_arg_path("path_out")
+
+        self.main.assert_file_in(path_in)
+        self.main.assert_dir_out(path_out)
 
         rotate_yz = self.main.get_arg_float("x")
         rotate_xz = self.main.get_arg_float("y")

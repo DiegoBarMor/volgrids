@@ -32,22 +32,17 @@ class AppVeins(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_energies(self) -> None:
-        self.main.assert_paths(
-            keys_file_in = ["path_struct", "path_csv"],
-            allow_none = False,
-        )
-        path_struct       = self.main.get_arg_path("path_struct")
+        path_struct     = self.main.get_arg_path("path_struct")
+        path_traj       = self.main.get_arg_path("path_traj")
         path_csv_energy = self.main.get_arg_path("path_csv")
+        self.folder_out = self.main.get_arg_path("folder_out", default = path_struct.parent)
 
-        if self.main.get_arg_value("folder_out") is None:
-            self.main.set_arg_value("folder_out", path_struct.parent)
+        self.main.assert_file_in(path_struct)
+        self.main.assert_file_in(path_traj)
+        self.main.assert_file_in(path_csv_energy)
+        self.main.assert_dir_out(self.folder_out)
 
-        self.main.assert_paths(keys_dir_out = ["folder_out"], allow_none = False)
-        self.folder_out = self.main.get_arg_path("folder_out")
-
-        path_traj = self.main.get_arg_path("path_traj")
-        energy_cutoff = self.main.get_arg_float("cutoff")
-        if energy_cutoff is None: energy_cutoff = DEFAULT_ENERGY_CUTOFF
+        energy_cutoff = self.main.get_arg_float("cutoff", default = DEFAULT_ENERGY_CUTOFF)
 
 
         ### [TODO] update this below

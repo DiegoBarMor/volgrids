@@ -16,13 +16,9 @@ class AppSMUtils(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_resids_nonbp(self) -> None:
-        self.main.assert_paths(
-            keys_file_in = ["path_in"],
-            allow_none = False,
-        )
-        su.SMOperations.print_resids_nonbp(
-            self.main.get_arg_path("path_in")
-        )
+        path_in = self.main.get_arg_path("path_in")
+        self.main.assert_file_in(path_in)
+        su.SMOperations.print_resids_nonbp(path_in)
 
 
 # //////////////////////////////////////////////////////////////////////////////
