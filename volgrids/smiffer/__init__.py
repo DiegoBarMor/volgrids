@@ -1,5 +1,5 @@
 from ._core.mol_type import MolType
-from ._core.mol_system import MolSystemSmiffer
+from ._core.mol_system_smiffer import MolSystemSmiffer
 from ._core.cavity_finder import CavityFinder
 from ._core.trimmer import Trimmer
 
@@ -15,8 +15,7 @@ from ._smifs.stacking import SmifStacking
 
 from ._misc.sphere_info import SphereInfo
 
-from ._ui.param_handler import ParamHandlerSmiffer
-from ._ui.app import AppSmiffer
+from ._core.app_smiffer import AppSmiffer
 
 
 ############################# CONFIG FILE GLOBALS ##############################
@@ -98,15 +97,13 @@ __config_keys__.remove("_keys_other")
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
-### These are global variables that are to be set by
-### an instance of ParamHandler (or its inherited classes)
+### These are global variables that are to be set by inherited `AppSubcommand` classes.
+### CLI parsed by freyacli.
 
 import pathlib as _pathlib
 PATH_STRUCT: _pathlib.Path = None # "path/input/struct.pdb"
-PATH_TRAJ:   _pathlib.Path = None # "path/input/traj.xtc"
-PATH_APBS:   _pathlib.Path = None # "path/input/apbs.pqr.dx"
-PATH_TABLE:  _pathlib.Path = None # "path/input/table.chem"
-FOLDER_OUT:  _pathlib.Path = None # "folder/output/"
+PATH_APBS:        _pathlib.Path = None # "path/input/apbs.pqr.dx"
+PATH_CHEM_CUSTOM: _pathlib.Path = None # "path/input/table.chem"
 
 SPHERE: SphereInfo  = None              # pocket sphere info: [x, y, z, radius]
 CURRENT_MOLTYPE: MolType = MolType.NONE # type of the current molecule

@@ -13,5 +13,5 @@ python3 volgrids smiffer ligand $folder/all_interactions/tsc_noH.pdb -b $folder/
 ### Ligand: 9U3 aka N,N,N',N'-tetramethylethane-1,2-diamine
 python3 volgrids smiffer ligand $folder/nr3_case/9u3.pdb -b $folder/nr3_case/9u3.chem
 
-# ### Protein system (for reference)
+### Protein system (for reference)
 # python3 volgrids smiffer prot $folder/1lph.pdb

@@ -72,7 +72,7 @@ class MolSystemSmiffer(vg.MolSystem):
 
     # --------------------------------------------------------------------------
     def _get_path_table(self) -> Path:
-        if sm.PATH_TABLE: return sm.PATH_TABLE
+        if sm.PATH_CHEM_CUSTOM: return sm.PATH_CHEM_CUSTOM
 
         folder_default_tables = Path("_tables")
 
