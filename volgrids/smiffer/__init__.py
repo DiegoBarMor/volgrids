@@ -36,6 +36,10 @@ DO_SMIF_HYDROPHOBIC: bool = True
 DO_SMIF_HYDROPHILIC: bool = True
 DO_SMIF_APBS:        bool = True
 
+# [TODO] the interface configs will be part of smutils
+# they will most likely be of the type DO_INTERFACE_STACKING
+# with a single SAVE_PROBES at the end the affects them all equally
+# this way it should be easier to turn on/off probe saving (.e.g for debugging) for all relevant interfaces
 # Probe-Probe (PP) fields - spherical accessibility regions
 DO_SMIF_HBA_PP:      bool = False  # HB acceptor probe-probe (hbaPP)
 DO_SMIF_HBD_PP:      bool = False  # HB donor probe-probe (hbdPP)

@@ -69,6 +69,7 @@
     ~configs[c,config]*.STR
     ~sphere[s,sphere]4.FLOAT
     ~resids[i,resids]1+.STR
+    ~probe_probe[p,probe-probe]
 !fed
 
 ### one-liners are also allowed, as long as spacing rules are respected
