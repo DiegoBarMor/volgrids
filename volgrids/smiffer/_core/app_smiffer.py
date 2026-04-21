@@ -46,14 +46,6 @@ class AppSmiffer(vg.AppSubcommand):
         self._assert_traj_apbs()
         self._assert_ligand_has_table()
 
-        self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, self.path_traj)
-        self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
-        self.cavfinder = sm.CavityFinder()
-        self.timer = vg.Timer(
-            f">>> SMIFs {sm.CURRENT_MOLTYPE.name:>4} '{fy.Color.yellow(self.ms.molname)}'"+\
-            f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
-        )
-
 
     # --------------------------------------------------------------------------
     def init_smif_parameters(self):
@@ -87,6 +79,16 @@ class AppSmiffer(vg.AppSubcommand):
 
         ### square root of the DIST contribution to sm.COV_STACKING,
         sm.SIGMA_DIST_STACKING = np.sqrt(sm.COV_STACKING_11)
+
+        ### these must be initialized after the configs are loaded,
+        ### so it's appropriate to place them in this late-init method
+        self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, self.path_traj)
+        self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
+        self.cavfinder = sm.CavityFinder()
+        self.timer = vg.Timer(
+            f">>> SMIFs {sm.CURRENT_MOLTYPE.name:>4} '{fy.Color.yellow(self.ms.molname)}'"+\
+            f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
+        )
 
 
     # --------------------------------------------------------------------------

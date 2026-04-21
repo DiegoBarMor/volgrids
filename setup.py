@@ -19,6 +19,8 @@ setup(
     package_data={"volgrids": [
         "_tables/*", "apbs/*",
         "_ui/fy_help.fyh", "_ui/fy_rules.fyr",
+        "_vendors/**/*",
+        "_dev/fetch_vendors.sh",
     ]},
     install_requires=["MDAnalysis==2.10.0", "h5py==3.15.1"],
     entry_points={

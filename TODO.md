@@ -57,3 +57,6 @@
 * example operations:
     * `findsphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
     * `smifhist` for an interactive matplotlib visualization of the SMIFs' histograms.
+
+## Refactor
+- implement better default path handling

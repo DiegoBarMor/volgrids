@@ -25,14 +25,29 @@ class AppVGTools(vg.AppSubcommand):
     def _run_convert(self):
         self.main.assert_paths(
             keys_file_in = ["path_in"],
-            keys_file_out = ["out_dx", "out_mrc", "out_ccp4", "out_cmap"],
             allow_none = True,
         )
         path_in       = self.main.get_arg_path("path_in")
+
         path_out_dx   = self.main.get_arg_path("out_dx")
         path_out_mrc  = self.main.get_arg_path("out_mrc")
         path_out_ccp4 = self.main.get_arg_path("out_ccp4")
         path_out_cmap = self.main.get_arg_path("out_cmap")
+
+        if self.main.get_arg_value("out_dx") is True: # -d flag with no path specified
+            self.main.set_arg_value("out_dx", path_in.with_suffix(".dx"))
+        if self.main.get_arg_value("out_mrc") is True: # -m flag with no path specified
+            self.main.set_arg_value("out_mrc", path_in.with_suffix(".mrc"))
+        if self.main.get_arg_value("out_ccp4") is True: # -p flag with no path specified
+            self.main.set_arg_value("out_ccp4", path_in.with_suffix(".ccp4"))
+        if self.main.get_arg_value("out_cmap") is True: # -c flag with no path specified
+            self.main.set_arg_value("out_cmap", path_in.with_suffix(".cmap"))
+
+        self.main.assert_paths(
+            keys_file_out = ["out_dx", "out_mrc", "out_ccp4", "out_cmap"],
+            allow_none = True,
+        )
+
 
         def _convert(path_out, fmt_out: vg.GridFormat):
             if path_out is None: return

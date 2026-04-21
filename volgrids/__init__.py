@@ -1,3 +1,6 @@
+from ._misc.utils import assert_vendors
+assert_vendors()
+
 from ._version import __version__
 
 from ._core.box import Box

@@ -19,7 +19,7 @@ volgrids --help
 git clone https://github.com/DiegoBarMor/volgrids
 cd volgrids
 pip install -r requirements.txt
-bash scripts/_prepare_.sh # fetch vendors that are packed only in the pip distribution
+bash scripts/_prepare.sh # fetch vendors that are packed only in the pip distribution
 python3 volgrids --help
 ```
 
@@ -38,7 +38,7 @@ python3 volgrids --help
 - [**APBS**]: Follow the instructions from [here](#installation-ubuntu).
 - [**rnapolis**](https://github.com/tzok/rnapolis-py) (`pip install rnapolis`) for running the `volgrids smutils resids_nonbp` utility.
 - [**freyacli**](https://github.com/tzok/freyacli) (`pip install freyacli`) for CLI management
-  - included as vendor in `volgrid`'s pip distribution. If you don't want to use pip, run `bash scripts/_prepare_.sh` in your local `volgrids` copy to fetch the vendor packages.
+  - included as vendor in `volgrid`'s pip distribution. If you don't want to use pip, it will be fetched automatically the first time you run `volgrids`. Alternatively, run `bash volgrids/_prepare.sh` in your local `volgrids` copy to fetch the vendor packages manually.
 
 
 <!-- ----------------------------------------------------------------------- -->
