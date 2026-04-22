@@ -40,7 +40,7 @@ class Grid:
 
     # --------------------------------------------------------------------------
     def __mul__(self, other: "Grid|float|int") -> "Grid":
-        obj = Grid(self.ms, init_grid = False)
+        obj = self.__class__(self.box, init_grid = False)
         if isinstance(other, Grid):
             obj.arr = self.arr * other.arr
             return obj
@@ -49,6 +49,19 @@ class Grid:
             return obj
         except TypeError:
             raise TypeError(f"Cannot multiply {type(other)} with Grid. Use another Grid or a numeric value.")
+
+
+    # --------------------------------------------------------------------------
+    def __div__(self, other: "Grid|float|int") -> "Grid":
+        obj = self.__class__(self.box, init_grid = False)
+        if isinstance(other, Grid):
+            obj.arr = self.arr / other.arr
+            return obj
+        try:
+            obj.arr = self.arr / other
+            return obj
+        except TypeError:
+            raise TypeError(f"Cannot divide Grid by {type(other)}. Use another Grid or a numeric value.")
 
 
     # --------------------------------------------------------------------------

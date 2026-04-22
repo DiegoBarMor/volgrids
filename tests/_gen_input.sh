@@ -4,6 +4,7 @@ set -eu
 ### folders that should already exist
 fframes="testdata/vgtools/_inconsistent_frames"
 fpdb_nosolv="testdata/smiffer/pdb_clean"
+f_interface="testdata/smiffer/interfaces/prot_rna"
 fapbs="testdata/smiffer/apbs"
 
 mkdir -p $fapbs
@@ -32,9 +33,10 @@ fc="$fvgtools/converting"
 fp="$fvgtools/packing"
 fu="$fvgtools/unpacking"
 ff="$fvgtools/fix_cmap"
+fop="$fvgtools/operations"
 
-mkdir -p $fc $fp $fu $ff
-rm -f $fc/* $fp/* $fu/*  $ff/*.cmap
+mkdir -p $fc $fp $fu $ff $fop
+rm -f $fc/* $fp/* $fu/* $ff/*.cmap $fop/*.cmap
 
 conf_no_apbs="GRID_FORMAT_OUTPUT=MRC DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SMIF_HYDROPHOBIC=True DO_SMIF_HYDROPHILIC=True DO_SMIF_STACKING=True DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
 conf_just_stacking="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
@@ -84,3 +86,8 @@ python3 volgrids vgtools pack \
     $fframes/smiffer_3.hbdonors.cmap   $fframes/smiffer_127.hbdonors.cmap \
     $fframes/smiffer_32.hbdonors.cmap  $fframes/smiffer_50.hbdonors.cmap  \
     -o $ff/hbdonors.issue.cmap
+
+
+############################# OPERATIONS
+python3 volgrids smiffer prot $f_interface/prot.pdb --config "$conf_just_stacking" -o $fop
+python3 volgrids smiffer rna  $f_interface/rna.pdb  --config "$conf_just_stacking" -o $fop

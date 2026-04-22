@@ -19,6 +19,7 @@ class AppVGTools(vg.AppSubcommand):
         if operation == "summary" : return self._run_summary()
         if operation == "compare" : return self._run_compare()
         if operation == "rotate"  : return self._run_rotate()
+        if operation == "op"      : return self._run_op()
 
 
     # --------------------------------------------------------------------------
@@ -157,6 +158,38 @@ class AppVGTools(vg.AppSubcommand):
 
         print(f">>> Rotating grid: {fy.Color.yellow(path_in)} by {rotate_xy}° (xy), {rotate_yz}° (yz), {rotate_xz}° (xz)")
         vgt.VGOperations.rotate(path_in, path_out, rotate_xy, rotate_yz, rotate_xz)
+
+
+    # --------------------------------------------------------------------------
+    def _run_op(self):
+        command = self.main.subcommands.pop(0)
+
+        path_out  = self.main.get_arg_path("path_out")
+        self.main.assert_file_out(path_out)
+
+        if command == "abs": # abs is the only unary operation for now
+            operation = vg.Grid.__abs__
+            path_in = self.main.get_arg_path("path_in")
+            self.main.assert_file_in(path_in)
+            print(f">>> Performing '{fy.Color.yellow(command)}' operation on grid: {fy.Color.red(path_in)}")
+            vgt.VGOperations.op(operation, path_out, path_in)
+            return
+
+        path_in_0 = self.main.get_arg_path("path_in_0")
+        path_in_1 = self.main.get_arg_path("path_in_1")
+
+        self.main.assert_file_in(path_in_0)
+        self.main.assert_file_in(path_in_1)
+
+        operation: callable = {
+            "add": vg.Grid.__add__,
+            "sub": vg.Grid.__sub__,
+            "mul": vg.Grid.__mul__,
+            "div": vg.Grid.__div__,
+        }[command]
+
+        print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)}")
+        vgt.VGOperations.op(operation, path_out, path_in_0, path_in_1)
 
 
 # //////////////////////////////////////////////////////////////////////////////

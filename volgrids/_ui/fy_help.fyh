@@ -79,7 +79,6 @@
         !fyh:path_1 Path to a second grid file.
         !fyh:threshold Threshold for comparison.
             Points whose difference is higher than this threshold will be counted as "different".
-            Default is 1e-3.
     !@
     @rotate
         !fyh:_ Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
@@ -89,8 +88,37 @@
         !fyh:y Rotation angle in degrees along the xz plane (in degrees).
         !fyh:z Rotation angle in degrees along the xy plane (in degrees).
     !@
+    @op
+        !fyh:_
+            Perform numeric operations between two grids.
+            These are simple element-wise arithmethics (addition, substraction, multiplication, division), as well as absolute value for a single grid.
+            They rely on numpy, so grids with mismatched shapes will be interpolated if needed (the second grid pass gets interpolated).
+        @abs
+            !fyh:_ Element-wise absolute value of the grid's points.
+            !fyh:path_in Path to a grid file.
+            !fyh:path_out Path where to store the resulting grid.
+        !@
+        @add
+            !fyh:_ Element-wise addition of the grids' points.
+            !use:_io_2_inputs_op
+        !@
+        @sub
+            !fyh:_ Element-wise substraction of the grids' points.
+                Order is "grid_0 - grid_1".
+            !use:_io_2_inputs_op
+        !@
+        @mul
+            !fyh:_ Element-wise multiplication of the grids' points.
+            !use:_io_2_inputs_op
+        !@
+        @div
+            !fyh:_ Element-wise division of the grids' points.
+                Order is "grid_0 / grid_1".
+                Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
+            !use:_io_2_inputs_op
+        !@
+    !@
 !@
-
 
 !def _smif_mode
     !fyh:path_in
@@ -121,6 +149,8 @@
         Generates hbaPP, hbdPP, stkPP, hpPP fields following overlap-gio2 approach.
 !fed
 
-### macros are just text substitution. In this case,
-### the macro _io_simple isn't considered because a more specific
-### help is written for each case.
+!def _io_2_inputs
+    !fyh:path_in_0 Path to a first grid file (defines target coordinate system).
+    !fyh:path_in_1 Path to a second grid file (will be interpolated if needed).
+    !fyh:path_out Path where to store the resulting grid.
+!fed

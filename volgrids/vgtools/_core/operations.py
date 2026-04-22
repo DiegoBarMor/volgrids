@@ -129,10 +129,6 @@ class VGOperations:
     # --------------------------------------------------------------------------
     @staticmethod
     def compare(path_in_0: Path, path_in_1: Path, threshold: float) -> "vgt.ComparisonResult":
-        def _are_different_vector(vec0, vec1):
-            diff = np.abs(vec0 - vec1)
-            return len(diff[diff > threshold]) != 0
-
         grid_0 = vg.GridIO.read_auto(path_in_0)
         grid_1 = vg.GridIO.read_auto(path_in_1)
 
@@ -141,23 +137,23 @@ class VGOperations:
         min_coords_0 = grid_0.box.min_coords; min_coords_1 = grid_1.box.min_coords
         max_coords_0 = grid_0.box.max_coords; max_coords_1 = grid_1.box.max_coords
 
-        str_warning = fy.Color.red("Warning:")
+        str_warning = fy.Color.red("Warning")
 
-        if _are_different_vector(resolution_0, resolution_1):
+        if not np.allclose(resolution_0, resolution_1):
             return vgt.ComparisonResult(0, 0, 0.0, 0.0,
-                [f"{str_warning}: Grids {path_in_0} and {path_in_1} have different shapes: {resolution_0} vs {resolution_1}. Aborting."]
+                [f"{str_warning}: Grids {path_in_0} and {path_in_1} have different shapes: {resolution_0} vs {resolution_1}. {fy.Color.red('Aborting', bright = False)}."]
             )
 
         warnings = []
-        if _are_different_vector(min_coords_0, min_coords_1):
+        if not np.allclose(min_coords_0, min_coords_1):
             warnings.append(
                 f"{str_warning}: Grids {path_in_0} and {path_in_1} have different origin: {min_coords_0} vs {min_coords_1}. Comparison may not be accurate."
             )
-        if _are_different_vector(max_coords_0, max_coords_1):
+        if not np.allclose(max_coords_0, max_coords_1):
             warnings.append(
                 f"{str_warning}: Grids {path_in_0} and {path_in_1} have different max coordinate: {max_coords_0} vs {max_coords_1}. Comparison may not be accurate."
             )
-        if _are_different_vector(deltas_0, deltas_1):
+        if not np.allclose(deltas_0, deltas_1):
             warnings.append(
                 f"{str_warning}: Grids {path_in_0} and {path_in_1} have different deltas: {deltas_0} vs {deltas_1}. Comparison may not be accurate."
             )
@@ -186,58 +182,30 @@ class VGOperations:
         vg.GridIO.write_auto(path_out, grid)
 
 
-    ### [TODO] the overlap methods will most likely be reconsidered as generic "op" (add, sub, mul, div, abs) subcommands
     # --------------------------------------------------------------------------
-    # @staticmethod
-    # def overlap(path_grid1: Path, path_grid2: Path, path_out: Path, operation: str = "multiply"):
-    #     """
-    #     Compute overlap between two molecular interaction fields.
+    @staticmethod
+    def op(
+        operation: callable, path_out: Path, path_in_0: Path, path_in_1: Path = None,
+    ) -> None:
+        """
+        Perform the numeric `operation` between two grids.
+        Having `path_in_1` be None implies a unary operation (e.g. abs) over `path_in_0`.
+        """
+        if path_in_1 is None: # unary operation
+            grid = vg.GridIO.read_auto(path_in_0)
+            vg.GridIO.write_auto(path_out, operation(grid))
+            return
 
-    #     Args:
-    #         path_grid1: Path to first grid file (will be interpolated)
-    #         path_grid2: Path to second grid file (defines target coordinate system)
-    #         path_out: Path for output grid
-    #         operation: Type of operation ("multiply", "subtract", "add")
-    #     """
-    #     print(">>> Opening grids...")
-    #     grid1 = vg.GridIO.read_auto(path_grid1)
-    #     grid2 = vg.GridIO.read_auto(path_grid2)
+        grid_0 = vg.GridIO.read_auto(path_in_0)
+        grid_1 = vg.GridIO.read_auto(path_in_1)
 
-    #     print(">>> Interpolating grid1 to match grid2 coordinate system...")
-    #     grid1_resampled = grid1.copy()
-    #     grid1_resampled.reshape_as_box(grid2.box)
+        if grid_0.box != grid_1.box:
+            str_grid_0 = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
+            str_grid_1 = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
+            print(f"...>>> Interpolating {str_grid_1} to match {str_grid_0} coordinate system...")
+            grid_1.reshape_as_box(grid_0.box)
 
-    #     print(f">>> Computing overlap ({operation})...")
-    #     result_grid = vg.Grid(grid2.ms, init_grid=False)
-
-    #     if operation == "multiply":
-    #         result_grid.arr = grid1_resampled.arr * grid2.arr
-    #     elif operation == "subtract":
-    #         result_grid.arr = grid1_resampled.arr - grid2.arr
-    #     elif operation == "add":
-    #         result_grid.arr = grid1_resampled.arr + grid2.arr
-    #     else:
-    #         raise ValueError(f"Unknown operation: {operation}")
-
-    #     print(">>> Saving result grid...")
-    #     path_out.parent.mkdir(parents=True, exist_ok=True)
-    #     vg.GridIO.write_auto(path_out, result_grid)
-
-    #     print(f">>> {operation.capitalize()} operation completed!")
-
-
-    # # --------------------------------------------------------------------------
-    # @staticmethod
-    # def overlap_cross_comparison(path_grid1: Path, path_grid2: Path, path_out: Path):
-    #     """Cross-comparison overlap analysis (multiplication)."""
-    #     VGOperations.overlap(path_grid1, path_grid2, path_out, "multiply")
-
-
-    # # --------------------------------------------------------------------------
-    # @staticmethod
-    # def overlap_difference(path_grid1: Path, path_grid2: Path, path_out: Path):
-    #     """Difference overlap analysis (subtraction)."""
-    #     VGOperations.overlap(path_grid1, path_grid2, path_out, "subtract")
+        vg.GridIO.write_auto(path_out, operation(grid_0, grid_1))
 
 
 # //////////////////////////////////////////////////////////////////////////////

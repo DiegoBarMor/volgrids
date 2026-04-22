@@ -68,7 +68,7 @@ class AppMain(fy.App):
         if self.get_arg_bool("keep_pqr"): cmd.append("--pqr")
         if self.get_arg_bool("verbose" ): cmd.append("--verbose")
 
-        print(f">>> Launching {fy.Color.red('APBS')} subprocess for '{cmd[0]}'...", flush = True)
+        print(f">>> Launching {fy.Color.red('APBS')} subprocess for '{fy.Color.blue(cmd[0])}'...", flush = True)
         apbs = vg.APBSSubprocess.run_subprocess(cmd)
         print(f"{apbs.stdout}\n{apbs.stderr}".strip(), flush = True)
         exit(apbs.returncode)
