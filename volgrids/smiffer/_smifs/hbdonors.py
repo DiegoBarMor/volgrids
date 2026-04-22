@@ -5,8 +5,8 @@ import MDAnalysis as mda
 import volgrids as vg
 import volgrids.smiffer as sm
 
-from .hbonds import SmifHBonds
-from .triplet import Triplet
+from ._core.hbonds import SmifHBonds
+from ._core.triplet import Triplet
 
 # ------------------------------------------------------------------------------
 def _has_prev_res(atoms, triplet: Triplet) -> bool:
