@@ -21,6 +21,7 @@ class AppVeins(vg.AppSubcommand):
     def __init__(self, app_main: "vg.AppMain"):
         super().__init__(app_main)
         self.folder_out: Path = None
+        app_main.load_configs(vg, ve)
 
 
     # --------------------------------------------------------------------------

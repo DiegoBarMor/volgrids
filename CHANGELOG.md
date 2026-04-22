@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.1] - 2026-04-22
+- Started implementing new features relevant for an *interfaces* pipeline.
+    - Added a generic `op` to `vgtools`.
+        - **op** stands for arithmetic *operation*. Currently implemented are: `abs`, `add`, `sub`, `mul`, `div`
+    - Added `occupancy` grids to `smutil`.
+- Reorganized the files containing the SMIF classes.
+
+
 ## [0.8.0] - 2026-04-21
 - Massive refactoring of the CLI logic.
     - Delegating the CLI parsing and management to the [freyacli](https://github.com/DiegoBarMor/freyacli) package.

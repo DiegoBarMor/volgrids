@@ -7,6 +7,11 @@
 !@
 
 @smutils
+    @occupancy
+        @prot   !use:_smif_mode !@
+        @rna    !use:_smif_mode !@
+        @ligand !use:_smif_mode !@
+    !@
     @resids_nonbp
         path_in[]1.PATH
     !@
@@ -37,10 +42,10 @@
         ~folder_out[]1.PATH
     !@
     @fix_cmap
-        !use:_io_simple
+        !use:_io_1_input
     !@
     @average
-        !use:_io_simple
+        !use:_io_1_input
     !@
     @summary
         path_in[]1.PATH
@@ -51,10 +56,17 @@
         ~threshold[t,threshold]1.FLOAT=1e-3
     !@
     @rotate
-        !use:_io_simple
+        !use:_io_1_input
         ~x[x,yz]1.FLOAT=0.0
         ~y[y,xz]1.FLOAT=0.0
         ~z[z,xy]1.FLOAT=0.0
+    !@
+    @op
+        @abs !use:_io_1_input  !@
+        @add !use:_io_2_inputs !@
+        @sub !use:_io_2_inputs !@
+        @mul !use:_io_2_inputs !@
+        @div !use:_io_2_inputs !@
     !@
 !@
 
@@ -71,5 +83,13 @@
     ~resids[i,resids]1+.STR
 !fed
 
-### one-liners are also allowed, as long as spacing rules are respected
-!def _io_simple path_in[]1.PATH path_out[]1.PATH !fed
+!def _io_1_input
+    path_in[]1.PATH
+    path_out[]1.PATH
+!fed
+
+!def _io_2_inputs
+    path_in_0[]1.PATH
+    path_in_1[]1.PATH
+    path_out[]1.PATH
+!fed

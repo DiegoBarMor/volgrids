@@ -5,12 +5,13 @@ from ._core.trimmer import Trimmer
 
 from ._parsers.parser_chem_table import ParserChemTable
 
-from ._smifs.smif import Smif
+from ._smifs import _core as _smifs_core
+from ._smifs._core import Smif
 from ._smifs.apbs import SmifAPBS
-from ._smifs._hbonds.hbaccepts import SmifHBAccepts
-from ._smifs._hbonds.hbdonors import SmifHBDonors
-from ._smifs._hydro.hydrophilic import SmifHydrophilic
-from ._smifs._hydro.hydrophobic import SmifHydrophobic
+from ._smifs.hbaccepts import SmifHBAccepts
+from ._smifs.hbdonors import SmifHBDonors
+from ._smifs.hydrophilic import SmifHydrophilic
+from ._smifs.hydrophobic import SmifHydrophobic
 from ._smifs.stacking import SmifStacking
 
 from ._misc.sphere_info import SphereInfo

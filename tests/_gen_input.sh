@@ -32,9 +32,10 @@ fc="$fvgtools/converting"
 fp="$fvgtools/packing"
 fu="$fvgtools/unpacking"
 ff="$fvgtools/fix_cmap"
+fop="$fvgtools/operations"
 
-mkdir -p $fc $fp $fu $ff
-rm -f $fc/* $fp/* $fu/*  $ff/*.cmap
+mkdir -p $fc $fp $fu $ff $fop
+rm -f $fc/* $fp/* $fu/* $ff/*.cmap $fop/*.cmap
 
 conf_no_apbs="GRID_FORMAT_OUTPUT=MRC DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SMIF_HYDROPHOBIC=True DO_SMIF_HYDROPHILIC=True DO_SMIF_STACKING=True DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
 conf_just_stacking="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"

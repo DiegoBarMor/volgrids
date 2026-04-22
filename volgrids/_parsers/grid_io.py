@@ -249,8 +249,13 @@ class GridIO:
             return
 
         if ext == ".cmap":
-            keys = GridIO.get_cmap_keys(path_grid)
-            GridIO.write_cmap(path_grid, data, key = f"map_{len(keys)+1}")
+            ### [TODO] improve this?
+            if path_grid.is_file():
+                keys = GridIO.get_cmap_keys(path_grid)
+                key = f"map_{len(keys)+1}"
+            else:
+                key = path_grid.name
+            GridIO.write_cmap(path_grid, data, key = key)
             return
 
         raise ValueError(f"Unrecognized file format: {ext}")

@@ -21,6 +21,7 @@ class AppSmiffer(vg.AppSubcommand):
 
         mode = self.main.subcommands.pop(0)
         sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
+        self.str_mode = "SMIFs" # just for printing
 
         sm.PATH_STRUCT      = self.main.get_arg_path("path_in")
         self.folder_out     = self.main.get_arg_path("folder_out", default = sm.PATH_STRUCT.parent)
@@ -40,10 +41,8 @@ class AppSmiffer(vg.AppSubcommand):
         self._assert_traj_apbs()
         self._assert_ligand_has_table()
 
+        app_main.load_configs(vg, sm)
 
-    # --------------------------------------------------------------------------
-    def init_smif_parameters(self):
-        """Run after calling `AppMain._load_all_configs`."""
         sm.PARAMS_HPHOB = vg.ParamsGaussianUnivariate(
             mu = sm.MU_HYDROPHOBIC, sigma = sm.SIGMA_HYDROPHOBIC,
         )
@@ -75,13 +74,13 @@ class AppSmiffer(vg.AppSubcommand):
         sm.SIGMA_DIST_STACKING = np.sqrt(sm.COV_STACKING_11)
 
         ### these must be initialized after the configs are loaded,
-        ### so it's appropriate to place them in this late-init method
+        ### so it's appropriate to place them at the end of init
         self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, self.path_traj)
         self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
         self.cavfinder = sm.CavityFinder()
         self.timer = vg.Timer(
-            f">>> SMIFs {sm.CURRENT_MOLTYPE.name:>4} '{fy.Color.yellow(self.ms.molname)}'"+\
-            f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
+            f">>> {'PocketSphere' if self.ms.do_ps else 'Whole'} {sm.CURRENT_MOLTYPE.name:<4} "+\
+            f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
         )
 
 
@@ -106,7 +105,7 @@ class AppSmiffer(vg.AppSubcommand):
         else: # SINGLE PDB MODE
             self._process_grids()
 
-        self.timer.end(text = fy.Color.green("SMIFs"), minus = sm.APBS_ELAPSED_TIME)
+        self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
 
 
     # --------------------------------------------------------------------------
