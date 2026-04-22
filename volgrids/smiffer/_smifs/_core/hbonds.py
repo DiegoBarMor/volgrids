@@ -4,9 +4,10 @@ import volgrids as vg
 import volgrids.smiffer as sm
 
 from .triplet import Triplet
+from .smif import Smif
 
 # //////////////////////////////////////////////////////////////////////////////
-class SmifHBonds(sm.Smif, ABC):
+class SmifHBonds(Smif, ABC):
     # --------------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -39,4 +39,4 @@ if __name__ == "__main__":
 
 
 ################################################################################
-# python3 scripts/dev/update_known_configs.py volgrids
+# python3 scripts/_update_known_configs.py volgrids

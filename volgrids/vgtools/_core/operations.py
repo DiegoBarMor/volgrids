@@ -129,10 +129,6 @@ class VGOperations:
     # --------------------------------------------------------------------------
     @staticmethod
     def compare(path_in_0: Path, path_in_1: Path, threshold: float) -> "vgt.ComparisonResult":
-        def _are_different_vector(vec0, vec1):
-            diff = np.abs(vec0 - vec1)
-            return len(diff[diff > threshold]) != 0
-
         grid_0 = vg.GridIO.read_auto(path_in_0)
         grid_1 = vg.GridIO.read_auto(path_in_1)
 
@@ -141,23 +137,23 @@ class VGOperations:
         min_coords_0 = grid_0.box.min_coords; min_coords_1 = grid_1.box.min_coords
         max_coords_0 = grid_0.box.max_coords; max_coords_1 = grid_1.box.max_coords
 
-        str_warning = fy.Color.red("Warning:")
+        str_warning = fy.Color.red("Warning")
 
-        if _are_different_vector(resolution_0, resolution_1):
+        if not np.allclose(resolution_0, resolution_1):
             return vgt.ComparisonResult(0, 0, 0.0, 0.0,
-                [f"{str_warning}: Grids {path_in_0} and {path_in_1} have different shapes: {resolution_0} vs {resolution_1}. Aborting."]
+                [f"{str_warning}: Grids {path_in_0} and {path_in_1} have different shapes: {resolution_0} vs {resolution_1}. {fy.Color.red('Aborting', bright = False)}."]
             )
 
         warnings = []
-        if _are_different_vector(min_coords_0, min_coords_1):
+        if not np.allclose(min_coords_0, min_coords_1):
             warnings.append(
                 f"{str_warning}: Grids {path_in_0} and {path_in_1} have different origin: {min_coords_0} vs {min_coords_1}. Comparison may not be accurate."
             )
-        if _are_different_vector(max_coords_0, max_coords_1):
+        if not np.allclose(max_coords_0, max_coords_1):
             warnings.append(
                 f"{str_warning}: Grids {path_in_0} and {path_in_1} have different max coordinate: {max_coords_0} vs {max_coords_1}. Comparison may not be accurate."
             )
-        if _are_different_vector(deltas_0, deltas_1):
+        if not np.allclose(deltas_0, deltas_1):
             warnings.append(
                 f"{str_warning}: Grids {path_in_0} and {path_in_1} have different deltas: {deltas_0} vs {deltas_1}. Comparison may not be accurate."
             )
@@ -184,6 +180,32 @@ class VGOperations:
         vg.GridIO.restore_boolean_dtype(grid)
         grid.arr = vg.Math.rotate_3d(grid.arr, rotate_xy, rotate_yz, rotate_xz, in_degrees)
         vg.GridIO.write_auto(path_out, grid)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def op(
+        operation: callable, path_out: Path, path_in_0: Path, path_in_1: Path = None,
+    ) -> None:
+        """
+        Perform the numeric `operation` between two grids.
+        Having `path_in_1` be None implies a unary operation (e.g. abs) over `path_in_0`.
+        """
+        if path_in_1 is None: # unary operation
+            grid = vg.GridIO.read_auto(path_in_0)
+            vg.GridIO.write_auto(path_out, operation(grid))
+            return
+
+        grid_0 = vg.GridIO.read_auto(path_in_0)
+        grid_1 = vg.GridIO.read_auto(path_in_1)
+
+        if grid_0.box != grid_1.box:
+            str_grid_0 = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
+            str_grid_1 = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
+            print(f"...>>> Interpolating {str_grid_1} to match {str_grid_0} coordinate system...")
+            grid_1.reshape_as_box(grid_0.box)
+
+        vg.GridIO.write_auto(path_out, operation(grid_0, grid_1))
 
 
 # //////////////////////////////////////////////////////////////////////////////
