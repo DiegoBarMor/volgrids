@@ -11,9 +11,9 @@ class SmifStacking(sm.Smif):
             radius = sm.MU_DIST_STACKING + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_STACKING,
             deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_STACK
         )
-        for res_atoms in self.iter_particles():
-            cog = res_atoms.center_of_geometry()
-            a,b,c = res_atoms.positions[:3]
+        for atoms_plane in self.iter_particles():
+            cog = atoms_plane.center_of_geometry()
+            a,b,c = atoms_plane.positions[:3]
             u = vg.Math.normalize(b - a)
             v = vg.Math.normalize(c - a)
             normal = vg.Math.normalize(np.cross(u, v))
@@ -37,9 +37,11 @@ class SmifStacking(sm.Smif):
             for resid,chain in res_infos:
                 sel = f"resid {resid} and name {aromatic_atoms}"
                 if chain: sel += f" and chainID {chain}"
-                res_atoms = atoms.select_atoms(sel)
-                if len(res_atoms) >= 3: # include rings even if they're not completely inside the grid's boundaries
-                    yield res_atoms
+
+                atoms_plane = atoms.select_atoms(sel)
+                if len(atoms_plane) < 3: continue # include rings even if they're not completely inside the grid's boundaries
+
+                yield atoms_plane
 
 
 # //////////////////////////////////////////////////////////////////////////////

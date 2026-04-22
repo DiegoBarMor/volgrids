@@ -1,6 +1,5 @@
 from abc import abstractmethod
 from pathlib import Path
-import numpy as np
 
 import volgrids as vg
 import volgrids.smiffer as sm

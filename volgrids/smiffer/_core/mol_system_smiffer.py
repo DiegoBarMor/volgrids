@@ -6,6 +6,9 @@ from pathlib import Path
 import volgrids as vg
 import volgrids.smiffer as sm
 
+try: import freyacli as fy # to display colored text
+except ImportError: from volgrids._vendors import freyacli as fy
+
 # //////////////////////////////////////////////////////////////////////////////
 class MolSystemSmiffer(vg.MolSystem):
     def __init__(self, path_struct: Path, path_traj: Path = None):
@@ -49,10 +52,12 @@ class MolSystemSmiffer(vg.MolSystem):
         if self.do_ps: query += f"and point {sm.SPHERE.get_str_query(extra_dist)}"
 
         atoms = self.system.select_atoms(query)
-        if len(atoms) == 0: warnings.warn(
-            f"\n\n... The selection query '{query}' did not return any atoms. "+\
-            "Are you using the adequate 'prot'/'rna'/'ligand' mode?\n"
-        )
+        if len(atoms) == 0:
+            str_modes = fy.Color.magenta("'prot'/'rna'/'ligand'")
+            warnings.warn(
+                f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}. "+\
+                f"Are you using the adequate {str_modes} mode?\n"
+            )
         return atoms
 
 

@@ -1,7 +1,7 @@
 !fyh:_ volgrids is a framework for volumetric calculations, with emphasis in biological molecular systems.
 
 @smiffer
-    !fyh:_ Calculate SMIFs for biomolecular structures.
+    !fyh:_ Calculate Statistical Molecular Interaction Fields (SMIFs) for biomolecular structures.
     @prot
         !fyh:_ Calculate SMIFs for protein structures.
         !use:_smif_mode
@@ -18,6 +18,21 @@
 
 @smutils
     !fyh:_ Utilities related to more advanced SMIF usage.
+    @occupancy
+        !fyh:_ Calculate occupancy grids (OGs) for biomolecular structures.
+        @prot
+            !fyh:_ Calculate OGs for protein structures.
+            !use:_smif_mode
+        !@
+        @rna
+            !fyh:_ Calculate OGs for RNA structures.
+            !use:_smif_mode
+        !@
+        @ligand
+            !fyh:_ Calculate OGs for ligand structures. A .chem table must be provided.
+            !use:_smif_mode
+        !@
+    !@
     @resids_nonbp
         !fyh:_ Print the set of non-base-paired residue indices in a given RNA structure.
             A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue.
@@ -79,7 +94,6 @@
         !fyh:path_1 Path to a second grid file.
         !fyh:threshold Threshold for comparison.
             Points whose difference is higher than this threshold will be counted as "different".
-            Default is 1e-3.
     !@
     @rotate
         !fyh:_ Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
@@ -89,18 +103,47 @@
         !fyh:y Rotation angle in degrees along the xz plane (in degrees).
         !fyh:z Rotation angle in degrees along the xy plane (in degrees).
     !@
+    @op
+        !fyh:_
+            Perform numeric operations between two grids.
+            These are simple element-wise arithmethics (addition, substraction, multiplication, division), as well as absolute value for a single grid.
+            They rely on numpy, so grids with mismatched shapes will be interpolated if needed (the second grid pass gets interpolated).
+        @abs
+            !fyh:_ Element-wise absolute value of the grid's points.
+            !fyh:path_in Path to a grid file.
+            !fyh:path_out Path where to store the resulting grid.
+        !@
+        @add
+            !fyh:_ Element-wise addition of the grids' points.
+            !use:_io_2_inputs_op
+        !@
+        @sub
+            !fyh:_ Element-wise substraction of the grids' points.
+                Order is "grid_0 - grid_1".
+            !use:_io_2_inputs_op
+        !@
+        @mul
+            !fyh:_ Element-wise multiplication of the grids' points.
+            !use:_io_2_inputs_op
+        !@
+        @div
+            !fyh:_ Element-wise division of the grids' points.
+                Order is "grid_0 / grid_1".
+                Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
+            !use:_io_2_inputs_op
+        !@
+    !@
 !@
-
 
 !def _smif_mode
     !fyh:path_in
         File path to a molecular structure e.g. a PDB file.
     !fyh:folder_out
-        Folder path where the output SMIFs should be stored.
+        Folder path where the output grids should be stored.
         If not provided, the parent folder of the input structure file will be used.
     !fyh:path_traj
         File path to a trajectory file (e.g. XTC) supported by MDAnalysis.
-        Activates 'traj' mode: calculate SMIFs for all the frames and save them as a CMAP-series file.
+        Activates 'traj' mode: perform the calculations for all the frames and save them as a CMAP-series file.
     !fyh:path_apbs
         File path to a cached output of APBS for the respective structure file.
         Prevents the automatic calculation of APBS performed by volgrids' smiffer.
@@ -108,7 +151,7 @@
         File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.
     !fyh:configs
         File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
-        Alternatively, it can be a list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
+        Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
     !fyh:sphere
         Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere.
         If not provided, 'whole' mode is assumed.
@@ -118,6 +161,8 @@
         If not provided, all residues will be considered.
 !fed
 
-### macros are just text substitution. In this case,
-### the macro _io_simple isn't considered because a more specific
-### help is written for each case.
+!def _io_2_inputs
+    !fyh:path_in_0 Path to a first grid file (defines target coordinate system).
+    !fyh:path_in_1 Path to a second grid file (will be interpolated if needed).
+    !fyh:path_out Path where to store the resulting grid.
+!fed

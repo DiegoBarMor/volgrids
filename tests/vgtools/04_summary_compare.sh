@@ -2,7 +2,7 @@
 set -eu
 
 echo
-echo ">>> TEST VGTOOLS 3: Comparison of grids"
+echo ">>> TEST VGTOOLS 4: Summary and comparison of grids"
 
 folder="testdata/vgtools"
 fc="$folder/converting"

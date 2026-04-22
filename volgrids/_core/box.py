@@ -31,6 +31,21 @@ class Box:
 
 
     # --------------------------------------------------------------------------
+    def __eq__(self, other: "Box") -> bool:
+        return all((
+            np.allclose(self.min_coords, other.min_coords),
+            np.allclose(self.max_coords, other.max_coords),
+            np.array_equal(self.resolution, other.resolution),
+            np.allclose(self.deltas, other.deltas),
+        ))
+
+
+    # --------------------------------------------------------------------------
+    def __neq__(self, other: "Box") -> bool:
+        return not self.__eq__(other)
+
+
+    # --------------------------------------------------------------------------
     def infer_deltas_resolution(self):
         box_size: np.ndarray = self.max_coords - self.min_coords
         if vg.USE_FIXED_DELTAS:

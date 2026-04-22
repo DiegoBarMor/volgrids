@@ -1,9 +1,9 @@
 from abc import ABC
 
-import volgrids.smiffer as sm
+from .smif import Smif
 
 # //////////////////////////////////////////////////////////////////////////////
-class SmifHydro(sm.Smif, ABC):
+class SmifHydro(Smif, ABC):
     def iter_particles(self):
         for atom in self.ms.get_relevant_atoms():
             factor_res  = self.ms.chemtable.get_residue_hphob(atom)
