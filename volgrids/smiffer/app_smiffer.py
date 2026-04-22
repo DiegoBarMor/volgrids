@@ -79,7 +79,7 @@ class AppSmiffer(vg.AppSubcommand):
         self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
         self.cavfinder = sm.CavityFinder()
         self.timer = vg.Timer(
-            f">>> {'PocketSphere' if self.ms.do_ps else 'Whole'} {sm.CURRENT_MOLTYPE.name:<4} "+\
+            f">>> {sm.CURRENT_MOLTYPE.name:<4} {'Sphere' if self.ms.do_ps else 'Whole'} "+\
             f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
         )
 

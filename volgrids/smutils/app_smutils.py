@@ -24,7 +24,8 @@ class AppSMUtils(vg.AppSubcommand):
     def _run_resids_nonbp(self) -> None:
         path_in = self.main.get_arg_path("path_in")
         self.main.assert_file_in(path_in)
-        su.SMOperations.print_resids_nonbp(path_in)
+        resids_nonbp = su.RNAResids.get_resids_nonbp(path_in)
+        print(resids_nonbp)
 
 
 # //////////////////////////////////////////////////////////////////////////////
