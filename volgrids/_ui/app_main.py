@@ -53,9 +53,10 @@ class AppMain(fy.App):
 
     # --------------------------------------------------------------------------
     def _init_smutils(self) -> "vg.AppSubcommand":
+        import volgrids.smiffer as sm
         import volgrids.smutils as su
         app = su.AppSMUtils(self)
-        self._load_all_configs(vg)
+        self._load_all_configs(vg, sm, su)
         return app
 
 
@@ -78,7 +79,7 @@ class AppMain(fy.App):
     def _init_vgtools(self) -> "vg.AppSubcommand":
         import volgrids.vgtools as vgt
         app = vgt.AppVGTools(self)
-        self._load_all_configs(vg)
+        self._load_all_configs(vg, vgt)
         return app
 
 
@@ -86,7 +87,7 @@ class AppMain(fy.App):
     def _init_veins(self) -> "vg.AppSubcommand":
         import volgrids.veins as ve
         app = ve.AppVeins(self)
-        self._load_all_configs(vg)
+        self._load_all_configs(vg, ve)
         return app
 
 

@@ -26,3 +26,4 @@ rm -f $folder_vgt_00/dx* $folder_vgt_00/mrc* $folder_vgt_00/ccp4* $folder_vgt_00
 rm -f $folder_vgt_01/2esj.cmap
 rm -f $folder_vgt_02/1iqj.*.cmap
 rm -f $folder_vgt_03/hbdonors.fixed.cmap
+rm -f $folder_vgtools/operations/*.cmap

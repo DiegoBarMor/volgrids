@@ -1,7 +1,7 @@
 !fyh:_ volgrids is a framework for volumetric calculations, with emphasis in biological molecular systems.
 
 @smiffer
-    !fyh:_ Calculate SMIFs for biomolecular structures.
+    !fyh:_ Calculate Statistical Molecular Interaction Fields (SMIFs) for biomolecular structures.
     @prot
         !fyh:_ Calculate SMIFs for protein structures.
         !use:_smif_mode
@@ -18,6 +18,21 @@
 
 @smutils
     !fyh:_ Utilities related to more advanced SMIF usage.
+    @occupancy
+        !fyh:_ Calculate occupancy grids (OGs) for biomolecular structures.
+        @prot
+            !fyh:_ Calculate OGs for protein structures.
+            !use:_smif_mode
+        !@
+        @rna
+            !fyh:_ Calculate OGs for RNA structures.
+            !use:_smif_mode
+        !@
+        @ligand
+            !fyh:_ Calculate OGs for ligand structures. A .chem table must be provided.
+            !use:_smif_mode
+        !@
+    !@
     @resids_nonbp
         !fyh:_ Print the set of non-base-paired residue indices in a given RNA structure.
             A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue.
@@ -124,11 +139,11 @@
     !fyh:path_in
         File path to a molecular structure e.g. a PDB file.
     !fyh:folder_out
-        Folder path where the output SMIFs should be stored.
+        Folder path where the output grids should be stored.
         If not provided, the parent folder of the input structure file will be used.
     !fyh:path_traj
         File path to a trajectory file (e.g. XTC) supported by MDAnalysis.
-        Activates 'traj' mode: calculate SMIFs for all the frames and save them as a CMAP-series file.
+        Activates 'traj' mode: perform the calculations for all the frames and save them as a CMAP-series file.
     !fyh:path_apbs
         File path to a cached output of APBS for the respective structure file.
         Prevents the automatic calculation of APBS performed by volgrids' smiffer.
@@ -136,7 +151,7 @@
         File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.
     !fyh:configs
         File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
-        Alternatively, it can be a list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
+        Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
     !fyh:sphere
         Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere.
         If not provided, 'whole' mode is assumed.
@@ -144,9 +159,6 @@
         File path to a text file containing the residue indices to consider for SMIF calculations (one-based indexing, space separated).
         Alternatively, a string of space-separated indices can be passed directly as argument.
         If not provided, all residues will be considered.
-    !fyh:probe_probe
-        Generate Probe-Probe (PP) fields: spherical accessibility regions (radius 2.0 Å) around interaction sites.
-        Generates hbaPP, hbdPP, stkPP, hpPP fields following overlap-gio2 approach.
 !fed
 
 !def _io_2_inputs

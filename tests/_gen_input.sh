@@ -4,7 +4,6 @@ set -eu
 ### folders that should already exist
 fframes="testdata/vgtools/_inconsistent_frames"
 fpdb_nosolv="testdata/smiffer/pdb_clean"
-f_interface="testdata/smiffer/interfaces/prot_rna"
 fapbs="testdata/smiffer/apbs"
 
 mkdir -p $fapbs
@@ -86,8 +85,3 @@ python3 volgrids vgtools pack \
     $fframes/smiffer_3.hbdonors.cmap   $fframes/smiffer_127.hbdonors.cmap \
     $fframes/smiffer_32.hbdonors.cmap  $fframes/smiffer_50.hbdonors.cmap  \
     -o $ff/hbdonors.issue.cmap
-
-
-############################# OPERATIONS
-python3 volgrids smiffer prot $f_interface/prot.pdb --config "$conf_just_stacking" -o $fop
-python3 volgrids smiffer rna  $f_interface/rna.pdb  --config "$conf_just_stacking" -o $fop

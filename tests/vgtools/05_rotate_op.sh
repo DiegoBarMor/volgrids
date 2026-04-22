@@ -15,8 +15,13 @@ fop="$folder/operations"
 
 
 ############################# OPERATIONS BETWEEN GRIDS
+conf_just_stacking="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
+
 mkdir -p $fop
 cp $f_interface/* $fop/
+python3 volgrids smiffer prot $fop/prot.pdb --config "$conf_just_stacking"
+python3 volgrids smiffer rna  $fop/rna.pdb  --config "$conf_just_stacking"
+
 python3 volgrids vgtools op abs $fop/prot.cmap $fop/prot.abs.cmap
 python3 volgrids vgtools op abs $fop/rna.cmap  $fop/rna.abs.cmap
 python3 volgrids vgtools op add $fop/prot.cmap $fop/rna.cmap  $fop/prot_plus_rna.cmap

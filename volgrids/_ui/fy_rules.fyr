@@ -7,6 +7,11 @@
 !@
 
 @smutils
+    @occupancy
+        @prot   !use:_smif_mode !@
+        @rna    !use:_smif_mode !@
+        @ligand !use:_smif_mode !@
+    !@
     @resids_nonbp
         path_in[]1.PATH
     !@
@@ -76,7 +81,6 @@
     ~configs[c,config]*.STR
     ~sphere[s,sphere]4.FLOAT
     ~resids[i,resids]1+.STR
-    ~probe_probe[p,probe-probe]
 !fed
 
 !def _io_1_input

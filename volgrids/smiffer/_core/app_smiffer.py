@@ -21,6 +21,7 @@ class AppSmiffer(vg.AppSubcommand):
 
         mode = self.main.subcommands.pop(0)
         sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
+        self.str_mode = "SMIFs" # just for printing
 
         sm.PATH_STRUCT      = self.main.get_arg_path("path_in")
         self.folder_out     = self.main.get_arg_path("folder_out", default = sm.PATH_STRUCT.parent)
@@ -37,7 +38,6 @@ class AppSmiffer(vg.AppSubcommand):
         self._handle_params_configs()
         self._handle_params_resids()
         self._handle_params_sphere()
-        self._handle_params_pp()
         self._assert_traj_apbs()
         self._assert_ligand_has_table()
 
@@ -81,8 +81,8 @@ class AppSmiffer(vg.AppSubcommand):
         self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
         self.cavfinder = sm.CavityFinder()
         self.timer = vg.Timer(
-            f">>> SMIFs {sm.CURRENT_MOLTYPE.name:>4} '{fy.Color.yellow(self.ms.molname)}'"+\
-            f" in '{'PocketSphere' if self.ms.do_ps else 'Whole'}' mode"
+            f">>> {'PocketSphere' if self.ms.do_ps else 'Whole'} {sm.CURRENT_MOLTYPE.name:<4} "+\
+            f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
         )
 
 
@@ -107,7 +107,7 @@ class AppSmiffer(vg.AppSubcommand):
         else: # SINGLE PDB MODE
             self._process_grids()
 
-        self.timer.end(text = fy.Color.green("SMIFs"), minus = sm.APBS_ELAPSED_TIME)
+        self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
 
 
     # --------------------------------------------------------------------------
@@ -161,35 +161,6 @@ class AppSmiffer(vg.AppSubcommand):
             self._trim_and_save_smif(
                 self._calc_smif(sm.SmifStacking),
                 key_trimming = "mid", title = "stacking"
-            )
-
-
-        ### [TODO] interface calculations will be moved to smutils
-        ### Calculate Probe-Probe (PP) fields - spherical accessibility regions
-        if sm.DO_SMIF_HBA_PP:
-            ### [TODO] probes shouln't be trimmed
-            ### at least not occupancy-trimmed (it defeats the purpose of an occupancy probe)
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifHBAcceptsPP),
-                key_trimming = "tiny", title = "hbaPP"
-            )
-
-        if sm.DO_SMIF_HBD_PP:
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifHBDonorsPP),
-                key_trimming = "tiny", title = "hbdPP"
-            )
-
-        if sm.DO_SMIF_STACKING_PP:
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifStackingPP),
-                key_trimming = "tiny", title = "stkPP"
-            )
-
-        if sm.DO_SMIF_HYDRO_PP:
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifHydroPP),
-                key_trimming = "tiny", title = "hpPP"
             )
 
 
@@ -301,28 +272,6 @@ class AppSmiffer(vg.AppSubcommand):
         if not sphere: return
 
         sm.SPHERE = sm.SphereInfo(*sphere)
-
-
-    # --------------------------------------------------------------------------
-    def _handle_params_pp(self):
-        """Handle probe-probe (PP) field generation flag."""
-        if not self.main.get_arg_bool("probe_probe"): return
-
-        ### [TODO] controlling the PP field generation both as a config and through a flag could be confusing to use
-        # Enable all PP field generation
-        sm.DO_SMIF_HBA_PP = True
-        sm.DO_SMIF_HBD_PP = True
-        sm.DO_SMIF_STACKING_PP = True
-        sm.DO_SMIF_HYDRO_PP = True
-
-        ### [TODO] it's fine for proof-of-concept but having 5 extra rows printed every time could clutter the user's output
-        ### could be replaced with a little 'probes' or 'interfaces' mode instead e.g. `SMIFs PROT 'name' in 'probes' mode`
-        ### that approach would need some changes on how that print is handled though
-        print(">>> Enabled Probe-Probe (PP) field generation:")
-        print("    • hbaPP: HB acceptor spherical accessibility (radius 2.0 Å)")
-        print("    • hbdPP: HB donor spherical accessibility (radius 2.0 Å)")
-        print("    • stkPP: Stacking spherical accessibility (radius 2.0 Å)")
-        print("    • hpPP: Hydrophobic spherical accessibility (radius 2.0 Å)")
 
 
     # --------------------------------------------------------------------------

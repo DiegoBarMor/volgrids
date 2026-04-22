@@ -19,11 +19,6 @@ class Trimmer:
     @classmethod
     def init_infer_dists(cls, ms: "sm.MolSystemSmiffer") -> "sm.Trimmer":
         trimming_dists = {}
-        if any((
-            sm.DO_SMIF_HBA_PP, sm.DO_SMIF_HBD_PP,
-            sm.DO_SMIF_STACKING_PP, sm.DO_SMIF_HYDRO_PP
-        )):
-            trimming_dists["tiny"] = sm.TRIMMING_DIST_TINY
 
         if sm.DO_SMIF_HYDROPHILIC:
             trimming_dists["small"] = sm.TRIMMING_DIST_SMALL
