@@ -41,10 +41,8 @@ class AppSmiffer(vg.AppSubcommand):
         self._assert_traj_apbs()
         self._assert_ligand_has_table()
 
+        app_main.load_configs(vg, sm)
 
-    # --------------------------------------------------------------------------
-    def init_smif_parameters(self):
-        """Run after calling `AppMain._load_all_configs`."""
         sm.PARAMS_HPHOB = vg.ParamsGaussianUnivariate(
             mu = sm.MU_HYDROPHOBIC, sigma = sm.SIGMA_HYDROPHOBIC,
         )
@@ -76,7 +74,7 @@ class AppSmiffer(vg.AppSubcommand):
         sm.SIGMA_DIST_STACKING = np.sqrt(sm.COV_STACKING_11)
 
         ### these must be initialized after the configs are loaded,
-        ### so it's appropriate to place them in this late-init method
+        ### so it's appropriate to place them at the end of init
         self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, self.path_traj)
         self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
         self.cavfinder = sm.CavityFinder()

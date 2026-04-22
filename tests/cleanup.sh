@@ -11,11 +11,9 @@ rm -rf $folder_env
 rm  -f "$folder_smiffer/toy_systems/"*.cmap
 rm -rf "$folder_smiffer/pocket_sphere"
 rm -rf "$folder_smiffer/whole"*
-rm  -f "$folder_smiffer/trajs/few_frames/"*.cmap
-rm  -f "$folder_smiffer/trajs/few_resids/"*.cmap
-rm  -f "$folder_smiffer/ligands/all_interactions/"*.cmap
-rm  -f "$folder_smiffer/ligands/mid_size/"*.cmap
-rm  -f "$folder_smiffer/ligands/nr3_case/"*.cmap
+rm  -f "$folder_smiffer/trajs/"**/*.cmap
+rm  -f "$folder_smiffer/ligands/"**/*.cmap
+rm  -f "$folder_smiffer/interfaces/"**/*.cmap
 rm -rf "$folder_smiffer/cavities"
 
 folder_vgt_00="$folder_vgtools/converting"

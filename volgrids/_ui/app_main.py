@@ -43,21 +43,23 @@ class AppMain(fy.App):
 
 
     # --------------------------------------------------------------------------
+    def load_configs(self, *modules) -> None:
+        self._load_config(vg.PATH_DEFAULT_CONFIG, modules)
+        for path_config in vg.PATHS_CUSTOM_CONFIG:
+            self._load_config(path_config, modules)
+        self._load_config(vg.STR_CUSTOM_CONFIG, modules, is_file = False)
+
+
+    # --------------------------------------------------------------------------
     def _init_smiffer(self) -> "vg.AppSubcommand":
         import volgrids.smiffer as sm
-        app = sm.AppSmiffer(self)
-        self._load_all_configs(vg, sm)
-        app.init_smif_parameters()
-        return app
+        return sm.AppSmiffer(self)
 
 
     # --------------------------------------------------------------------------
     def _init_smutils(self) -> "vg.AppSubcommand":
-        import volgrids.smiffer as sm
         import volgrids.smutils as su
-        app = su.AppSMUtils(self)
-        self._load_all_configs(vg, sm, su)
-        return app
+        return su.AppSMUtils(self)
 
 
     # --------------------------------------------------------------------------
@@ -78,25 +80,13 @@ class AppMain(fy.App):
     # --------------------------------------------------------------------------
     def _init_vgtools(self) -> "vg.AppSubcommand":
         import volgrids.vgtools as vgt
-        app = vgt.AppVGTools(self)
-        self._load_all_configs(vg, vgt)
-        return app
+        return vgt.AppVGTools(self)
 
 
     # --------------------------------------------------------------------------
     def _init_veins(self) -> "vg.AppSubcommand":
         import volgrids.veins as ve
-        app = ve.AppVeins(self)
-        self._load_all_configs(vg, ve)
-        return app
-
-
-    # --------------------------------------------------------------------------
-    def _load_all_configs(self, *modules: tuple) -> None:
-        self._load_config(vg.PATH_DEFAULT_CONFIG, modules)
-        for path_config in vg.PATHS_CUSTOM_CONFIG:
-            self._load_config(path_config, modules)
-        self._load_config(vg.STR_CUSTOM_CONFIG, modules, is_file = False)
+        return ve.AppVeins(self)
 
 
     # --------------------------------------------------------------------------

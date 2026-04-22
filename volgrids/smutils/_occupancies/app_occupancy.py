@@ -7,6 +7,7 @@ class AppOccupancy(sm.AppSmiffer):
     def __init__(self, app_main: "vg.AppMain"):
         super().__init__(app_main)
         self.str_mode = "OGs" # just for printing
+        app_main.load_configs(su)
 
 
     # --------------------------------------------------------------------------

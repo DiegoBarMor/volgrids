@@ -17,9 +17,7 @@ class AppSMUtils(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_occupancy(self) -> None:
-        app = su.AppOccupancy(self.main)
-        app.init_smif_parameters()
-        app.run()
+        su.AppOccupancy(self.main).run()
 
 
     # --------------------------------------------------------------------------
