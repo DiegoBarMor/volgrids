@@ -1,9 +1,12 @@
-import os, h5py
+import h5py
 import numpy as np
 import gridData as gd
 from pathlib import Path
 
 import volgrids as vg
+
+try: import freyacli as fy # to display colored text
+except ImportError: from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridIO:
@@ -73,8 +76,11 @@ class GridIO:
 
 
     # --------------------------------------------------------------------------
-    @staticmethod
-    def write_dx(path_dx, data: "vg.Grid"):
+    @classmethod
+    def write_dx(cls, path_dx: str|Path, data: "vg.Grid"):
+        path_dx = Path(path_dx)
+        cls.confirm_overwrite(path_dx)
+
         ints = (int, np.int8, np.int16, np.int32, np.int64)
         floats = (float, np.float16, np.float32, np.float64)
 
@@ -137,8 +143,11 @@ class GridIO:
 
 
     # --------------------------------------------------------------------------
-    @staticmethod
-    def write_mrc(path_mrc, data: "vg.Grid"):
+    @classmethod
+    def write_mrc(cls, path_mrc: str|Path, data: "vg.Grid"):
+        path_mrc = Path(path_mrc)
+        cls.confirm_overwrite(path_mrc)
+
         with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as parser:
             parser.set_data(data.arr.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
             parser.voxel_size = [data.dx(), data.dy(), data.dz()]
@@ -150,8 +159,11 @@ class GridIO:
 
 
     # --------------------------------------------------------------------------
-    @staticmethod
-    def write_ccp4(path_ccp4, data: "vg.Grid"):
+    @classmethod
+    def write_ccp4(cls, path_ccp4: str|Path, data: "vg.Grid"):
+        path_ccp4 = Path(path_ccp4)
+        cls.confirm_overwrite(path_ccp4)
+
         with gd.mrc.mrcfile.new(path_ccp4, overwrite = True) as parser:
             parser.set_data(data.arr.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
             parser.voxel_size = [data.dx(), data.dy(), data.dz()]
@@ -166,8 +178,8 @@ class GridIO:
 
 
     # --------------------------------------------------------------------------
-    @staticmethod
-    def write_cmap(path_cmap, data: "vg.Grid", key):
+    @classmethod
+    def write_cmap(cls, path_cmap: str|Path, data: "vg.Grid", key):
         ### imitate the Chimera cmap format, as "specified" in this sample:
         ### https://github.com/RBVI/ChimeraX/blob/develop/testdata/cell15_timeseries.cmap
         def _add_generic_attrs(group, c = "GROUP"):
@@ -175,7 +187,10 @@ class GridIO:
             group.attrs["TITLE"] = np.bytes_("")
             group.attrs["VERSION"] = np.bytes_("1.0")
 
-        if not os.path.exists(path_cmap):
+        path_cmap = Path(path_cmap)
+        cls.confirm_overwrite(path_cmap)
+
+        if not path_cmap.exists():
             with h5py.File(path_cmap, 'w') as h5:
                 h5.attrs["PYTABLES_FORMAT_VERSION"] = np.bytes_("2.0")
                 _add_generic_attrs(h5)
@@ -273,6 +288,19 @@ class GridIO:
     def clear_cmap(path_out: Path) -> None:
         if not vg.REMOVE_OLD_CMAP_OUTPUT: return
         path_out.unlink(missing_ok = True)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def confirm_overwrite(path_out: Path) -> None:
+        if not path_out.exists(): return
+        if vg.OVERWRITE_OK: return
+
+        response = input(f"\n\nFile {path_out} {fy.Color.red('already exists')}. Do you want to overwrite it? (y/n): ")
+        if response.strip().lower() in ('y', "yes"): return
+
+        print(fy.Color.red(f"Aborting write operation for {path_out}."))
+        exit(-1)
 
 
     # --------------------------------------------------------------------------
