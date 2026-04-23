@@ -190,10 +190,54 @@ class VGOperations:
         """
         Perform the numeric `operation` between two grids.
         Having `path_in_1` be None implies a unary operation (e.g. abs) over `path_in_0`.
+        Supports multi-frame CMAP trajectories: frames are processed one-by-one, with
+        broadcasting if one side has a single frame and the other has N.
         """
+        path_in_0 = Path(path_in_0)
+        path_out  = Path(path_out)
+
         if path_in_1 is None: # unary operation
-            grid = vg.GridIO.read_auto(path_in_0)
-            vg.GridIO.write_auto(path_out, operation(grid))
+            if path_in_0.suffix.lower() == ".cmap":
+                keys = vg.GridIO.get_cmap_keys(path_in_0)
+                if not keys: raise ValueError(f"Empty cmap file: {path_in_0}")
+                path_out.parent.mkdir(parents=True, exist_ok=True)
+                for key in keys:
+                    grid = vg.GridIO.read_cmap(path_in_0, key)
+                    vg.GridIO.write_cmap(path_out, operation(grid), key=key)
+            else:
+                grid = vg.GridIO.read_auto(path_in_0)
+                vg.GridIO.write_auto(path_out, operation(grid))
+            return
+
+        path_in_1 = Path(path_in_1)
+        ext0, ext1 = path_in_0.suffix.lower(), path_in_1.suffix.lower()
+
+        if ext0 == ".cmap" and ext1 == ".cmap":
+            keys0 = vg.GridIO.get_cmap_keys(path_in_0)
+            keys1 = vg.GridIO.get_cmap_keys(path_in_1)
+            if not keys0: raise ValueError(f"Empty cmap file: {path_in_0}")
+            if not keys1: raise ValueError(f"Empty cmap file: {path_in_1}")
+
+            n0, n1 = len(keys0), len(keys1)
+            if n0 != n1 and n0 != 1 and n1 != 1:
+                raise ValueError(
+                    f"Incompatible trajectory lengths: {path_in_0} has {n0} frames, "
+                    f"{path_in_1} has {n1} frames. Must be equal or one must be 1."
+                )
+
+            n_frames = max(n0, n1)
+            path_out.parent.mkdir(parents=True, exist_ok=True)
+            for i in range(n_frames):
+                k0 = keys0[i if n0 > 1 else 0]
+                k1 = keys1[i if n1 > 1 else 0]
+                grid_0 = vg.GridIO.read_cmap(path_in_0, k0)
+                grid_1 = vg.GridIO.read_cmap(path_in_1, k1)
+                if grid_0.box != grid_1.box:
+                    str_grid_0 = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
+                    str_grid_1 = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
+                    print(f"...>>> Interpolating {str_grid_1} to match {str_grid_0} coordinate system...")
+                    grid_1.reshape_as_box(grid_0.box)
+                vg.GridIO.write_cmap(path_out, operation(grid_0, grid_1), key=k0)
             return
 
         grid_0 = vg.GridIO.read_auto(path_in_0)
