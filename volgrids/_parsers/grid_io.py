@@ -60,6 +60,11 @@ class GridIO:
     @staticmethod
     def read_cmap(path_cmap, key) -> "vg.Grid":
         with h5py.File(path_cmap, 'r') as parser:
+            if key not in parser["Chimera"].keys():
+                raise ValueError(
+                    f"Key '{key}' not found in '{path_cmap}'. "
+                    f"Available keys: {list(parser["Chimera"].keys())}"
+                )
             frame = parser["Chimera"][key]
             box = vg.Box(
                 origin = frame.attrs["origin"],

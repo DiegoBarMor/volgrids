@@ -42,10 +42,11 @@ class AppSMUtils(vg.AppSubcommand):
         if path_out is not None:
             self.main.assert_file_out(path_out)
 
-        if isinstance(key, list): key = key[0] if key else None
+        # if isinstance(key, list): key = key[0] if key else None
+        ### [WIP]: freyacli already gives directly the string when an argument takes exactly 1 value
 
         print(f">>> Voxel distribution: {fy.Color.yellow(path_in)}")
-        su.DistPlot.plot(path_in, path_out, key)
+        su.Histogram.plot(path_in, path_out, key)
 
 
 # //////////////////////////////////////////////////////////////////////////////

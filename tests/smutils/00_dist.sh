@@ -22,11 +22,13 @@ echo ">>> dist: single-frame CMAP"
 python3 volgrids smutils plot_dist "$fc/1iqj.stk.cmap" --out "$fdist/dist_cmap_single.png"
 
 
-############################# MULTI-FRAME CMAP — all frames
+############################# MULTI-FRAME CMAP (all frames)
 echo ">>> dist: multi-frame CMAP (all frames)"
 python3 volgrids smutils plot_dist "$ff/hbdonors.issue.cmap" --out "$fdist/dist_cmap_all.png"
 
 
-############################# MULTI-FRAME CMAP — single key
+############################# MULTI-FRAME CMAP (single key)
 echo ">>> dist: multi-frame CMAP (single key)"
 python3 volgrids smutils plot_dist "$fu/1iqj.cmap" --key "1iqj.hbacceptors" --out "$fdist/dist_cmap_key.png"
+
+# [TODO] add test for grid with all 0 values
