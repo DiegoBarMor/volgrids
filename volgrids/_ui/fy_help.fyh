@@ -40,8 +40,8 @@
         !fyh:path_in
             File path to a molecular structure e.g. a PDB file.
     !@
-    @plot_dist
-        !fyh:_ Plot the distribution of non-zero voxel values in a grid file.
+    @histogram
+        !fyh:_ Plot the distribution histogram of non-zero voxel values in a grid file.
             For multi-frame CMAP files, all frames are concatenated unless --key is specified.
             Percentiles (p50, p75, p90, p95, p99, p99.9) are printed to the console.
             Requires matplotlib.

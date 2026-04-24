@@ -16,7 +16,8 @@ class AppSMUtils(vg.AppSubcommand):
         operation = self.main.subcommands.pop(0)
         if operation == "occupancy"   : return self._run_occupancy()
         if operation == "resids_nonbp": return self._run_resids_nonbp()
-        if operation == "plot_dist"   : return self._run_plot_dist()
+        if operation == "histogram"   : return self._run_plot_dist()
+        raise ValueError(f"Unknown operation: {operation}")
 
 
     # --------------------------------------------------------------------------

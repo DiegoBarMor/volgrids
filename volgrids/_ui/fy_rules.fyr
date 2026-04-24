@@ -15,7 +15,7 @@
     @resids_nonbp
         path_in[]1.PATH
     !@
-    @plot_dist
+    @histogram
         path_in[]1.PATH
         ~path_out[o,out]1.PATH
         ~key[k,key]1.STR
