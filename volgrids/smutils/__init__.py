@@ -1,5 +1,5 @@
 from ._operations.rna_resids import RNAResids
-from ._operations.dist import Histogram
+from ._operations.histogram import Histogram
 
 from ._occupancies.hbaccepts import OgHBAccepts
 from ._occupancies.hbdonors import OgHBDonors

@@ -292,8 +292,6 @@ class GridIO:
             GridIO.write_cmap(path_grid, data, key = key)
             return
 
-        raise ValueError(f"Unrecognized file format: {ext}")
-
 
     # --------------------------------------------------------------------------
     @staticmethod

@@ -19,14 +19,14 @@ class Histogram:
         import matplotlib.pyplot as plt
         matplotlib.style.use("seaborn-v0_8-colorblind")
 
-        vals, title = cls._collect_values(path_in, key)
+        vals, ntotal, title = cls._collect_values(path_in, key)
 
         if vals.size == 0:
             print(f"...>>> {fy.Color.red('All voxels are 0')} in '{fy.Color.blue(path_in)}'.")
             return
 
-        print(f"Non-zero voxels: {fy.Color.yellow(vals.size)}")
-        ### [TODO] print as percentage too, similar to `vgtools summary`
+        str_perc = fy.Color.yellow(f"{100*vals.size/ntotal:.2f}%")
+        print(f"Non-zero voxels: {fy.Color.yellow(vals.size)}/{ntotal} ({str_perc})")
 
         ### [TODO] toggling detailed print could be regulated by a config, will leave like this for now
         for p in cls.PERCENTILES:
@@ -51,26 +51,30 @@ class Histogram:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def _collect_values(path_in: Path, key: str | None) -> tuple[np.ndarray, str]:
-        def get_nonzero(path_in, key = "") -> np.ndarray:
+    def _collect_values(path_in: Path, key: str | None) -> tuple[np.ndarray, int, str]:
+        def get_arrnonzero_and_ntotal(path_in, key = "") -> tuple[np.ndarray, int]:
             grid = vg.GridIO.read_cmap(path_in, key) \
                 if key else vg.GridIO.read_auto(path_in)
-            return grid.arr[grid.arr > 0].ravel()
+            return grid.arr[grid.arr > 0].ravel(), grid.arr.size
 
         fmt = vg.GridIO.detect_format(path_in)
         str_preffix = "Non-zero voxel distribution"
 
         if not fmt.is_cmap():
-            return get_nonzero(path_in), f"{str_preffix}: {path_in.stem}"
+            return *get_arrnonzero_and_ntotal(path_in), f"{str_preffix}: {path_in.stem}"
 
         if key is None:
             cmap_keys = vg.GridIO.get_cmap_keys(path_in)
-            parts = [get_nonzero(path_in, k) for k in cmap_keys]
-            vals = np.concatenate(parts) if parts else np.array([]) # [TODO] test with large trajectores
             title = f"{str_preffix}: {path_in.stem} ({len(cmap_keys)} frames)"
-            return vals, title
 
-        return get_nonzero(path_in, key), f"{str_preffix}, key: {key}"
+            parts = [get_arrnonzero_and_ntotal(path_in, k) for k in cmap_keys]
+            if not parts: return np.array([]), 0, title
+
+            arrs, ntotals = zip(*parts)
+            vals = np.concatenate(arrs) # [TODO] test with large trajectores
+            return vals, sum(ntotals), title
+
+        return *get_arrnonzero_and_ntotal(path_in, key), f"{str_preffix}, key: {key}"
 
 
 # //////////////////////////////////////////////////////////////////////////////
