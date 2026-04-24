@@ -200,14 +200,14 @@ class VGOperations:
             print(f"...>>> Interpolating {str_grid_1} to match {str_grid_0} coordinate system...")
             grid_1.reshape_as_box(grid_0.box)
 
-
-        path_in_0 = Path(path_in_0)
         path_out  = Path(path_out)
 
+        path_in_0 = Path(path_in_0)
+        is_cmap_0 = vg.GridIO.detect_format(path_in_0).is_cmap()
+
         if path_in_1 is None: # unary operation
-            if vg.GridIO.detect_format(path_in_0).is_cmap():
-                keys = vg.GridIO.get_cmap_keys(path_in_0)
-                if not keys: raise ValueError(f"Empty cmap file: {path_in_0}")
+            if is_cmap_0:
+                keys = vg.GridIO.get_cmap_keys(path_in_0, assert_has_keys = True)
                 for key in keys:
                     grid = vg.GridIO.read_cmap(path_in_0, key)
                     vg.GridIO.write_cmap(path_out, operation(grid), key=key)
@@ -217,15 +217,13 @@ class VGOperations:
             return
 
         path_in_1 = Path(path_in_1)
-        ext0, ext1 = path_in_0.suffix.lower(), path_in_1.suffix.lower()
+        is_cmap_1 = vg.GridIO.detect_format(path_in_1).is_cmap()
 
-        if ext0 == ".cmap" and ext1 == ".cmap":
-            keys0 = vg.GridIO.get_cmap_keys(path_in_0)
-            keys1 = vg.GridIO.get_cmap_keys(path_in_1)
-            if not keys0: raise ValueError(f"Empty cmap file: {path_in_0}")
-            if not keys1: raise ValueError(f"Empty cmap file: {path_in_1}")
+        if is_cmap_0 and is_cmap_1:
+            keys_0 = vg.GridIO.get_cmap_keys(path_in_0, assert_has_keys = True)
+            keys_1 = vg.GridIO.get_cmap_keys(path_in_1, assert_has_keys = True)
 
-            n0, n1 = len(keys0), len(keys1)
+            n0, n1 = len(keys_0), len(keys_1)
             if n0 != n1 and n0 != 1 and n1 != 1:
                 raise ValueError(
                     f"Incompatible trajectory lengths: {path_in_0} has {n0} frames, "
@@ -234,8 +232,8 @@ class VGOperations:
 
             n_frames = max(n0, n1)
             for i in range(n_frames):
-                k0 = keys0[i if n0 > 1 else 0]
-                k1 = keys1[i if n1 > 1 else 0]
+                k0 = keys_0[i if n0 > 1 else 0]
+                k1 = keys_1[i if n1 > 1 else 0]
                 grid_0 = vg.GridIO.read_cmap(path_in_0, k0)
                 grid_1 = vg.GridIO.read_cmap(path_in_1, k1)
                 _interpolate_if_needed(grid_0, grid_1)

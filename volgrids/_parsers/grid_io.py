@@ -59,12 +59,11 @@ class GridIO:
     # --------------------------------------------------------------------------
     @staticmethod
     def read_cmap(path_cmap, key) -> "vg.Grid":
+        """Asserts that the specified key exists in the CMAP file and then reads its corresponding grid."""
         with h5py.File(path_cmap, 'r') as parser:
-            if key not in parser["Chimera"].keys():
-                raise ValueError(
-                    f"Key '{key}' not found in '{path_cmap}'. "
-                    f"Available keys: {list(parser["Chimera"].keys())}"
-                )
+            if key not in parser["Chimera"].keys(): raise KeyError(
+                f"Key '{key}' not found in '{path_cmap}'. Available keys: {list(parser["Chimera"].keys())}"
+            )
             frame = parser["Chimera"][key]
             box = vg.Box(
                 origin = frame.attrs["origin"],
@@ -259,8 +258,7 @@ class GridIO:
             return GridIO.read_ccp4(path_grid)
 
         if fmt.is_cmap():
-            keys = GridIO.get_cmap_keys(path_grid)
-            if not keys: raise ValueError(f"Empty cmap file: {path_grid}")
+            keys = GridIO.get_cmap_keys(path_grid, assert_has_keys = True)
             return GridIO.read_cmap(path_grid, keys[0])
 
 
@@ -295,9 +293,14 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_cmap_keys(path_cmap) -> list[str]:
+    def get_cmap_keys(path_cmap, assert_has_keys: bool = False) -> list[str]:
+        """Returns the list of keys (frame names) in a CMAP file.
+        If assert_has_keys is True, raises an error if no keys are found."""
         with h5py.File(path_cmap, 'r') as h5:
-            return list(h5["Chimera"].keys())
+            keys = list(h5["Chimera"].keys())
+        if assert_has_keys and not keys:
+            raise ValueError(f"Empty cmap file: {path_cmap}")
+        return keys
 
 
     # --------------------------------------------------------------------------
