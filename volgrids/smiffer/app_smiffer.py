@@ -10,8 +10,10 @@ except ImportError: from volgrids._vendors import freyacli as fy
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):
     # --------------------------------------------------------------------------
-    def __init__(self, app_main: "vg.AppMain"):
+    def __init__(self, app_main: "vg.AppMain", str_mode: str = "SMIFs"):
         super().__init__(app_main)
+        self.str_mode = str_mode # just for printing
+
         self.ms: sm.MolSystemSmiffer
         self.trimmer: sm.Trimmer
         self.cavfinder: sm.CavityFinder
@@ -21,7 +23,6 @@ class AppSmiffer(vg.AppSubcommand):
 
         mode = self.main.subcommands.pop(0)
         sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
-        self.str_mode = "SMIFs" # just for printing
 
         sm.PATH_STRUCT      = self.main.get_arg_path("path_in")
         self.folder_out     = self.main.get_arg_path("folder_out", default = sm.PATH_STRUCT.parent)
@@ -79,7 +80,7 @@ class AppSmiffer(vg.AppSubcommand):
         self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
         self.cavfinder = sm.CavityFinder()
         self.timer = vg.Timer(
-            f">>> {'PocketSphere' if self.ms.do_ps else 'Whole'} {sm.CURRENT_MOLTYPE.name:<4} "+\
+            f">>> {sm.CURRENT_MOLTYPE.name:<4} {'Sphere' if self.ms.do_ps else 'Whole'} "+\
             f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
         )
 

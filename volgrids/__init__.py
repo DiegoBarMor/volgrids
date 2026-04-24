@@ -7,7 +7,8 @@ from ._core.box import Box
 from ._core.grid import Grid
 from ._core.mol_system import MolSystem
 
-from ._kernels.kernel import Kernel
+from ._kernels._core.k_operation import KOperation
+from ._kernels._core.kernel import Kernel
 from ._kernels.boolean import \
     KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut
 from ._kernels.gaussian import \
@@ -37,6 +38,7 @@ _keys_other = set(globals().keys())
 REMOVE_OLD_CMAP_OUTPUT: bool = True
 GZIP_COMPRESSION: int = 9
 WARNING_GRID_SIZE: float = 5.0e7
+OVERWRITE_OK: bool = False
 
 USE_FIXED_DELTAS: bool = True
 ENSURE_EQUILATERAL: bool = False

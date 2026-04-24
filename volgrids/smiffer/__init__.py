@@ -14,9 +14,9 @@ from ._smifs.hydrophilic import SmifHydrophilic
 from ._smifs.hydrophobic import SmifHydrophobic
 from ._smifs.stacking import SmifStacking
 
-from ._misc.sphere_info import SphereInfo
+from ._core.sphere_info import SphereInfo
 
-from ._core.app_smiffer import AppSmiffer
+from .app_smiffer import AppSmiffer
 
 
 ############################# CONFIG FILE GLOBALS ##############################

@@ -1,12 +1,13 @@
 import volgrids as vg
 import volgrids.smiffer as sm
+import volgrids.smutils as su
 
 # //////////////////////////////////////////////////////////////////////////////
 class OgHBAccepts(sm._smifs_core.SmifHBonds):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.kernel = vg.KernelSphere(
-            radius = 2.0, # [TODO] hardcoded value -> config
+            radius = su.RADIUS_OCCUPANCY_OG,
             deltas = self.ms.get_deltas(),
             dtype = vg.FLOAT_DTYPE
         )

@@ -5,16 +5,22 @@ import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class KernelGaussian(vg.Kernel, ABC):
-    def __init__(self, radius, deltas, dtype, params: "vg.ParamsGaussian"):
-        super().__init__(radius, deltas, dtype)
+    def __init__(self,
+        radius, deltas, dtype, params: "vg.ParamsGaussian",
+        kop: vg.KOperation = vg.KOperation.ADD
+    ):
+        super().__init__(radius, deltas, dtype, kop)
         self.params = params
 
 
 # //////////////////////////////////////////////////////////////////////////////
 class KernelGaussianUnivariateDist(KernelGaussian):
     """For generating univariate gaussian spheres (e.g. for hydrophob)"""
-    def __init__(self, radius, deltas, dtype, params: "vg.ParamsGaussianUnivariate"):
-        super().__init__(radius, deltas, dtype, params)
+    def __init__(self,
+        radius, deltas, dtype, params: "vg.ParamsGaussianUnivariate",
+        kop: vg.KOperation = vg.KOperation.ADD
+    ):
+        super().__init__(radius, deltas, dtype, params, kop)
         self.arr = vg.Math.univariate_gaussian(self.dist, params.mu, params.sigma)
 
 

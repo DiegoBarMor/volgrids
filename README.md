@@ -1,12 +1,11 @@
 # Volumetric Grids (VolGrids)
 VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. The following applications are provided:
-  - [**SMIF Calculator**](#statistical-molecular-interaction-fields-smif-calculator) via `volgrids smiffer`
-  - [**Smiffer Utilities**](#smiffer-utilities)  via `volgrids smutils`
+  - [**SMIF Calculator**](#statistical-molecular-interaction-fields-smif-calculator) via `volgrids smiffer`. This is an implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
+  - [**Smiffer Utilities**](#smiffer-utilities)  via `volgrids smutils`. Utilities related to more advanced SMIF usage.
   - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
-  - [**Volgrid Tools**](#volgrid-tools) via `volgrids vgtools`.
-  - ~~[**Volumetric Energy INSpector**](#volumetric-energy-inspector-veins) via `volgrids veins`. [WIP] WORK IN PROGRESS~~
+  - [**Volgrid Tools**](#volgrid-tools) via `volgrids vgtools`. Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
 
-You can read more in their respective sections.
+You can read more in the [subcommands summary](#summary-of-subcommands).
 
 ## QuickStart
 ```bash
@@ -16,11 +15,10 @@ volgrids --help
 
 ### Without installing the package
 ```bash
-git clone https://github.com/DiegoBarMor/volgrids
+git clone --depth 1 https://github.com/DiegoBarMor/volgrids
 cd volgrids
 pip install -r requirements.txt
-bash scripts/_prepare.sh # fetch vendors that are packed only in the pip distribution
-python3 volgrids --help
+python3 volgrids --help # required vendors will automatically be downloaded
 ```
 
 
@@ -38,7 +36,7 @@ python3 volgrids --help
 - [**APBS**]: Follow the instructions from [here](#installation-ubuntu).
 - [**rnapolis**](https://github.com/tzok/rnapolis-py) (`pip install rnapolis`) for running the `volgrids smutils resids_nonbp` utility.
 - [**freyacli**](https://github.com/tzok/freyacli) (`pip install freyacli`) for CLI management
-  - included as vendor in `volgrid`'s pip distribution. If you don't want to use pip, it will be fetched automatically the first time you run `volgrids`. Alternatively, run `bash volgrids/_prepare.sh` in your local `volgrids` copy to fetch the vendor packages manually.
+  - included as vendor in `volgrid`'s pip distribution. If you don't want to use pip, it will be fetched automatically the first time you run `volgrids`. Alternatively, run `bash scripts/_prepare.sh` in your local copy of the `volgrids` repo to fetch the vendor packages manually.
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -72,8 +70,8 @@ pip install mdanalysis h5py
 
 
 <!-- ----------------------------------------------------------------------- -->
-## Usage
-### Running the CLI utilities (without VolGrids installed)
+## Running the CLI utilities
+### Without VolGrids installed
 You can use the tools provided by VolGrids without installing it, by calling any of the scripts in the root directory of this repository (it doesn't have to be the current directory, you can call them from anywhere). Leave `[options...]` empty to read more about the available options.
 
 ```bash
@@ -81,11 +79,10 @@ python3 volgrids apbs    [options...]
 python3 volgrids smiffer [options...]
 python3 volgrids smutils [options...]
 python3 volgrids vgtools [options...]
-python3 volgrids veins   [options...]
 ```
 
 <!-- ----------------------------------------------------------------------- -->
-### Running the CLI utilities (VolGrids installed)
+### VolGrids installed
 - VolGrids can be installed as a package via pip:
 ```bash
 pip install volgrids
@@ -94,6 +91,8 @@ pip install volgrids
 - (Or alternatively from its repository):
 ```bash
 # your current directory must be the root directory of volgrids repository
+git clone --depth 1 https://github.com/DiegoBarMor/volgrids
+cd volgrids
 pip install .
 rm -rf build volgrids.egg-info # optional cleanup
 ```
@@ -102,40 +101,48 @@ rm -rf build volgrids.egg-info # optional cleanup
 ```bash
 volgrids apbs    [options...]
 volgrids smiffer [options...]
-volgrids veins   [options...]
+volgrids smutils [options...]
 volgrids vgtools [options...]
 ```
 
 
 <!-- ----------------------------------------------------------------------- -->
-### Running the tests
+## Running the tests
 Follow the instructions at the [test data repo](https://github.com/DiegoBarMor/volgrids-testdata).
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- ------------------------------- SMIFFER ------------------------------- -->
+<!-- -------------------------------- USAGE -------------------------------- -->
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-# Statistical Molecular Interaction Fields (SMIF) Calculator
-This is an implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
-
-## Usage
-Run `volgrids smiffer [mode] [path_structure] [options...]` and provide the parameters of the calculation via arguments:
-  - replace `[mode]` with `prot`, `rna` or `ligand` according to the structure of interest.
-  - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
-  - Optionally, replace `[options...]` with any combination of the following:
-    - `-o [folder_out]` where `[folder_out]` is the folder where the output SMIFs should be stored. if not provided, the parent folder of the input file will be used.
-    - `-t [path_traj]`  where `[path_traj]` is the path to a trajectory file (e.g. XTC) supported by MDAnalysis. This activates "traj" mode, where SMIFs are calculated for all the frames of the trajectory and saved in a CMAP-series file.
-    - `-a (path_apbs)` where `(path_apbs)` is the path to a cached output of APBS. Prevents the automatic calculation of APBS performed by volgrids' smiffer.
-    - `-s [x] [y] [z] [r]` where `[x]`, `[y]`, `[z]` and `[r]` are the float values for the X,Y,Z coordinates and the radius of a sphere in space, respectively. This activates "pocket sphere" mode, where the SMIFs will only be calculated inside the sphere provided.
-    - `-b [path_table]` where `[path_table]` is the path to a *.chem* table file to use for ligand mode, or to override the default macromolecules' tables. This flag is mandatory for "ligand" mode.
-    - `-c [config]` where `[config]` is the path to a configuration file with global settings, to override the default settings (e.g. `config_volgrids.ini`).
-      - Alternatively, `[config]` can be a list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
-    - `-i [resids]`, where `[resids]` is a file path to a text file containing the residue indices to consider for SMIF calculations (one-based indexing, space separated).
-      - Alternatively, a string of space-separated indices can be passed directly as argument. If not provided, all residues will be considered.
+# Usage
+## Summary of subcommands
+Run the subcommands without any further arguments to read more about their specific usage.
+- `volgrids apbs`: Generate raw APBS potential grids for biomolecular structures.
+- `volgrids smiffer prot`: Calculate SMIFs for protein structures.
+- `volgrids smiffer rna`: Calculate SMIFs for RNA structures.
+- `volgrids smiffer ligand`: Calculate SMIFs for ligand structures. A .chem table must be provided.
+- `volgrids smutils resids_nonbp`: Print the set of non-base-paired residue indices in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires rnapolis.
+- `volgrids smutils histogram`: Plot the distribution histogram of non-zero voxel values in a grid file. For multi-frame CMAP files, all frames are concatenated unless --key is specified. Percentiles (p50, p75, p90, p95, p99, p99.9) are printed to the console. Requires matplotlib.
+- `volgrids smutils occupancy prot`: Calculate OGs for protein structures.
+- `volgrids smutils occupancy rna`: Calculate OGs for RNA structures.
+- `volgrids smutils occupancy ligand`: Calculate OGs for ligand structures. A .chem table must be provided.
+- `volgrids vgtools convert`: Convert grid files between formats.
+- `volgrids vgtools pack`: Pack multiple grid files into a single CMAP series-file.
+- `volgrids vgtools unpack`: Unpack a CMAP series-file into multiple grid files.
+- `volgrids vgtools fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
+- `volgrids vgtools average`: Average all grids in a CMAP series-file into a single grid.
+- `volgrids vgtools summary`: Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.
+- `volgrids vgtools compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
+- `volgrids vgtools rotate`: Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
+- `volgrids vgtools op abs`: Element-wise absolute value of the grid's points.
+- `volgrids vgtools op add`: Element-wise addition of the grids' points.
+- `volgrids vgtools op sub`: Element-wise substraction of the grids' points. Order is "grid_0 - grid_1".
+- `volgrids vgtools op mul`: Element-wise multiplication of the grids' points.
+- `volgrids vgtools op div`: Element-wise division of the grids' points. Order is "grid_0 / grid_1". Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
 
 
 <!-- ----------------------------------------------------------------------- -->
-## Commands examples
+## Commands examples (smiffer)
 - Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-s`).
 ```bash
 volgrids smiffer prot testdata/smiffer/pdb_clean/1iqj.pdb -s 4.682 21.475 7.161 14.675
@@ -151,10 +158,18 @@ volgrids smiffer rna testdata/smiffer/pdb_clean/5bjo.pdb -a testdata/smiffer/apb
 volgrids smiffer rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
 ```
 
+- Combine `resids_nonpb` with smiffer's `--resids` (`-i`) flag to have more polished hbond results, e.g.:
+```bash
+python3 volgrids smiffer rna 1akx.pdb \
+    -i "$(python3 volgrids smutils resids_nonbp 1akx.pdb)" \
+    -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
+        DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
+```
+
 
 <!-- ----------------------------------------------------------------------- -->
 ## Visualization
-### Color standard
+### Color standard (smiffer)
 | Potential       | Color      | RGB 0-1    | RGB 0-255  | HEX    |
 |-----------------|------------|------------|------------|--------|
 | APBS -          | Red        | 1,0,0      | 255,0,0    | FF0000 |
@@ -218,17 +233,17 @@ size stickradius 0.1
 
 
 <!-- ----------------------------------------------------------------------- -->
-## APBS reference
+# APBS reference
 Sample commands to obtain the electrostatic grids from [pdb2pqr](https://pdb2pqr.readthedocs.io/en/latest/) and [APBS](https://apbs.readthedocs.io/en/latest/)
 
-### Installation (Ubuntu)
+## Installation (Ubuntu)
 ```bash
 pip install pdb2pqr
 # sudo apt install pdb2pqr # alternative
 sudo apt-get install apbs
 ```
 
-### Commands examples
+## Commands examples
 - Running APBS with Volgrids (recommended).
 ```bash
 volgrids apbs testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose
@@ -248,72 +263,4 @@ apbs testdata/smiffer/1iqj.in
 - Reference for the `.in` file: https://apbs.readthedocs.io/en/latest/using/input/old/elec/mg-auto.html
 
 
-
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- -------------------------- SMIFFER UTILITIES -------------------------- -->
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-# Smiffer Utilities
-Utilities related to more advanced SMIF usage.
-
-## Usage
-Run `volgrids smutils [mode] [options...]` and provide the parameters of the calculation via arguments.
-  - Replace `[mode]` with one of the following available modes:
-    - `resids_nonbp`: Print the set of non-base-paired residue indices in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires [rnapolis](#optional-requirements).
-  - `[options...]` will depend on the mode, check the respective help string for more information (run `volgrids smutils [mode] -h`).
-
-### Examples
-- Combine `resids_nonpb` with smiffer's `--resids` (`-i`) flag to have more polished hbond results, e.g.:
-```bash
-python3 volgrids smiffer rna 1akx.pdb \
-    -i "$(python3 volgrids smutils resids_nonbp 1akx.pdb)" \
-    -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
-        DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
-```
-
-
-
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- ---------------------------- VOLGRID TOOLS ---------------------------- -->
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-# Volgrid Tools
-Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
-
-## Usage
-Run `volgrids vgtools [mode] [options...]` and provide the parameters of the calculation via arguments.
-  - Replace `[mode]` with one of the following available modes:
-    - `convert`: Convert grid files between formats.
-    - `pack`: Pack multiple grid files into a single CMAP series-file.
-    - `unpack`: Unpack a CMAP series-file into multiple grid files.
-    - `average`: Average all grids in a CMAP series-file into a single grid.
-    - `fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
-    - `summary`: Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.
-    - `compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
-    - `rotate`: Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
-  - `[options...]` will depend on the mode, check the respective help string for more information (run `volgrids vgtools [mode] -h`).
-
-
-
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<!-- -------------------------------- VEINS -------------------------------- -->
-<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-# Volumetric Energy INSpector (VEINS)
-**[WIP] WORK IN PROGRESS**
-This tool allows to visualize interaction energies in space by portraying them as a volumetric grid. Apart from the usual structure/trajectory files (PDB, XTC...), a CSV with energy values and the indices of the atoms/residues involved must be given. Interactions between 2, 3 and 4 particles are supported and represented accordingly
-
-## Usage
-Run `volgrids veins [mode] [path_structure] [path_csv] [options...]` and provide the parameters of the calculation via arguments:
-  - replace `[mode]` with `energies`.
-  - replace `[path_structure]` with the path to the structure file (e.g. PDB). Mandatory positional argument.
-  - replace `[path_csv]` with the path to the energies CSV file. Mandatory positional argument. It must contain the following rows:
-    - **kind**: Name of the interaction kind. All rows with the same *kind* will be used to calculate a single grid with its name.
-    - **npoints**: Number of particles involved in the interaction.
-    - **idxs**: Group of 0-based indices joined by `-`. These are the indices of the particles involved in the interaction. This group must contain *npoints* indices.
-    - **idxs_are_residues**: Whether the indices correspond to the molecule's residues (`true`) or atoms (`false`).
-    - **energy**: Value of the interaction's energy.
-  - Optionally, replace `[options...]` with any combination of the following:
-    - `-o [folder_out]` where `[folder_out]` is the folder where the output SMIFs should be stored. if not provided, the parent folder of the input file will be used.
-    `-c [cutoff]` where `[cutoff]` is a float number. Energies below this cutoff will be ignored. Default value: 1e-3.
-
-
-
-<!-- ----------------------------------------------------------------------- -->

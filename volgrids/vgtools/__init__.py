@@ -1,8 +1,8 @@
-from ._core.operations import VGOperations
+from ._operations.operations import VGOperations
 
-from ._misc.comparison_result import ComparisonResult
+from ._operations.comparison_result import ComparisonResult
 
-from ._core.app_vgtools import AppVGTools
+from .app_vgtools import AppVGTools
 
 
 ############################# CONFIG FILE GLOBALS ##############################

@@ -18,7 +18,7 @@ def _clamp_indices(g_idx0, g_idx1, k_idx0, k_idx1, g_res, k_res):
 
 # //////////////////////////////////////////////////////////////////////////////
 class Kernel:
-    def __init__(self, radius, deltas, dtype, operation = "sum"):
+    def __init__(self, radius, deltas, dtype, kop: vg.KOperation = vg.KOperation.ADD):
         ##### store kernel values
         self.kernel_res: np.ndarray = (np.ceil(radius / deltas) * 2 + 1).astype(int)
         self.deltas: np.ndarray = deltas
@@ -31,11 +31,7 @@ class Kernel:
         self.dist = vg.Math.get_norm(self.shifted_coords)
 
         ##### set operation
-        self.operation: callable[np.array, np.array]
-        if   operation == "sum": self.operation = np.add
-        elif operation == "min": self.operation = np.minimum
-        elif operation == "max": self.operation = np.maximum
-        else: raise ValueError(f"Unknown operation: {operation}. Use 'sum', 'min' or 'max'.")
+        self.operation: callable = vg.KOperation.get_np_operation(kop)
 
 
     # --------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 from ._core.grid_ve import GridVolumetricEnergy
 
-from ._core.app_veins import AppVeins
+from .app_veins import AppVeins
 
 
 ############################# CONFIG FILE GLOBALS ##############################
