@@ -48,6 +48,92 @@ class DistPlot:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def plot_3d(
+        path_in: Path, path_out: Path | None = None,
+        key: str | None = None, stride: int = 2,
+    ) -> None:
+        """Interactive 3D volume rendering of non-zero voxels saved as HTML."""
+        import plotly.graph_objects as go
+
+        grid, title = DistPlot._collect_grid(path_in, key)
+        # stride reduces resolution uniformly; the full regular grid (zeros included)
+        # must be preserved so go.Volume can compute isosurfaces correctly.
+        arr = grid.arr[::stride, ::stride, ::stride]
+        box = grid.box
+
+        res = arr.shape
+        xs = np.linspace(box.min_coords[0], box.max_coords[0], res[0])
+        ys = np.linspace(box.min_coords[1], box.max_coords[1], res[1])
+        zs = np.linspace(box.min_coords[2], box.max_coords[2], res[2])
+        X, Y, Z = np.meshgrid(xs, ys, zs, indexing="ij")
+
+        val = arr.flatten()
+        nonzero_vals = val[val > 0]
+
+        if nonzero_vals.size == 0:
+            print(f"...>>> {fy.Color.red('No non-zero voxels found')} in '{path_in}'.")
+            return
+
+        print(f"Grid points: {fy.Color.yellow(str(val.size))} (stride={stride})")
+
+        fig = go.Figure(data=go.Volume(
+            x=X.flatten(), y=Y.flatten(), z=Z.flatten(),
+            value=val,
+            isomin=float(nonzero_vals.min()),
+            isomax=float(nonzero_vals.max()),
+            opacity=0.1,
+            surface_count=25,
+            colorscale="Plasma",
+        ))
+        fig.update_layout(
+            title=title,
+            scene_xaxis_showticklabels=False,
+            scene_yaxis_showticklabels=False,
+            scene_zaxis_showticklabels=False,
+        )
+
+        if path_out is not None:
+            fig.write_html(str(path_out))
+            print(f"...>>> 3D plot saved to '{fy.Color.blue(path_out)}'.")
+        else:
+            fig.show()
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def _collect_grid(path_in: Path, key: str | None) -> tuple["vg.Grid", str]:
+        grid = vg.GridIO.read_auto(path_in)
+
+        if not grid.fmt.is_cmap():
+            return grid, f"3D volume — {path_in.stem}"
+
+        cmap_keys = vg.GridIO.get_cmap_keys(path_in)
+
+        if key is not None:
+            if key not in cmap_keys:
+                raise ValueError(
+                    f"Key '{key}' not found in '{path_in}'. "
+                    f"Available keys: {cmap_keys}"
+                )
+            return vg.GridIO.read_cmap(path_in, key), f"3D volume — {key}"
+
+        # average all frames into one, resampling mismatched frames to the first frame's box
+        g0  = vg.GridIO.read_cmap(path_in, cmap_keys[0])
+        avg = np.zeros_like(g0.arr)
+        for k in cmap_keys:
+            g = vg.GridIO.read_cmap(path_in, k)
+            if g.box != g0.box:
+                g.reshape_as_box(g0.box)
+            avg += g.arr
+        avg /= len(cmap_keys)
+
+        grid_avg = vg.Grid(g0.box, init_grid=False)
+        grid_avg.arr = avg
+        return grid_avg, f"3D volume — {path_in.stem} (avg of {len(cmap_keys)} frames)"
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def _collect_values(path_in: Path, key: str | None) -> tuple[np.ndarray, str]:
         grid = vg.GridIO.read_auto(path_in)
 

@@ -17,6 +17,7 @@ class AppSMUtils(vg.AppSubcommand):
         if operation == "occupancy"   : return self._run_occupancy()
         if operation == "resids_nonbp": return self._run_resids_nonbp()
         if operation == "plot_dist"   : return self._run_plot_dist()
+        if operation == "plot_3d"     : return self._run_plot_3d()
 
 
     # --------------------------------------------------------------------------
@@ -46,6 +47,23 @@ class AppSMUtils(vg.AppSubcommand):
 
         print(f">>> Voxel distribution: {fy.Color.yellow(path_in)}")
         su.DistPlot.plot(path_in, path_out, key)
+
+
+    # --------------------------------------------------------------------------
+    def _run_plot_3d(self) -> None:
+        path_in  = self.main.get_arg_path("path_in")
+        path_out = self.main.get_arg_path("path_out")
+        key      = self.main.get_arg_str("key")
+        stride   = self.main.get_arg_int("stride", default = 2)
+
+        self.main.assert_file_in(path_in)
+        if path_out is not None:
+            self.main.assert_file_out(path_out)
+
+        if isinstance(key, list): key = key[0] if key else None
+
+        print(f">>> 3D volume: {fy.Color.yellow(path_in)}")
+        su.DistPlot.plot_3d(path_in, path_out, key, stride)
 
 
 # //////////////////////////////////////////////////////////////////////////////
