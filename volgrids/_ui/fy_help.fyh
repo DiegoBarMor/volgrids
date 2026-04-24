@@ -53,6 +53,19 @@
             stride=2 samples every other voxel, reducing file size ~8× vs the full grid.
             stride=3 reduces it ~27×. Use stride=1 for full resolution.
     !@
+    @plot_echarts
+        !fyh:_ Render an interactive 3D scatter plot of non-zero voxels using Apache ECharts and save as HTML.
+            Unlike plot_3d, this uses a point-cloud approach so zero voxels are filtered out entirely,
+            producing very small files even at stride=1. Color encodes intensity (plasma scale).
+            For multi-frame CMAP files, all frames are averaged unless --key is specified.
+            Requires pyecharts.
+        !fyh:path_in Path to a grid file (DX, MRC, CCP4, or CMAP).
+        !fyh:path_out Optional output path to save the interactive plot (should end in .html).
+            If not provided, the plot is opened in the browser via a temporary file.
+        !fyh:key Optional CMAP key (frame name) to visualize a single frame instead of the average.
+        !fyh:stride Downsampling stride applied to each axis before rendering (default 1 = no downsampling).
+            Unlike plot_3d, stride=1 already produces small files because zeros are excluded.
+    !@
     @plot_dist
         !fyh:_ Plot the distribution of non-zero voxel values in a grid file.
             For multi-frame CMAP files, all frames are concatenated unless --key is specified.

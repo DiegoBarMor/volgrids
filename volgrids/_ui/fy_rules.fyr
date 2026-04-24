@@ -26,6 +26,12 @@
         ~key[k,key]1.STR
         ~stride[s,stride]1.INT=2
     !@
+    @plot_echarts
+        path_in[]1.PATH
+        ~path_out[o,out]1.PATH
+        ~key[k,key]1.STR
+        ~stride[s,stride]1.INT=1
+    !@
 !@
 
 @apbs

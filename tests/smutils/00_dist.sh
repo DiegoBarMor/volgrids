@@ -44,4 +44,19 @@ python3 volgrids smutils plot_3d "$ff/hbdonors.issue.cmap" --out "$fdist/vol_cma
 
 ############################# 3D VOLUME — single key
 echo ">>> plot_3d: multi-frame CMAP (single key)"
-python3 volgrids smutils plot_3d "$fu/1iqj.cmap" --key "1iqj.hbacceptors" --out "$fdist/vol_cmap_key.html" 
+python3 volgrids smutils plot_3d "$fu/1iqj.cmap" --key "1iqj.hbacceptors" --out "$fdist/vol_cmap_key.html"
+
+
+############################# ECHARTS — single-frame DX
+echo ">>> plot_echarts: single-frame DX"
+python3 volgrids smutils plot_echarts "$fc/1iqj.stk.dx" --out "$fdist/echarts_dx.html"
+
+
+############################# ECHARTS — multi-frame CMAP averaged
+echo ">>> plot_echarts: multi-frame CMAP (averaged)"
+python3 volgrids smutils plot_echarts "$ff/hbdonors.issue.cmap" --out "$fdist/echarts_cmap_avg.html"
+
+
+############################# ECHARTS — single key
+echo ">>> plot_echarts: multi-frame CMAP (single key)"
+python3 volgrids smutils plot_echarts "$fu/1iqj.cmap" --key "1iqj.hbacceptors" --out "$fdist/echarts_cmap_key.html"

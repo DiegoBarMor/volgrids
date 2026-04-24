@@ -18,6 +18,7 @@ class AppSMUtils(vg.AppSubcommand):
         if operation == "resids_nonbp": return self._run_resids_nonbp()
         if operation == "plot_dist"   : return self._run_plot_dist()
         if operation == "plot_3d"     : return self._run_plot_3d()
+        if operation == "plot_echarts": return self._run_plot_echarts()
 
 
     # --------------------------------------------------------------------------
@@ -64,6 +65,23 @@ class AppSMUtils(vg.AppSubcommand):
 
         print(f">>> 3D volume: {fy.Color.yellow(path_in)}")
         su.DistPlot.plot_3d(path_in, path_out, key, stride)
+
+
+    # --------------------------------------------------------------------------
+    def _run_plot_echarts(self) -> None:
+        path_in  = self.main.get_arg_path("path_in")
+        path_out = self.main.get_arg_path("path_out")
+        key      = self.main.get_arg_str("key")
+        stride   = self.main.get_arg_int("stride", default = 1)
+
+        self.main.assert_file_in(path_in)
+        if path_out is not None:
+            self.main.assert_file_out(path_out)
+
+        if isinstance(key, list): key = key[0] if key else None
+
+        print(f">>> ECharts 3D scatter: {fy.Color.yellow(path_in)}")
+        su.DistPlot.plot_echarts(path_in, path_out, key, stride)
 
 
 # //////////////////////////////////////////////////////////////////////////////

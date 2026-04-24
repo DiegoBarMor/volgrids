@@ -101,6 +101,89 @@ class DistPlot:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def plot_echarts(
+        path_in: Path, path_out: Path | None = None,
+        key: str | None = None, stride: int = 1,
+    ) -> None:
+        """Interactive 3D scatter plot of non-zero voxels using ECharts, saved as HTML."""
+        from pyecharts import options as opts
+        from pyecharts.charts import Scatter3D
+
+        grid, title = DistPlot._collect_grid(path_in, key)
+        arr = grid.arr[::stride, ::stride, ::stride]
+        box = grid.box
+
+        res = arr.shape
+        xs = np.linspace(box.min_coords[0], box.max_coords[0], res[0])
+        ys = np.linspace(box.min_coords[1], box.max_coords[1], res[1])
+        zs = np.linspace(box.min_coords[2], box.max_coords[2], res[2])
+        X, Y, Z = np.meshgrid(xs, ys, zs, indexing="ij")
+
+        val = arr.flatten()
+        x   = X.flatten()
+        y   = Y.flatten()
+        z   = Z.flatten()
+
+        # Scatter3D is a point cloud — zeros can be filtered without breaking rendering
+        mask = val > 0
+        val, x, y, z = val[mask], x[mask], y[mask], z[mask]
+
+        if val.size == 0:
+            print(f"...>>> {fy.Color.red('No non-zero voxels found')} in '{path_in}'.")
+            return
+
+        print(f"Non-zero voxels: {fy.Color.yellow(str(val.size))} (stride={stride})")
+
+        data = np.column_stack([x, y, z, val]).tolist()
+
+        # plasma-like gradient (dark purple → orange → yellow)
+        plasma = [
+            "#0d0887", "#5302a3", "#8b0aa5", "#b83289",
+            "#db5c68", "#f48849", "#febc2a", "#f0f921",
+        ]
+
+        axis_opts = opts.Axis3DOpts(
+            type_="value",
+            axislabel_opts=opts.LabelOpts(is_show=False),
+            axisline_opts=opts.AxisLineOpts(is_show=True),
+        )
+
+        chart = (
+            Scatter3D()
+            .add(
+                series_name="",
+                data=data,
+                xaxis3d_opts=axis_opts,
+                yaxis3d_opts=axis_opts,
+                zaxis3d_opts=axis_opts,
+                grid3d_opts=opts.Grid3DOpts(width=100, height=100, depth=100),
+            )
+            .set_global_opts(
+                title_opts=opts.TitleOpts(title=title),
+                visualmap_opts=opts.VisualMapOpts(
+                    min_=float(val.min()),
+                    max_=float(val.max()),
+                    range_color=plasma,
+                    dimension=3,
+                    is_calculable=True,
+                    pos_bottom="5%",
+                ),
+            )
+        )
+
+        if path_out is not None:
+            chart.render(str(path_out))
+            print(f"...>>> ECharts plot saved to '{fy.Color.blue(path_out)}'.")
+        else:
+            import tempfile
+            import webbrowser
+            with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as f:
+                chart.render(f.name)
+                webbrowser.open(f.name)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def _collect_grid(path_in: Path, key: str | None) -> tuple["vg.Grid", str]:
         grid = vg.GridIO.read_auto(path_in)
 
