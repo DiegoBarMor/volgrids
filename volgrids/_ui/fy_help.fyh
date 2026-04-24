@@ -40,6 +40,16 @@
         !fyh:path_in
             File path to a molecular structure e.g. a PDB file.
     !@
+    @plot_dist
+        !fyh:_ Plot the distribution of non-zero voxel values in a grid file.
+            For multi-frame CMAP files, all frames are concatenated unless --key is specified.
+            Percentiles (p50, p75, p90, p95, p99, p99.9) are printed to the console.
+            Requires matplotlib.
+        !fyh:path_in Path to a grid file (DX, MRC, CCP4, or CMAP).
+        !fyh:path_out Optional output path to save the plot (e.g. .png, .pdf).
+            If not provided, the plot is displayed interactively.
+        !fyh:key Optional CMAP key (frame name) to plot a single frame instead of all frames.
+    !@
 !@
 
 @apbs
