@@ -80,6 +80,7 @@ class GridIO:
     def write_dx(cls, path_dx: str|Path, data: "vg.Grid"):
         path_dx = Path(path_dx)
         cls.confirm_overwrite(path_dx)
+        path_dx.parent.mkdir(parents = True, exist_ok = True)
 
         ints = (int, np.int8, np.int16, np.int32, np.int64)
         floats = (float, np.float16, np.float32, np.float64)
@@ -147,6 +148,7 @@ class GridIO:
     def write_mrc(cls, path_mrc: str|Path, data: "vg.Grid"):
         path_mrc = Path(path_mrc)
         cls.confirm_overwrite(path_mrc)
+        path_mrc.parent.mkdir(parents = True, exist_ok = True)
 
         with gd.mrc.mrcfile.new(path_mrc, overwrite = True) as parser:
             parser.set_data(data.arr.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
@@ -163,6 +165,7 @@ class GridIO:
     def write_ccp4(cls, path_ccp4: str|Path, data: "vg.Grid"):
         path_ccp4 = Path(path_ccp4)
         cls.confirm_overwrite(path_ccp4)
+        path_ccp4.parent.mkdir(parents = True, exist_ok = True)
 
         with gd.mrc.mrcfile.new(path_ccp4, overwrite = True) as parser:
             parser.set_data(data.arr.astype(vg.FLOAT_DTYPE).transpose(2,1,0))
@@ -189,6 +192,7 @@ class GridIO:
 
         path_cmap = Path(path_cmap)
         cls.confirm_overwrite(path_cmap)
+        path_cmap.parent.mkdir(parents = True, exist_ok = True)
 
         if not path_cmap.exists():
             with h5py.File(path_cmap, 'w') as h5:
@@ -222,48 +226,58 @@ class GridIO:
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ OTHER I/O UTILITIES
     @staticmethod
+    def detect_format(path_grid: str|Path) -> "vg.GridFormat":
+        # [TODO] improve the format detection?
+        ext = Path(path_grid).suffix.lower()
+        if ext == ".dx": return vg.GridFormat.DX
+        if ext == ".mrc": return vg.GridFormat.MRC
+        if ext == ".ccp4": return vg.GridFormat.CCP4
+        if ext == ".cmap":
+            keys = GridIO.get_cmap_keys(path_grid)
+            return vg.GridFormat.CMAP_PACKED if len(keys) > 1 else vg.GridFormat.CMAP
+        raise ValueError(f"Unrecognized file format: {ext}")
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def read_auto(path_grid: Path) -> "vg.Grid":
         """Detect the format of the grid file based on its extension and then read it."""
-        ext = path_grid.suffix.lower()
+        fmt = GridIO.detect_format(path_grid)
 
-        # [TODO] improve the format detection?
-        if ext == ".dx":
+        if fmt == vg.GridFormat.DX:
             return GridIO.read_dx(path_grid)
 
-        if ext == ".mrc":
+        if fmt == vg.GridFormat.MRC:
             return GridIO.read_mrc(path_grid)
 
-        if ext == ".ccp4":
+        if fmt == vg.GridFormat.CCP4:
             return GridIO.read_ccp4(path_grid)
 
-        if ext == ".cmap":
+        if fmt.is_cmap():
             keys = GridIO.get_cmap_keys(path_grid)
             if not keys: raise ValueError(f"Empty cmap file: {path_grid}")
             return GridIO.read_cmap(path_grid, keys[0])
-
-        raise ValueError(f"Unrecognized file format: {ext}")
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def write_auto(path_grid: Path, data: "vg.Grid"):
         """Detect the format of the grid file based on its extension and then write it."""
-        ext = path_grid.suffix.lower()
+        fmt = GridIO.detect_format(path_grid)
 
-        # [TODO] improve the format detection?
-        if ext == ".dx":
+        if fmt == vg.GridFormat.DX:
             GridIO.write_dx(path_grid, data)
             return
 
-        if ext == ".mrc":
+        if fmt == vg.GridFormat.MRC:
             GridIO.write_mrc(path_grid, data)
             return
 
-        if ext == ".ccp4":
+        if fmt == vg.GridFormat.CCP4:
             GridIO.write_ccp4(path_grid, data)
             return
 
-        if ext == ".cmap":
+        if fmt.is_cmap():
             ### [TODO] improve this?
             if path_grid.is_file():
                 keys = GridIO.get_cmap_keys(path_grid)

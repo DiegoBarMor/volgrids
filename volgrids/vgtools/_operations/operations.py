@@ -193,14 +193,21 @@ class VGOperations:
         Supports multi-frame CMAP trajectories: frames are processed one-by-one, with
         broadcasting if one side has a single frame and the other has N.
         """
+        def _interpolate_if_needed(grid_0: vg.Grid, grid_1: vg.Grid) -> vg.Grid:
+            if grid_0.box == grid_1.box: return
+            str_grid_0 = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
+            str_grid_1 = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
+            print(f"...>>> Interpolating {str_grid_1} to match {str_grid_0} coordinate system...")
+            grid_1.reshape_as_box(grid_0.box)
+
+
         path_in_0 = Path(path_in_0)
         path_out  = Path(path_out)
 
         if path_in_1 is None: # unary operation
-            if path_in_0.suffix.lower() == ".cmap":
+            if vg.GridIO.detect_format(path_in_0).is_cmap():
                 keys = vg.GridIO.get_cmap_keys(path_in_0)
                 if not keys: raise ValueError(f"Empty cmap file: {path_in_0}")
-                path_out.parent.mkdir(parents=True, exist_ok=True)
                 for key in keys:
                     grid = vg.GridIO.read_cmap(path_in_0, key)
                     vg.GridIO.write_cmap(path_out, operation(grid), key=key)
@@ -226,28 +233,18 @@ class VGOperations:
                 )
 
             n_frames = max(n0, n1)
-            path_out.parent.mkdir(parents=True, exist_ok=True)
             for i in range(n_frames):
                 k0 = keys0[i if n0 > 1 else 0]
                 k1 = keys1[i if n1 > 1 else 0]
                 grid_0 = vg.GridIO.read_cmap(path_in_0, k0)
                 grid_1 = vg.GridIO.read_cmap(path_in_1, k1)
-                if grid_0.box != grid_1.box:
-                    str_grid_0 = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
-                    str_grid_1 = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
-                    print(f"...>>> Interpolating {str_grid_1} to match {str_grid_0} coordinate system...")
-                    grid_1.reshape_as_box(grid_0.box)
+                _interpolate_if_needed(grid_0, grid_1)
                 vg.GridIO.write_cmap(path_out, operation(grid_0, grid_1), key=k0)
             return
 
         grid_0 = vg.GridIO.read_auto(path_in_0)
         grid_1 = vg.GridIO.read_auto(path_in_1)
-
-        if grid_0.box != grid_1.box:
-            str_grid_0 = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
-            str_grid_1 = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
-            print(f"...>>> Interpolating {str_grid_1} to match {str_grid_0} coordinate system...")
-            grid_1.reshape_as_box(grid_0.box)
+        _interpolate_if_needed(grid_0, grid_1)
 
         vg.GridIO.write_auto(path_out, operation(grid_0, grid_1))
 
