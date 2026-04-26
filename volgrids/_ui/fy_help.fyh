@@ -33,9 +33,15 @@
             !use:_smif_mode
         !@
     !@
-    @resids_nonbp
+    @resids_nobp
         !fyh:_ Print the set of non-base-paired residue indices in a given RNA structure.
             A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue.
+            Requires rnapolis.
+        !fyh:path_in
+            File path to a molecular structure e.g. a PDB file.
+    !@
+    @resids_nostk
+        !fyh:_ Print the set of residue indices in a given RNA structure for residues that aren't participating in 2 stacking interactions.
             Requires rnapolis.
         !fyh:path_in
             File path to a molecular structure e.g. a PDB file.

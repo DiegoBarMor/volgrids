@@ -2,6 +2,7 @@ import io
 import logging
 import warnings
 from contextlib import redirect_stdout, redirect_stderr
+from collections import Counter
 from pathlib import Path
 import MDAnalysis as mda
 
@@ -14,6 +15,15 @@ from rnapolis.annotator import  (
 
 # //////////////////////////////////////////////////////////////////////////////
 class RNAResids:
+    STACKING_THRESHOLD = 2 # [TODO] config?
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def get_all_resids(cls, path_pdb) -> set[int]:
+        u = cls._create_mda_universe_quiet(path_pdb)
+        return set(int(i) for i in u.residues.resids)
+
+
     # --------------------------------------------------------------------------
     @classmethod
     def get_resids_bp_canonical(cls, path_pdb: Path) -> set[int]:
@@ -30,16 +40,34 @@ class RNAResids:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def get_all_resids(cls, path_pdb) -> set[int]:
-        u = cls._create_mda_universe_quiet(path_pdb)
-        return set(int(i) for i in u.residues.resids)
+    def get_resids_stacking(cls, path_pdb: Path) -> set[int]:
+        """Return residues that are participating in at least `STACKING_THRESHOLD` stacking interactions."""
+        structure2d = cls._get_rnapolis_struct2d(path_pdb)
+        stackings = [bp for bp in structure2d.stackings if bp.topology is not None]
+        stk_full_names = [
+            [stk.nt1.full_name, stk.nt2.full_name] for stk in stackings
+        ]
+        resids_0 = [ int(bp[0][3:]) for bp in stk_full_names ]
+        resids_1 = [ int(bp[1][3:]) for bp in stk_full_names ]
+        count = Counter(resids_0 + resids_1)
+        return set(resid for resid, c in count.items() if c >= cls.STACKING_THRESHOLD)
 
 
     # --------------------------------------------------------------------------
     @classmethod
-    def get_resids_nonbp(cls, path_pdb: str | Path) -> str:
+    def get_resids_nobp(cls, path_pdb: str | Path) -> str:
         path_pdb = Path(path_pdb)
         idxs_canonical = cls.get_resids_bp_canonical(path_pdb)
+        idxs_all = cls.get_all_resids(path_pdb)
+        idxs_nonpb = sorted(idxs_all - idxs_canonical)
+        return ' '.join(str(i) for i in idxs_nonpb)
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def get_resids_nostk(cls, path_pdb: str | Path) -> str:
+        path_pdb = Path(path_pdb)
+        idxs_canonical = cls.get_resids_stacking(path_pdb)
         idxs_all = cls.get_all_resids(path_pdb)
         idxs_nonpb = sorted(idxs_all - idxs_canonical)
         return ' '.join(str(i) for i in idxs_nonpb)

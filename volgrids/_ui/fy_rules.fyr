@@ -12,7 +12,10 @@
         @rna    !use:_smif_mode !@
         @ligand !use:_smif_mode !@
     !@
-    @resids_nonbp
+    @resids_nobp
+        path_in[]1.PATH
+    !@
+    @resids_nostk
         path_in[]1.PATH
     !@
     @histogram
