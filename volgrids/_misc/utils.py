@@ -20,7 +20,7 @@ def assert_vendors():
 
     print(">>> Fetching vendor dependencies for the first time...")
 
-    path_sh = resolve_path_package("_dev/fetch_vendors.sh")
+    path_sh = resolve_path_package("_vendors/fetch_vendors.sh")
     proc = subprocess.run(
         ["/bin/bash", str(path_sh)],
         capture_output = True, text = True

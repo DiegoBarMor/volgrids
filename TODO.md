@@ -16,8 +16,8 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
-* list of spheres for trajectory+pocket_sphere mode
 * check what happens with structure files with multiple models.
+* list of spheres for trajectory+pocket_sphere mode
 * maybe: replace the RNDS trimming with a faster method
 * change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables

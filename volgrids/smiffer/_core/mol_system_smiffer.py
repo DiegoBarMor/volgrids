@@ -79,14 +79,14 @@ class MolSystemSmiffer(vg.MolSystem):
     def _get_path_table(self) -> Path:
         if sm.PATH_CHEM_CUSTOM: return sm.PATH_CHEM_CUSTOM
 
-        folder_default_tables = Path("_tables")
+        folder_default_tables = vg.resolve_path_package("_data/smiffer_tables")
 
         if sm.CURRENT_MOLTYPE == sm.MolType.PROT:
-            return vg.resolve_path_package(folder_default_tables / "prot.chem")
+            return folder_default_tables / "prot.chem"
 
         if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
             name = "rna_simple_hb" if sm.HBONDS_ONLY_NUCLEOBASE else "rna"
-            return vg.resolve_path_package(folder_default_tables / f"{name}.chem")
+            return folder_default_tables / f"{name}.chem"
 
         raise ValueError(f"No default table for the specified molecular type '{sm.CURRENT_MOLTYPE}'. Please provide a path to a custom table.")
 

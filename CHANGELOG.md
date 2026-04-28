@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.2] - 2026-04-24
+- Occupancy grids:
+    - OGs are now stamped with OR operation (instead of addition)
+    - Stacking OG now considers a sphere for every stacking atom, instead of a single sphere in the center of geometry
+- Operations from `vgtools op` can now handle CMAP files with multiple grids.
+- Attempting to overwrite existing file now asks for confirmation.
+    - This behavior can be disabled with by setting the config `OVERWRITE_OK=true`
+- Added `smutils histogram` utility.
+- Updated packaged freyacli vendor to version `0.3.0`.
+
+
 ## [0.8.1] - 2026-04-22
 - Started implementing new features relevant for an *interfaces* pipeline.
     - Added a generic `op` to `vgtools`.
