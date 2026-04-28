@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.8.3] - 2026-04-28
+- Added `resids_nostk` to smutils
+    - Also renamed `resids_nonbp` to `resids_nobp` for consistency
+    - `resids_nostk` is similar to `resids_nonbp`: it selects residues that are not already participating in at least 2 stacking interactions.
+- Added AMBER charges and radius data, as used by `pdb2pqr`
+    - This might be useful later on for a possible way of implementing `OgAPBS`, or with any other application that needs those partial charges.
+- Changed default configuration to `OVERWRITE_OK=true` until evaluating if the overwrite safeguard is properly implemented (mostly in terms of convenience).
+- Fixed compatibility issues with older versions of Python and rnapolis.
+
+
 ## [0.8.2] - 2026-04-24
 - Occupancy grids:
     - OGs are now stamped with OR operation (instead of addition)

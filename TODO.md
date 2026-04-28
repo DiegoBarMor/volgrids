@@ -12,6 +12,7 @@
 * add explanations to the list of configs printed with the empty `-c` flag
 * implement: raise an error if a format file is opened with the wrong function
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
+* check if the implementation of the OVERWRITE_OK flag is user-convenient
 
 
 <!-- ----------------------------------------------------------------------- -->

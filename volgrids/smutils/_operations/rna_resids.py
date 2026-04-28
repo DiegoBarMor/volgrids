@@ -96,9 +96,7 @@ class RNAResids:
         file = handle_input_file(path_pdb)
         structure3d = read_3d_structure(file, None)
         base_interactions = extract_base_interactions(structure3d)
-        structure2d, _ = structure3d.extract_secondary_structure(
-            base_interactions, False, False
-        )
+        structure2d, _ = structure3d.extract_secondary_structure(base_interactions)
         return structure2d
 
 
