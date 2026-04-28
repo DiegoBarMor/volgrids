@@ -17,10 +17,10 @@ setup(
     license="MIT",
     packages=find_packages(),
     package_data={"volgrids": [
-        "_tables/*", "apbs/*",
+        "apbs/*",
+        "_data/**/*",
         "_ui/fy_help.fyh", "_ui/fy_rules.fyr",
-        "_vendors/**/*",
-        "_dev/fetch_vendors.sh",
+        "_vendors/fetch_vendors.sh", "_vendors/**/*",
     ]},
     install_requires=["MDAnalysis==2.10.0", "h5py==3.15.1"],
     entry_points={

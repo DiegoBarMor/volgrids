@@ -222,7 +222,7 @@ class AppSmiffer(vg.AppSubcommand):
 
         for val in configs:
             if '=' in val:
-                vg.STR_CUSTOM_CONFIG += f"{val.replace(' ', '\n')}\n"
+                vg.STR_CUSTOM_CONFIG += val.replace(' ', '\n') + "\n"
                 continue
 
             val_as_path = Path(val)
