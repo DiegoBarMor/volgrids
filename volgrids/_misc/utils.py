@@ -15,8 +15,9 @@ def assert_vendors():
     in case volgrids isn't downloaded via pip.
     """
     dir_vendors = resolve_path_package("_vendors")
-    dir_fy = dir_vendors / "freyacli"
-    if dir_fy.is_dir(): return
+    names_vendors = ("freyacli", "molutils")
+    if all((dir_vendors / name).is_dir() for name in names_vendors):
+        return
 
     print(">>> Fetching vendor dependencies for the first time...")
 

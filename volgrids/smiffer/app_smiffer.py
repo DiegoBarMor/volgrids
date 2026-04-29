@@ -3,9 +3,7 @@ from pathlib import Path
 
 import volgrids as vg
 import volgrids.smiffer as sm
-
-try: import freyacli as fy # to display colored text
-except ImportError: from volgrids._vendors import freyacli as fy
+from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):

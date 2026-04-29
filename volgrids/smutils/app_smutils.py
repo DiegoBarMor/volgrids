@@ -1,8 +1,6 @@
 import volgrids as vg
 import volgrids.smutils as su
-
-try: import freyacli as fy
-except ImportError: from volgrids._vendors import freyacli as fy
+from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSMUtils(vg.AppSubcommand):

@@ -4,9 +4,7 @@ import gridData as gd
 from pathlib import Path
 
 import volgrids as vg
-
-try: import freyacli as fy # to display colored text
-except ImportError: from volgrids._vendors import freyacli as fy
+from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridIO:

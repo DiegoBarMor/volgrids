@@ -1,8 +1,6 @@
 import volgrids as vg
 import volgrids.vgtools as vgt
-
-try: import freyacli as fy # to display colored text
-except ImportError: from volgrids._vendors import freyacli as fy
+from volgrids._vendors import freyacli as fy
 
 DEFAULT_COMPARISON_THRESHOLD = 1e-5 # [TODO] this should be a config
 

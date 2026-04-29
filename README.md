@@ -35,8 +35,11 @@ python3 volgrids --help # required vendors will automatically be downloaded
 ### Optional requirements
 - [**APBS**]: Follow the instructions from [here](#installation-ubuntu).
 - [**rnapolis**](https://github.com/tzok/rnapolis-py) (`pip install rnapolis`) for running residue-selection utilities from `smutils`.
-- [**freyacli**](https://github.com/tzok/freyacli) (`pip install freyacli`) for CLI management
-  - included as vendor in `volgrid`'s pip distribution. If you don't want to use pip, it will be fetched automatically the first time you run `volgrids`. Alternatively, run `bash scripts/_prepare.sh` in your local copy of the `volgrids` repo to fetch the vendor packages manually.
+
+### Vendors
+The following are dependencies that are included as vendors in `volgrid`'s pip distribution. If you don't want to use pip, it will be fetched automatically the first time you run `volgrids`. Alternatively, run `bash scripts/_prepare.sh` in your local copy of the `volgrids` repo to fetch the vendor packages manually.
+- [**freyacli**](https://github.com/DiegoBarMor/freyacli) for CLI management
+- [**molutils**](https://github.com/DiegoBarMor/molutils) for utilities dealing with PDB files.
 
 
 <!-- ----------------------------------------------------------------------- -->
