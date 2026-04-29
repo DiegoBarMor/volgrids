@@ -148,6 +148,14 @@
                 Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
             !use:_io_2_inputs_op
         !@
+        @and
+            !fyh:_ Element-wise AND of the boolean grids' points.
+            !use:_io_2_inputs_op
+        !@
+        @or
+            !fyh:_ Element-wise OR of the boolean grids' points.
+            !use:_io_2_inputs_op
+        !@
     !@
 !@
 

@@ -192,6 +192,8 @@ class AppVGTools(vg.AppSubcommand):
             "sub": vg.Grid.__sub__,
             "mul": vg.Grid.__mul__,
             "div": vg.Grid.__div__,
+            "and": vg.Grid.__and__,
+            "or" : vg.Grid.__or__,
         }[command]
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)}")

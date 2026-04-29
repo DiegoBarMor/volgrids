@@ -75,6 +75,8 @@
         @sub !use:_io_2_inputs !@
         @mul !use:_io_2_inputs !@
         @div !use:_io_2_inputs !@
+        @and !use:_io_2_inputs !@
+        @or  !use:_io_2_inputs !@
     !@
 !@
 
