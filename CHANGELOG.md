@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.8.3] - 2026-04-28
+## [WIP]
 - Added `resids_nostk` to smutils
     - Also renamed `resids_nonbp` to `resids_nobp` for consistency
     - `resids_nostk` is similar to `resids_nonbp`: it selects residues that are not already participating in at least 2 stacking interactions.
