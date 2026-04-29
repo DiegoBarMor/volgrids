@@ -28,16 +28,14 @@ class AppSMUtils(vg.AppSubcommand):
     def _run_res_nobp(self) -> None:
         path_in = self.main.get_arg_path("path_in")
         self.main.assert_file_in(path_in)
-        resids = su.RNAResids.get_residues_nobp(path_in)
-        print(resids)
+        print(su.ResiduesNucleic.get_residues_nobp(path_in))
 
 
     # --------------------------------------------------------------------------
     def _run_res_nostk(self) -> None:
         path_in = self.main.get_arg_path("path_in")
         self.main.assert_file_in(path_in)
-        resids = su.RNAResids.get_residues_nostk(path_in)
-        print(resids)
+        print(su.ResiduesNucleic.get_residues_nostk(path_in))
 
 
     # --------------------------------------------------------------------------

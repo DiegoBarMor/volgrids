@@ -16,7 +16,7 @@ from rnapolis.annotator import  (
 from volgrids._vendors import molutils as mu
 
 # //////////////////////////////////////////////////////////////////////////////
-class RNAResids:
+class ResiduesNucleic:
     STACKING_THRESHOLD = 2 # [TODO] config?
 
     # --------------------------------------------------------------------------

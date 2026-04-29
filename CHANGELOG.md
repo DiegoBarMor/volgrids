@@ -1,13 +1,33 @@
 # Changelog
 
-## [WIP]
-- Added `resids_nostk` to smutils
-    - Also renamed `resids_nonbp` to `resids_nobp` for consistency
-    - `resids_nostk` is similar to `resids_nonbp`: it selects residues that are not already participating in at least 2 stacking interactions.
-- Added AMBER charges and radius data, as used by `pdb2pqr`
-    - This might be useful later on for a possible way of implementing `OgAPBS`, or with any other application that needs those partial charges.
-- Changed default configuration to `OVERWRITE_OK=true` until evaluating if the overwrite safeguard is properly implemented (mostly in terms of convenience).
-- Fixed compatibility issues with older versions of Python and rnapolis.
+## [0.9.0] - 2026-04-29
+- General:
+    - Fixed compatibility issues with older versions of Python and rnapolis.
+    - Changed default configuration to `OVERWRITE_OK=true` until evaluating if the overwrite safeguard is properly implemented (mostly in terms of convenience).
+    - Vendor packages now consider only the local copy.
+        - It should be clear now that they're a light dependency and don't need to be pip installed.
+
+- New features `vgtools`:
+    - Added `AND` and `OR` operations to `vgtools op`.
+        - This operation chooses the points between two grids according to which one has the maximum absolute value.
+    - Added option to `vgtools op` (with the flag `-b`) for interpolating to smallest enclosing box.
+        - This is useful for for keeping all the points between the two grids involved in an operation, in case they aren't perfectly overlaping (e.g. one completely enclosing the other one).
+
+- Residue calculations (`smiffer`, `smutils`):
+    - Residue-specific calculations now follow the syntax **chain_id.resid** (insted of simply **resid**).
+    - Changed flags and subcommands to reflect this new behavior:
+        - `smiffer`'s `-i/--resids` changed to `-r/--residues`.
+        - `smutils`'s `resids_nonbp` changed to `res_nobp`.
+    - Path to a list with residues is no longer accepted as a value for the `-r` flag.
+    - Added `res_nostk` to `smutils`.
+        - `res_nostk` is similar to `res_nobp`: it selects residues that are not already participating in at least 2 stacking interactions.
+        - This will also work for DNA structures (thanks to a temporary fix in the RNA .chem tables).
+
+- For future use:
+    - Added new `KOperation` `ABSMAX` for internal usage (eventually).
+    - Added AMBER charges and radius data, as used by `pdb2pqr`
+        - This might be useful later on for a possible way of implementing `OgAPBS`, or with any other application that needs those partial charges.
+
 
 
 ## [0.8.2] - 2026-04-24
@@ -49,6 +69,8 @@
     - Added `--resids` (`-i`) flag to **Smiffer**.
         - A custom list of residue indices can now be specified. SMIFs will be calculated for only those residues.
         - Trimming and APBS remain unaffected.
+        <!--
+        OUTDATED: see README.md for an updated version of the snippet
         - Combine it with `resids_nonpb` to have more polished hbond results, e.g.:
         ```bash
         python3 volgrids smiffer rna 1akx.pdb \
@@ -56,6 +78,7 @@
             -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
                 DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
         ```
+        -->
 - Tweaks:
     - Renamed `DO_SIMPLE_HBONDS_RNA` to `HBONDS_ONLY_NUCLEOBASE`.
     - An error is now raised for invalid configuration keys.
