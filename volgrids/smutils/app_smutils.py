@@ -12,10 +12,10 @@ class AppSMUtils(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def run(self):
         operation = self.main.subcommands.pop(0)
-        if operation == "occupancy"   : return self._run_occupancy()
-        if operation == "resids_nobp" : return self._run_resids_nobp()
-        if operation == "resids_nostk": return self._run_resids_nostk()
-        if operation == "histogram"   : return self._run_plot_dist()
+        if operation == "occupancy": return self._run_occupancy()
+        if operation == "res_nobp" : return self._run_res_nobp()
+        if operation == "res_nostk": return self._run_res_nostk()
+        if operation == "histogram": return self._run_plot_dist()
         raise ValueError(f"Unknown operation: {operation}")
 
 
@@ -25,18 +25,18 @@ class AppSMUtils(vg.AppSubcommand):
 
 
     # --------------------------------------------------------------------------
-    def _run_resids_nobp(self) -> None:
+    def _run_res_nobp(self) -> None:
         path_in = self.main.get_arg_path("path_in")
         self.main.assert_file_in(path_in)
-        resids = su.RNAResids.get_resids_nobp(path_in)
+        resids = su.RNAResids.get_residues_nobp(path_in)
         print(resids)
 
 
     # --------------------------------------------------------------------------
-    def _run_resids_nostk(self) -> None:
+    def _run_res_nostk(self) -> None:
         path_in = self.main.get_arg_path("path_in")
         self.main.assert_file_in(path_in)
-        resids = su.RNAResids.get_resids_nostk(path_in)
+        resids = su.RNAResids.get_residues_nostk(path_in)
         print(resids)
 
 

@@ -51,8 +51,8 @@ class ParserChemTable:
     # --------------------------------------------------------------------------
     def get_selection_query(self, use_custom):
         """
-        Custom query includes an additional condition to select only the residues specified in the `CUSTOM_RESIDS` parameter.
-        Otherwise, the standard query is returned (i.e. that one specified in the .chem table), which does not filter by residue index.
+        Custom query includes an additional condition to select only the residues specified in the `CUSTOM_RESIDUES` parameter.
+        Otherwise, the standard query is returned (i.e. that one specified in the .chem table), which does not filter by residue.
         """
         return self._selection_query_custom if use_custom else self._selection_query
 
@@ -91,9 +91,16 @@ class ParserChemTable:
         if query is None: raise ValueError("No selection query found in the table file.")
 
         self._selection_query = query[0]
-        self._selection_query_custom = self._selection_query + (
-            f" and resid {sm.CUSTOM_RESIDS}" if sm.CUSTOM_RESIDS else ''
-        )
+        self._selection_query_custom = self._selection_query
+
+        if sm.CUSTOM_RESIDUES:
+            self._selection_query_custom += " and ("
+            for residue in sm.CUSTOM_RESIDUES.split():
+                chain, resid = residue.split('.')
+                self._selection_query_custom += f"(chainID {chain} and resid {resid}) or "
+            self._selection_query_custom =\
+                self._selection_query_custom[:-4] + ")" # remove the last " or "
+
 
         for resname, value in self._parser_ini.iter_splitted_lines("RES_HPHOBICITY", sep = ':'):
             self._residues_hphob[resname] = float(value)

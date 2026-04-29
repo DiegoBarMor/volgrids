@@ -12,10 +12,10 @@
         @rna    !use:_smif_mode !@
         @ligand !use:_smif_mode !@
     !@
-    @resids_nobp
+    @res_nobp
         path_in[]1.PATH
     !@
-    @resids_nostk
+    @res_nostk
         path_in[]1.PATH
     !@
     @histogram
@@ -90,7 +90,7 @@
     ~path_chem[b,table]1.PATH
     ~configs[c,config]*.STR
     ~sphere[s,sphere]4.FLOAT
-    ~resids[i,resids]1+.STR
+    ~residues[r,residues]1+.STR
 !fed
 
 !def _io_1_input
