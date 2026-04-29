@@ -3,6 +3,7 @@ desktop.ini
 .vscode/
 
 volgrids/_vendors/freyacli
+volgrids/_vendors/molutils
 
 plugins/
 testdata/

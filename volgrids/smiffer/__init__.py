@@ -109,7 +109,7 @@ PATH_CHEM_CUSTOM: _pathlib.Path = None # "path/input/table.chem"
 SPHERE: SphereInfo  = None              # pocket sphere info: [x, y, z, radius]
 CURRENT_MOLTYPE: MolType = MolType.NONE # type of the current molecule
 
-CUSTOM_RESIDS: str = "" # "1 2 4 5 ..."
+CUSTOM_RESIDUES: str = "" # "A.3 A.4 A.5 B.10 ..."
 
 
 ############################### RUNTIME GLOBALS ################################

@@ -1,9 +1,7 @@
 from pathlib import Path
 
 import volgrids as vg
-
-try: import freyacli as fy # CLI management
-except ImportError: from volgrids._vendors import freyacli as fy
+from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppMain(fy.App):

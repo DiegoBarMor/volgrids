@@ -3,9 +3,7 @@ from pathlib import Path
 
 import volgrids as vg
 import volgrids.smiffer as sm
-
-try: import freyacli as fy # to display colored text
-except ImportError: from volgrids._vendors import freyacli as fy
+from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):
@@ -237,32 +235,23 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_resids(self):
-        def _handle_possible_path(val: str) -> str:
-            possible_path = Path(resids[0])
-            if not possible_path.exists(): return resids
-            if possible_path.is_dir(): self.main.help_and_exit(1,
-                f"The specified resids path '{val}' is a folder, but a file was expected."
+        def _assert_residue(residue: str) -> int:
+            splitted = residue.split('.')
+            if len(splitted) != 2: self.main.help_and_exit(1,
+                f"Invalid residue '{residue}' provided for --residues option." +\
+                "The residues must be in the format \"chain_id.resid\" (e.g. \"A.3 A.4 A.5 B.10\")"
             )
-            return possible_path.read_text().strip()
+            return residue
 
-        def _assert_resid(resid: str) -> int:
-            if not resid.isdigit(): self.main.help_and_exit(1,
-                f"Invalid residue index '{resid}' provided for --resids option. All indices must be integers."
-            )
-            return resid
+        residues = self.main.get_arg_str("residues")
+        if not residues: return
 
-        resids = self.main.get_arg_str("resids")
-        if not resids: return
+        splitted = (x for res in residues for x in res.split())
+        sm.CUSTOM_RESIDUES = " ".join(_assert_residue(res) for res in splitted)
 
-        if not resids: self.main.help_and_exit(1,
-            "No residue indices provided for --resids option."
+        if not sm.CUSTOM_RESIDUES: print(
+            fy.Color.red("WARNING: ") + "No valid residues provided for --residues option."
         )
-
-        if len(resids) == 1: # [NOTE] when passing a path, only one input file is currrently supported
-            resids = _handle_possible_path(resids[0])
-
-        splitted = (x for resid in resids for x in resid.split())
-        sm.CUSTOM_RESIDS = " ".join(_assert_resid(resid) for resid in splitted)
 
 
     # --------------------------------------------------------------------------

@@ -35,8 +35,11 @@ python3 volgrids --help # required vendors will automatically be downloaded
 ### Optional requirements
 - [**APBS**]: Follow the instructions from [here](#installation-ubuntu).
 - [**rnapolis**](https://github.com/tzok/rnapolis-py) (`pip install rnapolis`) for running residue-selection utilities from `smutils`.
-- [**freyacli**](https://github.com/tzok/freyacli) (`pip install freyacli`) for CLI management
-  - included as vendor in `volgrid`'s pip distribution. If you don't want to use pip, it will be fetched automatically the first time you run `volgrids`. Alternatively, run `bash scripts/_prepare.sh` in your local copy of the `volgrids` repo to fetch the vendor packages manually.
+
+### Vendors
+The following are dependencies that are included as vendors in `volgrid`'s pip distribution. If you don't want to use pip, it will be fetched automatically the first time you run `volgrids`. Alternatively, run `bash scripts/_prepare.sh` in your local copy of the `volgrids` repo to fetch the vendor packages manually.
+- [**freyacli**](https://github.com/DiegoBarMor/freyacli) for CLI management
+- [**molutils**](https://github.com/DiegoBarMor/molutils) for utilities dealing with PDB files.
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -121,8 +124,8 @@ Run the subcommands without any further arguments to read more about their speci
 - `volgrids smiffer prot`: Calculate SMIFs for protein structures.
 - `volgrids smiffer rna`: Calculate SMIFs for RNA structures.
 - `volgrids smiffer ligand`: Calculate SMIFs for ligand structures. A .chem table must be provided.
-- `volgrids smutils resids_nobp`: Print the set of non-base-paired residue indices in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires rnapolis.
-- `volgrids smutils resids_nostk`: Print the set of residue indices in a given RNA structure for residues that aren't participating in 2 stacking interactions. Requires rnapolis.
+- `volgrids smutils res_nobp`: Print the set of non-base-paired residues in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires rnapolis.
+- `volgrids smutils res_nostk`: Print the set of residues in a given RNA structure for residues that aren't participating in 2 stacking interactions. Requires rnapolis.
 - `volgrids smutils histogram`: Plot the distribution histogram of non-zero voxel values in a grid file. For multi-frame CMAP files, all frames are concatenated unless --key is specified. Percentiles (p50, p75, p90, p95, p99, p99.9) are printed to the console. Requires matplotlib.
 - `volgrids smutils occupancy prot`: Calculate OGs for protein structures.
 - `volgrids smutils occupancy rna`: Calculate OGs for RNA structures.
@@ -140,6 +143,8 @@ Run the subcommands without any further arguments to read more about their speci
 - `volgrids vgtools op sub`: Element-wise substraction of the grids' points. Order is "grid_0 - grid_1".
 - `volgrids vgtools op mul`: Element-wise multiplication of the grids' points.
 - `volgrids vgtools op div`: Element-wise division of the grids' points. Order is "grid_0 / grid_1". Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
+- `volgrids vgtools op and`: Element-wise AND of the boolean grids' points.
+- `volgrids vgtools op or`: Element-wise OR of the boolean grids' points.
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -162,7 +167,7 @@ volgrids smiffer rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vk
 - Combine `resids_nonpb` with smiffer's `--resids` (`-i`) flag to have more polished hbond results, e.g.:
 ```bash
 python3 volgrids smiffer rna 1akx.pdb \
-    -i "$(python3 volgrids smutils resids_nobp 1akx.pdb)" \
+    -i "$(python3 volgrids smutils res_nobp 1akx.pdb)" \
     -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
         DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
 ```

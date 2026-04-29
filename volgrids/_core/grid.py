@@ -72,6 +72,36 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def __and__(self, other: "Grid") -> "Grid":
+        """
+        Return a new Grid with the logical or of the values of the two Grids.
+        The input grids are converted into boolean if they are not already, and the output grid is also boolean.
+        """
+        obj = self.__class__(self.box, init_grid = False)
+        if not isinstance(other, Grid):
+            raise TypeError(f"Cannot add {type(other)} to Grid. Use another Grid.")
+        vg.GridIO.restore_boolean_dtype(self)
+        vg.GridIO.restore_boolean_dtype(other)
+        obj.arr = np.logical_and(self.arr, other.arr)
+        return obj
+
+
+    # --------------------------------------------------------------------------
+    def __or__(self, other: "Grid") -> "Grid":
+        """
+        Return a new Grid with the logical or of the values of the two Grids.
+        The input grids are converted into boolean if they are not already, and the output grid is also boolean.
+        """
+        obj = self.__class__(self.box, init_grid = False)
+        if not isinstance(other, Grid):
+            raise TypeError(f"Cannot add {type(other)} to Grid. Use another Grid.")
+        vg.GridIO.restore_boolean_dtype(self)
+        vg.GridIO.restore_boolean_dtype(other)
+        obj.arr = np.logical_or(self.arr, other.arr)
+        return obj
+
+
+    # --------------------------------------------------------------------------
     @classmethod
     def reverse(cls, other: "Grid") -> "Grid":
         """Return a new Grid with the reversed values of the other Grid.
