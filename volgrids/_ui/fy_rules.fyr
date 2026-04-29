@@ -102,4 +102,5 @@
     path_in_0[]1.PATH
     path_in_1[]1.PATH
     path_out[]1.PATH
+    ~common_box[b,common-box]
 !fed

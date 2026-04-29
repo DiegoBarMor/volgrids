@@ -186,6 +186,7 @@ class VGOperations:
     @staticmethod
     def op(
         operation: callable, path_out: Path, path_in_0: Path, path_in_1: Path = None,
+        interpolate_to_common_box = False
     ) -> None:
         """
         Perform the numeric `operation` between two grids.
@@ -193,12 +194,22 @@ class VGOperations:
         Supports multi-frame CMAP trajectories: frames are processed one-by-one, with
         broadcasting if one side has a single frame and the other has N.
         """
-        def _interpolate_if_needed(grid_0: vg.Grid, grid_1: vg.Grid) -> vg.Grid:
+        def _interpolate_if_needed(grid_0: vg.Grid, grid_1: vg.Grid) -> None:
             if grid_0.box == grid_1.box: return
-            str_grid_0 = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
-            str_grid_1 = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
-            print(f"...>>> Interpolating {str_grid_1} to match {str_grid_0} coordinate system...")
-            grid_1.reshape_as_box(grid_0.box)
+            new_box = vg.Box.smallest_enclosing_box(grid_0.box, grid_1.box) \
+                if interpolate_to_common_box else grid_0.box
+
+            str_grid_0  = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
+            str_grid_1  = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
+            str_new_box = f"{fy.Color.green(new_box.resolution)}"
+
+            print(f"...>>> Interpolating {str_grid_1} to {str_new_box}...")
+            grid_1.reshape_as_box(new_box)
+
+            if not interpolate_to_common_box: return
+            print(f"...>>> Interpolating {str_grid_0} to {str_new_box}...")
+            grid_0.reshape_as_box(new_box)
+
 
         path_out  = Path(path_out)
 

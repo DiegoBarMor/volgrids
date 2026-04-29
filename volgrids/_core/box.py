@@ -31,6 +31,18 @@ class Box:
 
 
     # --------------------------------------------------------------------------
+    @classmethod
+    def from_min_max(cls, min_coords: np.ndarray, max_coords: np.ndarray) -> "Box":
+        box = cls(None, None, None, do_init = False)
+        box.min_coords = min_coords
+        box.max_coords = max_coords
+        box.infer_deltas_resolution()
+        box.infer_radius_and_cog()
+        box._warning_big_grid()
+        return box
+
+
+    # --------------------------------------------------------------------------
     def __eq__(self, other: "Box") -> bool:
         return all((
             np.allclose(self.min_coords, other.min_coords),
@@ -60,6 +72,15 @@ class Box:
     def infer_radius_and_cog(self):
         self.radius = np.linalg.norm(self.max_coords - self.min_coords) / 2
         self.cog = (self.min_coords + self.max_coords) / 2
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def smallest_enclosing_box(cls, *boxes: "Box") -> "Box":
+        return cls.from_min_max(
+            min_coords = np.min([box.min_coords for box in boxes], axis = 0),
+            max_coords = np.max([box.max_coords for box in boxes], axis = 0),
+        )
 
 
     # --------------------------------------------------------------------------

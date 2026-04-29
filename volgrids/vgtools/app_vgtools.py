@@ -187,6 +187,8 @@ class AppVGTools(vg.AppSubcommand):
         self.main.assert_file_in(path_in_0)
         self.main.assert_file_in(path_in_1)
 
+        interpolate_to_common_box = self.main.get_arg_bool("common_box")
+
         operation: callable = {
             "add": vg.Grid.__add__,
             "sub": vg.Grid.__sub__,
@@ -197,7 +199,7 @@ class AppVGTools(vg.AppSubcommand):
         }[command]
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)}")
-        vgt.VGOperations.op(operation, path_out, path_in_0, path_in_1)
+        vgt.VGOperations.op(operation, path_out, path_in_0, path_in_1, interpolate_to_common_box)
 
 
 # //////////////////////////////////////////////////////////////////////////////
