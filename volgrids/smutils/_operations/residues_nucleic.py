@@ -28,7 +28,8 @@ class ResiduesNucleic:
             [bp.nt1.full_name, bp.nt2.full_name] for bp in base_pairs
             if bp.lw.value == "cWW" and bp.saenger.value in ("XIX", "XX")
         ]
-        return {bp[0] for bp in bp_full_names} | {bp[1] for bp in bp_full_names}
+        bps = {bp[0] for bp in bp_full_names} | {bp[1] for bp in bp_full_names}
+        return {cls._rnapolis_residue(bp) for bp in bps}
 
 
     # --------------------------------------------------------------------------
@@ -42,7 +43,7 @@ class ResiduesNucleic:
         ]
         resids = [stk[0] for stk in stk_full_names] + [stk[1] for stk in stk_full_names]
         return set(
-            resid for resid, count in Counter(resids).items()
+            cls._rnapolis_residue(residue) for residue, count in Counter(resids).items()
             if count >= cls.STACKING_THRESHOLD
         )
 
@@ -63,6 +64,16 @@ class ResiduesNucleic:
         resids_all = set(mu.List.resids(path_pdb))
         resids_stacking = cls.get_residues_stacking(path_pdb)
         return ' '.join(sorted(resids_all - resids_stacking))
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def _rnapolis_residue(s):
+        chain,residue = s.split('.')
+        while residue:
+            if residue[0].isdigit() or residue[0] == '-': break
+            residue = residue[1:]
+        return f"{chain}.{residue}"
 
 
     # --------------------------------------------------------------------------
