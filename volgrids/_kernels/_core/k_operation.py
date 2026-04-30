@@ -8,6 +8,7 @@ class KOperation(Enum):
     MAX = auto()
     AND = auto()
     OR  = auto()
+    ABS_MAX = auto()
 
     # --------------------------------------------------------------------------
     @classmethod
@@ -17,7 +18,17 @@ class KOperation(Enum):
         if operation == cls.MAX: return np.maximum
         if operation == cls.AND: return np.logical_and
         if operation == cls.OR:  return np.logical_or
+        if operation == cls.ABS_MAX: return cls._abs_max
         raise ValueError(f"Unknown operation: {operation}.")
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def _abs_max(cls, a, b):
+        abs_a = np.abs(a)
+        abs_b = np.abs(b)
+        mask = abs_a >= abs_b
+        return np.where(mask, a, b)
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -1,8 +1,6 @@
 import volgrids as vg
 import volgrids.vgtools as vgt
-
-try: import freyacli as fy # to display colored text
-except ImportError: from volgrids._vendors import freyacli as fy
+from volgrids._vendors import freyacli as fy
 
 DEFAULT_COMPARISON_THRESHOLD = 1e-5 # [TODO] this should be a config
 
@@ -187,15 +185,19 @@ class AppVGTools(vg.AppSubcommand):
         self.main.assert_file_in(path_in_0)
         self.main.assert_file_in(path_in_1)
 
+        interpolate_to_common_box = self.main.get_arg_bool("common_box")
+
         operation: callable = {
             "add": vg.Grid.__add__,
             "sub": vg.Grid.__sub__,
             "mul": vg.Grid.__mul__,
             "div": vg.Grid.__div__,
+            "and": vg.Grid.__and__,
+            "or" : vg.Grid.__or__,
         }[command]
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)}")
-        vgt.VGOperations.op(operation, path_out, path_in_0, path_in_1)
+        vgt.VGOperations.op(operation, path_out, path_in_0, path_in_1, interpolate_to_common_box)
 
 
 # //////////////////////////////////////////////////////////////////////////////

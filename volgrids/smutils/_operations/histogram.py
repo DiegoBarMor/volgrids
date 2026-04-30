@@ -2,9 +2,7 @@ import numpy as np
 from pathlib import Path
 
 import volgrids as vg
-
-try: import freyacli as fy
-except ImportError: from volgrids._vendors import freyacli as fy
+from volgrids._vendors import freyacli as fy
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -25,15 +25,15 @@ for name in "${names[@]}"; do
 
 
     ##### PART 1: H-bonds for only nucleobases, non-base-paired residues only
-    if ! idxs="$(python3 volgrids smutils resids_nobp "$fpdb_clean/$name.pdb" 2>&1)"; then
+    if ! residues="$(python3 volgrids smutils res_nobp "$fpdb_clean/$name.pdb" 2>&1)"; then
         rc=$?
-        printf 'resids_nobp failed (exit %s). Output:\n%s\n' "$rc" "$idxs" >&2
+        printf 'res_nobp failed (exit %s). Output:\n%s\n' "$rc" "$residues" >&2
         exit $rc
     fi
-    echo "... non-base-paired residue indices for $name: $idxs"
+    echo "... non-base-paired residues for $name: $residues"
 
     python3 volgrids smiffer rna  "$fpdb_clean/$name.pdb" -o "$fout" \
-        -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true -i "$idxs"
+        -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true -r "$residues"
     mv "$fout/$name.cmap" "$fout/$name.nbases.nobp.cmap"
 
 

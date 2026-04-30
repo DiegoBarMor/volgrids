@@ -17,7 +17,8 @@ setup(
     license="MIT",
     packages=find_packages(),
     package_data={"volgrids": [
-        "data/**/*", "apbs/*",
+        "apbs/*",
+        "_data/**/*",
         "_ui/fy_help.fyh", "_ui/fy_rules.fyr",
         "_vendors/fetch_vendors.sh", "_vendors/**/*",
     ]},

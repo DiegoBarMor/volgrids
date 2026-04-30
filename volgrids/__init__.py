@@ -38,7 +38,7 @@ _keys_other = set(globals().keys())
 REMOVE_OLD_CMAP_OUTPUT: bool = True
 GZIP_COMPRESSION: int = 9
 WARNING_GRID_SIZE: float = 5.0e7
-OVERWRITE_OK: bool = False
+OVERWRITE_OK: bool = True
 
 USE_FIXED_DELTAS: bool = True
 ENSURE_EQUILATERAL: bool = False

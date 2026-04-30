@@ -23,19 +23,11 @@ class MolSystem:
             self.system = mda.Universe(str(path_struct))
             self.frame = None
 
-        self.box = self._get_init_box()
+        self.box = vg.Box.from_min_max(
+            min_coords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE,
+            max_coords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE,
+        )
         self._enforce_equilateral_grid()
-
-
-    # --------------------------------------------------------------------------
-    def _get_init_box(self) -> vg.Box:
-        box = vg.Box(None, None, None, do_init = False)
-        box.min_coords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE
-        box.max_coords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE
-        box.infer_deltas_resolution()
-        box.infer_radius_and_cog()
-        return box
-
 
 
     # --------------------------------------------------------------------------

@@ -33,15 +33,15 @@
             !use:_smif_mode
         !@
     !@
-    @resids_nobp
-        !fyh:_ Print the set of non-base-paired residue indices in a given RNA structure.
+    @res_nobp
+        !fyh:_ Print the set of non-base-paired residues in a given RNA structure.
             A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue.
             Requires rnapolis.
         !fyh:path_in
             File path to a molecular structure e.g. a PDB file.
     !@
-    @resids_nostk
-        !fyh:_ Print the set of residue indices in a given RNA structure for residues that aren't participating in 2 stacking interactions.
+    @res_nostk
+        !fyh:_ Print the set of residues in a given RNA structure for residues that aren't participating in 2 stacking interactions.
             Requires rnapolis.
         !fyh:path_in
             File path to a molecular structure e.g. a PDB file.
@@ -148,6 +148,14 @@
                 Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
             !use:_io_2_inputs_op
         !@
+        @and
+            !fyh:_ Element-wise AND of the boolean grids' points.
+            !use:_io_2_inputs_op
+        !@
+        @or
+            !fyh:_ Element-wise OR of the boolean grids' points.
+            !use:_io_2_inputs_op
+        !@
     !@
 !@
 
@@ -171,9 +179,9 @@
     !fyh:sphere
         Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere.
         If not provided, 'whole' mode is assumed.
-    !fyh:resids
-        File path to a text file containing the residue indices to consider for SMIF calculations (one-based indexing, space separated).
-        Alternatively, a string of space-separated indices can be passed directly as argument.
+    !fyh:residues
+        A string of space-separated residues for which to perform the calculations.
+        The residues must be in the format "chain_id.resid" (e.g. "A.3 A.4 A.5 B.10").
         If not provided, all residues will be considered.
 !fed
 

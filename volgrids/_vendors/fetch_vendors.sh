@@ -15,19 +15,21 @@ fetch_vendor_dbm() {
     rm -rf $dir_vendors/_tmp
 
     echo "Fetched $name_vendor $(cat "$dir_vendors/$name_vendor/_version.py")"
-
-    python3 - "$dir_vendors/$name_vendor" <<'PYCODE'
+}
+fix_vendor_imports() {
+    local name_vendor="$1"
+    local name_imports="$2"
+    python3 - "$dir_vendors/$name_vendor" <<PYCODE
 import sys
 from pathlib import Path
 
 root_vendor = Path(sys.argv[1])
-name_vendor = root_vendor.name
 for path in root_vendor.rglob("*.py"):
     if path.name.startswith("_"): continue
     if path.name == "__init__.py": continue
     path.write_text(path.read_text().replace(
-        f"import {name_vendor}",
-        f"import volgrids._vendors.{name_vendor}"
+        "import $name_imports",
+        "import volgrids._vendors.$name_imports"
     ))
 PYCODE
 }
@@ -35,3 +37,8 @@ PYCODE
 mkdir -p $dir_vendors
 
 fetch_vendor_dbm freyacli
+fetch_vendor_dbm molutils
+
+fix_vendor_imports freyacli freyacli
+fix_vendor_imports molutils molutils
+fix_vendor_imports molutils freyacli

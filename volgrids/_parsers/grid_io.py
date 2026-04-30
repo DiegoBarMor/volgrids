@@ -4,9 +4,7 @@ import gridData as gd
 from pathlib import Path
 
 import volgrids as vg
-
-try: import freyacli as fy # to display colored text
-except ImportError: from volgrids._vendors import freyacli as fy
+from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridIO:
@@ -62,7 +60,7 @@ class GridIO:
         """Asserts that the specified key exists in the CMAP file and then reads its corresponding grid."""
         with h5py.File(path_cmap, 'r') as parser:
             if key not in parser["Chimera"].keys(): raise KeyError(
-                f"Key '{key}' not found in '{path_cmap}'. Available keys: {list(parser["Chimera"].keys())}"
+                f"Key '{key}' not found in '{path_cmap}'. Available keys: {list(parser['Chimera'].keys())}"
             )
             frame = parser["Chimera"][key]
             box = vg.Box(

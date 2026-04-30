@@ -1,4 +1,4 @@
-from ._operations.rna_resids import RNAResids
+from ._operations.residues_nucleic import ResiduesNucleic
 from ._operations.histogram import Histogram
 
 from ._occupancies.hbaccepts import OgHBAccepts
