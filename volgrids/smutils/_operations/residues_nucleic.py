@@ -52,7 +52,7 @@ class ResiduesNucleic:
     @classmethod
     def get_residues_nobp(cls, path_pdb: str | Path) -> str:
         path_pdb = Path(path_pdb)
-        resids_all = set(mu.List.resids(path_pdb))
+        resids_all = set(mu.List.residues(path_pdb))
         resids_canonical = cls.get_residues_bp_canonical(path_pdb)
         return ' '.join(sorted(resids_all - resids_canonical))
 
@@ -61,7 +61,7 @@ class ResiduesNucleic:
     @classmethod
     def get_residues_nostk(cls, path_pdb: str | Path) -> str:
         path_pdb = Path(path_pdb)
-        resids_all = set(mu.List.resids(path_pdb))
+        resids_all = set(mu.List.residues(path_pdb))
         resids_stacking = cls.get_residues_stacking(path_pdb)
         return ' '.join(sorted(resids_all - resids_stacking))
 
