@@ -22,17 +22,13 @@ class AppSmiffer(vg.AppSubcommand):
         mode = self.main.subcommands.pop(0)
         sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
 
-        sm.PATH_STRUCT      = self.main.get_arg_path("path_in")
-        self.folder_out     = self.main.get_arg_path("folder_out", default = sm.PATH_STRUCT.parent)
-        sm.PATH_APBS        = self.main.get_arg_path("path_apbs")
-        self.path_traj      = self.main.get_arg_path("path_traj")
-        sm.PATH_CHEM_CUSTOM = self.main.get_arg_path("path_chem")
-
-        self.main.assert_file_in(sm.PATH_STRUCT)
-        self.main.assert_file_in(sm.PATH_APBS, allow_none = True)
-        self.main.assert_file_in(self.path_traj, allow_none = True)
-        self.main.assert_file_in(sm.PATH_CHEM_CUSTOM, allow_none = True)
-        self.main.assert_dir_out(self.folder_out)
+        sm.PATH_STRUCT      = self.main.get_arg_path("path_in",   assertion = fy.PathAssertion.FILE_IN)
+        sm.PATH_APBS        = self.main.get_arg_path("path_apbs", assertion = fy.PathAssertion.FILE_IN)
+        self.path_traj      = self.main.get_arg_path("path_traj", assertion = fy.PathAssertion.FILE_IN)
+        sm.PATH_CHEM_CUSTOM = self.main.get_arg_path("path_chem", assertion = fy.PathAssertion.FILE_IN)
+        self.folder_out     = self.main.get_arg_path("folder_out",
+            default = sm.PATH_STRUCT.parent, assertion = fy.PathAssertion.DIR_OUT
+        )
 
         self._handle_params_configs()
         self._handle_params_resids()
@@ -256,7 +252,7 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_sphere(self):
-        sphere = self.main.get_arg_list_float("sphere")
+        sphere = self.main.get_arg_float("sphere", is_list = True)
         if not sphere: return
 
         sm.SPHERE = sm.SphereInfo(*sphere)
