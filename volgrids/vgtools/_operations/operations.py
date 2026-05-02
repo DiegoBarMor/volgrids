@@ -1,5 +1,6 @@
 import numpy as np
 from pathlib import Path
+from typing import Generator
 
 import volgrids as vg
 import volgrids.vgtools as vgt
@@ -179,78 +180,87 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def op(
-        operation: callable, path_out: Path, path_in_0: Path, path_in_1: Path = None,
+    def iter_op_unary(
+        path_in: Path, operation: callable
+    ) -> "Generator[tuple[str, vg.Grid]]":
+        """
+        Perform the numeric `operation` for one grid.
+        Yields `(key, Grid)` pairs (`key` is the CMAP key, `None` for non-CMAP grids).
+        """
+        is_cmap = vg.GridIO.detect_format(path_in).is_cmap()
+        if not is_cmap:
+            yield None, operation(vg.GridIO.read_auto(path_in))
+            return
+
+        yield from (
+            (key, operation(vg.GridIO.read_cmap(path_in, key)))
+            for key in vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True)
+        )
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def iter_op_binary(cls,
+        path_in_0: Path, path_in_1: Path, operation: callable,
         interpolate_to_common_box = False
-    ) -> None:
+    ) -> "Generator[tuple[str, vg.Grid]]":
         """
         Perform the numeric `operation` between two grids.
-        Having `path_in_1` be None implies a unary operation (e.g. abs) over `path_in_0`.
         Supports multi-frame CMAP trajectories: frames are processed one-by-one, with
         broadcasting if one side has a single frame and the other has N.
+        Yields `(key, Grid)` pairs (`key` is the CMAP key, `None` for non-CMAP grids).
         """
-        def _interpolate_if_needed(grid_0: vg.Grid, grid_1: vg.Grid) -> None:
-            if grid_0.box == grid_1.box: return
-            new_box = vg.Box.smallest_enclosing_box(grid_0.box, grid_1.box) \
-                if interpolate_to_common_box else grid_0.box
-
-            str_grid_0  = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
-            str_grid_1  = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
-            str_new_box = f"{fy.Color.green(new_box.resolution)}"
-
-            print(f"...>>> Interpolating {str_grid_1} to {str_new_box}...")
-            grid_1.reshape_as_box(new_box)
-
-            if not interpolate_to_common_box: return
-            print(f"...>>> Interpolating {str_grid_0} to {str_new_box}...")
-            grid_0.reshape_as_box(new_box)
-
-
-        path_out  = Path(path_out)
-
-        path_in_0 = Path(path_in_0)
         is_cmap_0 = vg.GridIO.detect_format(path_in_0).is_cmap()
-
-        if path_in_1 is None: # unary operation
-            if is_cmap_0:
-                keys = vg.GridIO.get_cmap_keys(path_in_0, assert_has_keys = True)
-                for key in keys:
-                    grid = vg.GridIO.read_cmap(path_in_0, key)
-                    vg.GridIO.write_cmap(path_out, operation(grid), key=key)
-            else:
-                grid = vg.GridIO.read_auto(path_in_0)
-                vg.GridIO.write_auto(path_out, operation(grid))
-            return
-
-        path_in_1 = Path(path_in_1)
         is_cmap_1 = vg.GridIO.detect_format(path_in_1).is_cmap()
 
-        if is_cmap_0 and is_cmap_1:
-            keys_0 = vg.GridIO.get_cmap_keys(path_in_0, assert_has_keys = True)
-            keys_1 = vg.GridIO.get_cmap_keys(path_in_1, assert_has_keys = True)
-
-            n0, n1 = len(keys_0), len(keys_1)
-            if n0 != n1 and n0 != 1 and n1 != 1:
-                raise ValueError(
-                    f"Incompatible trajectory lengths: {path_in_0} has {n0} frames, "
-                    f"{path_in_1} has {n1} frames. Must be equal or one must be 1."
-                )
-
-            n_frames = max(n0, n1)
-            for i in range(n_frames):
-                k0 = keys_0[i if n0 > 1 else 0]
-                k1 = keys_1[i if n1 > 1 else 0]
-                grid_0 = vg.GridIO.read_cmap(path_in_0, k0)
-                grid_1 = vg.GridIO.read_cmap(path_in_1, k1)
-                _interpolate_if_needed(grid_0, grid_1)
-                vg.GridIO.write_cmap(path_out, operation(grid_0, grid_1), key=k0)
+        if not (is_cmap_0 and is_cmap_1):
+            grid_0 = vg.GridIO.read_auto(path_in_0)
+            grid_1 = vg.GridIO.read_auto(path_in_1)
+            cls._interpolate_if_needed(path_in_0, path_in_1, grid_0, grid_1, interpolate_to_common_box)
+            yield None, operation(grid_0, grid_1)
             return
 
-        grid_0 = vg.GridIO.read_auto(path_in_0)
-        grid_1 = vg.GridIO.read_auto(path_in_1)
-        _interpolate_if_needed(grid_0, grid_1)
+        keys_0 = vg.GridIO.get_cmap_keys(path_in_0, assert_has_keys = True)
+        keys_1 = vg.GridIO.get_cmap_keys(path_in_1, assert_has_keys = True)
 
-        vg.GridIO.write_auto(path_out, operation(grid_0, grid_1))
+        n0, n1 = len(keys_0), len(keys_1)
+        if n0 != n1 and n0 != 1 and n1 != 1:
+            raise ValueError(
+                f"Incompatible trajectory lengths: {path_in_0} has {n0} frames, "
+                f"{path_in_1} has {n1} frames. Must be equal or one must be 1."
+            )
+
+        n_frames = max(n0, n1)
+        for i in range(n_frames):
+            k0 = keys_0[i if n0 > 1 else 0]
+            k1 = keys_1[i if n1 > 1 else 0]
+            grid_0 = vg.GridIO.read_cmap(path_in_0, k0)
+            grid_1 = vg.GridIO.read_cmap(path_in_1, k1)
+            cls._interpolate_if_needed(path_in_0, path_in_1, grid_0, grid_1, interpolate_to_common_box)
+            yield (k0 if n0 >= n1 else k1), operation(grid_0, grid_1)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def _interpolate_if_needed(
+        path_in_0: Path, path_in_1: Path,
+        grid_0: vg.Grid, grid_1: vg.Grid,
+        interpolate_to_common_box: bool
+    ) -> None:
+        if grid_0.box == grid_1.box: return
+        new_box = vg.Box.smallest_enclosing_box(grid_0.box, grid_1.box) \
+            if interpolate_to_common_box else grid_0.box
+
+        str_grid_0  = f"'{fy.Color.blue(path_in_0)}' {fy.Color.yellow(grid_0.box.resolution)}"
+        str_grid_1  = f"'{fy.Color.red(path_in_1)}' {fy.Color.yellow(grid_1.box.resolution)}"
+        str_new_box = f"{fy.Color.green(new_box.resolution)}"
+
+        print(f"...>>> Interpolating {str_grid_1} to {str_new_box}...")
+        grid_1.reshape_as_box(new_box)
+
+        if not interpolate_to_common_box: return
+        print(f"...>>> Interpolating {str_grid_0} to {str_new_box}...")
+        grid_0.reshape_as_box(new_box)
 
 
 # //////////////////////////////////////////////////////////////////////////////

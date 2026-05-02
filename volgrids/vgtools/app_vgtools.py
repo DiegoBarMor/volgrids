@@ -146,17 +146,13 @@ class AppVGTools(vg.AppSubcommand):
     def _run_op(self):
         command = self.main.subcommands.pop(0)
 
-        path_out  = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
-
         if command == "abs": # abs is the only unary operation for now
-            operation = vg.Grid.__abs__
-            path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-            print(f">>> Performing '{fy.Color.yellow(command)}' operation on grid: {fy.Color.red(path_in)}")
-            vgt.VGOperations.op(operation, path_out, path_in)
+            self._run_op_unary(command)
             return
 
         path_in_0 = self.main.get_arg_path("path_in_0", assertion = fy.PathAssertion.FILE_IN)
         path_in_1 = self.main.get_arg_path("path_in_1", assertion = fy.PathAssertion.FILE_IN)
+        path_out  = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         interpolate_to_common_box = self.main.get_arg_bool("common_box")
 
@@ -170,7 +166,25 @@ class AppVGTools(vg.AppSubcommand):
         }[command]
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)}")
-        vgt.VGOperations.op(operation, path_out, path_in_0, path_in_1, interpolate_to_common_box)
+        for key, grid in vgt.VGOperations.iter_op_binary(
+            path_in_0, path_in_1, operation, interpolate_to_common_box
+        ):
+            vg.GridIO.write_auto(path_out, grid, key)
+
+
+    # --------------------------------------------------------------------------
+    def _run_op_unary(self, command: str):
+        operation: callable = {
+            "abs": vg.Grid.__abs__,
+        }[command]
+
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
+
+        print(f">>> Performing '{fy.Color.yellow(command)}' operation on grid: {fy.Color.red(path_in)}")
+
+        for key, grid in vgt.VGOperations.iter_op_unary(path_in, operation):
+            vg.GridIO.write_auto(path_out, grid, key)
 
 
 # //////////////////////////////////////////////////////////////////////////////

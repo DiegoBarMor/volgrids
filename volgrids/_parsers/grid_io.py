@@ -267,8 +267,14 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def write_auto(path_grid: Path, data: "vg.Grid"):
+    def write_auto(path_grid: Path, data: "vg.Grid", key: str = None) -> None:
         """Detect the format of the grid file based on its extension and then write it."""
+        def _cmap_key(): # [TODO] improve this?
+            if key is not None: return key
+            if not path_grid.is_file(): return path_grid.stem
+            keys = GridIO.get_cmap_keys(path_grid)
+            return f"map_{len(keys)+1}"
+
         fmt = GridIO.detect_format(path_grid)
 
         if fmt == vg.GridFormat.DX:
@@ -284,19 +290,13 @@ class GridIO:
             return
 
         if fmt.is_cmap():
-            ### [TODO] improve this?
-            if path_grid.is_file():
-                keys = GridIO.get_cmap_keys(path_grid)
-                key = f"map_{len(keys)+1}"
-            else:
-                key = path_grid.name
-            GridIO.write_cmap(path_grid, data, key = key)
+            GridIO.write_cmap(path_grid, data, key = _cmap_key())
             return
 
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_cmap_keys(path_cmap, assert_has_keys: bool = False) -> list[str]:
+    def get_cmap_keys(path_cmap: Path, assert_has_keys: bool = False) -> list[str]:
         """Returns the list of keys (frame names) in a CMAP file.
         If assert_has_keys is True, raises an error if no keys are found."""
         with h5py.File(path_cmap, 'r') as h5:
@@ -337,7 +337,7 @@ class GridIO:
 # //////////////////////////////////////////////////////////////////////////////
 
 # ------------------------------------------------------------------------------
-def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
+def _read_mrc_ccp4(path_mrc: Path, origin: np.ndarray) -> "vg.Grid":
     with gd.mrc.mrcfile.open(path_mrc) as parser:
         # machine_stamp = parser.header.machst
         ### [68 68 0 0] or [68 65 0 0] for little-endian <--- tested
