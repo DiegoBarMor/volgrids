@@ -1,3 +1,4 @@
+import contextlib
 import h5py
 import numpy as np
 import gridData as gd
@@ -196,34 +197,37 @@ class GridIO:
         cls.confirm_overwrite(path_cmap)
         path_cmap.parent.mkdir(parents = True, exist_ok = True)
 
-        if not path_cmap.exists():
-            with h5py.File(path_cmap, 'w') as h5:
-                h5.attrs["PYTABLES_FORMAT_VERSION"] = np.bytes_("2.0")
-                _add_generic_attrs(h5)
+        ### MP_CMAP_LOCK serializes concurrent writes when running trajectory MP
+        lock_ctx = contextlib.nullcontext() if vg.MP_CMAP_LOCK is None else vg.MP_CMAP_LOCK
+        with lock_ctx:
+            if not path_cmap.exists():
+                with h5py.File(path_cmap, 'w') as h5:
+                    h5.attrs["PYTABLES_FORMAT_VERSION"] = np.bytes_("2.0")
+                    _add_generic_attrs(h5)
 
-                chim = h5.create_group("Chimera")
-                _add_generic_attrs(chim)
+                    chim = h5.create_group("Chimera")
+                    _add_generic_attrs(chim)
 
-        with h5py.File(path_cmap, 'a') as parser:
-            chim = parser["Chimera"]
-            if key in chim.keys():
-                frame = chim[key]
-                if "data_zyx" in frame.keys():
-                    del frame["data_zyx"]
-            else:
-                frame = parser.create_group(f"/Chimera/{key}")
-                frame.attrs["chimera_map_version"] = np.int64(1)
-                frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
-                frame.attrs["name"] = np.bytes_(key)
-                frame.attrs["origin"] = data.box.min_coords.astype(vg.FLOAT_DTYPE)
-                frame.attrs["step"] = data.box.deltas.astype(vg.FLOAT_DTYPE)
-                _add_generic_attrs(frame)
+            with h5py.File(path_cmap, 'a') as parser:
+                chim = parser["Chimera"]
+                if key in chim.keys():
+                    frame = chim[key]
+                    if "data_zyx" in frame.keys():
+                        del frame["data_zyx"]
+                else:
+                    frame = parser.create_group(f"/Chimera/{key}")
+                    frame.attrs["chimera_map_version"] = np.int64(1)
+                    frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
+                    frame.attrs["name"] = np.bytes_(key)
+                    frame.attrs["origin"] = data.box.min_coords.astype(vg.FLOAT_DTYPE)
+                    frame.attrs["step"] = data.box.deltas.astype(vg.FLOAT_DTYPE)
+                    _add_generic_attrs(frame)
 
-            framedata = frame.create_dataset(
-                "data_zyx", data = data.arr.transpose(2,1,0), dtype = vg.FLOAT_DTYPE,
-                compression = "gzip", compression_opts = vg.GZIP_COMPRESSION
-            )
-            _add_generic_attrs(framedata, "CARRAY")
+                framedata = frame.create_dataset(
+                    "data_zyx", data = data.arr.transpose(2,1,0), dtype = vg.FLOAT_DTYPE,
+                    compression = "gzip", compression_opts = vg.GZIP_COMPRESSION
+                )
+                _add_generic_attrs(framedata, "CARRAY")
 
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ OTHER I/O UTILITIES

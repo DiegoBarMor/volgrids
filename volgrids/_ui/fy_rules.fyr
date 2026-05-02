@@ -91,6 +91,7 @@
     ~configs[c,config]*.STR
     ~sphere[s,sphere]4.FLOAT
     ~residues[r,residues]1+.STR
+    ~nproc[n,nproc]1.INT=1
 !fed
 
 !def _io_1_input
