@@ -8,7 +8,7 @@ from volgrids._vendors import freyacli as fy
 # //////////////////////////////////////////////////////////////////////////////
 class VGOperations:
     @staticmethod
-    def convert(path_in: Path, path_out: Path, fmt_out: vg.GridFormat):
+    def convert(path_in: Path, path_out: Path, fmt_out: vg.GridFormat) -> None:
         grid = vg.GridIO.read_auto(path_in)
 
         func: callable = {
@@ -26,7 +26,7 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def pack(paths_in: list[Path], path_out: Path):
+    def pack(paths_in: list[Path], path_out: Path) -> None:
         resolution = None
         warned = False
         for path_in in paths_in:
@@ -49,7 +49,7 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def unpack(path_in: Path, folder_out: Path):
+    def unpack(path_in: Path, folder_out: Path) -> None:
         keys = vg.GridIO.get_cmap_keys(path_in)
         for key in keys:
             path_out = folder_out / f"{key}.cmap"
@@ -59,7 +59,7 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def fix_cmap(path_in: Path, path_out: Path):
+    def fix_cmap(path_in: Path, path_out: Path) -> None:
         resolution = None
         keys = vg.GridIO.get_cmap_keys(path_in)
         for key in keys:
@@ -73,7 +73,7 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def average(path_in: Path, path_out: Path):
+    def average(path_in: Path) -> "vg.Grid":
         keys = vg.GridIO.get_cmap_keys(path_in)
         nframes = len(keys)
 
@@ -85,13 +85,12 @@ class VGOperations:
 
         grid_avg: vg.Grid = vg.Grid(grid.box, init_grid = False)
         grid_avg.arr = avg
-
-        vg.GridIO.write_auto(path_out, grid_avg)
+        return grid_avg
 
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def summary(path_in: Path):
+    def summary(path_in: Path) -> None:
         def numerics(g: vg.Grid, key: str):
             n_total = g.arr.size
             n_nonzero = len(g.arr[g.arr != 0])
@@ -170,14 +169,12 @@ class VGOperations:
     # --------------------------------------------------------------------------
     @staticmethod
     def rotate(
-        path_in: Path, path_out: Path,
-        rotate_xy: float, rotate_yz: float, rotate_xz: float,
-        in_degrees: bool = True
-    ) -> None:
+        path_in: Path, rotate_xy: float, rotate_yz: float, rotate_xz: float, in_degrees: bool = True
+    ) -> "vg.Grid":
         grid = vg.GridIO.read_auto(path_in)
         vg.GridIO.restore_boolean_dtype(grid)
         grid.arr = vg.Math.rotate_3d(grid.arr, rotate_xy, rotate_yz, rotate_xz, in_degrees)
-        vg.GridIO.write_auto(path_out, grid)
+        return grid
 
 
     # --------------------------------------------------------------------------

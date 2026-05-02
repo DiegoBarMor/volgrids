@@ -93,7 +93,8 @@ class AppVGTools(vg.AppSubcommand):
         path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         print(f">>> Averaging CMAP file: {fy.Color.yellow(path_in)}")
-        vgt.VGOperations.average(path_in, path_out)
+        grid = vgt.VGOperations.average(path_in)
+        vg.GridIO.write_auto(path_out, grid)
 
 
     # --------------------------------------------------------------------------
@@ -137,7 +138,8 @@ class AppVGTools(vg.AppSubcommand):
         rotate_xy = self.main.get_arg_float("z")
 
         print(f">>> Rotating grid: {fy.Color.yellow(path_in)} by {rotate_xy}° (xy), {rotate_yz}° (yz), {rotate_xz}° (xz)")
-        vgt.VGOperations.rotate(path_in, path_out, rotate_xy, rotate_yz, rotate_xz)
+        grid = vgt.VGOperations.rotate(path_in, rotate_xy, rotate_yz, rotate_xz)
+        vg.GridIO.write_auto(path_out, grid)
 
 
     # --------------------------------------------------------------------------

@@ -10,7 +10,7 @@ from volgrids._vendors import freyacli as fy
 class GridIO:
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
     @staticmethod
-    def read_dx(path_dx) -> "vg.Grid":
+    def read_dx(path_dx: str|Path) -> "vg.Grid":
         parser = gd.Grid(path_dx)
         box = vg.Box(parser.origin, parser.grid.shape, parser.delta)
         vgrid = vg.Grid(box, init_grid = False)
@@ -21,7 +21,7 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def read_mrc(path_mrc) -> "vg.Grid":
+    def read_mrc(path_mrc: str|Path) -> "vg.Grid":
         with gd.mrc.mrcfile.open(path_mrc) as parser:
             ##### assume that MRC always follows the origin follows the "real space" MRC convention
             orig = parser.header["origin"]
@@ -34,7 +34,7 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def read_ccp4(path_ccp4) -> "vg.Grid":
+    def read_ccp4(path_ccp4: str|Path) -> "vg.Grid":
         with gd.mrc.mrcfile.open(path_ccp4) as parser:
             orig = parser.header["origin"]
             if (orig['x'] == 0.0 and orig['y'] == 0.0 and orig['z'] == 0.0):
@@ -56,7 +56,7 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def read_cmap(path_cmap, key) -> "vg.Grid":
+    def read_cmap(path_cmap: str|Path, key: str) -> "vg.Grid":
         """Asserts that the specified key exists in the CMAP file and then reads its corresponding grid."""
         with h5py.File(path_cmap, 'r') as parser:
             if key not in parser["Chimera"].keys(): raise KeyError(
@@ -242,8 +242,11 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def read_auto(path_grid: Path) -> "vg.Grid":
-        """Detect the format of the grid file based on its extension and then read it."""
+    def read_auto(path_grid: Path, key: str = None) -> "vg.Grid":
+        """
+        Detect the format of the grid file based on its extension and then read it.
+        If the file is a CMAP file and key is not specified, it will read the first key found in the file.
+        """
         fmt = GridIO.detect_format(path_grid)
 
         if fmt == vg.GridFormat.DX:
@@ -256,8 +259,10 @@ class GridIO:
             return GridIO.read_ccp4(path_grid)
 
         if fmt.is_cmap():
-            keys = GridIO.get_cmap_keys(path_grid, assert_has_keys = True)
-            return GridIO.read_cmap(path_grid, keys[0])
+            if key is None:
+                keys = GridIO.get_cmap_keys(path_grid, assert_has_keys = True)
+                key = keys[0]
+            return GridIO.read_cmap(path_grid, key)
 
 
     # --------------------------------------------------------------------------
