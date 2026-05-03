@@ -1,26 +1,9 @@
 import numpy as np
 from pathlib import Path
-import multiprocessing as mp
-from collections import deque
 
 import volgrids as vg
 import volgrids.smiffer as sm
 from volgrids._vendors import freyacli as fy
-
-### Set by the parent before spawning the trajectory MP pool; inherited by workers via fork.
-_WORKER_APP: "AppSmiffer" = None
-
-
-# ------------------------------------------------------------------------------
-def _worker_init():
-    """Re-create the MolSystem in each worker so file handles aren't shared across forks."""
-    _WORKER_APP.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, _WORKER_APP.path_traj)
-
-
-# ------------------------------------------------------------------------------
-def _worker_process_frame(frame_idx: int) -> tuple[int, float]:
-    return _WORKER_APP._process_frame(frame_idx)
-
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):
@@ -121,17 +104,17 @@ class AppSmiffer(vg.AppSubcommand):
 
         ### 1.a) TRAJECTORY MODE (multiprocessing)
         if self.nproc > 1:
-            self._run_traj_parallel(n_frames)
+            sm.TrajMultiprocess(self).run(n_frames)
             return _end(is_traj = True)
 
         ### 1.b) TRAJECTORY MODE (single process)
         for i in range(n_frames):
-            self._process_frame(i)
+            self.process_frame(i)
         return _end(is_traj = True)
 
 
     # --------------------------------------------------------------------------
-    def _process_frame(self, frame_idx: int) -> None:
+    def process_frame(self, frame_idx: int) -> None:
         """Set per-frame state and run `_process_grids`."""
         self.ms.system.trajectory[frame_idx]
         self.ms.frame = frame_idx + 1
@@ -143,30 +126,6 @@ class AppSmiffer(vg.AppSubcommand):
         timer.start()
         self._process_grids()
         timer.end()
-
-
-    # --------------------------------------------------------------------------
-    def _run_traj_parallel(self, n_frames: int) -> None:
-        global _WORKER_APP
-
-        ### Pre-clear stale CMAP outputs once in the parent. Workers must not race on this.
-        if vg.REMOVE_OLD_CMAP_OUTPUT:
-            for path in self.folder_out.glob(f"{self.ms.molname}.*.cmap"):
-                path.unlink()
-            vg.REMOVE_OLD_CMAP_OUTPUT = False
-
-        ### "fork" so children inherit module state (configs, _WORKER_APP, etc.) without pickling
-        ctx = mp.get_context("fork")
-        vg.MP_CMAP_LOCK = ctx.Lock()
-        _WORKER_APP = self
-
-        nproc = min(self.nproc, n_frames)
-        try:
-            with ctx.Pool(nproc, initializer = _worker_init) as pool:
-                deque(pool.imap_unordered(_worker_process_frame, range(n_frames)), maxlen = 0)
-        finally:
-            vg.MP_CMAP_LOCK = None
-            _WORKER_APP = None
 
 
     # --------------------------------------------------------------------------
