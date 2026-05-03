@@ -1,7 +1,7 @@
-import multiprocessing as mp
-import time
 import numpy as np
 from pathlib import Path
+import multiprocessing as mp
+from collections import deque
 
 import volgrids as vg
 import volgrids.smiffer as sm
@@ -100,45 +100,49 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def run(self):
+        def _end(is_traj: bool):
+            self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
+            if is_traj: self._delete_traj_locks()
+
         if sm.CURRENT_MOLTYPE.is_ligand():
             sm.DO_SMIF_APBS = False
             print(f"\n...--- ligand: {fy.Color.red('skipping APBS')} SMIF calculation.", end = ' ', flush = True)
 
         self.timer.start()
 
-        if self.ms.do_traj: # TRAJECTORY MODE
-            print()
-            n_frames = len(self.ms.system.trajectory)
-
-            if self.nproc > 1:
-                self._run_traj_parallel(n_frames)
-            else:
-                for _ in self.ms.system.trajectory:
-                    self.ms.frame += 1
-                    timer_frame = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
-                    timer_frame.start()
-                    self._process_grids()
-                    timer_frame.end()
-
-            self._delete_traj_locks()
-
-        else: # SINGLE PDB MODE
+        ##### 0) SINGLE PDB MODE
+        if not self.ms.do_traj:
             self._process_grids()
+            return _end(is_traj = False)
+        #####
 
-        self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
+        print()
+        n_frames = len(self.ms.system.trajectory)
+
+        ### 1.a) TRAJECTORY MODE (multiprocessing)
+        if self.nproc > 1:
+            self._run_traj_parallel(n_frames)
+            return _end(is_traj = True)
+
+        ### 1.b) TRAJECTORY MODE (single process)
+        for i in range(n_frames):
+            self._process_frame(i)
+        return _end(is_traj = True)
 
 
     # --------------------------------------------------------------------------
-    def _process_frame(self, frame_idx: int) -> tuple[int, float]:
-        """Set per-frame state and run `_process_grids`. Returns `(frame_num, elapsed_seconds)`."""
+    def _process_frame(self, frame_idx: int) -> None:
+        """Set per-frame state and run `_process_grids`."""
         self.ms.system.trajectory[frame_idx]
         self.ms.frame = frame_idx + 1
         self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
         self.cavfinder = sm.CavityFinder()
 
-        t0 = time.time()
+        n_frames = len(self.ms.system.trajectory)
+        timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
+        timer.start()
         self._process_grids()
-        return self.ms.frame, time.time() - t0
+        timer.end()
 
 
     # --------------------------------------------------------------------------
@@ -159,12 +163,7 @@ class AppSmiffer(vg.AppSubcommand):
         nproc = min(self.nproc, n_frames)
         try:
             with ctx.Pool(nproc, initializer = _worker_init) as pool:
-                for frame_num, elapsed in pool.imap_unordered(_worker_process_frame, range(n_frames)):
-                    print(
-                        f"...>>> Frame {frame_num}/{n_frames} "
-                        f"({int(elapsed // 60)}m {elapsed % 60:.2f}s)",
-                        flush = True,
-                    )
+                deque(pool.imap_unordered(_worker_process_frame, range(n_frames)), maxlen = 0)
         finally:
             vg.MP_CMAP_LOCK = None
             _WORKER_APP = None
