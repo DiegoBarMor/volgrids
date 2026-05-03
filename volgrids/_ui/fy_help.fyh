@@ -123,7 +123,7 @@
         !fyh:_
             Perform numeric operations between two grids.
             These are simple element-wise arithmethics (addition, substraction, multiplication, division), as well as absolute value for a single grid.
-            They rely on numpy, so grids with mismatched shapes will be interpolated if needed (the second grid pass gets interpolated).
+            They rely on numpy, so grids with mismatched shapes will be interpolated if needed (the second grid passed gets interpolated).
         @abs
             !fyh:_ Element-wise absolute value of the grid's points.
             !fyh:path_in Path to a grid file.

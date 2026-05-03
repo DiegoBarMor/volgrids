@@ -8,8 +8,14 @@ class Grid:
     def __init__(self, box: "vg.Box", init_grid = True, dtype = None):
         self.box = box
         self.dtype: type = vg.FLOAT_DTYPE if dtype is None else dtype
-        self.arr: np.ndarray|None = np.zeros(box.resolution, dtype = self.dtype) if init_grid else None
         self.fmt: vg.GridFormat = None
+        self.arr: np.ndarray|None
+
+        if init_grid:
+            self._warning_big_grid()
+            self.arr = np.zeros(box.resolution, dtype = self.dtype)
+        else:
+            self.arr = None
 
 
     # --------------------------------------------------------------------------
@@ -213,6 +219,20 @@ class Grid:
             return
 
         raise ValueError(f"Unknown output format: {grid_format}.")
+
+
+    # --------------------------------------------------------------------------
+    def _warning_big_grid(self):
+        rx, ry, rz = self.box.resolution
+        grid_size = rx*ry*rz
+        if grid_size < vg.WARNING_GRID_SIZE: return
+        print()
+        while True:
+            choice = input(
+                f">>> WARNING: resulting ({rx}x{ry}x{rz}) grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n"
+            ).upper()
+            if choice.startswith('Y'): break
+            if choice.startswith('N'): exit(3)
 
 
 # //////////////////////////////////////////////////////////////////////////////
