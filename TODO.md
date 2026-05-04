@@ -3,8 +3,12 @@
 <!-- ----------------------------------------------------------------------- -->
 ## General
 * Add annotations, docstrings and overall cleaning
-* replace mdanalysis with another PDB parser?
-    * find out how to handle trajectory files in this case
+* Start replacing mdanalysis with another PDB parser
+    * its overhead can be avoided if just simple PDB parsing is required.
+        * keep using MDAnalysis for trajectory files, as well as fallback for other molecular formats.
+    * remove the dependency to `gridData` in `grid_io.py`
+        * use the [mrcfile](https://mrcfile.readthedocs.io/en/stable/) library directly for handling MRC/CCP4 files.
+        * DX parser (read) could be manually implemented.
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -25,7 +29,7 @@
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
 * add safeguard when there's no atoms for the specified molecule type
 * add tests for apbs
-* add tests for -i flag
+* add tests for -r flag
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
 * check whether the trimmer can still be saved when no smifs are calculated
@@ -54,9 +58,8 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMUtils
-* example operations:
+* ideas:
     * `findsphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
-    * `smifhist` for an interactive matplotlib visualization of the SMIFs' histograms.
 
 
 <!-- ----------------------------------------------------------------------- -->

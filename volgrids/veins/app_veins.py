@@ -4,6 +4,8 @@ import pandas as pd
 import volgrids as vg
 import volgrids.veins as ve
 
+from volgrids._vendors import freyacli as fy
+
 DEFAULT_ENERGY_CUTOFF = 1e-3 # [TODO] this should be a config
 
 # ------------------------------------------------------------------------------
@@ -33,15 +35,10 @@ class AppVeins(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_energies(self) -> None:
-        path_struct     = self.main.get_arg_path("path_struct")
-        path_traj       = self.main.get_arg_path("path_traj")
-        path_csv_energy = self.main.get_arg_path("path_csv")
-        self.folder_out = self.main.get_arg_path("folder_out", default = path_struct.parent)
-
-        self.main.assert_file_in(path_struct)
-        self.main.assert_file_in(path_traj)
-        self.main.assert_file_in(path_csv_energy)
-        self.main.assert_dir_out(self.folder_out)
+        path_struct     = self.main.get_arg_path("path_struct", assertion = fy.PathAssertion.FILE_IN)
+        path_traj       = self.main.get_arg_path("path_traj", assertion = fy.PathAssertion.FILE_IN)
+        path_csv_energy = self.main.get_arg_path("path_csv", assertion = fy.PathAssertion.FILE_IN)
+        self.folder_out = self.main.get_arg_path("folder_out", default = path_struct.parent, assertion = fy.PathAssertion.DIR_OUT)
 
         energy_cutoff = self.main.get_arg_float("cutoff", default = DEFAULT_ENERGY_CUTOFF)
 

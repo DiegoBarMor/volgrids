@@ -72,3 +72,4 @@ STR_CUSTOM_CONFIG : str = ""  # "key0=value0 key1=value1 ..."
 import numpy as _np
 PQR_CONTENTS_TEMP: str = ""
 FLOAT_DTYPE: type = _np.float32
+MP_CMAP_LOCK = None # multiprocessing lock around CMAP writes (set by trajectory MP runner)

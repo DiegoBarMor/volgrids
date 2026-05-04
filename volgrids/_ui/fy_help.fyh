@@ -123,7 +123,7 @@
         !fyh:_
             Perform numeric operations between two grids.
             These are simple element-wise arithmethics (addition, substraction, multiplication, division), as well as absolute value for a single grid.
-            They rely on numpy, so grids with mismatched shapes will be interpolated if needed (the second grid pass gets interpolated).
+            They rely on numpy, so grids with mismatched shapes will be interpolated if needed (the second grid passed gets interpolated).
         @abs
             !fyh:_ Element-wise absolute value of the grid's points.
             !fyh:path_in Path to a grid file.
@@ -183,6 +183,10 @@
         A string of space-separated residues for which to perform the calculations.
         The residues must be in the format "chain_id.resid" (e.g. "A.3 A.4 A.5 B.10").
         If not provided, all residues will be considered.
+    !fyh:nproc
+        Number of worker processes to use in trajectory mode (1 disables multiprocessing), default no multiprocessing.
+        Frames are dispatched to workers and processed in parallel; output ordering may differ from frame order.
+        Has no effect outside trajectory mode.
 !fed
 
 !def _io_2_inputs

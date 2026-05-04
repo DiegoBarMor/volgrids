@@ -14,7 +14,9 @@ fetch_vendor_dbm() {
     mv $dir_vendors/_tmp/*.md "$dir_vendors/$name_vendor"/
     rm -rf $dir_vendors/_tmp
 
-    echo "Fetched $name_vendor $(cat "$dir_vendors/$name_vendor/_version.py")"
+    version="$(cat "$dir_vendors/$name_vendor/_version.py")"
+    echo "Fetched $name_vendor $version"
+    echo "$name_vendor $version" >> "$dir_vendors/versions.txt"
 }
 fix_vendor_imports() {
     local name_vendor="$1"
@@ -34,7 +36,7 @@ for path in root_vendor.rglob("*.py"):
 PYCODE
 }
 
-mkdir -p $dir_vendors
+rm -f "$dir_vendors/versions.txt"
 
 fetch_vendor_dbm freyacli
 fetch_vendor_dbm molutils

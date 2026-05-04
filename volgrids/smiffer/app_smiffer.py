@@ -18,21 +18,19 @@ class AppSmiffer(vg.AppSubcommand):
         self.timer: vg.Timer
         self.folder_out: Path
         self.path_traj: Path
+        self.nproc: int
 
         mode = self.main.subcommands.pop(0)
         sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
 
-        sm.PATH_STRUCT      = self.main.get_arg_path("path_in")
-        self.folder_out     = self.main.get_arg_path("folder_out", default = sm.PATH_STRUCT.parent)
-        sm.PATH_APBS        = self.main.get_arg_path("path_apbs")
-        self.path_traj      = self.main.get_arg_path("path_traj")
-        sm.PATH_CHEM_CUSTOM = self.main.get_arg_path("path_chem")
-
-        self.main.assert_file_in(sm.PATH_STRUCT)
-        self.main.assert_file_in(sm.PATH_APBS, allow_none = True)
-        self.main.assert_file_in(self.path_traj, allow_none = True)
-        self.main.assert_file_in(sm.PATH_CHEM_CUSTOM, allow_none = True)
-        self.main.assert_dir_out(self.folder_out)
+        sm.PATH_STRUCT      = self.main.get_arg_path("path_in",   assertion = fy.PathAssertion.FILE_IN)
+        sm.PATH_APBS        = self.main.get_arg_path("path_apbs", assertion = fy.PathAssertion.FILE_IN)
+        self.path_traj      = self.main.get_arg_path("path_traj", assertion = fy.PathAssertion.FILE_IN)
+        sm.PATH_CHEM_CUSTOM = self.main.get_arg_path("path_chem", assertion = fy.PathAssertion.FILE_IN)
+        self.folder_out     = self.main.get_arg_path("folder_out",
+            default = sm.PATH_STRUCT.parent, assertion = fy.PathAssertion.DIR_OUT
+        )
+        self.nproc          = max(1, self.main.get_arg_int("nproc", default = 1))
 
         self._handle_params_configs()
         self._handle_params_resids()
@@ -85,26 +83,49 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def run(self):
+        def _end(is_traj: bool):
+            self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
+            if is_traj: self._delete_traj_locks()
+
         if sm.CURRENT_MOLTYPE.is_ligand():
             sm.DO_SMIF_APBS = False
             print(f"\n...--- ligand: {fy.Color.red('skipping APBS')} SMIF calculation.", end = ' ', flush = True)
 
         self.timer.start()
 
-        if self.ms.do_traj: # TRAJECTORY MODE
-            print()
-            for _ in self.ms.system.trajectory:
-                self.ms.frame += 1
-                timer_frame = vg.Timer(f"...>>> Frame {self.ms.frame}/{len(self.ms.system.trajectory)}")
-                timer_frame.start()
-                self._process_grids()
-                timer_frame.end()
-            self._delete_traj_locks()
-
-        else: # SINGLE PDB MODE
+        ##### 0) SINGLE PDB MODE
+        if not self.ms.do_traj:
             self._process_grids()
+            return _end(is_traj = False)
+        #####
 
-        self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
+        print()
+        n_frames = len(self.ms.system.trajectory)
+
+        ### 1.a) TRAJECTORY MODE (multiprocessing)
+        if self.nproc > 1:
+            sm.TrajMultiprocess(self).run(n_frames)
+            return _end(is_traj = True)
+
+        ### 1.b) TRAJECTORY MODE (single process)
+        for i in range(n_frames):
+            self.process_frame(i)
+        return _end(is_traj = True)
+
+
+    # --------------------------------------------------------------------------
+    def process_frame(self, frame_idx: int) -> None:
+        """Set per-frame state and run `_process_grids`."""
+        self.ms.system.trajectory[frame_idx]
+        self.ms.frame = frame_idx + 1
+        self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
+        self.cavfinder = sm.CavityFinder()
+
+        n_frames = len(self.ms.system.trajectory)
+        timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
+        timer.start()
+        self._process_grids()
+        timer.end()
 
 
     # --------------------------------------------------------------------------
@@ -256,7 +277,7 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_sphere(self):
-        sphere = self.main.get_arg_list_float("sphere")
+        sphere = self.main.get_arg_float("sphere", is_list = True)
         if not sphere: return
 
         sm.SPHERE = sm.SphereInfo(*sphere)
