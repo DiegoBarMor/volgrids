@@ -1,5 +1,5 @@
-import contextlib
 import h5py
+import contextlib
 import numpy as np
 import gridData as gd
 from pathlib import Path
