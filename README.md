@@ -138,6 +138,7 @@ Run the subcommands without any further arguments to read more about their speci
 - `volgrids vgtools summary`: Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.
 - `volgrids vgtools compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
 - `volgrids vgtools rotate`: Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
+- `volgrids vgtools points`: Get the grid value(s) for specific XYZ point(s) in space. Grid values for every point are returned space-separated.
 - `volgrids vgtools op abs`: Element-wise absolute value of the grid's points.
 - `volgrids vgtools op add`: Element-wise addition of the grids' points.
 - `volgrids vgtools op sub`: Element-wise substraction of the grids' points. Order is "grid_0 - grid_1".

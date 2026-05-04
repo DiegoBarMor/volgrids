@@ -69,6 +69,10 @@
         ~y[y,xz]1.FLOAT=0.0
         ~z[z,xy]1.FLOAT=0.0
     !@
+    @points
+        path_in[]1.PATH
+        points[]3+.FLOAT
+    !@
     @op
         @abs !use:_io_1_input  !@
         @add !use:_io_2_inputs !@

@@ -119,6 +119,14 @@
         !fyh:y Rotation angle in degrees along the xz plane (in degrees).
         !fyh:z Rotation angle in degrees along the xy plane (in degrees).
     !@
+    @points
+        !fyh:_ Get the grid value(s) for specific XYZ point(s) in space.
+            Grid values for every point are returned space-separated.
+        !fyh:path_in Path to a grid file.
+        !fyh:points (x,y,z) coordinates for the point(s) of interest.
+            All values are to be provided space-separated.
+            Must give at least 3 values (for a single XYZ point) or 3n values (where n is the number of points).
+    !@
     @op
         !fyh:_
             Perform numeric operations between two grids.

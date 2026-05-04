@@ -144,6 +144,14 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def value_at_position(self, pos: tuple[float, float, float]) -> float:
+        """Get the value of the grid at a given position in space. Returns `0.0` if the position is outside the grid."""
+        idx = self.box.pos_to_index(np.array(pos))
+        if idx is None: return 0.0
+        return self.arr[tuple(idx)]
+
+
+    # --------------------------------------------------------------------------
     def is_empty(self):
         return np.all(self.arr == 0)
 
