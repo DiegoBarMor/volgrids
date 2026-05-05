@@ -56,9 +56,9 @@ class Trimmer:
 
 
     # --------------------------------------------------------------------------
-    def mask_grid(self, smif: "sm.Smif", key: str):
-        """Removes `smif` points wherever the mask (for the given `key`) is `True`."""
-        smif.grid.arr[self.get_mask(key).arr] = 0
+    def mask_grid(self, grid: "vg.Grid", key: str):
+        """Removes grid points wherever the mask (for the given `key`) is `True`."""
+        grid.arr[self.get_mask(key).arr] = 0
 
 
     # --------------------------------------------------------------------------

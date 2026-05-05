@@ -9,13 +9,14 @@ from .smif import Smif
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBonds(Smif, ABC):
     # --------------------------------------------------------------------------
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, ms: "sm.MolSystemSmiffer"):
+        super().__init__(ms)
         self.kernel: vg.KernelGaussianBivariateAngleDist = None
         self.hbond_getter: callable
         self.all_atoms = self.ms.get_relevant_atoms()
         self.res_atoms = None
         self.processed_interactors = set()
+
 
     # --------------------------------------------------------------------------
     @abstractmethod
@@ -24,10 +25,14 @@ class SmifHBonds(Smif, ABC):
 
 
     # --------------------------------------------------------------------------
-    def populate_grid(self):
+    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
+        grid.reset()
         for pos_interactor, vec_direction in self.iter_particles():
             self.kernel.recalculate_kernel(vec_direction, isStacking = False)
-            self.kernel.stamp(self.grid, pos_interactor, multiply_by = sm.ENERGY_SCALE)
+            self.kernel.stamp(grid, pos_interactor, multiply_by = sm.ENERGY_SCALE)
+
+        grid.dirty = True
+        return grid
 
 
     # --------------------------------------------------------------------------

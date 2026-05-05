@@ -13,12 +13,16 @@ class OgHydrophobic(sm.SmifHydrophobic):
         )
 
     # --------------------------------------------------------------------------
-    def populate_grid(self):
+    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
         """Populate grid with spherical accessibility regions."""
+        grid.reset()
         for atom, logp_value in self.iter_particles():
             ### [TODO] check this
             if logp_value <= 0: continue  # Only hydrophobic atoms
-            self.kernel.stamp(self.grid, atom.position)
+            self.kernel.stamp(grid, atom.position)
+
+        grid.dirty = True
+        return grid
 
 
 # //////////////////////////////////////////////////////////////////////////////

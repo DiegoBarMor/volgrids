@@ -7,26 +7,28 @@ from volgrids._vendors import freyacli as fy
 # //////////////////////////////////////////////////////////////////////////////
 class SmifAPBS(sm.Smif):
     # --------------------------------------------------------------------------
-    def populate_grid(self):
+    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
         if sm.PATH_APBS is not None:
-            self.apbs_to_smif(sm.PATH_APBS)
-            return
+            return self._apbs_to_smif(grid.box, sm.PATH_APBS)
 
         timer = vg.Timer().start()
-        with vg.APBSSubprocess( # "sm.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
-            self.ms.system.atoms, sm.PATH_STRUCT.name, keep_pqr = True
-        ) as path_apbs: self.apbs_to_smif(path_apbs, timer)
+        ### "sm.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
+        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name, keep_pqr = True) as path_apbs:
+            return self._apbs_to_smif(grid.box, path_apbs, timer)
 
 
     # --------------------------------------------------------------------------
-    def apbs_to_smif(self, path_apbs_in, timer: vg.Timer = None):
+    @staticmethod
+    def _apbs_to_smif(box_dst: vg.Box, path_apbs_in, timer: vg.Timer = None) -> vg.Grid:
         if timer is not None: sm.APBS_ELAPSED_TIME = timer.end(
             text = fy.Color.red("APBS"), end = ' '
         )
 
         apbs = vg.GridIO.read_auto(path_apbs_in)
-        apbs.reshape_as_box(self.grid.box)
-        self.grid = apbs
+        apbs.reshape_as_box(box_dst)
+
+        apbs.dirty = True
+        return apbs
 
 
     # --------------------------------------------------------------------------

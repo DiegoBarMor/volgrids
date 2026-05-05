@@ -10,6 +10,7 @@ class Grid:
         self.dtype: type = vg.FLOAT_DTYPE if dtype is None else dtype
         self.fmt: vg.GridFormat = None
         self.arr: np.ndarray|None
+        self.dirty: bool = False # whether grid should be filled with 0s when calling reset()
 
         if init_grid:
             self._warning_big_grid()
@@ -105,6 +106,12 @@ class Grid:
         vg.GridIO.restore_boolean_dtype(other)
         obj.arr = np.logical_or(self.arr, other.arr)
         return obj
+
+
+    # --------------------------------------------------------------------------
+    def reset(self) -> None:
+        if not self.dirty: return
+        self.arr.fill(0)
 
 
     # --------------------------------------------------------------------------

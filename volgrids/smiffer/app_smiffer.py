@@ -19,6 +19,7 @@ class AppSmiffer(vg.AppSubcommand):
         self.folder_out: Path
         self.path_traj: Path
         self.nproc: int
+        self.grid_smif: vg.Grid
 
         mode = self.main.subcommands.pop(0)
         sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
@@ -133,63 +134,64 @@ class AppSmiffer(vg.AppSubcommand):
         ### APBS must be calculated first and split into two parts,
         ### because it can potentially set vg.PQR_CONTENTS_TEMP (used for trimming)
         if sm.DO_SMIF_APBS:
-            smif_apbs: sm.SmifAPBS = self._calc_smif(sm.SmifAPBS)
+            ### [NOTE] could be refactored into taking directly box (instead of initializing an empty grid_apbs)
+            ### this is implemented like this to ave a consistent signature for populate_grid among different smifs
+            ### it's also the only reason why populate_grid returns a grid
+            grid_apbs = vg.Grid(self.ms.box, init_grid = False)
+            grid_apbs = sm.SmifAPBS(self.ms).populate_grid(grid_apbs)
             if vg.PQR_CONTENTS_TEMP:
                 new_ms = sm.MolSystemSmiffer.from_pqr_data(vg.PQR_CONTENTS_TEMP)
                 sm.MolSystemSmiffer.copy_attributes_except_system(src = self.ms, dst = new_ms)
                 self.trimmer.ms = new_ms
 
+
         self.trimmer.trim(self.cavfinder)
 
         if sm.DO_SMIF_APBS:
-            smif_apbs.grid.reshape_as_box(self.trimmer.specific_masks["large"].box)
-            self._trim_and_save_smif(
-                smif_apbs, key_trimming = "large", title = "apbs"
-            )
+            grid_apbs.reshape_as_box(self.trimmer.specific_masks["large"].box)
+            self._trim_and_weight_grid(grid_apbs, key_trimming = "large")
+            sm.Smif.save_data(grid_apbs, self.ms, self.folder_out, "apbs")
             del self.trimmer.specific_masks["large"]
+
+        self.grid_smif = vg.Grid(self.ms.box)
 
 
         ### Calculate standard SMIF grids
         if sm.DO_SMIF_HYDROPHILIC:
-            smif_hphil = self._calc_smif(sm.SmifHydrophilic)
-            self._trim_and_save_smif(
-                smif_hphil, key_trimming = "small", title = "hydrophilic"
-            )
+            sm.SmifHydrophilic(self.ms).populate_grid(self.grid_smif)
+            self._trim_and_weight_grid(self.grid_smif, key_trimming = "small")
+            sm.Smif.save_data(self.grid_smif, self.ms, self.folder_out, "hydrophilic")
             del self.trimmer.specific_masks["small"]
 
         if sm.DO_SMIF_HYDROPHOBIC:
-            smif_hphob = self._calc_smif(sm.SmifHydrophobic)
-            self._trim_and_save_smif(
-                smif_hphob, key_trimming = "mid", title = "hydrophobic"
-            )
+            sm.SmifHydrophobic(self.ms).populate_grid(self.grid_smif)
+            self._trim_and_weight_grid(self.grid_smif, key_trimming = "mid")
+            sm.Smif.save_data(self.grid_smif, self.ms, self.folder_out, "hydrophobic")
 
         if sm.DO_SMIF_HBA:
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifHBAccepts),
-                key_trimming = "mid", title = "hbacceptors"
-            )
+            sm.SmifHBAccepts(self.ms).populate_grid(self.grid_smif)
+            self._trim_and_weight_grid(self.grid_smif, key_trimming = "mid")
+            sm.Smif.save_data(self.grid_smif, self.ms, self.folder_out, "hbacceptors")
 
         if sm.DO_SMIF_HBD:
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifHBDonors),
-                key_trimming = "mid", title = "hbdonors"
-            )
+            sm.SmifHBDonors(self.ms).populate_grid(self.grid_smif)
+            self._trim_and_weight_grid(self.grid_smif, key_trimming = "mid")
+            sm.Smif.save_data(self.grid_smif, self.ms, self.folder_out, "hbdonors")
 
         if sm.DO_SMIF_STACKING:
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifStacking),
-                key_trimming = "mid", title = "stacking"
-            )
+            sm.SmifStacking(self.ms).populate_grid(self.grid_smif)
+            self._trim_and_weight_grid(self.grid_smif, key_trimming = "mid")
+            sm.Smif.save_data(self.grid_smif, self.ms, self.folder_out, "stacking")
 
 
         ### Calculate / store additional grids
         if sm.SAVE_TRIMMING_MASK:
             mask = self.trimmer.get_mask("mid")
             reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
-            sm.Smif.save_data_smif(reverse, self.ms, self.folder_out, "trimming")
+            sm.Smif.save_data(reverse, self.ms, self.folder_out, "trimming")
 
         if sm.SAVE_CAVITIES and self.cavfinder.has_data():
-            sm.Smif.save_data_smif(self.cavfinder.grid, self.ms, self.folder_out, "cavities")
+            sm.Smif.save_data(self.cavfinder.grid, self.ms, self.folder_out, "cavities")
 
         if not self.ms.do_traj and vg.PQR_CONTENTS_TEMP:
             path_pqr = self.folder_out / f"{self.ms.molname}.pqr"
@@ -197,17 +199,9 @@ class AppSmiffer(vg.AppSubcommand):
 
 
     # --------------------------------------------------------------------------
-    def _calc_smif(self, cls_smif: type[sm.Smif]) -> "sm.Smif":
-        smif: sm.Smif = cls_smif(self.ms)
-        smif.populate_grid()
-        return smif
-
-
-    # --------------------------------------------------------------------------
-    def _trim_and_save_smif(self, smif: sm.Smif, key_trimming: str, title: str) -> None:
-        self.trimmer.mask_grid(smif, key_trimming)
-        self.cavfinder.apply_cavities_weighting(smif)
-        smif.save_data_smif(smif.grid, self.ms, self.folder_out, title)
+    def _trim_and_weight_grid(self, grid: vg.Grid, key_trimming: str) -> None:
+        self.trimmer.mask_grid(grid, key_trimming)
+        self.cavfinder.apply_cavities_weighting(grid)
 
 
     # --------------------------------------------------------------------------

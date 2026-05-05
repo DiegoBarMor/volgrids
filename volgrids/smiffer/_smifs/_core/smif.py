@@ -8,19 +8,21 @@ import volgrids.smiffer as sm
 class Smif:
     # --------------------------------------------------------------------------
     def __init__(self, ms: "sm.MolSystemSmiffer"):
-        self.grid = vg.Grid(ms.box)
         self.ms: "sm.MolSystemSmiffer" = ms
 
 
     # --------------------------------------------------------------------------
     @abstractmethod
-    def populate_grid(self):
+    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
+        """Inherited versions of `populate_grid` should start by calling `grid.reset()` and `grid.dirty = True`."""
+        grid.reset()
+        grid.dirty = True
         raise NotImplementedError("Subclasses of Smif must implement the populate_grid method.")
 
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def save_data_smif(grid: vg.Grid, ms: sm.MolSystemSmiffer, folder_out: Path, title: str):
+    def save_data(grid: vg.Grid, ms: sm.MolSystemSmiffer, folder_out: Path, title: str):
         def add_suffix(path: Path, suffix: str) -> Path:
             return Path(str(path) + suffix)
 

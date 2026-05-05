@@ -6,7 +6,8 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifStacking(sm.Smif):
-    def populate_grid(self):
+    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
+        grid.reset()
         kernel = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_STACKING + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_STACKING,
             deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_STACK
@@ -19,7 +20,10 @@ class SmifStacking(sm.Smif):
             normal = vg.Math.normalize(np.cross(u, v))
 
             kernel.recalculate_kernel(normal, isStacking = True)
-            kernel.stamp(self.grid, cog, multiply_by = sm.ENERGY_SCALE)
+            kernel.stamp(grid, cog, multiply_by = sm.ENERGY_SCALE)
+
+        grid.dirty = True
+        return grid
 
 
     # --------------------------------------------------------------------------

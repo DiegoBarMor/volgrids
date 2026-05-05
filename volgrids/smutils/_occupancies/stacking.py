@@ -13,10 +13,14 @@ class OgStacking(sm.SmifStacking):
         )
 
     # --------------------------------------------------------------------------
-    def populate_grid(self):
+    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
+        grid.reset()
         for atoms_plane in self.iter_particles():
             for atom in atoms_plane:
-                self.kernel.stamp(self.grid, atom.position)
+                self.kernel.stamp(grid, atom.position)
+
+        grid.dirty = True
+        return grid
 
 
 # //////////////////////////////////////////////////////////////////////////////
