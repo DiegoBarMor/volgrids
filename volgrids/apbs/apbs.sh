@@ -4,12 +4,12 @@ set -euo pipefail
 ### Automatic calculation of electrostatic potential grids using APBS.
 ### The grid will be saved in the same folder as the input PDB file,
 ### with the same name but with extension .dx or .mrc (if --mrc is used).
-### All intermediate files will be removed (PQR can be conserved by using --pqr).
+### All intermediate files will be removed (PQR can be conserved by using --keep-pqr).
 ###
 ### Requires: pdb2pqr, apbs
 ### Optional: python3 with volgrids installed (for MRC conversion)
-### Usage: apbs.sh <path_pdb> [--mrc] [--pqr] [--verbose]
-### Example: apbs.sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --pqr --verbose
+### Usage: apbs.sh <path_pdb> [--mrc] [--keep-pqr] [--verbose]
+### Example: apbs.sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --keep-pqr --verbose
 
 
 ### default parameters
@@ -19,7 +19,7 @@ VERBOSE=false        # print verbose output from APBS?
 
 help_message() {
     name_sh=$(basename "$0")
-    echo "Usage: $name_sh <path_pdb> [--mrc] [--pqr] [--verbose]"
+    echo "Usage: $name_sh <path_pdb> [--mrc] [--keep-pqr] [--verbose]"
     echo "Example: $name_sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose"
 }
 echo_red() {
@@ -40,7 +40,7 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
             CONVERT_TO_MRC=true
             shift
             ;;
-        --pqr)
+        --keep-pqr)
             KEEP_PQR=true
             shift
             ;;
