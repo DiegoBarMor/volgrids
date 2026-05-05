@@ -27,8 +27,6 @@ class Box:
         self.deltas     = deltas
         self.infer_radius_and_cog()
 
-        self._warning_big_grid()
-
 
     # --------------------------------------------------------------------------
     @classmethod
@@ -38,7 +36,6 @@ class Box:
         box.max_coords = max_coords
         box.infer_deltas_resolution()
         box.infer_radius_and_cog()
-        box._warning_big_grid()
         return box
 
 
@@ -75,26 +72,29 @@ class Box:
 
 
     # --------------------------------------------------------------------------
+    def contains_point(self, point: np.ndarray) -> bool:
+        return np.all((point >= self.min_coords) & (point <= self.max_coords))
+
+
+    # --------------------------------------------------------------------------
+    def pos_to_index(self, pos: np.ndarray[float]) -> np.ndarray[int]|None:
+        """
+        Convert a position in space to the corresponding index in the grid array.
+        input:  (3,) FLOAT
+        output: (3,) INT
+            or `None` if the position is outside the box
+        """
+        if not self.contains_point(pos): return
+        return np.round((pos - self.min_coords) / self.deltas).astype(int)
+
+
+    # --------------------------------------------------------------------------
     @classmethod
     def smallest_enclosing_box(cls, *boxes: "Box") -> "Box":
         return cls.from_min_max(
             min_coords = np.min([box.min_coords for box in boxes], axis = 0),
             max_coords = np.max([box.max_coords for box in boxes], axis = 0),
         )
-
-
-    # --------------------------------------------------------------------------
-    def _warning_big_grid(self):
-        rx, ry, rz = self.resolution
-        grid_size = rx*ry*rz
-        if grid_size < vg.WARNING_GRID_SIZE: return
-        print()
-        while True:
-            choice = input(
-                f">>> WARNING: resulting ({rx}x{ry}x{rz}) grid would contain {grid_size/1e6:.2f} million points. Proceed? [Y/N]\n"
-            ).upper()
-            if choice.startswith('Y'): break
-            if choice.startswith('N'): exit(3)
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -1,26 +1,9 @@
-import multiprocessing as mp
-import time
 import numpy as np
 from pathlib import Path
 
 import volgrids as vg
 import volgrids.smiffer as sm
 from volgrids._vendors import freyacli as fy
-
-### Set by the parent before spawning the trajectory MP pool; inherited by workers via fork.
-_WORKER_APP: "AppSmiffer" = None
-
-
-# ------------------------------------------------------------------------------
-def _worker_init():
-    """Re-create the MolSystem in each worker so file handles aren't shared across forks."""
-    _WORKER_APP.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, _WORKER_APP.path_traj)
-
-
-# ------------------------------------------------------------------------------
-def _worker_process_frame(frame_idx: int) -> tuple[int, float]:
-    return _WORKER_APP._process_frame(frame_idx)
-
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):
@@ -100,74 +83,49 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def run(self):
+        def _end(is_traj: bool):
+            self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
+            if is_traj: self._delete_traj_locks()
+
         if sm.CURRENT_MOLTYPE.is_ligand():
             sm.DO_SMIF_APBS = False
             print(f"\n...--- ligand: {fy.Color.red('skipping APBS')} SMIF calculation.", end = ' ', flush = True)
 
         self.timer.start()
 
-        if self.ms.do_traj: # TRAJECTORY MODE
-            print()
-            n_frames = len(self.ms.system.trajectory)
-
-            if self.nproc > 1:
-                self._run_traj_parallel(n_frames)
-            else:
-                for _ in self.ms.system.trajectory:
-                    self.ms.frame += 1
-                    timer_frame = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
-                    timer_frame.start()
-                    self._process_grids()
-                    timer_frame.end()
-
-            self._delete_traj_locks()
-
-        else: # SINGLE PDB MODE
+        ##### 0) SINGLE PDB MODE
+        if not self.ms.do_traj:
             self._process_grids()
+            return _end(is_traj = False)
+        #####
 
-        self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
+        print()
+        n_frames = len(self.ms.system.trajectory)
+
+        ### 1.a) TRAJECTORY MODE (multiprocessing)
+        if self.nproc > 1:
+            sm.TrajMultiprocess(self).run(n_frames)
+            return _end(is_traj = True)
+
+        ### 1.b) TRAJECTORY MODE (single process)
+        for i in range(n_frames):
+            self.process_frame(i)
+        return _end(is_traj = True)
 
 
     # --------------------------------------------------------------------------
-    def _process_frame(self, frame_idx: int) -> tuple[int, float]:
-        """Set per-frame state and run `_process_grids`. Returns `(frame_num, elapsed_seconds)`."""
+    def process_frame(self, frame_idx: int) -> None:
+        """Set per-frame state and run `_process_grids`."""
         self.ms.system.trajectory[frame_idx]
         self.ms.frame = frame_idx + 1
         self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
         self.cavfinder = sm.CavityFinder()
 
-        t0 = time.time()
+        n_frames = len(self.ms.system.trajectory)
+        timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
+        timer.start()
         self._process_grids()
-        return self.ms.frame, time.time() - t0
-
-
-    # --------------------------------------------------------------------------
-    def _run_traj_parallel(self, n_frames: int) -> None:
-        global _WORKER_APP
-
-        ### Pre-clear stale CMAP outputs once in the parent. Workers must not race on this.
-        if vg.REMOVE_OLD_CMAP_OUTPUT:
-            for path in self.folder_out.glob(f"{self.ms.molname}.*.cmap"):
-                path.unlink()
-            vg.REMOVE_OLD_CMAP_OUTPUT = False
-
-        ### "fork" so children inherit module state (configs, _WORKER_APP, etc.) without pickling
-        ctx = mp.get_context("fork")
-        vg.MP_CMAP_LOCK = ctx.Lock()
-        _WORKER_APP = self
-
-        nproc = min(self.nproc, n_frames)
-        try:
-            with ctx.Pool(nproc, initializer = _worker_init) as pool:
-                for frame_num, elapsed in pool.imap_unordered(_worker_process_frame, range(n_frames)):
-                    print(
-                        f"...>>> Frame {frame_num}/{n_frames} "
-                        f"({int(elapsed // 60)}m {elapsed % 60:.2f}s)",
-                        flush = True,
-                    )
-        finally:
-            vg.MP_CMAP_LOCK = None
-            _WORKER_APP = None
+        timer.end()
 
 
     # --------------------------------------------------------------------------

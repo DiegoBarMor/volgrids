@@ -7,7 +7,7 @@ class OgHBAccepts(sm._smifs_core.SmifHBonds):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.kernel = vg.KernelSphere(
-            radius = su.RADIUS_OCCUPANCY_OG,
+            radius = su.OG_RADIUS_HBA,
             deltas = self.ms.get_deltas(),
             dtype = vg.FLOAT_DTYPE
         )

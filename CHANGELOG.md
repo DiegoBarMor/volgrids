@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.10.0] - 2026-05-04
+- General:
+    - Trajectory mode can now be handled with optional multiprocessing (`-n` flag).
+    - `GridIO.read_auto` now accepts an optional "key" argument (to be used when reading CMAP files).
+    - `GridIO.write_auto` now takes an optional key argument for saving CMAP.
+    - OG radius config can now be individually set for every OG kind.
+
+- Bug fixes:
+    - Fixed bug in `ResiduesNucleic` (bad parsing of rnapolis results).
+    - Fixed bug where `GridIO.get_cmap_keys()` was crashing if its input file didn't exist.
+    - `_warning_big_grid()` was incorrectly placed as a method for `Box`, when it should be a method for `Grid`.
+
+- Vendors:
+    - Updated vendor `freyacli` to v0.4.0.
+    - Updated vendor `molutils` to v0.4.0.
+    - **NOTE**: These updates break compatibility with previous versions.
+    - Added automatic generation of a `versions.txt` file to register the intended vendor versions for a given volgrids version.
+
+- VGTools:
+    - Internal `average` and `rotate` methods now return the grid instead of saving it.
+        - The saving is performed inside `AppVGTools`. That way, the operation methods can be used by other scripts without the intermediary saving step.
+    - Split internal `op` method into two: unary and binary operations.
+        - Both internal methods are now iterators that yield the resulting grids (CMAP case) instead of saving them.
+
+
 ## [0.9.0] - 2026-04-29
 - General:
     - Fixed compatibility issues with older versions of Python and rnapolis.
@@ -69,16 +94,7 @@
     - Added `--resids` (`-i`) flag to **Smiffer**.
         - A custom list of residue indices can now be specified. SMIFs will be calculated for only those residues.
         - Trimming and APBS remain unaffected.
-        <!--
-        OUTDATED: see README.md for an updated version of the snippet
-        - Combine it with `resids_nonpb` to have more polished hbond results, e.g.:
-        ```bash
-        python3 volgrids smiffer rna 1akx.pdb \
-            -i "$(python3 volgrids smutils resids_nonbp 1akx.pdb)" \
-            -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
-                DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
-        ```
-        -->
+
 - Tweaks:
     - Renamed `DO_SIMPLE_HBONDS_RNA` to `HBONDS_ONLY_NUCLEOBASE`.
     - An error is now raised for invalid configuration keys.

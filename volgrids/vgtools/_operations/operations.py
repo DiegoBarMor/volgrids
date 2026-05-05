@@ -180,6 +180,13 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def points(path_in: Path, *positions: tuple[float, float, float]) -> np.ndarray:
+        grid = vg.GridIO.read_auto(path_in)
+        return [grid.value_at_position(pos) for pos in positions]
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def iter_op_unary(
         path_in: Path, operation: callable
     ) -> "Generator[tuple[str, vg.Grid]]":

@@ -14,7 +14,12 @@ from .app_smutils import AppSMUtils
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
-RADIUS_OCCUPANCY_OG: float = 2.0
+OG_RADIUS_STACKING: float = 0.5
+OG_RADIUS_HBA: float = 0.5
+OG_RADIUS_HBD: float = 0.5
+OG_RADIUS_HYDROPHOBIC: float = 0.5
+# OG_RADIUS_HYDROPHILIC: float = 0.5
+# OG_RADIUS_APBS: float = 2.0
 
 __config_keys__ = set(globals().keys()) - _keys_other
 __config_keys__.remove("_keys_other")

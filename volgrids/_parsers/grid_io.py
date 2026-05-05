@@ -1,5 +1,5 @@
-import contextlib
 import h5py
+import contextlib
 import numpy as np
 import gridData as gd
 from pathlib import Path
@@ -303,8 +303,12 @@ class GridIO:
     def get_cmap_keys(path_cmap: Path, assert_has_keys: bool = False) -> list[str]:
         """Returns the list of keys (frame names) in a CMAP file.
         If assert_has_keys is True, raises an error if no keys are found."""
-        with h5py.File(path_cmap, 'r') as h5:
-            keys = list(h5["Chimera"].keys())
+        if not path_cmap.is_file():
+            keys = []
+        else:
+            with h5py.File(path_cmap, 'r') as h5:
+                keys = list(h5["Chimera"].keys())
+
         if assert_has_keys and not keys:
             raise ValueError(f"Empty cmap file: {path_cmap}")
         return keys
