@@ -191,14 +191,6 @@ class AppSmiffer(vg.AppSubcommand):
         if sm.SAVE_CAVITIES and self.cavfinder.has_data():
             sm.Smif.save_data_smif(self.cavfinder.grid, self.ms, self.folder_out, "cavities")
 
-        if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
-            grid_hpdiff = smif_hphob.grid - smif_hphil.grid
-            sm.Smif.save_data_smif(grid_hpdiff, self.ms, self.folder_out, "hydrodiff")
-
-        if sm.DO_SMIF_APBS and sm.DO_SMIF_LOG_APBS:
-            smif_apbs.apply_logabs_transform()
-            sm.Smif.save_data_smif(smif_apbs.grid, self.ms, self.folder_out, "apbslog")
-
         if not self.ms.do_traj and vg.PQR_CONTENTS_TEMP:
             path_pqr = self.folder_out / f"{self.ms.molname}.pqr"
             path_pqr.write_text(vg.PQR_CONTENTS_TEMP)

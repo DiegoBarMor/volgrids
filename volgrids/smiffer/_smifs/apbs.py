@@ -30,13 +30,14 @@ class SmifAPBS(sm.Smif):
 
 
     # --------------------------------------------------------------------------
-    def apply_logabs_transform(self):
-        if self.grid.is_empty():
+    @staticmethod
+    def apply_logabs_transform(grid: vg.Grid) -> None:
+        if grid.is_empty():
             print(f"...--- {fy.Color.red('APBS potential grid is empty')}. Skipping logabs transform.", flush = True)
             return
 
-        logpos = np.log10( self.grid.arr[self.grid.arr > 0])
-        logneg = np.log10(-self.grid.arr[self.grid.arr < 0])
+        logpos = np.log10( grid.arr[grid.arr > 0])
+        logneg = np.log10(-grid.arr[grid.arr < 0])
 
         ##### APPLY CUTOFFS
         logpos[logpos < sm.APBS_MIN_CUTOFF] = sm.APBS_MIN_CUTOFF
@@ -53,8 +54,8 @@ class SmifAPBS(sm.Smif):
         logneg *= -2 # 2*APBS_MIN_CUTOFF and 2*APBS_MAX_CUTOFF
 
         ##### RESULT
-        self.grid.arr[self.grid.arr > 0] = logpos
-        self.grid.arr[self.grid.arr < 0] = logneg
+        grid.arr[grid.arr > 0] = logpos
+        grid.arr[grid.arr < 0] = logneg
 
 
 # //////////////////////////////////////////////////////////////////////////////
