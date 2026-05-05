@@ -45,5 +45,4 @@ class AppSMUtils(vg.AppSubcommand):
         print(f">>> Voxel distribution: {fy.Color.yellow(path_in)}")
         su.Histogram.plot(path_in, path_out, key)
 
-
 # //////////////////////////////////////////////////////////////////////////////
