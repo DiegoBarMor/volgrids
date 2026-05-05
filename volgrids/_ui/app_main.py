@@ -64,7 +64,7 @@ class AppMain(fy.App):
     def _init_apbs(self) -> "vg.AppSubcommand":
         ### the parsed flags must be reconstucted.
         ### freyacli is in charge of not letting unexpected flags/arguments through
-        cmd = [self.get_arg_path("path_in")]
+        cmd = [self.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)]
         if self.get_arg_bool("conv2mrc"): cmd.append("--mrc")
         if self.get_arg_bool("keep_pqr"): cmd.append("--pqr")
         if self.get_arg_bool("verbose" ): cmd.append("--verbose")

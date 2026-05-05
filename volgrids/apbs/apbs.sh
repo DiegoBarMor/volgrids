@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 ### Automatic calculation of electrostatic potential grids using APBS.
 ### The grid will be saved in the same folder as the input PDB file,
@@ -60,6 +61,7 @@ if [[ ! -f "$path_pdb" ]]; then
     exit 253
 fi
 
+root_volgrids=$(dirname "$(dirname "$(realpath "$0")")")
 folder_out=$(dirname "$path_pdb")
 cd "$folder_out" || exit 252 # ------------------------------ inside output folder vvvvv
 
@@ -70,18 +72,13 @@ path_in="$name_pdb.in"
 tmp_log=$(mktemp)
 trap 'rm -f "$tmp_log"' EXIT
 
-### Create APBS input file
-if [[ "$VERBOSE" == "true" ]]; then
-    pdb2pqr --ff=AMBER "$name_pdb" "$path_pqr" --apbs-input "$path_in" 2>&1 | tee -a "$tmp_log" >&2
-    rc=${PIPESTATUS[0]}
-else
-    pdb2pqr --ff=AMBER "$name_pdb" "$path_pqr" --apbs-input "$path_in" >>"$tmp_log" 2>&1
+### Create APBS input file (if not already present)
+if [[ ! -f "$path_in" && ! -f "$path_pqr" ]]; then
+    bash "$root_volgrids/apbs/pdb2pqr.sh" "$path_pdb" --verbose
     rc=$?
-fi
-if [[ $rc -ne 0 ]]; then
-    cat "$tmp_log" >&2
-    echo_red "pdb2pqr failed (exit code $rc). See output above."
-    exit "$rc"
+    if [[ $rc -ne 0 ]]; then
+        exit "$rc"
+    fi
 fi
 
 ### Run APBS
@@ -116,7 +113,6 @@ fi
 cd - >/dev/null || exit 250 # ------------------------------------ back to original folder vvvvv
 
 if [[ "$CONVERT_TO_MRC" == "true" ]]; then
-    root_volgrids=$(dirname "$(dirname "$(realpath "$0")")")
     ### if this sh script is moved somewhere else and the volgrids package is installed
     ### the command below can be simplified to just "volgrids vgtools convert ..."
     python3 "$root_volgrids" vgtools convert "$folder_out/$name_pdb.dx" --mrc "$folder_out/$name_pdb.mrc"
