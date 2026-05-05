@@ -19,13 +19,22 @@ class MolSystem:
         if self.do_traj:
             self.system = mda.Universe(str(path_struct), str(path_traj))
             self.frame = 0
+            min_coords = np.full(3,  np.inf)
+            max_coords = np.full(3, -np.inf)
+            for _ in self.system.trajectory:
+                positions = self.system.coord.positions
+                np.minimum(min_coords, positions.min(axis = 0), out = min_coords)
+                np.maximum(max_coords, positions.max(axis = 0), out = max_coords)
+            self.system.trajectory[0] # rewind to frame 0
         else:
             self.system = mda.Universe(str(path_struct))
             self.frame = None
+            min_coords = np.min(self.system.coord.positions, axis = 0)
+            max_coords = np.max(self.system.coord.positions, axis = 0)
 
         self.box = vg.Box.from_min_max(
-            min_coords = np.min(self.system.coord.positions, axis = 0) - vg.EXTRA_BOX_SIZE,
-            max_coords = np.max(self.system.coord.positions, axis = 0) + vg.EXTRA_BOX_SIZE,
+            min_coords = min_coords - vg.EXTRA_BOX_SIZE,
+            max_coords = max_coords + vg.EXTRA_BOX_SIZE,
         )
         self._enforce_equilateral_grid()
 
