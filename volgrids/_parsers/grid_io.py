@@ -1,3 +1,4 @@
+import contextlib
 import h5py
 import numpy as np
 import gridData as gd
@@ -10,7 +11,7 @@ from volgrids._vendors import freyacli as fy
 class GridIO:
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
     @staticmethod
-    def read_dx(path_dx) -> "vg.Grid":
+    def read_dx(path_dx: str|Path) -> "vg.Grid":
         parser = gd.Grid(path_dx)
         box = vg.Box(parser.origin, parser.grid.shape, parser.delta)
         vgrid = vg.Grid(box, init_grid = False)
@@ -21,7 +22,7 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def read_mrc(path_mrc) -> "vg.Grid":
+    def read_mrc(path_mrc: str|Path) -> "vg.Grid":
         with gd.mrc.mrcfile.open(path_mrc) as parser:
             ##### assume that MRC always follows the origin follows the "real space" MRC convention
             orig = parser.header["origin"]
@@ -34,7 +35,7 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def read_ccp4(path_ccp4) -> "vg.Grid":
+    def read_ccp4(path_ccp4: str|Path) -> "vg.Grid":
         with gd.mrc.mrcfile.open(path_ccp4) as parser:
             orig = parser.header["origin"]
             if (orig['x'] == 0.0 and orig['y'] == 0.0 and orig['z'] == 0.0):
@@ -56,7 +57,7 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def read_cmap(path_cmap, key) -> "vg.Grid":
+    def read_cmap(path_cmap: str|Path, key: str) -> "vg.Grid":
         """Asserts that the specified key exists in the CMAP file and then reads its corresponding grid."""
         with h5py.File(path_cmap, 'r') as parser:
             if key not in parser["Chimera"].keys(): raise KeyError(
@@ -196,34 +197,37 @@ class GridIO:
         cls.confirm_overwrite(path_cmap)
         path_cmap.parent.mkdir(parents = True, exist_ok = True)
 
-        if not path_cmap.exists():
-            with h5py.File(path_cmap, 'w') as h5:
-                h5.attrs["PYTABLES_FORMAT_VERSION"] = np.bytes_("2.0")
-                _add_generic_attrs(h5)
+        ### MP_CMAP_LOCK serializes concurrent writes when running trajectory MP
+        lock_ctx = contextlib.nullcontext() if vg.MP_CMAP_LOCK is None else vg.MP_CMAP_LOCK
+        with lock_ctx:
+            if not path_cmap.exists():
+                with h5py.File(path_cmap, 'w') as h5:
+                    h5.attrs["PYTABLES_FORMAT_VERSION"] = np.bytes_("2.0")
+                    _add_generic_attrs(h5)
 
-                chim = h5.create_group("Chimera")
-                _add_generic_attrs(chim)
+                    chim = h5.create_group("Chimera")
+                    _add_generic_attrs(chim)
 
-        with h5py.File(path_cmap, 'a') as parser:
-            chim = parser["Chimera"]
-            if key in chim.keys():
-                frame = chim[key]
-                if "data_zyx" in frame.keys():
-                    del frame["data_zyx"]
-            else:
-                frame = parser.create_group(f"/Chimera/{key}")
-                frame.attrs["chimera_map_version"] = np.int64(1)
-                frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
-                frame.attrs["name"] = np.bytes_(key)
-                frame.attrs["origin"] = data.box.min_coords.astype(vg.FLOAT_DTYPE)
-                frame.attrs["step"] = data.box.deltas.astype(vg.FLOAT_DTYPE)
-                _add_generic_attrs(frame)
+            with h5py.File(path_cmap, 'a') as parser:
+                chim = parser["Chimera"]
+                if key in chim.keys():
+                    frame = chim[key]
+                    if "data_zyx" in frame.keys():
+                        del frame["data_zyx"]
+                else:
+                    frame = parser.create_group(f"/Chimera/{key}")
+                    frame.attrs["chimera_map_version"] = np.int64(1)
+                    frame.attrs["chimera_version"] = np.bytes_(b'1.12_b40875')
+                    frame.attrs["name"] = np.bytes_(key)
+                    frame.attrs["origin"] = data.box.min_coords.astype(vg.FLOAT_DTYPE)
+                    frame.attrs["step"] = data.box.deltas.astype(vg.FLOAT_DTYPE)
+                    _add_generic_attrs(frame)
 
-            framedata = frame.create_dataset(
-                "data_zyx", data = data.arr.transpose(2,1,0), dtype = vg.FLOAT_DTYPE,
-                compression = "gzip", compression_opts = vg.GZIP_COMPRESSION
-            )
-            _add_generic_attrs(framedata, "CARRAY")
+                framedata = frame.create_dataset(
+                    "data_zyx", data = data.arr.transpose(2,1,0), dtype = vg.FLOAT_DTYPE,
+                    compression = "gzip", compression_opts = vg.GZIP_COMPRESSION
+                )
+                _add_generic_attrs(framedata, "CARRAY")
 
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ OTHER I/O UTILITIES
@@ -242,8 +246,11 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def read_auto(path_grid: Path) -> "vg.Grid":
-        """Detect the format of the grid file based on its extension and then read it."""
+    def read_auto(path_grid: Path, key: str = None) -> "vg.Grid":
+        """
+        Detect the format of the grid file based on its extension and then read it.
+        If the file is a CMAP file and key is not specified, it will read the first key found in the file.
+        """
         fmt = GridIO.detect_format(path_grid)
 
         if fmt == vg.GridFormat.DX:
@@ -256,14 +263,22 @@ class GridIO:
             return GridIO.read_ccp4(path_grid)
 
         if fmt.is_cmap():
-            keys = GridIO.get_cmap_keys(path_grid, assert_has_keys = True)
-            return GridIO.read_cmap(path_grid, keys[0])
+            if key is None:
+                keys = GridIO.get_cmap_keys(path_grid, assert_has_keys = True)
+                key = keys[0]
+            return GridIO.read_cmap(path_grid, key)
 
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def write_auto(path_grid: Path, data: "vg.Grid"):
+    def write_auto(path_grid: Path, data: "vg.Grid", key: str = None) -> None:
         """Detect the format of the grid file based on its extension and then write it."""
+        def _cmap_key(): # [TODO] improve this?
+            if key is not None: return key
+            if not path_grid.is_file(): return path_grid.stem
+            keys = GridIO.get_cmap_keys(path_grid)
+            return f"map_{len(keys)+1}"
+
         fmt = GridIO.detect_format(path_grid)
 
         if fmt == vg.GridFormat.DX:
@@ -279,19 +294,13 @@ class GridIO:
             return
 
         if fmt.is_cmap():
-            ### [TODO] improve this?
-            if path_grid.is_file():
-                keys = GridIO.get_cmap_keys(path_grid)
-                key = f"map_{len(keys)+1}"
-            else:
-                key = path_grid.name
-            GridIO.write_cmap(path_grid, data, key = key)
+            GridIO.write_cmap(path_grid, data, key = _cmap_key())
             return
 
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_cmap_keys(path_cmap, assert_has_keys: bool = False) -> list[str]:
+    def get_cmap_keys(path_cmap: Path, assert_has_keys: bool = False) -> list[str]:
         """Returns the list of keys (frame names) in a CMAP file.
         If assert_has_keys is True, raises an error if no keys are found."""
         with h5py.File(path_cmap, 'r') as h5:
@@ -332,7 +341,7 @@ class GridIO:
 # //////////////////////////////////////////////////////////////////////////////
 
 # ------------------------------------------------------------------------------
-def _read_mrc_ccp4(path_mrc, origin: np.ndarray) -> "vg.Grid":
+def _read_mrc_ccp4(path_mrc: Path, origin: np.ndarray) -> "vg.Grid":
     with gd.mrc.mrcfile.open(path_mrc) as parser:
         # machine_stamp = parser.header.machst
         ### [68 68 0 0] or [68 65 0 0] for little-endian <--- tested

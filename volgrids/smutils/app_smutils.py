@@ -26,27 +26,21 @@ class AppSMUtils(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_res_nobp(self) -> None:
-        path_in = self.main.get_arg_path("path_in")
-        self.main.assert_file_in(path_in)
+        path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
         print(su.ResiduesNucleic.get_residues_nobp(path_in))
 
 
     # --------------------------------------------------------------------------
     def _run_res_nostk(self) -> None:
-        path_in = self.main.get_arg_path("path_in")
-        self.main.assert_file_in(path_in)
+        path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
         print(su.ResiduesNucleic.get_residues_nostk(path_in))
 
 
     # --------------------------------------------------------------------------
     def _run_plot_dist(self) -> None:
-        path_in  = self.main.get_arg_path("path_in")
-        path_out = self.main.get_arg_path("path_out")
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT, allow_none = True)
         key      = self.main.get_arg_str("key")
-
-        self.main.assert_file_in(path_in)
-        if path_out is not None:
-            self.main.assert_file_out(path_out)
 
         print(f">>> Voxel distribution: {fy.Color.yellow(path_in)}")
         su.Histogram.plot(path_in, path_out, key)

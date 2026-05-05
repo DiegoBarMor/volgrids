@@ -28,11 +28,12 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_convert(self):
-        path_in       = self.main.get_arg_path("path_in")
-        path_out_dx   = self.main.get_arg_path("out_dx")
-        path_out_mrc  = self.main.get_arg_path("out_mrc")
-        path_out_ccp4 = self.main.get_arg_path("out_ccp4")
-        path_out_cmap = self.main.get_arg_path("out_cmap")
+        kw_file_out = dict(assertion = fy.PathAssertion.FILE_OUT, allow_none = True)
+        path_in       = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out_dx   = self.main.get_arg_path("out_dx",   **kw_file_out)
+        path_out_mrc  = self.main.get_arg_path("out_mrc",  **kw_file_out)
+        path_out_ccp4 = self.main.get_arg_path("out_ccp4", **kw_file_out)
+        path_out_cmap = self.main.get_arg_path("out_cmap", **kw_file_out)
 
         if path_out_dx is True: # -d flag with no path specified
             path_out_dx = path_in.with_suffix(".dx")
@@ -45,13 +46,6 @@ class AppVGTools(vg.AppSubcommand):
 
         if path_out_cmap is True: # -c flag with no path specified
             path_out_cmap = path_in.with_suffix(".cmap")
-
-        self.main.assert_file_in(path_in)
-        self.main.assert_file_out(path_out_dx, allow_none = True)
-        self.main.assert_file_out(path_out_mrc, allow_none = True)
-        self.main.assert_file_out(path_out_ccp4, allow_none = True)
-        self.main.assert_file_out(path_out_cmap, allow_none = True)
-
 
         def _convert(path_out, fmt_out: vg.GridFormat):
             if path_out is None: return
@@ -66,11 +60,8 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_pack(self):
-        paths_in = self.main.get_arg_list_path("paths_in")
-        path_out = self.main.get_arg_path("path_out")
-
-        for path in paths_in: self.main.assert_file_in(path)
-        self.main.assert_file_out(path_out)
+        paths_in = self.main.get_arg_path("paths_in", assertion = fy.PathAssertion.FILE_IN, is_list = True)
+        path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         str_npaths = fy.Color.yellow(f"{len(paths_in)}")
         print(f">>> Packing {str_npaths} grids into '{fy.Color.blue(path_out)}'")
@@ -79,23 +70,18 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_unpack(self):
-        path_in  = self.main.get_arg_path("path_in")
-        path_out = self.main.get_arg_path("folder_out", default = path_in.parent)
-
-        self.main.assert_file_in(path_in)
-        self.main.assert_dir_out(path_out)
-
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.get_arg_path("folder_out",
+            assertion = fy.PathAssertion.DIR_OUT, default = path_in.parent
+        )
         print(f">>> Unpacking '{fy.Color.yellow(path_in)}' into '{fy.Color.blue(path_out)}'")
         vgt.VGOperations.unpack(path_in, path_out)
 
 
     # --------------------------------------------------------------------------
     def _run_fix_cmap(self):
-        path_in  = self.main.get_arg_path("path_in")
-        path_out = self.main.get_arg_path("path_out")
-
-        self.main.assert_file_in(path_in)
-        self.main.assert_file_out(path_out)
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         print(f">>> Fixing CMAP file: {fy.Color.yellow(path_in)}")
         vgt.VGOperations.fix_cmap(path_in, path_out)
@@ -103,20 +89,17 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_average(self):
-        path_in  = self.main.get_arg_path("path_in")
-        path_out = self.main.get_arg_path("path_out")
-
-        self.main.assert_file_in(path_in)
-        self.main.assert_dir_out(path_out)
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         print(f">>> Averaging CMAP file: {fy.Color.yellow(path_in)}")
-        vgt.VGOperations.average(path_in, path_out)
+        grid = vgt.VGOperations.average(path_in)
+        vg.GridIO.write_auto(path_out, grid)
 
 
     # --------------------------------------------------------------------------
     def _run_summary(self):
-        path_in = self.main.get_arg_path("path_in")
-        self.main.assert_file_in(path_in)
+        path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
 
         print(f">>> Grid summary: {fy.Color.yellow(path_in)}")
         vgt.VGOperations.summary(path_in)
@@ -124,11 +107,8 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_compare(self):
-        path_in_0 = self.main.get_arg_path("path_0")
-        path_in_1 = self.main.get_arg_path("path_1")
-
-        self.main.assert_file_in(path_in_0)
-        self.main.assert_file_in(path_in_1)
+        path_in_0 = self.main.get_arg_path("path_0", assertion = fy.PathAssertion.FILE_IN)
+        path_in_1 = self.main.get_arg_path("path_1", assertion = fy.PathAssertion.FILE_IN)
 
         threshold = self.main.get_arg_float("threshold", default = DEFAULT_COMPARISON_THRESHOLD)
 
@@ -150,40 +130,29 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_rotate(self):
-        path_in  = self.main.get_arg_path("path_in")
-        path_out = self.main.get_arg_path("path_out")
-
-        self.main.assert_file_in(path_in)
-        self.main.assert_dir_out(path_out)
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         rotate_yz = self.main.get_arg_float("x")
         rotate_xz = self.main.get_arg_float("y")
         rotate_xy = self.main.get_arg_float("z")
 
         print(f">>> Rotating grid: {fy.Color.yellow(path_in)} by {rotate_xy}° (xy), {rotate_yz}° (yz), {rotate_xz}° (xz)")
-        vgt.VGOperations.rotate(path_in, path_out, rotate_xy, rotate_yz, rotate_xz)
+        grid = vgt.VGOperations.rotate(path_in, rotate_xy, rotate_yz, rotate_xz)
+        vg.GridIO.write_auto(path_out, grid)
 
 
     # --------------------------------------------------------------------------
     def _run_op(self):
         command = self.main.subcommands.pop(0)
 
-        path_out  = self.main.get_arg_path("path_out")
-        self.main.assert_file_out(path_out)
-
         if command == "abs": # abs is the only unary operation for now
-            operation = vg.Grid.__abs__
-            path_in = self.main.get_arg_path("path_in")
-            self.main.assert_file_in(path_in)
-            print(f">>> Performing '{fy.Color.yellow(command)}' operation on grid: {fy.Color.red(path_in)}")
-            vgt.VGOperations.op(operation, path_out, path_in)
+            self._run_op_unary(command)
             return
 
-        path_in_0 = self.main.get_arg_path("path_in_0")
-        path_in_1 = self.main.get_arg_path("path_in_1")
-
-        self.main.assert_file_in(path_in_0)
-        self.main.assert_file_in(path_in_1)
+        path_in_0 = self.main.get_arg_path("path_in_0", assertion = fy.PathAssertion.FILE_IN)
+        path_in_1 = self.main.get_arg_path("path_in_1", assertion = fy.PathAssertion.FILE_IN)
+        path_out  = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         interpolate_to_common_box = self.main.get_arg_bool("common_box")
 
@@ -197,7 +166,25 @@ class AppVGTools(vg.AppSubcommand):
         }[command]
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)}")
-        vgt.VGOperations.op(operation, path_out, path_in_0, path_in_1, interpolate_to_common_box)
+        for key, grid in vgt.VGOperations.iter_op_binary(
+            path_in_0, path_in_1, operation, interpolate_to_common_box
+        ):
+            vg.GridIO.write_auto(path_out, grid, key)
+
+
+    # --------------------------------------------------------------------------
+    def _run_op_unary(self, command: str):
+        operation: callable = {
+            "abs": vg.Grid.__abs__,
+        }[command]
+
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
+
+        print(f">>> Performing '{fy.Color.yellow(command)}' operation on grid: {fy.Color.red(path_in)}")
+
+        for key, grid in vgt.VGOperations.iter_op_unary(path_in, operation):
+            vg.GridIO.write_auto(path_out, grid, key)
 
 
 # //////////////////////////////////////////////////////////////////////////////

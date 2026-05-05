@@ -1,9 +1,26 @@
+import multiprocessing as mp
+import time
 import numpy as np
 from pathlib import Path
 
 import volgrids as vg
 import volgrids.smiffer as sm
 from volgrids._vendors import freyacli as fy
+
+### Set by the parent before spawning the trajectory MP pool; inherited by workers via fork.
+_WORKER_APP: "AppSmiffer" = None
+
+
+# ------------------------------------------------------------------------------
+def _worker_init():
+    """Re-create the MolSystem in each worker so file handles aren't shared across forks."""
+    _WORKER_APP.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, _WORKER_APP.path_traj)
+
+
+# ------------------------------------------------------------------------------
+def _worker_process_frame(frame_idx: int) -> tuple[int, float]:
+    return _WORKER_APP._process_frame(frame_idx)
+
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):
@@ -18,21 +35,19 @@ class AppSmiffer(vg.AppSubcommand):
         self.timer: vg.Timer
         self.folder_out: Path
         self.path_traj: Path
+        self.nproc: int
 
         mode = self.main.subcommands.pop(0)
         sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
 
-        sm.PATH_STRUCT      = self.main.get_arg_path("path_in")
-        self.folder_out     = self.main.get_arg_path("folder_out", default = sm.PATH_STRUCT.parent)
-        sm.PATH_APBS        = self.main.get_arg_path("path_apbs")
-        self.path_traj      = self.main.get_arg_path("path_traj")
-        sm.PATH_CHEM_CUSTOM = self.main.get_arg_path("path_chem")
-
-        self.main.assert_file_in(sm.PATH_STRUCT)
-        self.main.assert_file_in(sm.PATH_APBS, allow_none = True)
-        self.main.assert_file_in(self.path_traj, allow_none = True)
-        self.main.assert_file_in(sm.PATH_CHEM_CUSTOM, allow_none = True)
-        self.main.assert_dir_out(self.folder_out)
+        sm.PATH_STRUCT      = self.main.get_arg_path("path_in",   assertion = fy.PathAssertion.FILE_IN)
+        sm.PATH_APBS        = self.main.get_arg_path("path_apbs", assertion = fy.PathAssertion.FILE_IN)
+        self.path_traj      = self.main.get_arg_path("path_traj", assertion = fy.PathAssertion.FILE_IN)
+        sm.PATH_CHEM_CUSTOM = self.main.get_arg_path("path_chem", assertion = fy.PathAssertion.FILE_IN)
+        self.folder_out     = self.main.get_arg_path("folder_out",
+            default = sm.PATH_STRUCT.parent, assertion = fy.PathAssertion.DIR_OUT
+        )
+        self.nproc          = max(1, self.main.get_arg_int("nproc", default = 1))
 
         self._handle_params_configs()
         self._handle_params_resids()
@@ -93,18 +108,66 @@ class AppSmiffer(vg.AppSubcommand):
 
         if self.ms.do_traj: # TRAJECTORY MODE
             print()
-            for _ in self.ms.system.trajectory:
-                self.ms.frame += 1
-                timer_frame = vg.Timer(f"...>>> Frame {self.ms.frame}/{len(self.ms.system.trajectory)}")
-                timer_frame.start()
-                self._process_grids()
-                timer_frame.end()
+            n_frames = len(self.ms.system.trajectory)
+
+            if self.nproc > 1:
+                self._run_traj_parallel(n_frames)
+            else:
+                for _ in self.ms.system.trajectory:
+                    self.ms.frame += 1
+                    timer_frame = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
+                    timer_frame.start()
+                    self._process_grids()
+                    timer_frame.end()
+
             self._delete_traj_locks()
 
         else: # SINGLE PDB MODE
             self._process_grids()
 
         self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
+
+
+    # --------------------------------------------------------------------------
+    def _process_frame(self, frame_idx: int) -> tuple[int, float]:
+        """Set per-frame state and run `_process_grids`. Returns `(frame_num, elapsed_seconds)`."""
+        self.ms.system.trajectory[frame_idx]
+        self.ms.frame = frame_idx + 1
+        self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
+        self.cavfinder = sm.CavityFinder()
+
+        t0 = time.time()
+        self._process_grids()
+        return self.ms.frame, time.time() - t0
+
+
+    # --------------------------------------------------------------------------
+    def _run_traj_parallel(self, n_frames: int) -> None:
+        global _WORKER_APP
+
+        ### Pre-clear stale CMAP outputs once in the parent. Workers must not race on this.
+        if vg.REMOVE_OLD_CMAP_OUTPUT:
+            for path in self.folder_out.glob(f"{self.ms.molname}.*.cmap"):
+                path.unlink()
+            vg.REMOVE_OLD_CMAP_OUTPUT = False
+
+        ### "fork" so children inherit module state (configs, _WORKER_APP, etc.) without pickling
+        ctx = mp.get_context("fork")
+        vg.MP_CMAP_LOCK = ctx.Lock()
+        _WORKER_APP = self
+
+        nproc = min(self.nproc, n_frames)
+        try:
+            with ctx.Pool(nproc, initializer = _worker_init) as pool:
+                for frame_num, elapsed in pool.imap_unordered(_worker_process_frame, range(n_frames)):
+                    print(
+                        f"...>>> Frame {frame_num}/{n_frames} "
+                        f"({int(elapsed // 60)}m {elapsed % 60:.2f}s)",
+                        flush = True,
+                    )
+        finally:
+            vg.MP_CMAP_LOCK = None
+            _WORKER_APP = None
 
 
     # --------------------------------------------------------------------------
@@ -256,7 +319,7 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_sphere(self):
-        sphere = self.main.get_arg_list_float("sphere")
+        sphere = self.main.get_arg_float("sphere", is_list = True)
         if not sphere: return
 
         sm.SPHERE = sm.SphereInfo(*sphere)
