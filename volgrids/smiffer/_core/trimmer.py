@@ -5,71 +5,67 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class Trimmer:
-    KEY_INIT_COMMON_MASK = "mid" # the common mask is initialized by copying this specific mask
 
-    def __init__(self, ms: "sm.MolSystem", **distances):
+    # --------------------------------------------------------------------------
+    def __init__(self, ms: "sm.MolSystem"):
         self.ms: "sm.MolSystem" = ms
+        self.cavfinder: sm.CavityFinder = sm.CavityFinder()
 
-        self.distances: dict[str, float] = distances
-        self.common_mask: vg.Grid = None
-        self.specific_masks: dict[str, vg.Grid] = None
+        self._mask_common: vg.Grid = None
+        self._mask_specific: vg.Grid = None
+        self._current_key: str = ""
+        self._distances = {
+            "small": sm.TRIMMING_DIST_SMALL,
+            "mid"  : sm.TRIMMING_DIST_MID,
+            "large": sm.TRIMMING_DIST_LARGE,
+        }
+
+
+    # --------------------------------------------------------------------------
+    def trim(self, grid: "vg.Grid", key: str):
+        """Removes grid points wherever the mask (for the given `key`) is `True`."""
+
+        if self._should_run_mask_common(): # will only run in the first call to `trim`
+            self._run_common()
+
+        if self._should_run_mask_specific(key): # can run in multiple calls to `trim`
+            self._run_specific(dist = self._distances[key])
+
+        if self._should_run_cavities(): # will only run in the first call to `trim`
+            self._run_cavities()
+
+        mask = self._get_mask_merged()
+        if mask is None: return
+
+        grid.arr[mask.arr] = 0
+        self.cavfinder.apply_cavities_weighting(grid)
+
+
+    # --------------------------------------------------------------------------
+    def get_mask(self) -> vg.Grid|None:
+        """Returns the merged mask (if any) from the trimming operations."""
+        return self._get_mask_merged()
 
 
     # --------------------------------------------------------------------------
     @classmethod
-    def init_infer_dists(cls, ms: "sm.MolSystem") -> "sm.Trimmer":
-        trimming_dists = {}
-        if sm.DO_SMIF_HYDROPHILIC:
-            trimming_dists["small"] = sm.TRIMMING_DIST_SMALL
+    def should_do_trim_small(cls) -> bool:
+        return sm.DO_SMIF_HYDROPHILIC
 
-        if any((
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def should_do_trim_mid(cls) -> bool:
+        return any((
             sm.DO_SMIF_STACKING, sm.DO_SMIF_HBA, sm.DO_SMIF_HBD, sm.DO_SMIF_HYDROPHOBIC,
             sm.SAVE_TRIMMING_MASK, cls._should_do_cavities()
-        )):
-            trimming_dists["mid"] = sm.TRIMMING_DIST_MID
-
-        if sm.DO_SMIF_APBS:
-            trimming_dists["large"] = sm.TRIMMING_DIST_LARGE
-
-        return cls(ms, **trimming_dists)
+        ))
 
 
     # --------------------------------------------------------------------------
-    def reset_masks(self):
-        self.common_mask: vg.Grid = None
-        self.specific_masks = {k : vg.Grid(self.ms.box, dtype = bool) for k in self.distances.keys()}
-
-
-    # --------------------------------------------------------------------------
-    def trim(self, cavfinder: "sm.CavityFinder"):
-        self.reset_masks()
-
-        if sm.DO_TRIMMING_OCCUPANCY:
-            self._trim_occupancies()
-            self._trim_cavities(cavfinder)
-
-        if self._should_use_common_mask():
-            self._init_common_mask()
-            self._run_common_mask_operations()
-            self._apply_common_mask_to_specific_masks()
-            self._discard_common_mask()
-
-
-    # --------------------------------------------------------------------------
-    def mask_grid(self, grid: "vg.Grid", key: str):
-        """Removes grid points wherever the mask (for the given `key`) is `True`."""
-        grid.arr[self.get_mask(key).arr] = 0
-
-
-    # --------------------------------------------------------------------------
-    def get_mask(self, key: str) -> vg.Grid:
-        return self.specific_masks[key]
-
-
-    # --------------------------------------------------------------------------
-    def _get_smallest_mask(self) -> vg.Grid:
-        key_smallest = min(self.specific_masks.keys(), key = lambda k: self.distances[k])
-        return self.specific_masks[key_smallest]
+    @classmethod
+    def should_do_trim_large(cls) -> bool:
+        return sm.DO_SMIF_APBS
 
 
     # --------------------------------------------------------------------------
@@ -80,59 +76,70 @@ class Trimmer:
             sm.CAVITIES_WEIGHT != 0.0
         ))
 
-    # --------------------------------------------------------------------------
-    def _should_use_common_mask(self) -> bool:
-        return self.ms.do_ps
 
     # --------------------------------------------------------------------------
-    def _init_common_mask(self):
-        self.common_mask = self.specific_masks[self.KEY_INIT_COMMON_MASK].copy()
+    def _should_run_mask_common(self) -> bool:
+        return self.ms.do_ps and self._mask_common is None
 
 
     # --------------------------------------------------------------------------
-    def _run_common_mask_operations(self):
-        if sm.DO_TRIMMING_FARAWAY:
-            self._trim_faraway()
-
-        if sm.DO_TRIMMING_SPHERE:
-            self._trim_sphere()
-
-        if sm.DO_TRIMMING_RNDS:
-            self._trim_rnds()
+    def _should_run_mask_specific(self, key: str) -> bool:
+        if key == self._current_key: return False
+        self._current_key = key
+        return sm.DO_TRIMMING_OCCUPANCY
 
 
     # --------------------------------------------------------------------------
-    def _apply_common_mask_to_specific_masks(self):
-        for mask in self.specific_masks.values():
-            mask.arr |= self.common_mask.arr
+    def _should_run_cavities(self) -> bool:
+        return self._should_do_cavities() and not self.cavfinder.has_data()
 
 
     # --------------------------------------------------------------------------
-    def _discard_common_mask(self):
-        del self.common_mask
-        self.common_mask = None
+    def _get_mask_merged(self) -> vg.Grid|None:
+        if (self._mask_common is None) and (self._mask_specific is None): return
+        if self._mask_specific is None: return self._mask_common
+        if self._mask_common is None: return self._mask_specific
+
+        self._mask_specific.arr |= self._mask_common.arr
+        return self._mask_specific
 
 
     # --------------------------------------------------------------------------
-    def _trim_occupancies(self):
-        for k,radius in self.distances.items():
-            mask = self.specific_masks[k]
-            kernel = vg.KernelSphere(radius, self.ms.get_deltas(), bool)
-            for a in self.ms.get_relevant_atoms(use_custom = False, extra_dist = radius):
-                kernel.stamp(mask, a.position)
+    def _run_common(self):
+        self._mask_common = vg.Grid(self.ms.box, dtype = bool)
+        if sm.DO_TRIMMING_FARAWAY: self._trim_faraway()
+        if sm.DO_TRIMMING_SPHERE: self._trim_sphere()
+        if sm.DO_TRIMMING_RNDS: self._trim_rnds()
 
 
     # --------------------------------------------------------------------------
-    def _trim_cavities(self, cavfinder: "sm.CavityFinder"):
+    def _run_specific(self, dist: float):
+        if self._mask_specific is None:
+            self._mask_specific = vg.Grid(self.ms.box, dtype = bool)
+        else:
+            self._mask_specific.reset()
+
+        self._trim_occupancies(dist)
+
+        self._mask_specific.dirty = True
+
+
+    # --------------------------------------------------------------------------
+    def _run_cavities(self):
         """must be called immediately after `_trim_occupancies`, before any other trimming operations"""
 
-        if not self._should_do_cavities(): return
+        self.cavfinder.populate_cavities_grid(self._mask_specific)
 
-        cavfinder.populate_cavities_grid(self._get_smallest_mask())
+        if not sm.DO_TRIMMING_CAVITIES: return
 
-        if sm.DO_TRIMMING_CAVITIES:
-            for mask in self.specific_masks.values():
-                mask.arr |= (cavfinder.grid.arr < sm.TRIMMING_CAVITIES_THRESHOLD)
+        self._mask_common.arr |= (self.cavfinder.grid.arr < sm.TRIMMING_CAVITIES_THRESHOLD)
+
+
+    # --------------------------------------------------------------------------
+    def _trim_occupancies(self, radius: float):
+        kernel = vg.KernelSphere(radius, self.ms.get_deltas(), bool)
+        for a in self.ms.get_relevant_atoms(use_custom = False, extra_dist = radius):
+            kernel.stamp(self._mask_specific, a.position)
 
 
     # --------------------------------------------------------------------------
@@ -140,7 +147,7 @@ class Trimmer:
         coords = vg.Math.get_coords_array(self.ms.get_resolution(), self.ms.get_deltas(), self.ms.get_min_coords())
         shifted_coords = coords - self.ms.get_cog()
         dist_from_cog = vg.Math.get_norm(shifted_coords)
-        self.common_mask.arr[dist_from_cog > self.ms.get_radius()] = True
+        self._mask_common.arr[dist_from_cog > self.ms.get_radius()] = True
 
 
     # --------------------------------------------------------------------------
@@ -184,20 +191,20 @@ class Trimmer:
                 search_dist[neigh] = min(search_dist[node] + 1, search_dist[neigh])
                 if search_dist[neigh] > sm.MAX_RNDS_DIST: continue
                 if visited[neigh]: continue
-                if self.common_mask.arr[neigh]: continue
+                if self._mask_common.arr[neigh]: continue
 
                 queue.add(neigh)
 
-        self.common_mask.arr[np.logical_not(visited)] = True
+        self._mask_common.arr[np.logical_not(visited)] = True
 
 
     # --------------------------------------------------------------------------
     def _trim_faraway(self):
-        grid = self.common_mask.copy()
+        grid = self._mask_common.copy()
         kernel = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.get_deltas(), bool)
         for a in self.ms.get_relevant_atoms(use_custom = False, extra_dist = sm.TRIM_FARAWAY_DIST):
             kernel.stamp(grid, a.position)
-        self.common_mask.arr[~grid.arr] = True
+        self._mask_common.arr[~grid.arr] = True
 
 
 # //////////////////////////////////////////////////////////////////////////////
