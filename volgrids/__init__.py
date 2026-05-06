@@ -5,7 +5,6 @@ from ._version import __version__
 
 from ._core.box import Box
 from ._core.grid import Grid
-from ._core.mol_system import MolSystem
 
 from ._kernels._core.k_operation import KOperation
 from ._kernels._core.kernel import Kernel
@@ -70,6 +69,7 @@ STR_CUSTOM_CONFIG : str = ""  # "key0=value0 key1=value1 ..."
 
 ############################### RUNTIME GLOBALS ################################
 import numpy as _np
-PQR_CONTENTS_TEMP: str = ""
+TMP_APBS_CONTENT_IN: str = ""
+TMP_APBS_CONTENT_PQR: str = ""
 FLOAT_DTYPE: type = _np.float32
 MP_CMAP_LOCK = None # multiprocessing lock around CMAP writes (set by trajectory MP runner)

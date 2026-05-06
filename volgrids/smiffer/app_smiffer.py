@@ -12,13 +12,16 @@ class AppSmiffer(vg.AppSubcommand):
         super().__init__(app_main)
         self.str_mode = str_mode # just for printing
 
-        self.ms: sm.MolSystemSmiffer
-        self.trimmer: sm.Trimmer
-        self.cavfinder: sm.CavityFinder
+        ##### initialized once in __init__
+        self.ms: sm.MolSystem
         self.timer: vg.Timer
         self.folder_out: Path
         self.path_traj: Path
         self.nproc: int
+
+        #### set in every call of _process_grids
+        self.trimmer: sm.Trimmer
+        self.grid_smif: vg.Grid
 
         mode = self.main.subcommands.pop(0)
         sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
@@ -72,9 +75,7 @@ class AppSmiffer(vg.AppSubcommand):
 
         ### these must be initialized after the configs are loaded,
         ### so it's appropriate to place them at the end of init
-        self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, self.path_traj)
-        self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
-        self.cavfinder = sm.CavityFinder()
+        self.ms = sm.MolSystem(sm.PATH_STRUCT, self.path_traj)
         self.timer = vg.Timer(
             f">>> {sm.CURRENT_MOLTYPE.name:<4} {'Sphere' if self.ms.do_ps else 'Whole'} "+\
             f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
@@ -85,7 +86,12 @@ class AppSmiffer(vg.AppSubcommand):
     def run(self):
         def _end(is_traj: bool):
             self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
-            if is_traj: self._delete_traj_locks()
+            if is_traj:
+                self._delete_traj_locks()
+            elif vg.TMP_APBS_CONTENT_PQR:
+                path_pqr = self.folder_out / f"{self.ms.molname}.pqr"
+                path_pqr.write_text(vg.TMP_APBS_CONTENT_PQR)
+
 
         if sm.CURRENT_MOLTYPE.is_ligand():
             sm.DO_SMIF_APBS = False
@@ -118,8 +124,6 @@ class AppSmiffer(vg.AppSubcommand):
         """Set per-frame state and run `_process_grids`."""
         self.ms.system.trajectory[frame_idx]
         self.ms.frame = frame_idx + 1
-        self.trimmer = sm.Trimmer.init_infer_dists(self.ms)
-        self.cavfinder = sm.CavityFinder()
 
         n_frames = len(self.ms.system.trajectory)
         timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
@@ -130,92 +134,75 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _process_grids(self):
-        ### APBS must be calculated first and split into two parts,
-        ### because it can potentially set vg.PQR_CONTENTS_TEMP (used for trimming)
-        if sm.DO_SMIF_APBS:
-            smif_apbs: sm.SmifAPBS = self._calc_smif(sm.SmifAPBS)
-            if vg.PQR_CONTENTS_TEMP:
-                new_ms = sm.MolSystemSmiffer.from_pqr_data(vg.PQR_CONTENTS_TEMP)
-                sm.MolSystemSmiffer.copy_attributes_except_system(src = self.ms, dst = new_ms)
-                self.trimmer.ms = new_ms
-
-        self.trimmer.trim(self.cavfinder)
-
-        if sm.DO_SMIF_APBS:
-            smif_apbs.grid.reshape_as_box(self.trimmer.specific_masks["large"].box)
-            self._trim_and_save_smif(
-                smif_apbs, key_trimming = "large", title = "apbs"
-            )
-            del self.trimmer.specific_masks["large"]
+        def run_with_trim_large():
+            """Note that APBS should always be the first SMIF executed (in case it needs to instantiate `self.grid_smif`'s internal array)"""
+            if sm.DO_SMIF_APBS:
+                sm.SmifAPBS(ms).populate_grid(self.grid_smif)
+                self.trimmer.trim(self.grid_smif, "large")
+                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "apbs")
 
 
-        ### Calculate standard SMIF grids
-        if sm.DO_SMIF_HYDROPHILIC:
-            smif_hphil = self._calc_smif(sm.SmifHydrophilic)
-            self._trim_and_save_smif(
-                smif_hphil, key_trimming = "small", title = "hydrophilic"
-            )
-            del self.trimmer.specific_masks["small"]
+        def run_with_trim_mid():
+            if sm.DO_SMIF_HYDROPHOBIC:
+                sm.SmifHydrophobic(ms).populate_grid(self.grid_smif)
+                self.trimmer.trim(self.grid_smif, "mid")
+                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "hydrophobic")
 
-        if sm.DO_SMIF_HYDROPHOBIC:
-            smif_hphob = self._calc_smif(sm.SmifHydrophobic)
-            self._trim_and_save_smif(
-                smif_hphob, key_trimming = "mid", title = "hydrophobic"
-            )
+            if sm.DO_SMIF_HBA:
+                sm.SmifHBAccepts(ms).populate_grid(self.grid_smif)
+                self.trimmer.trim(self.grid_smif, "mid")
+                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "hbacceptors")
 
-        if sm.DO_SMIF_HBA:
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifHBAccepts),
-                key_trimming = "mid", title = "hbacceptors"
-            )
+            if sm.DO_SMIF_HBD:
+                sm.SmifHBDonors(ms).populate_grid(self.grid_smif)
+                self.trimmer.trim(self.grid_smif, "mid")
+                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "hbdonors")
 
-        if sm.DO_SMIF_HBD:
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifHBDonors),
-                key_trimming = "mid", title = "hbdonors"
-            )
+            if sm.DO_SMIF_STACKING:
+                sm.SmifStacking(ms).populate_grid(self.grid_smif)
+                self.trimmer.trim(self.grid_smif, "mid")
+                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "stacking")
 
-        if sm.DO_SMIF_STACKING:
-            self._trim_and_save_smif(
-                self._calc_smif(sm.SmifStacking),
-                key_trimming = "mid", title = "stacking"
-            )
+            if sm.SAVE_TRIMMING_MASK:
+                mask = self.trimmer.get_mask("mid")
+                reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
+                sm.Smif.save_data(reverse, ms, self.folder_out, "trimming")
 
 
-        ### Calculate / store additional grids
-        if sm.SAVE_TRIMMING_MASK:
-            mask = self.trimmer.get_mask("mid")
-            reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
-            sm.Smif.save_data_smif(reverse, self.ms, self.folder_out, "trimming")
+        def run_with_trim_small():
+            if sm.DO_SMIF_HYDROPHILIC:
+                sm.SmifHydrophilic(ms).populate_grid(self.grid_smif)
+                self.trimmer.trim(self.grid_smif, "small")
+                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "hydrophilic")
 
-        if sm.SAVE_CAVITIES and self.cavfinder.has_data():
-            sm.Smif.save_data_smif(self.cavfinder.grid, self.ms, self.folder_out, "cavities")
 
-        if sm.DO_SMIF_HYDROPHOBIC and sm.DO_SMIF_HYDROPHILIC and sm.DO_SMIF_HYDRODIFF:
-            grid_hpdiff = smif_hphob.grid - smif_hphil.grid
-            sm.Smif.save_data_smif(grid_hpdiff, self.ms, self.folder_out, "hydrodiff")
+        ms = self._current_mol_system()
+        self.trimmer = sm.Trimmer(ms)
 
-        if sm.DO_SMIF_APBS and sm.DO_SMIF_LOG_APBS:
-            smif_apbs.apply_logabs_transform()
-            sm.Smif.save_data_smif(smif_apbs.grid, self.ms, self.folder_out, "apbslog")
+        self.grid_smif = vg.Grid(ms.box, init_grid = not sm.DO_SMIF_APBS)
 
-        if not self.ms.do_traj and vg.PQR_CONTENTS_TEMP:
-            path_pqr = self.folder_out / f"{self.ms.molname}.pqr"
-            path_pqr.write_text(vg.PQR_CONTENTS_TEMP)
+        if self.trimmer.should_do_trim_large(): run_with_trim_large()
+        if self.trimmer.should_do_trim_mid()  : run_with_trim_mid()
+        if self.trimmer.should_do_trim_small(): run_with_trim_small()
+
+        if sm.SAVE_CAVITIES and self.trimmer.cavfinder.has_data():
+            sm.Smif.save_data(self.trimmer.cavfinder.grid, ms, self.folder_out, "cavities")
+
+        del self.grid_smif # just in case
+        del self.trimmer
 
 
     # --------------------------------------------------------------------------
-    def _calc_smif(self, cls_smif: type[sm.Smif]) -> "sm.Smif":
-        smif: sm.Smif = cls_smif(self.ms)
-        smif.populate_grid()
-        return smif
+    def _current_mol_system(self) -> "sm.MolSystem":
+        if not sm.DO_SMIF_APBS: return self.ms
 
-
-    # --------------------------------------------------------------------------
-    def _trim_and_save_smif(self, smif: sm.Smif, key_trimming: str, title: str) -> None:
-        self.trimmer.mask_grid(smif, key_trimming)
-        self.cavfinder.apply_cavities_weighting(smif)
-        smif.save_data_smif(smif.grid, self.ms, self.folder_out, title)
+        ### When dealing with APBS, a first step of PQR generation should always be performed.
+        ### PQR can add hydrogen atoms, which should be reflected in the occupancy trimming
+        ### operation or be used by HBond SMIFs.
+        sm.SmifAPBS(self.ms).gen_pqr()
+        obj = sm.MolSystem.from_pqr_data(vg.TMP_APBS_CONTENT_PQR, self.ms.box)
+        sm.MolSystem.copy_attributes_except_system(src = self.ms, dst = obj)
+        return obj
 
 
     # --------------------------------------------------------------------------

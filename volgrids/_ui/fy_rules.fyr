@@ -23,6 +23,9 @@
         ~path_out[o,out]1.PATH
         ~key[k,key]1.STR
     !@
+    @log_apbs
+        !use:_io_1_input
+    !@
 !@
 
 @apbs

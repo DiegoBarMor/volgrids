@@ -1,6 +1,7 @@
 import tempfile
 import warnings
 import numpy as np
+import MDAnalysis as mda
 from pathlib import Path
 
 import volgrids as vg
@@ -8,25 +9,46 @@ import volgrids.smiffer as sm
 from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
-class MolSystemSmiffer(vg.MolSystem):
-    def __init__(self, path_struct: Path, path_traj: Path = None):
+class MolSystem:
+    def __init__(self, path_struct: Path, path_traj: Path = None, box: vg.Box = None):
+        self.molname  : str                 # name of the molecule
+        self.do_traj  : None | bool         # whether this is a trajectory or a single structure (None if no structure is provided)
+        self.system   : None | mda.Universe # MDAnalysis Universe object for the molecular system
+        self.frame    : None | int          # current frame number (if trajectory is used)
+        self.box      : vg.Box
+        self.do_ps    : bool
+        self.chemtable: sm.ParserChemTable
+
+        self.molname = path_struct.stem
+        self.do_traj = path_traj is not None
         self.do_ps = sm.SPHERE is not None
         self.chemtable = sm.ParserChemTable(self._get_path_table())
-        super().__init__(path_struct, path_traj)
+
+        if self.do_traj:
+            self.system = mda.Universe(str(path_struct), str(path_traj))
+            self.frame = 0
+        else:
+            self.system = mda.Universe(str(path_struct))
+            self.frame = None
+
+        self.box = self._get_init_box() if box is None else box
 
 
     # --------------------------------------------------------------------------
     @classmethod
-    def from_pqr_data(cls, pqr_data: str):
+    def from_pqr_data(cls, pqr_data: str, box: vg.Box = None):
+        if not pqr_data:
+            raise ValueError("Empty PQR content, aborting MolSystem instantiation.")
+
         with tempfile.NamedTemporaryFile(mode = "w+", suffix = ".pqr", delete = True) as tmp_pqr:
             tmp_pqr.write(pqr_data)
             tmp_pqr.flush()
-            return cls(Path(tmp_pqr.name), None)
+            return cls(Path(tmp_pqr.name), path_traj = None, box = box)
 
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def copy_attributes_except_system(src: "MolSystemSmiffer", dst: "MolSystemSmiffer"):
+    def copy_attributes_except_system(src: "MolSystem", dst: "MolSystem"):
         dst.molname = src.molname
         dst.do_traj = src.do_traj
         dst.frame = src.frame
@@ -60,7 +82,7 @@ class MolSystemSmiffer(vg.MolSystem):
 
 
     # --------------------------------------------------------------------------
-    def _get_init_box(self) -> vg.Box: # override base class to add pocket_sphere behavior
+    def _get_init_box(self) -> vg.Box:
         if self.do_ps:
             box = vg.Box(None, None, None, do_init = False)
             box.cog = np.array([sm.SPHERE.x, sm.SPHERE.y, sm.SPHERE.z])
@@ -68,9 +90,28 @@ class MolSystemSmiffer(vg.MolSystem):
             box.max_coords = box.cog + sm.SPHERE.radius
             box.radius = sm.SPHERE.radius
             box.infer_deltas_resolution()
+            if vg.ENSURE_EQUILATERAL: box.enforce_equilateral()
             return box
 
-        return super()._get_init_box()
+        if self.do_traj:
+            min_coords = np.full(3,  np.inf)
+            max_coords = np.full(3, -np.inf)
+            for _ in self.system.trajectory:
+                positions = self.system.coord.positions
+                np.minimum(min_coords, positions.min(axis = 0), out = min_coords)
+                np.maximum(max_coords, positions.max(axis = 0), out = max_coords)
+            self.system.trajectory[0] # rewind to frame 0
+        else:
+            min_coords = np.min(self.system.coord.positions, axis = 0)
+            max_coords = np.max(self.system.coord.positions, axis = 0)
+
+        box = vg.Box.from_min_max(
+            min_coords = min_coords - vg.EXTRA_BOX_SIZE,
+            max_coords = max_coords + vg.EXTRA_BOX_SIZE,
+        )
+        if vg.ENSURE_EQUILATERAL: box.enforce_equilateral()
+        return box
+
 
 
     # --------------------------------------------------------------------------

@@ -34,7 +34,7 @@ class TrajMultiprocess:
     # ------------------------------------------------------------------------------
     def _worker_init(self):
         """Re-create the MolSystem in each worker so file handles aren't shared across forks."""
-        self._worker_app.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, self._worker_app.path_traj)
+        self._worker_app.ms = sm.MolSystem(sm.PATH_STRUCT, self._worker_app.path_traj)
 
 
     # ------------------------------------------------------------------------------

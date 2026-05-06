@@ -1,5 +1,5 @@
 from ._core.mol_type import MolType
-from ._core.mol_system_smiffer import MolSystemSmiffer
+from ._core.mol_system import MolSystem
 from ._core.traj_multiprocess import TrajMultiprocess
 from ._core.cavity_finder import CavityFinder
 from ._core.trimmer import Trimmer
@@ -31,9 +31,6 @@ DO_SMIF_HBD:         bool = True
 DO_SMIF_HYDROPHOBIC: bool = True
 DO_SMIF_HYDROPHILIC: bool = True
 DO_SMIF_APBS:        bool = True
-
-DO_SMIF_LOG_APBS:  bool = False
-DO_SMIF_HYDRODIFF: bool = False
 
 DO_TRIMMING_SPHERE:    bool = True
 DO_TRIMMING_OCCUPANCY: bool = True

@@ -8,20 +8,11 @@ import volgrids.smiffer as sm
 from ._core.hbonds import SmifHBonds
 from ._core.triplet import Triplet
 
-# ------------------------------------------------------------------------------
-def _has_prev_res(atoms, triplet: Triplet) -> bool:
-    return len(atoms.select_atoms(triplet.str_prev_res)) > 0
-
-# ------------------------------------------------------------------------------
-def _has_next_res(atoms, triplet: Triplet) -> bool:
-    return len(atoms.select_atoms(triplet.str_next_res)) > 0
-
-
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBDonors(SmifHBonds, ABC):
     # --------------------------------------------------------------------------
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, ms: "sm.MolSystem"):
+        super().__init__(ms)
         self.hbond_getter = sm.ParserChemTable.get_names_hbd
         self._kernel_hbd_free = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_HBD_FREE + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FREE,
@@ -44,10 +35,10 @@ class SmifHBDonors(SmifHBonds, ABC):
         ### special cases for protein
         if sm.CURRENT_MOLTYPE == sm.MolType.PROT:
             if triplet.resname == "PRO": # donor only if there is no previous residue
-                if _has_prev_res(self.all_atoms, triplet): return
+                if self._has_prev_res(triplet): return
 
             elif triplet.interactor == "N": # tail points are in different residues
-                if _has_prev_res(self.all_atoms, triplet):
+                if self._has_prev_res(triplet):
                     triplet.set_pos_tail_custom( # N of peptide bond
                         atoms = self.all_atoms,
                         query_t0 = triplet.str_prev_res,
@@ -68,10 +59,10 @@ class SmifHBDonors(SmifHBonds, ABC):
         ### special cases for RNA
         if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
             if triplet.interactor == "O3'": # donor only if there is no next residue
-                if _has_next_res(self.all_atoms, triplet): return
+                if self._has_next_res(triplet): return
 
             elif triplet.interactor == "O5'": # donor only if there is no previous residue
-                if _has_prev_res(self.all_atoms, triplet): return
+                if self._has_prev_res(triplet): return
 
         triplet.set_pos_tail(self.res_atoms)
 
@@ -119,6 +110,16 @@ class SmifHBDonors(SmifHBonds, ABC):
 
         ### the bonds are contained in these newly defined atomgroup, so update the all_atoms reference
         self.all_atoms = u.atoms
+
+
+    # ------------------------------------------------------------------------------
+    def _has_prev_res(self, triplet: Triplet) -> bool:
+        return len(self.all_atoms.select_atoms(triplet.str_prev_res)) > 0
+
+
+    # ------------------------------------------------------------------------------
+    def _has_next_res(self, triplet: Triplet) -> bool:
+        return len(self.all_atoms.select_atoms(triplet.str_next_res)) > 0
 
 
 # //////////////////////////////////////////////////////////////////////////////
