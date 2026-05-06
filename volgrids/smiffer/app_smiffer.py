@@ -203,7 +203,7 @@ class AppSmiffer(vg.AppSubcommand):
         ### PQR can add hydrogen atoms, which should be reflected in the occupancy trimming
         ### operation or be used by HBond SMIFs.
         sm.SmifAPBS(self.ms).gen_pqr()
-        obj = sm.MolSystem.from_pqr_data(vg.TMP_APBS_CONTENT_PQR)
+        obj = sm.MolSystem.from_pqr_data(vg.TMP_APBS_CONTENT_PQR, self.ms.box)
         sm.MolSystem.copy_attributes_except_system(src = self.ms, dst = obj)
         return obj
 

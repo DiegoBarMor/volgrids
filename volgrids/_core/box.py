@@ -90,8 +90,6 @@ class Box:
 
     # --------------------------------------------------------------------------
     def enforce_equilateral(self):
-        if not vg.ENSURE_EQUILATERAL: return
-
         max_resolution: np.ndarray = np.max(self.resolution)
         res_diff = max_resolution - self.resolution
 
