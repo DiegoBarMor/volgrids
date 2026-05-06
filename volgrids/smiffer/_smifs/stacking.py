@@ -1,5 +1,6 @@
 import numpy as np
 from collections import defaultdict
+import MDAnalysis as mda
 
 import volgrids as vg
 import volgrids.smiffer as sm
@@ -32,7 +33,11 @@ class SmifStacking(sm.Smif):
         atoms = self.ms.get_relevant_atoms()
 
         for a in atoms:
-            resname_to_ids[a.resname.upper()].add((a.resid, a.chainID))
+            try:
+                chain = a.chainID
+            except mda.exceptions.NoDataError:
+                chain = None
+            resname_to_ids[a.resname.upper()].add((a.resid, chain))
 
         for resname,res_infos in resname_to_ids.items():
             aromatic_atoms = self.ms.chemtable.get_names_stacking(resname)

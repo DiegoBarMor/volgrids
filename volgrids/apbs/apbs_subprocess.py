@@ -91,6 +91,8 @@ class APBSSubprocess:
         path_tmp_in   = path_tmpdir / f"{self.name_pdb}.in"
         path_tmp_pqr  = path_tmpdir / f"{self.name_pdb}.pqr"
 
+        self.atoms.write(path_tmp_pdb)
+
         ##### APBS is being run after previously running the PQR generation (loaded into memory)
         if vg.TMP_APBS_CONTENT_IN and vg.TMP_APBS_CONTENT_PQR:
             path_tmp_in.write_text(vg.TMP_APBS_CONTENT_IN)
@@ -98,7 +100,6 @@ class APBSSubprocess:
             return
 
         ##### PQR is to be generated and loaded into memory
-        self.atoms.write(path_tmp_pdb)
         try:
             self.run_subprocess_pdb2pqr([str(path_tmp_pdb)])
         except RuntimeError as e:

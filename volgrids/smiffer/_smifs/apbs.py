@@ -18,6 +18,12 @@ class SmifAPBS(sm.Smif):
 
 
     # --------------------------------------------------------------------------
+    def gen_pqr(self):
+        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name, only_pdb2pqr = True) as _:
+            return
+
+
+    # --------------------------------------------------------------------------
     @staticmethod
     def _apbs_to_smif(box_dst: vg.Box, path_apbs_in, timer: vg.Timer = None) -> vg.Grid:
         if timer is not None: sm.APBS_ELAPSED_TIME = timer.end(

@@ -18,6 +18,9 @@ class MolSystemSmiffer(vg.MolSystem):
     # --------------------------------------------------------------------------
     @classmethod
     def from_pqr_data(cls, pqr_data: str):
+        if not pqr_data:
+            raise ValueError("Empty PQR content, aborting MolSystemSmiffer instantiation.")
+
         with tempfile.NamedTemporaryFile(mode = "w+", suffix = ".pqr", delete = True) as tmp_pqr:
             tmp_pqr.write(pqr_data)
             tmp_pqr.flush()
