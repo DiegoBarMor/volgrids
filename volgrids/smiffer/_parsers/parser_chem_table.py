@@ -36,6 +36,17 @@ def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str, bool]:
 
 # //////////////////////////////////////////////////////////////////////////////
 class ParserChemTable:
+    _RESNAME_NUCL_STANDARD = (
+        "U", "C", "A", "G"
+    )
+    _RESNAME_DNA_TO_STANDARD = {
+        "DT": "U", "DC": "C", "DA": "A", "DG": "G"
+    }
+    _RESNAME_ALTRNA_TO_STANDARD = {
+        "RU": "U", "RC": "C", "RA": "A", "RG": "G"
+    }
+
+    # --------------------------------------------------------------------------
     def __init__(self, path_table):
         self._selection_query: str = ''
         self._selection_query_custom: str = ''
@@ -59,29 +70,49 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def get_residue_hphob(self, atom):
-        return self._residues_hphob.get(atom.resname)
+        resname = self._standardize_resname_nucl(atom.resname)
+        return self._residues_hphob.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_atom_hphob(self, atom):
-        dict_resid = self._atoms_hphob.get(atom.resname)
+        resname = self._standardize_resname_nucl(atom.resname)
+        dict_resid = self._atoms_hphob.get(resname)
         if dict_resid is None: return None
         return dict_resid.get(atom.name)
 
 
     # --------------------------------------------------------------------------
     def get_names_stacking(self, resname: str):
+        resname = self._standardize_resname_nucl(resname)
         return self._names_stk.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hba(self, resname: str):
+        resname = self._standardize_resname_nucl(resname)
         return self._names_hba.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hbd(self, resname: str):
+        resname = self._standardize_resname_nucl(resname)
         return self._names_hbd.get(resname)
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def _standardize_resname_nucl(cls, resname: str) -> str:
+        if not sm.CURRENT_MOLTYPE.is_rna(): return resname
+        if resname in cls._RESNAME_NUCL_STANDARD: return resname
+
+        if resname in cls._RESNAME_ALTRNA_TO_STANDARD:
+            return cls._RESNAME_ALTRNA_TO_STANDARD[resname]
+
+        if resname in cls._RESNAME_DNA_TO_STANDARD:
+            return cls._RESNAME_DNA_TO_STANDARD[resname]
+
+        raise ValueError(f"Unknown nucleic acid residue '{resname}.")
 
 
     # --------------------------------------------------------------------------
