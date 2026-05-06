@@ -73,7 +73,7 @@ tmp_log=$(mktemp)
 trap 'rm -f "$tmp_log"' EXIT
 
 ### Create APBS input file (if not already present)
-if [[ ! -f "$path_in" && ! -f "$path_pqr" ]]; then
+if [[ ! -f "$path_in" || ! -f "$path_pqr" ]]; then
     bash "$root_volgrids/apbs/pdb2pqr.sh" "$path_pdb" --verbose
     rc=$?
     if [[ $rc -ne 0 ]]; then

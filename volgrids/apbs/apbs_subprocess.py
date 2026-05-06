@@ -43,9 +43,11 @@ class APBSSubprocess:
             return path_tmp_pqr
 
         ##### Second half: APBS calculation
-        self._assert_success(
+        try:
             self.run_subprocess_apbs([str(path_tmp_pdb), "--keep-pqr"])
-        )
+        except RuntimeError as e:
+            self._safe_cleanup()
+            raise e
 
         if not path_tmp_apbs.exists():
             self._safe_cleanup()
@@ -63,19 +65,23 @@ class APBSSubprocess:
     # --------------------------------------------------------------------------
     @classmethod
     def run_subprocess_pdb2pqr(cls, args: list[str]) -> subprocess.CompletedProcess:
-        return subprocess.run(
+        proc = subprocess.run(
             ["/bin/bash", str(cls._PATH_SH_PDB2PQR)] + args,
             capture_output = True, text = True
         )
+        cls._assert_success(proc)
+        return proc
 
 
     # --------------------------------------------------------------------------
     @classmethod
     def run_subprocess_apbs(cls, args: list[str]) -> subprocess.CompletedProcess:
-        return subprocess.run(
+        proc = subprocess.run(
             ["/bin/bash", str(cls._PATH_SH_APBS)] + args,
             capture_output = True, text = True
         )
+        cls._assert_success(proc)
+        return proc
 
 
     # --------------------------------------------------------------------------
@@ -93,23 +99,26 @@ class APBSSubprocess:
 
         ##### PQR is to be generated and loaded into memory
         self.atoms.write(path_tmp_pdb)
-        self._assert_success(
+        try:
             self.run_subprocess_pdb2pqr([str(path_tmp_pdb)])
-        )
+        except RuntimeError as e:
+            self._safe_cleanup()
+            raise e
 
         vg.TMP_APBS_CONTENT_IN  = path_tmp_in.read_text()
         vg.TMP_APBS_CONTENT_PQR = path_tmp_pqr.read_text()
 
 
     # --------------------------------------------------------------------------
-    def _assert_success(self, proc: subprocess.CompletedProcess):
+    @staticmethod
+    def _assert_success(proc: subprocess.CompletedProcess):
         if proc.returncode == 0: return
-
-        self._safe_cleanup()
         raise RuntimeError('\n'.join((
-            f"{proc.args[0]} failed (code={proc.returncode}):",
-            proc.stderr or "<empty_stderr>",
+            f"{proc.args[1]} failed (code={proc.returncode}):",
+            "=============== STDOUT ===============",
             proc.stdout or "<empty_stdout>",
+            "=============== STDERR ===============",
+            proc.stderr or "<empty_stderr>",
         )))
 
 
