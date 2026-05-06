@@ -19,7 +19,7 @@ class OgHBDonors(sm._smifs_core.SmifHBonds):
         triplet.set_pos_head(self.res_atoms)
 
     # --------------------------------------------------------------------------
-    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
+    def populate_grid(self, grid: vg.Grid) -> None:
         """Populate grid with spherical accessibility regions."""
         grid.reset()
         for triplet in self._iter_triplets():
@@ -27,7 +27,6 @@ class OgHBDonors(sm._smifs_core.SmifHBonds):
             self.kernel.stamp(grid, triplet.pos_interactor)
 
         grid.dirty = True
-        return grid
 
 
 # //////////////////////////////////////////////////////////////////////////////

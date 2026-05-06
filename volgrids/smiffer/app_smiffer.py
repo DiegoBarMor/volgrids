@@ -140,22 +140,15 @@ class AppSmiffer(vg.AppSubcommand):
         self.cavfinder = sm.CavityFinder()
 
         self.trimmer.trim(self.cavfinder)
-
-        if sm.DO_SMIF_APBS:
-            ### [TODO] refactor into taking directly box (instead of initializing an empty grid_apbs)
-            ### this is implemented like this to ave a consistent signature for populate_grid among different smifs
-            ### it's also the only reason why populate_grid returns a grid
-            grid_apbs = vg.Grid(ms.box, init_grid = False)
-            grid_apbs = sm.SmifAPBS(ms).populate_grid(grid_apbs)
-            grid_apbs.reshape_as_box(self.trimmer.specific_masks["large"].box) # [TODO] needed?
-            self._trim_and_weight_grid(grid_apbs, key_trimming = "large")
-            sm.Smif.save_data(grid_apbs, ms, self.folder_out, "apbs")
-            del grid_apbs
-            del self.trimmer.specific_masks["large"]
-
-        self.grid_smif = vg.Grid(ms.box)
+        self.grid_smif = vg.Grid(ms.box, init_grid = not sm.DO_SMIF_APBS)
 
         ### Calculate standard SMIF grids
+        if sm.DO_SMIF_APBS:
+            sm.SmifAPBS(ms).populate_grid(self.grid_smif)
+            self._trim_and_weight_grid(self.grid_smif, key_trimming = "large")
+            sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "apbs")
+            del self.trimmer.specific_masks["large"]
+
         if sm.DO_SMIF_HYDROPHILIC:
             sm.SmifHydrophilic(ms).populate_grid(self.grid_smif)
             self._trim_and_weight_grid(self.grid_smif, key_trimming = "small")

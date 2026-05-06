@@ -5,7 +5,7 @@ from ._core.hydro import SmifHydro
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHydrophobic(SmifHydro):
-    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
+    def populate_grid(self, grid: vg.Grid) -> None:
         grid.reset()
         radius = sm.MU_HYDROPHOBIC + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_HYDROPHOBIC
         kernel = vg.KernelGaussianUnivariateDist(
@@ -16,7 +16,6 @@ class SmifHydrophobic(SmifHydro):
             kernel.stamp(grid, particle.position, multiply_by =  mul_factor)
 
         grid.dirty = True
-        return grid
 
 
 # //////////////////////////////////////////////////////////////////////////////

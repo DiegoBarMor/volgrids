@@ -7,7 +7,7 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifStacking(sm.Smif):
-    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
+    def populate_grid(self, grid: vg.Grid) -> None:
         grid.reset()
         kernel = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_STACKING + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_STACKING,
@@ -24,7 +24,6 @@ class SmifStacking(sm.Smif):
             kernel.stamp(grid, cog, multiply_by = sm.ENERGY_SCALE)
 
         grid.dirty = True
-        return grid
 
 
     # --------------------------------------------------------------------------
@@ -32,11 +31,16 @@ class SmifStacking(sm.Smif):
         resname_to_ids = defaultdict(set)
         atoms = self.ms.get_relevant_atoms()
 
+        if not len(atoms): return
+        try:
+            _ = atoms[0].chainID
+            skip_chainID = False
+        except mda.exceptions.NoDataError:
+            skip_chainID = True
+
+
         for a in atoms:
-            try:
-                chain = a.chainID
-            except mda.exceptions.NoDataError:
-                chain = None
+            chain = None if skip_chainID else a.chainID
             resname_to_ids[a.resname.upper()].add((a.resid, chain))
 
         for resname,res_infos in resname_to_ids.items():

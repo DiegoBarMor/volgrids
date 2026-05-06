@@ -7,14 +7,14 @@ from volgrids._vendors import freyacli as fy
 # //////////////////////////////////////////////////////////////////////////////
 class SmifAPBS(sm.Smif):
     # --------------------------------------------------------------------------
-    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
+    def populate_grid(self, grid: vg.Grid) -> None:
         if sm.PATH_APBS is not None:
-            return self._apbs_to_smif(grid.box, sm.PATH_APBS)
+            return self._apbs_to_smif(grid, sm.PATH_APBS)
 
         timer = vg.Timer().start()
         ### "sm.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
         with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name) as path_apbs:
-            return self._apbs_to_smif(grid.box, path_apbs, timer)
+            return self._apbs_to_smif(grid, path_apbs, timer)
 
 
     # --------------------------------------------------------------------------
@@ -25,16 +25,16 @@ class SmifAPBS(sm.Smif):
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def _apbs_to_smif(box_dst: vg.Box, path_apbs_in, timer: vg.Timer = None) -> vg.Grid:
+    def _apbs_to_smif(grid: vg.Grid, path_apbs_in, timer: vg.Timer = None) -> None:
         if timer is not None: sm.APBS_ELAPSED_TIME = timer.end(
             text = fy.Color.red("APBS"), end = ' '
         )
 
         apbs = vg.GridIO.read_auto(path_apbs_in)
-        apbs.reshape_as_box(box_dst)
-
-        apbs.dirty = True
-        return apbs
+        apbs.reshape_as_box(grid.box)
+        grid.arr = apbs.arr
+        grid.dirty = True
+        del apbs
 
 
     # --------------------------------------------------------------------------

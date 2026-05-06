@@ -25,14 +25,13 @@ class SmifHBonds(Smif, ABC):
 
 
     # --------------------------------------------------------------------------
-    def populate_grid(self, grid: vg.Grid) -> vg.Grid:
+    def populate_grid(self, grid: vg.Grid) -> None:
         grid.reset()
         for pos_interactor, vec_direction in self.iter_particles():
             self.kernel.recalculate_kernel(vec_direction, isStacking = False)
             self.kernel.stamp(grid, pos_interactor, multiply_by = sm.ENERGY_SCALE)
 
         grid.dirty = True
-        return grid
 
 
     # --------------------------------------------------------------------------
