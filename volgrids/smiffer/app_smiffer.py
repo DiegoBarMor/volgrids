@@ -13,7 +13,7 @@ class AppSmiffer(vg.AppSubcommand):
         self.str_mode = str_mode # just for printing
 
         ##### initialized once in __init__
-        self.ms: sm.MolSystemSmiffer
+        self.ms: sm.MolSystem
         self.timer: vg.Timer
         self.folder_out: Path
         self.path_traj: Path
@@ -76,7 +76,7 @@ class AppSmiffer(vg.AppSubcommand):
 
         ### these must be initialized after the configs are loaded,
         ### so it's appropriate to place them at the end of init
-        self.ms = sm.MolSystemSmiffer(sm.PATH_STRUCT, self.path_traj)
+        self.ms = sm.MolSystem(sm.PATH_STRUCT, self.path_traj)
         self.timer = vg.Timer(
             f">>> {sm.CURRENT_MOLTYPE.name:<4} {'Sphere' if self.ms.do_ps else 'Whole'} "+\
             f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
@@ -196,15 +196,15 @@ class AppSmiffer(vg.AppSubcommand):
 
 
     # --------------------------------------------------------------------------
-    def _current_mol_system(self) -> "sm.MolSystemSmiffer":
+    def _current_mol_system(self) -> "sm.MolSystem":
         if not sm.DO_SMIF_APBS: return self.ms
 
         ### When dealing with APBS, a first step of PQR generation should always be performed.
         ### PQR can add hydrogen atoms, which should be reflected in the occupancy trimming
         ### operation or be used by HBond SMIFs.
         sm.SmifAPBS(self.ms).gen_pqr()
-        obj = sm.MolSystemSmiffer.from_pqr_data(vg.TMP_APBS_CONTENT_PQR)
-        sm.MolSystemSmiffer.copy_attributes_except_system(src = self.ms, dst = obj)
+        obj = sm.MolSystem.from_pqr_data(vg.TMP_APBS_CONTENT_PQR)
+        sm.MolSystem.copy_attributes_except_system(src = self.ms, dst = obj)
         return obj
 
 

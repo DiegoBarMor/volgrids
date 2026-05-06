@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 import volgrids as vg
+import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class GridVolumetricEnergy(vg.Grid):
@@ -10,7 +11,7 @@ class GridVolumetricEnergy(vg.Grid):
     HEIGHT_DISKS = 0.25
 
     # --------------------------------------------------------------------------
-    def __init__(self, ms: vg.MolSystem, df: pd.DataFrame, kind: str):
+    def __init__(self, ms: sm.MolSystem, df: pd.DataFrame, kind: str):
         super().__init__(ms.box)
         self.ms = ms
         self.df = df[df["kind"] == kind].copy()

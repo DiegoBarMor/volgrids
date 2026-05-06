@@ -1,6 +1,7 @@
 import tempfile
 import warnings
 import numpy as np
+import MDAnalysis as mda
 from pathlib import Path
 
 import volgrids as vg
@@ -8,18 +9,50 @@ import volgrids.smiffer as sm
 from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
-class MolSystemSmiffer(vg.MolSystem):
+class MolSystem:
     def __init__(self, path_struct: Path, path_traj: Path = None):
+        self.molname  : str                 # name of the molecule
+        self.do_traj  : None | bool         # whether this is a trajectory or a single structure (None if no structure is provided)
+        self.system   : None | mda.Universe # MDAnalysis Universe object for the molecular system
+        self.frame    : None | int          # current frame number (if trajectory is used)
+        self.box      : vg.Box
+        self.do_ps    : bool
+        self.chemtable: sm.ParserChemTable
+
+
+        self.molname = path_struct.stem
+        self.do_traj = path_traj is not None
         self.do_ps = sm.SPHERE is not None
         self.chemtable = sm.ParserChemTable(self._get_path_table())
-        super().__init__(path_struct, path_traj)
+
+        if self.do_traj:
+            self.system = mda.Universe(str(path_struct), str(path_traj))
+            self.frame = 0
+            min_coords = np.full(3,  np.inf)
+            max_coords = np.full(3, -np.inf)
+            for _ in self.system.trajectory:
+                positions = self.system.coord.positions
+                np.minimum(min_coords, positions.min(axis = 0), out = min_coords)
+                np.maximum(max_coords, positions.max(axis = 0), out = max_coords)
+            self.system.trajectory[0] # rewind to frame 0
+        else:
+            self.system = mda.Universe(str(path_struct))
+            self.frame = None
+            min_coords = np.min(self.system.coord.positions, axis = 0)
+            max_coords = np.max(self.system.coord.positions, axis = 0)
+
+        self.box = vg.Box.from_min_max(
+            min_coords = min_coords - vg.EXTRA_BOX_SIZE,
+            max_coords = max_coords + vg.EXTRA_BOX_SIZE,
+        )
+        self.box.enforce_equilateral()
 
 
     # --------------------------------------------------------------------------
     @classmethod
     def from_pqr_data(cls, pqr_data: str):
         if not pqr_data:
-            raise ValueError("Empty PQR content, aborting MolSystemSmiffer instantiation.")
+            raise ValueError("Empty PQR content, aborting MolSystem instantiation.")
 
         with tempfile.NamedTemporaryFile(mode = "w+", suffix = ".pqr", delete = True) as tmp_pqr:
             tmp_pqr.write(pqr_data)
@@ -29,7 +62,7 @@ class MolSystemSmiffer(vg.MolSystem):
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def copy_attributes_except_system(src: "MolSystemSmiffer", dst: "MolSystemSmiffer"):
+    def copy_attributes_except_system(src: "MolSystem", dst: "MolSystem"):
         dst.molname = src.molname
         dst.do_traj = src.do_traj
         dst.frame = src.frame

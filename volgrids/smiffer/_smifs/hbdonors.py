@@ -11,7 +11,7 @@ from ._core.triplet import Triplet
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBDonors(SmifHBonds, ABC):
     # --------------------------------------------------------------------------
-    def __init__(self, ms: "sm.MolSystemSmiffer"):
+    def __init__(self, ms: "sm.MolSystem"):
         super().__init__(ms)
         self.hbond_getter = sm.ParserChemTable.get_names_hbd
         self._kernel_hbd_free = vg.KernelGaussianBivariateAngleDist(

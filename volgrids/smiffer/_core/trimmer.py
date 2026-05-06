@@ -7,8 +7,8 @@ import volgrids.smiffer as sm
 class Trimmer:
     KEY_INIT_COMMON_MASK = "mid" # the common mask is initialized by copying this specific mask
 
-    def __init__(self, ms: "sm.MolSystemSmiffer", **distances):
-        self.ms: "sm.MolSystemSmiffer" = ms
+    def __init__(self, ms: "sm.MolSystem", **distances):
+        self.ms: "sm.MolSystem" = ms
 
         self.distances: dict[str, float] = distances
         self.common_mask: vg.Grid = None
@@ -17,7 +17,7 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def init_infer_dists(cls, ms: "sm.MolSystemSmiffer") -> "sm.Trimmer":
+    def init_infer_dists(cls, ms: "sm.MolSystem") -> "sm.Trimmer":
         trimming_dists = {}
         if sm.DO_SMIF_HYDROPHILIC:
             trimming_dists["small"] = sm.TRIMMING_DIST_SMALL

@@ -3,6 +3,7 @@ import pandas as pd
 
 import volgrids as vg
 import volgrids.veins as ve
+import volgrids.smiffer as sm
 
 from volgrids._vendors import freyacli as fy
 
@@ -45,7 +46,7 @@ class AppVeins(vg.AppSubcommand):
 
         ### [TODO] update this below
         ### init phase
-        self.ms = vg.MolSystem(path_struct, path_traj)
+        self.ms = sm.MolSystem(path_struct, path_traj)
         self.df = pd.read_csv(path_csv_energy).dropna(how = "any")
         self.cols_frames: list = None
 

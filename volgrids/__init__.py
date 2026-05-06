@@ -5,7 +5,6 @@ from ._version import __version__
 
 from ._core.box import Box
 from ._core.grid import Grid
-from ._core.mol_system import MolSystem
 
 from ._kernels._core.k_operation import KOperation
 from ._kernels._core.kernel import Kernel

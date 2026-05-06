@@ -1,5 +1,5 @@
 from ._core.mol_type import MolType
-from ._core.mol_system_smiffer import MolSystemSmiffer
+from ._core.mol_system import MolSystem
 from ._core.traj_multiprocess import TrajMultiprocess
 from ._core.cavity_finder import CavityFinder
 from ._core.trimmer import Trimmer

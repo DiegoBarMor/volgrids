@@ -7,8 +7,8 @@ import volgrids.smiffer as sm
 # //////////////////////////////////////////////////////////////////////////////
 class Smif:
     # --------------------------------------------------------------------------
-    def __init__(self, ms: "sm.MolSystemSmiffer"):
-        self.ms: "sm.MolSystemSmiffer" = ms
+    def __init__(self, ms: "sm.MolSystem"):
+        self.ms: "sm.MolSystem" = ms
 
 
     # --------------------------------------------------------------------------
@@ -22,7 +22,7 @@ class Smif:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def save_data(grid: vg.Grid, ms: sm.MolSystemSmiffer, folder_out: Path, title: str):
+    def save_data(grid: vg.Grid, ms: sm.MolSystem, folder_out: Path, title: str):
         def add_suffix(path: Path, suffix: str) -> Path:
             return Path(str(path) + suffix)
 
