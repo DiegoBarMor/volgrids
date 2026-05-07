@@ -48,6 +48,16 @@ class Trimmer:
 
 
     # --------------------------------------------------------------------------
+    def run_for_saving(self, key: str) -> None:
+        """
+        Trimming operations could be skipped if the only intention is to save the trimming/cavities grid.
+        These method ensures that the necessary trimming operations are performed in this case.
+        """
+        if self._should_run_mask_specific(key): self._run_specific(dist = self._distances[key])
+        if self._should_run_cavities(): self._run_cavities()
+
+
+    # --------------------------------------------------------------------------
     @classmethod
     def should_do_trim_small(cls) -> bool:
         return sm.DO_SMIF_HYDROPHILIC
@@ -58,7 +68,7 @@ class Trimmer:
     def should_do_trim_mid(cls) -> bool:
         return any((
             sm.DO_SMIF_STACKING, sm.DO_SMIF_HBA, sm.DO_SMIF_HBD, sm.DO_SMIF_HYDROPHOBIC,
-            sm.SAVE_TRIMMING_MASK, cls._should_do_cavities()
+            sm.SAVE_TRIMMING_MASK, cls.should_do_cavities()
         ))
 
 
@@ -70,11 +80,11 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def _should_do_cavities() -> bool:
+    def should_do_cavities() -> bool:
         return any((
             sm.DO_TRIMMING_CAVITIES, sm.SAVE_CAVITIES,
             sm.CAVITIES_WEIGHT != 0.0
-        ))
+        )) and sm.DO_TRIMMING_OCCUPANCY
 
 
     # --------------------------------------------------------------------------
@@ -91,7 +101,7 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     def _should_run_cavities(self) -> bool:
-        return self._should_do_cavities() and not self.cavfinder.has_data()
+        return self.should_do_cavities() and not self.cavfinder.has_data()
 
 
     # --------------------------------------------------------------------------
@@ -131,6 +141,9 @@ class Trimmer:
         self.cavfinder.populate_cavities_grid(self._mask_specific)
 
         if not sm.DO_TRIMMING_CAVITIES: return
+
+        if self._mask_common is None:
+            self._mask_common = vg.Grid(self.ms.box, dtype = bool)
 
         self._mask_common.arr |= (self.cavfinder.grid.arr < sm.TRIMMING_CAVITIES_THRESHOLD)
 

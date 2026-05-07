@@ -164,9 +164,13 @@ class AppSmiffer(vg.AppSubcommand):
                 sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "stacking")
 
             if sm.SAVE_TRIMMING_MASK:
-                mask = self.trimmer.get_mask("mid")
-                reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
-                sm.Smif.save_data(reverse, ms, self.folder_out, "trimming")
+                self.trimmer.run_for_saving("mid")
+                mask = self.trimmer.get_mask()
+                if mask is None:
+                    print(fy.Color.red("WARNING: ") + "Trimming mask was requested to be saved, but it is None. Skipping.")
+                else:
+                    reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
+                    sm.Smif.save_data(reverse, ms, self.folder_out, "trimming")
 
 
         def run_with_trim_small():
@@ -185,7 +189,8 @@ class AppSmiffer(vg.AppSubcommand):
         if self.trimmer.should_do_trim_mid()  : run_with_trim_mid()
         if self.trimmer.should_do_trim_small(): run_with_trim_small()
 
-        if sm.SAVE_CAVITIES and self.trimmer.cavfinder.has_data():
+        if sm.SAVE_CAVITIES and self.trimmer.should_do_cavities():
+            self.trimmer.run_for_saving("mid")
             sm.Smif.save_data(self.trimmer.cavfinder.grid, ms, self.folder_out, "cavities")
 
         del self.grid_smif # just in case

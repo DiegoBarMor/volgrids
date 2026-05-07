@@ -57,7 +57,7 @@
         !fyh:key Optional CMAP key (frame name) to plot a single frame instead of all frames.
     !@
     @log_apbs
-        !fyh:_ Heuristic transformationn of APBS grids, useful for some visualization pipelines.
+        !fyh:_ Heuristic transformation of APBS grids, useful for some visualization pipelines.
         !fyh:path_in Path to an APBS grid file (original or already processed by smiffer).
         !fyh:path_out Path where to store the resulting grid.
     !@

@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.11.0] - 2026-05-07
+- Important refactorings in some internal implementations (mostly for smiffer and the APBS wrapper).
+    - Improved memory usage.
+    - Moved `log_apbs` to an independent smutils tool.
+    - Removed *SMIF_HYDRODIFF*, as it is now unnecesary.
+        - This operation can now be performed very easily as postprocessing by using `vgtools op sub` (e.g. `volgrids vgtools op sub hphob.mrc hphil.mrc hdiff.mrc`)
+    - All SMIF and trimming operations are now ensured to use the same molecular system information.
+        - This can be either the input structure directly, or use atom data from the pertinent intermediary PQR file (in case `DO_SMIF_APBS=true`).
+    - Other internal refactorings.
+
+- Added `vgtools points` for getting the grid values at specific points in space.
+- Trajectory grids now base their box on the global minimum/maximum coordinates accross all frames (instead of just the first one).
+- Standard DNA residue names (**DT**, **DC**, **DA**, **DG**) and alternative RNA residue names (**RU**, **RC**, **RA**, **RG**) should now be recognized by smiffer.
+    - **DT** will be considered as analogous to **U** for SMIF operations.
+
+
 ## [0.10.0] - 2026-05-04
 - General:
     - Trajectory mode can now be handled with optional multiprocessing (`-n` flag).
