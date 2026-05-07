@@ -26,14 +26,14 @@ class CavityFinder:
 
 
     # --------------------------------------------------------------------------
-    def apply_cavities_weighting(self, smif: "sm.Smif"):
+    def apply_cavities_weighting(self, g: "vg.Grid"):
         if sm.CAVITIES_WEIGHT == 0.0: return
         if not self.has_data(): return
-        if not self.grid.has_equivalent_box(smif.grid.box):
+        if not self.grid.has_equivalent_box(g.box):
             print(fy.Color.red("WARNING:")+" Cavity grid and smif grid do not have the same box. Cavity weighting aborted.")
             return
 
-        smif.grid.arr *= (1 + self.grid.arr * sm.CAVITIES_WEIGHT)
+        g.arr *= (1 + self.grid.arr * sm.CAVITIES_WEIGHT)
 
 
     # --------------------------------------------------------------------------

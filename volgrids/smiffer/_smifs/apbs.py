@@ -7,36 +7,45 @@ from volgrids._vendors import freyacli as fy
 # //////////////////////////////////////////////////////////////////////////////
 class SmifAPBS(sm.Smif):
     # --------------------------------------------------------------------------
-    def populate_grid(self):
+    def populate_grid(self, grid: vg.Grid) -> None:
         if sm.PATH_APBS is not None:
-            self.apbs_to_smif(sm.PATH_APBS)
-            return
+            return self._apbs_to_smif(grid, sm.PATH_APBS)
 
         timer = vg.Timer().start()
-        with vg.APBSSubprocess( # "sm.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
-            self.ms.system.atoms, sm.PATH_STRUCT.name, keep_pqr = True
-        ) as path_apbs: self.apbs_to_smif(path_apbs, timer)
+        ### "sm.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
+        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name) as path_apbs:
+            return self._apbs_to_smif(grid, path_apbs, timer)
 
 
     # --------------------------------------------------------------------------
-    def apbs_to_smif(self, path_apbs_in, timer: vg.Timer = None):
+    def gen_pqr(self):
+        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name, only_pdb2pqr = True) as _:
+            return
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def _apbs_to_smif(grid: vg.Grid, path_apbs_in, timer: vg.Timer = None) -> None:
         if timer is not None: sm.APBS_ELAPSED_TIME = timer.end(
             text = fy.Color.red("APBS"), end = ' '
         )
 
         apbs = vg.GridIO.read_auto(path_apbs_in)
-        apbs.reshape_as_box(self.grid.box)
-        self.grid = apbs
+        apbs.reshape_as_box(grid.box)
+        grid.arr = apbs.arr
+        grid.dirty = True
+        del apbs
 
 
     # --------------------------------------------------------------------------
-    def apply_logabs_transform(self):
-        if self.grid.is_empty():
+    @staticmethod
+    def apply_logabs_transform(grid: vg.Grid) -> None:
+        if grid.is_empty():
             print(f"...--- {fy.Color.red('APBS potential grid is empty')}. Skipping logabs transform.", flush = True)
             return
 
-        logpos = np.log10( self.grid.arr[self.grid.arr > 0])
-        logneg = np.log10(-self.grid.arr[self.grid.arr < 0])
+        logpos = np.log10( grid.arr[grid.arr > 0])
+        logneg = np.log10(-grid.arr[grid.arr < 0])
 
         ##### APPLY CUTOFFS
         logpos[logpos < sm.APBS_MIN_CUTOFF] = sm.APBS_MIN_CUTOFF
@@ -53,8 +62,8 @@ class SmifAPBS(sm.Smif):
         logneg *= -2 # 2*APBS_MIN_CUTOFF and 2*APBS_MAX_CUTOFF
 
         ##### RESULT
-        self.grid.arr[self.grid.arr > 0] = logpos
-        self.grid.arr[self.grid.arr < 0] = logneg
+        grid.arr[grid.arr > 0] = logpos
+        grid.arr[grid.arr < 0] = logneg
 
 
 # //////////////////////////////////////////////////////////////////////////////

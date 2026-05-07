@@ -56,6 +56,11 @@
             If not provided, the plot is displayed interactively.
         !fyh:key Optional CMAP key (frame name) to plot a single frame instead of all frames.
     !@
+    @log_apbs
+        !fyh:_ Heuristic transformation of APBS grids, useful for some visualization pipelines.
+        !fyh:path_in Path to an APBS grid file (original or already processed by smiffer).
+        !fyh:path_out Path where to store the resulting grid.
+    !@
 !@
 
 @apbs
@@ -118,6 +123,14 @@
         !fyh:x Rotation angle in degrees along the yz plane (in degrees).
         !fyh:y Rotation angle in degrees along the xz plane (in degrees).
         !fyh:z Rotation angle in degrees along the xy plane (in degrees).
+    !@
+    @points
+        !fyh:_ Get the grid value(s) for specific XYZ point(s) in space.
+            Grid values for every point are returned space-separated.
+        !fyh:path_in Path to a grid file.
+        !fyh:points (x,y,z) coordinates for the point(s) of interest.
+            All values are to be provided space-separated.
+            Must give at least 3 values (for a single XYZ point) or 3n values (where n is the number of points).
     !@
     @op
         !fyh:_

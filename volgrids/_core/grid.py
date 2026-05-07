@@ -10,6 +10,7 @@ class Grid:
         self.dtype: type = vg.FLOAT_DTYPE if dtype is None else dtype
         self.fmt: vg.GridFormat = None
         self.arr: np.ndarray|None
+        self.dirty: bool = False # whether grid should be filled with 0s when calling reset()
 
         if init_grid:
             self._warning_big_grid()
@@ -108,6 +109,12 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def reset(self) -> None:
+        if not self.dirty: return
+        self.arr.fill(0)
+
+
+    # --------------------------------------------------------------------------
     @classmethod
     def reverse(cls, other: "Grid") -> "Grid":
         """Return a new Grid with the reversed values of the other Grid.
@@ -141,6 +148,14 @@ class Grid:
     def   dz(self): return self.box.deltas[2]
 
     def npoints(self): return self.xres() * self.yres() * self.zres()
+
+
+    # --------------------------------------------------------------------------
+    def value_at_position(self, pos: tuple[float, float, float]) -> float:
+        """Get the value of the grid at a given position in space. Returns `0.0` if the position is outside the grid."""
+        idx = self.box.pos_to_index(np.array(pos))
+        if idx is None: return 0.0
+        return self.arr[tuple(idx)]
 
 
     # --------------------------------------------------------------------------

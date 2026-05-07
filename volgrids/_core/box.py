@@ -72,6 +72,37 @@ class Box:
 
 
     # --------------------------------------------------------------------------
+    def contains_point(self, point: np.ndarray) -> bool:
+        return np.all((point >= self.min_coords) & (point <= self.max_coords))
+
+
+    # --------------------------------------------------------------------------
+    def pos_to_index(self, pos: np.ndarray[float]) -> np.ndarray[int]|None:
+        """
+        Convert a position in space to the corresponding index in the grid array.
+        input:  (3,) FLOAT
+        output: (3,) INT
+            or `None` if the position is outside the box
+        """
+        if not self.contains_point(pos): return
+        return np.round((pos - self.min_coords) / self.deltas).astype(int)
+
+
+    # --------------------------------------------------------------------------
+    def enforce_equilateral(self):
+        max_resolution: np.ndarray = np.max(self.resolution)
+        res_diff = max_resolution - self.resolution
+
+        pad_0 = np.ceil (res_diff / 2).astype(int)
+        pad_1 = np.floor(res_diff / 2).astype(int)
+
+        self.resolution  = np.array([max_resolution, max_resolution, max_resolution], dtype = int)
+        self.min_coords -= pad_0 * self.deltas
+        self.max_coords += pad_1 * self.deltas
+        self.infer_radius_and_cog()
+
+
+    # --------------------------------------------------------------------------
     @classmethod
     def smallest_enclosing_box(cls, *boxes: "Box") -> "Box":
         return cls.from_min_max(

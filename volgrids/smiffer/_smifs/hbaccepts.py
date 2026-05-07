@@ -7,8 +7,8 @@ from ._core.triplet import Triplet
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBAccepts(SmifHBonds):
     # --------------------------------------------------------------------------
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, ms: "sm.MolSystem"):
+        super().__init__(ms)
         self.kernel = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_HBA + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBA,
             deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBA

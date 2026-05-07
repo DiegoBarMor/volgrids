@@ -1,2 +1,2 @@
-freyacli __version__ = "0.4.0"
+freyacli __version__ = "0.4.1"
 molutils __version__ = "0.4.0"

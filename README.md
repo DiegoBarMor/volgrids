@@ -130,6 +130,7 @@ Run the subcommands without any further arguments to read more about their speci
 - `volgrids smutils occupancy prot`: Calculate OGs for protein structures.
 - `volgrids smutils occupancy rna`: Calculate OGs for RNA structures.
 - `volgrids smutils occupancy ligand`: Calculate OGs for ligand structures. A .chem table must be provided.
+- `volgrids smutils log_apbs`: Heuristic transformationn of APBS grids, useful for some visualization pipelines.
 - `volgrids vgtools convert`: Convert grid files between formats.
 - `volgrids vgtools pack`: Pack multiple grid files into a single CMAP series-file.
 - `volgrids vgtools unpack`: Unpack a CMAP series-file into multiple grid files.
@@ -138,6 +139,7 @@ Run the subcommands without any further arguments to read more about their speci
 - `volgrids vgtools summary`: Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.
 - `volgrids vgtools compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
 - `volgrids vgtools rotate`: Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
+- `volgrids vgtools points`: Get the grid value(s) for specific XYZ point(s) in space. Grid values for every point are returned space-separated.
 - `volgrids vgtools op abs`: Element-wise absolute value of the grid's points.
 - `volgrids vgtools op add`: Element-wise addition of the grids' points.
 - `volgrids vgtools op sub`: Element-wise substraction of the grids' points. Order is "grid_0 - grid_1".

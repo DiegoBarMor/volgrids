@@ -1,14 +1,15 @@
 #!/bin/bash
+set -euo pipefail
 
 ### Automatic calculation of electrostatic potential grids using APBS.
 ### The grid will be saved in the same folder as the input PDB file,
 ### with the same name but with extension .dx or .mrc (if --mrc is used).
-### All intermediate files will be removed (PQR can be conserved by using --pqr).
+### All intermediate files will be removed (PQR can be conserved by using --keep-pqr).
 ###
 ### Requires: pdb2pqr, apbs
 ### Optional: python3 with volgrids installed (for MRC conversion)
-### Usage: apbs.sh <path_pdb> [--mrc] [--pqr] [--verbose]
-### Example: apbs.sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --pqr --verbose
+### Usage: apbs.sh <path_pdb> [--mrc] [--keep-pqr] [--verbose]
+### Example: apbs.sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --keep-pqr --verbose
 
 
 ### default parameters
@@ -18,7 +19,7 @@ VERBOSE=false        # print verbose output from APBS?
 
 help_message() {
     name_sh=$(basename "$0")
-    echo "Usage: $name_sh <path_pdb> [--mrc] [--pqr] [--verbose]"
+    echo "Usage: $name_sh <path_pdb> [--mrc] [--keep-pqr] [--verbose]"
     echo "Example: $name_sh testdata/smiffer/pdb_clean/1iqj.pdb --mrc --verbose"
 }
 echo_red() {
@@ -39,7 +40,7 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
             CONVERT_TO_MRC=true
             shift
             ;;
-        --pqr)
+        --keep-pqr)
             KEEP_PQR=true
             shift
             ;;
@@ -60,6 +61,7 @@ if [[ ! -f "$path_pdb" ]]; then
     exit 253
 fi
 
+root_volgrids=$(dirname "$(dirname "$(realpath "$0")")")
 folder_out=$(dirname "$path_pdb")
 cd "$folder_out" || exit 252 # ------------------------------ inside output folder vvvvv
 
@@ -70,18 +72,13 @@ path_in="$name_pdb.in"
 tmp_log=$(mktemp)
 trap 'rm -f "$tmp_log"' EXIT
 
-### Create APBS input file
-if [[ "$VERBOSE" == "true" ]]; then
-    pdb2pqr --ff=AMBER "$name_pdb" "$path_pqr" --apbs-input "$path_in" 2>&1 | tee -a "$tmp_log" >&2
-    rc=${PIPESTATUS[0]}
-else
-    pdb2pqr --ff=AMBER "$name_pdb" "$path_pqr" --apbs-input "$path_in" >>"$tmp_log" 2>&1
+### Create APBS input file (if not already present)
+if [[ ! -f "$path_in" || ! -f "$path_pqr" ]]; then
+    bash "$root_volgrids/apbs/pdb2pqr.sh" "$path_pdb" --verbose
     rc=$?
-fi
-if [[ $rc -ne 0 ]]; then
-    cat "$tmp_log" >&2
-    echo_red "pdb2pqr failed (exit code $rc). See output above."
-    exit "$rc"
+    if [[ $rc -ne 0 ]]; then
+        exit "$rc"
+    fi
 fi
 
 ### Run APBS
@@ -116,7 +113,6 @@ fi
 cd - >/dev/null || exit 250 # ------------------------------------ back to original folder vvvvv
 
 if [[ "$CONVERT_TO_MRC" == "true" ]]; then
-    root_volgrids=$(dirname "$(dirname "$(realpath "$0")")")
     ### if this sh script is moved somewhere else and the volgrids package is installed
     ### the command below can be simplified to just "volgrids vgtools convert ..."
     python3 "$root_volgrids" vgtools convert "$folder_out/$name_pdb.dx" --mrc "$folder_out/$name_pdb.mrc"

@@ -1,12 +1,14 @@
 import numpy as np
 from collections import defaultdict
+import MDAnalysis as mda
 
 import volgrids as vg
 import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifStacking(sm.Smif):
-    def populate_grid(self):
+    def populate_grid(self, grid: vg.Grid) -> None:
+        grid.reset()
         kernel = vg.KernelGaussianBivariateAngleDist(
             radius = sm.MU_DIST_STACKING + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_STACKING,
             deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_STACK
@@ -19,7 +21,9 @@ class SmifStacking(sm.Smif):
             normal = vg.Math.normalize(np.cross(u, v))
 
             kernel.recalculate_kernel(normal, isStacking = True)
-            kernel.stamp(self.grid, cog, multiply_by = sm.ENERGY_SCALE)
+            kernel.stamp(grid, cog, multiply_by = sm.ENERGY_SCALE)
+
+        grid.dirty = True
 
 
     # --------------------------------------------------------------------------
@@ -27,8 +31,17 @@ class SmifStacking(sm.Smif):
         resname_to_ids = defaultdict(set)
         atoms = self.ms.get_relevant_atoms()
 
+        if not len(atoms): return
+        try:
+            _ = atoms[0].chainID
+            skip_chainID = False
+        except mda.exceptions.NoDataError:
+            skip_chainID = True
+
+
         for a in atoms:
-            resname_to_ids[a.resname.upper()].add((a.resid, a.chainID))
+            chain = None if skip_chainID else a.chainID
+            resname_to_ids[a.resname.upper()].add((a.resid, chain))
 
         for resname,res_infos in resname_to_ids.items():
             aromatic_atoms = self.ms.chemtable.get_names_stacking(resname)
