@@ -127,6 +127,9 @@ class MolSystem:
             name = "rna_simple_hb" if sm.HBONDS_ONLY_NUCLEOBASE else "rna"
             return folder_default_tables / f"{name}.chem"
 
+        if sm.CURRENT_MOLTYPE == sm.MolType.MACRO:
+            return folder_default_tables / "macro.chem"
+
         raise ValueError(f"No default table for the specified molecular type '{sm.CURRENT_MOLTYPE}'. Please provide a path to a custom table.")
 
 

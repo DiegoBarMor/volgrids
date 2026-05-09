@@ -7,7 +7,11 @@
         !use:_smif_mode
     !@
     @rna
-        !fyh:_ Calculate SMIFs for RNA structures.
+        !fyh:_ Calculate SMIFs for RNA/DNA structures.
+        !use:_smif_mode
+    !@
+    @macro
+        !fyh:_ Calculate SMIFs for protein/DNA/RNA structures.
         !use:_smif_mode
     !@
     @ligand
@@ -25,7 +29,11 @@
             !use:_smif_mode
         !@
         @rna
-            !fyh:_ Calculate OGs for RNA structures.
+            !fyh:_ Calculate OGs for RNA/DNA structures.
+            !use:_smif_mode
+        !@
+        @macro
+            !fyh:_ Calculate OGs for protein/DNA/RNA structures.
             !use:_smif_mode
         !@
         @ligand

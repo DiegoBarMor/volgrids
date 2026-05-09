@@ -33,7 +33,7 @@ class SmifHBDonors(SmifHBonds, ABC):
 
         ############################### TAIL POSITION
         ### special cases for protein
-        if sm.CURRENT_MOLTYPE == sm.MolType.PROT:
+        if sm.CURRENT_MOLTYPE.is_prot():
             if triplet.resname == "PRO": # donor only if there is no previous residue
                 if self._has_prev_res(triplet): return
 
@@ -57,7 +57,7 @@ class SmifHBDonors(SmifHBonds, ABC):
 
 
         ### special cases for RNA
-        if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
+        if sm.CURRENT_MOLTYPE.is_rna():
             if triplet.interactor == "O3'": # donor only if there is no next residue
                 if self._has_next_res(triplet): return
 

@@ -3,6 +3,7 @@
     ### subcommands section for the "smiffer" sub-app starts here
     @prot   !use:_smif_mode !@
     @rna    !use:_smif_mode !@
+    @macro  !use:_smif_mode !@
     @ligand !use:_smif_mode !@
 !@
 
@@ -10,6 +11,7 @@
     @occupancy
         @prot   !use:_smif_mode !@
         @rna    !use:_smif_mode !@
+        @macro  !use:_smif_mode !@
         @ligand !use:_smif_mode !@
     !@
     @res_nobp
