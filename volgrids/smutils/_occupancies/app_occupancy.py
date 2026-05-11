@@ -11,6 +11,8 @@ class AppOccupancy(sm.AppSmiffer):
 
     # --------------------------------------------------------------------------
     def _process_grids(self):
+        self.grid_smif = vg.Grid(self.ms.box, init_grid = not sm.DO_SMIF_APBS)
+
         if sm.DO_SMIF_HYDROPHOBIC:
             su.OgHydrophobic(self.ms).populate_grid(self.grid_smif)
             sm.Smif.save_data(self.grid_smif, self.ms, self.folder_out, "og_hydrophobic")

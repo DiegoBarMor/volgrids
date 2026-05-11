@@ -112,6 +112,8 @@ class ParserChemTable:
         if resname in cls._RESNAME_DNA_TO_STANDARD:
             return cls._RESNAME_DNA_TO_STANDARD[resname]
 
+        return resname
+
 
     # --------------------------------------------------------------------------
     def _parse_table(self):
