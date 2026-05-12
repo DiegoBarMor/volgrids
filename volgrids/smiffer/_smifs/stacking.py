@@ -44,17 +44,18 @@ class SmifStacking(sm.Smif):
             resname_to_ids[a.resname.upper()].add((a.resid, chain))
 
         for resname,res_infos in resname_to_ids.items():
-            aromatic_atoms = self.ms.chemtable.get_names_stacking(resname)
-            if aromatic_atoms is None: continue
+            lst_planes_atoms = self.ms.chemtable.get_names_stacking(resname)
+            if lst_planes_atoms is None: continue
 
             for resid,chain in res_infos:
-                sel = f"resid {resid} and name {aromatic_atoms}"
-                if chain: sel += f" and chainID {chain}"
+                for plane_atoms in lst_planes_atoms:
+                    sel = f"resid {resid} and name {plane_atoms}"
+                    if chain: sel += f" and chainID {chain}"
 
-                atoms_plane = atoms.select_atoms(sel)
-                if len(atoms_plane) < 3: continue # include rings even if they're not completely inside the grid's boundaries
+                    atoms_plane = atoms.select_atoms(sel)
+                    if len(atoms_plane) < 3: continue # include rings even if they're not completely inside the grid's boundaries
 
-                yield atoms_plane
+                    yield atoms_plane
 
 
 # //////////////////////////////////////////////////////////////////////////////

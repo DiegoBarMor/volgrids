@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1] - 2026-05-12
+- Added option to run smiffer on both protein and nucleic atoms at the same time, by using the `macro` subcommand (in place of `prot` or `rna`).
+- Fixed bug in `smutils occupancy`.
+- Fixed bug where only one stacking group was considered per residue name from the chemtable files.
+- Set default *Occupancy Grid* radii back to 2.0.
+
+
 ## [0.11.0] - 2026-05-07
 - Important refactorings in some internal implementations (mostly for smiffer and the APBS wrapper).
     - Improved memory usage.
