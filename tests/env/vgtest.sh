@@ -14,4 +14,4 @@ python3 volgrids smiffer prot testdata/smiffer/toy_systems/peptide.pdb -o $fout
 
 ### try running it somewhere else
 cd ~
-python3 "$root"/volgrids smiffer prot "$root"/testdata/smiffer/toy_systems/peptide.pdb -o $fout
+python3 "$root"/volgrids smiffer macro "$root"/testdata/smiffer/toy_systems/peptide.pdb -o $fout

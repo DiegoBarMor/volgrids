@@ -35,6 +35,7 @@
 * check whether the trimmer can still be saved when no smifs are calculated
 * reduce the number of file writes performed during trajectory mode
   * introduce multithreading for calculating multiple frames concurrently?
+* `rna` subcommand for smiffer now also considers DNA, change to `nucl`?
 
 
 <!-- ----------------------------------------------------------------------- -->

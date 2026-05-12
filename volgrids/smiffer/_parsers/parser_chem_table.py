@@ -53,7 +53,7 @@ class ParserChemTable:
         self._parser_ini = vg.ParserIni.from_file(path_table)
         self._residues_hphob: dict[str, float] = {}
         self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
-        self._names_stk: dict[str, str] = {}
+        self._names_stk: dict[str, list[str]] = defaultdict(list)
         self._names_hba: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._names_hbd: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._parse_table()
@@ -83,7 +83,7 @@ class ParserChemTable:
 
 
     # --------------------------------------------------------------------------
-    def get_names_stacking(self, resname: str):
+    def get_names_stacking(self, resname: str) -> list[str] | None:
         resname = self._standardize_resname_nucl(resname)
         return self._names_stk.get(resname)
 
@@ -112,7 +112,7 @@ class ParserChemTable:
         if resname in cls._RESNAME_DNA_TO_STANDARD:
             return cls._RESNAME_DNA_TO_STANDARD[resname]
 
-        raise ValueError(f"Unknown nucleic acid residue '{resname}.")
+        return resname
 
 
     # --------------------------------------------------------------------------
@@ -141,7 +141,7 @@ class ParserChemTable:
             self._atoms_hphob[resname][atomname] = float(value)
 
         for resname, atomnames in self._parser_ini.iter_splitted_lines("NAMES_STACKING", sep = ':'):
-            self._names_stk[resname] = atomnames
+            self._names_stk[resname].append(atomnames)
 
         for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBACCEPTORS", sep = ':'):
             triplets = map(_parse_atoms_triplet, str_triplets.split())
