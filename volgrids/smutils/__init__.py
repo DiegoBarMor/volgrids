@@ -23,16 +23,3 @@ OG_RADIUS_HYDROPHOBIC: float = 2.0
 
 __config_keys__ = set(globals().keys()) - _keys_other
 __config_keys__.remove("_keys_other")
-
-
-######################## UI WITH THE OLD SCHEMA
-# ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
-# ### These are global variables that are to be set by
-# ### an instance of ParamHandler (or its inherited classes)
-
-# import pathlib as _pathlib
-# PATH_PDB:    _pathlib.Path = None # "path/input/structure.pdb"
-# STR_SMILES:  _pathlib.Path = None # "O=Cc1ccc(O)c(OC)c1"
-# PATH_OUTPUT: _pathlib.Path = None # "path/output/table.chem"
-
-# INPUT_KIND: str = '' # either "pdb" or "smiles"

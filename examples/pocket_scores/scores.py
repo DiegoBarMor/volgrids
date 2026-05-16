@@ -12,15 +12,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import volgrids as vg
 
 # ------------------------------------------------------------------------------
-def visualize_scores(path_csv: Path, do_hydros = False):
+def visualize_scores(path_csv: Path):
     import seaborn as sns
     import matplotlib.pyplot as plt
 
     df = pd.read_csv(path_csv)
-
-    if not do_hydros:
-        df = df.drop(columns = ["hydrophobic", "hydrophilic"])
-
     for i,row in df.iterrows():
         total = sum(row[1:])
         if total == 0: continue
@@ -36,7 +32,6 @@ def visualize_scores(path_csv: Path, do_hydros = False):
 
     df.sort_values(by = "pdb", key = lambda x: x.map(func_sort), inplace = True)
 
-    if do_hydros:
     ###### create the barplot
     df["apbs-pos"]    += df["apbs-neg"]    # move every column "up"
     df["hydrophilic"] += df["apbs-pos"]    # so that the consecutive barplots stack on top of each other
@@ -52,18 +47,6 @@ def visualize_scores(path_csv: Path, do_hydros = False):
     sns.barplot(data = df, x = "pdb", y = "hydrophilic", color = "#4DD9FF", label = "hydrophilic")
     sns.barplot(data = df, x = "pdb", y = "apbs-pos",    color = "#0000FF", label = "apbs-pos")
     sns.barplot(data = df, x = "pdb", y = "apbs-neg",    color = "#FF0000", label = "apbs-neg")
-
-    else:
-        df["apbs-pos"]    += df["apbs-neg"]
-        df["hbacceptors"] += df["apbs-pos"]
-        df["hbdonors"]    += df["hbacceptors"]
-        df["stacking"]    += df["hbdonors"]
-
-        sns.barplot(data = df, x = "pdb", y = "stacking",    color = "#00FF00", label = "stacking")
-        sns.barplot(data = df, x = "pdb", y = "hbdonors",    color = "#FF8000", label = "hbdonors")
-        sns.barplot(data = df, x = "pdb", y = "hbacceptors", color = "#B300FF", label = "hbacceptors")
-        sns.barplot(data = df, x = "pdb", y = "apbs-pos",    color = "#0000FF", label = "apbs-pos")
-        sns.barplot(data = df, x = "pdb", y = "apbs-neg",    color = "#FF0000", label = "apbs-neg")
 
     sns.move_legend(
         plt.gca(), "upper left", bbox_to_anchor = (0., .98, 1., .102),
