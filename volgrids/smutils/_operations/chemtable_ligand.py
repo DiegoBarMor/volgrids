@@ -14,19 +14,13 @@ class ChemTableLigand:
     def __init__(self, path_pdb_ligand: Path):
         u = mda.Universe(str(path_pdb_ligand))
         self.coords: np.ndarray = u.select_atoms("not name H*").positions
+        self.bonds : np.ndarray = self._get_bonds_matrix()
+        self.idxs  : np.ndarray = np.arange(len(self.bonds))
 
 
     # ------------------------------------------------------------------------------
     def find_flat_rings(self):
-        mat0 = self.coords.reshape(1,-1,3)
-        mat1 = self.coords.reshape(-1,1,3)
-        dist = np.linalg.norm(mat1 - mat0, axis = -1)
-
-        bonds = (0 < dist) & (dist < self.MAX_BOND_LENGTH)
-
-        gen_cycles = (
-            self._find_cycles_dfs(bonds, i) for i in range(len(self.coords))
-        )
+        gen_cycles = map(self._find_cycles_dfs, range(len(self.coords)))
         cycles = {
             tuple(sorted(cycle)) : cycle
             for cycle in gen_cycles if cycle is not None
@@ -39,24 +33,40 @@ class ChemTableLigand:
             for idx,i in enumerate(cycle):
                 j = cycle[(idx+1) % len(cycle)]
                 k = cycle[(idx+2) % len(cycle)]
-                n = np.cross(
-                    self.coords[i] - self.coords[j],
-                    self.coords[k] - self.coords[j]
-                )
-                n /= np.linalg.norm(n)
-                normals[idx] = n
+                normals[idx] = self._get_normal(i, j, k)
 
             dev = np.linalg.norm(
                 np.std(normals, axis = 0)
             )
             flat = dev < self.THRESHOLD_PLANARITY
-            msg = "FLAT:" if flat else "....:"
-            print(cycle, msg, dev)
+            msg = "FLAT" if flat else "...."
+            print(msg, cycle, dev)
 
 
     # ------------------------------------------------------------------------------
-    @classmethod
-    def _find_cycles_dfs(cls, graph: np.ndarray, idx_start: int) -> tuple[int]:
+    def _get_bonds_matrix(self) -> np.ndarray:
+        mat0 = self.coords.reshape(1,-1,3)
+        mat1 = self.coords.reshape(-1,1,3)
+        dist = np.linalg.norm(mat1 - mat0, axis = -1)
+        return (0 < dist) & (dist < self.MAX_BOND_LENGTH)
+
+
+    # ------------------------------------------------------------------------------
+    def _get_neighs(self, idx: int) -> np.ndarray:
+        return self.idxs[self.bonds[idx]]
+
+
+    # ------------------------------------------------------------------------------
+    def _get_normal(self, i: int, j: int, k: int) -> np.ndarray:
+        n = np.cross(
+            self.coords[i] - self.coords[j],
+            self.coords[k] - self.coords[j]
+        )
+        return n / np.linalg.norm(n)
+
+
+    # ------------------------------------------------------------------------------
+    def _find_cycles_dfs(self, idx_start: int) -> tuple[int]:
         paths  : deque[list] = deque()
         queue  : deque[int]  = deque()
         parents: deque[int]  = deque()
@@ -65,13 +75,12 @@ class ChemTableLigand:
         queue.append(idx_start)
         parents.append(-1)
 
-        idxs = np.arange(len(graph))
         while queue:
             node = int(queue.popleft())
             path = paths.popleft()
             parent = parents.popleft()
 
-            neighs = [int(i) for i in idxs[graph[node]] if i != parent]
+            neighs = [int(i) for i in self._get_neighs(node) if i != parent]
 
             if len(path) and node == idx_start:
                 return path
