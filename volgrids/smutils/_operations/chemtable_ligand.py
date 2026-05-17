@@ -7,13 +7,14 @@ import MDAnalysis as mda
 
 # //////////////////////////////////////////////////////////////////////////////
 class ChemTableLigand:
-    MAX_BOND_LENGTH = 2.1
-    THRESHOLD_PLANARITY = 0.060
+    THRESHOLD_PLANARITY = 0.15
 
     # ------------------------------------------------------------------------------
     def __init__(self, path_pdb_ligand: Path):
         u = mda.Universe(str(path_pdb_ligand))
-        self.coords: np.ndarray = u.select_atoms("not name H*").positions
+        u.guess_TopologyAttrs(to_guess = ["bonds"])
+        self.atoms = u.select_atoms("not (name H*)")
+        self.coords: np.ndarray = self.atoms.positions
         self.bonds : np.ndarray = self._get_bonds_matrix()
         self.idxs  : np.ndarray = np.arange(len(self.bonds))
 
@@ -26,18 +27,44 @@ class ChemTableLigand:
             for cycle in gen_cycles if cycle is not None
         }
 
+        flat_rings = []
         for cycle in cycles.values():
             is_flat, dev = self._is_flat(cycle)
             msg = "FLAT" if is_flat else "...."
             print(msg, cycle, dev)
+            if is_flat: flat_rings.append(cycle)
+
+        return flat_rings
+
+
+    # ------------------------------------------------------------------------------
+    def gen_chemtable(self) -> str:
+        rings = self.find_flat_rings()
+        resname = self.atoms[0].resname
+        chemtable = '\n'.join((
+            "[SELECTION_QUERY]",
+            f"resname {resname}", "",
+            "[NAMES_STACKING]",
+            *(
+                f"{resname}: {' '.join(self.atoms[ring].names)}"
+                for ring in rings
+            )
+        ))
+        return chemtable
 
 
     # ------------------------------------------------------------------------------
     def _get_bonds_matrix(self) -> np.ndarray:
-        mat0 = self.coords.reshape(1,-1,3)
-        mat1 = self.coords.reshape(-1,1,3)
-        dist = np.linalg.norm(mat1 - mat0, axis = -1)
-        return (0 < dist) & (dist < self.MAX_BOND_LENGTH)
+        mat = np.zeros((len(self.coords), len(self.coords)), dtype = bool)
+        atomid_to_idx = {int(a.id) : i for i,a in enumerate(self.atoms)}
+        for bond in self.atoms.bonds:
+            i = atomid_to_idx.get(int(bond.atoms[0].id))
+            j = atomid_to_idx.get(int(bond.atoms[1].id))
+            if i is None: continue # skip bonds with excluded atoms i.e. hydrogens
+            if j is None: continue
+            mat[i,j] = True
+            mat[j,i] = True
+        return mat
 
 
     # ------------------------------------------------------------------------------
@@ -115,13 +142,15 @@ class ChemTableLigand:
 # //////////////////////////////////////////////////////////////////////////////
 # ------------------------------------------------------------------------------
 def main():
-    ctl = ChemTableLigand(PATH_PDB_LIGAND)
-    ctl.find_flat_rings()
+    PATH_CHEM_OUT.write_text(
+        ChemTableLigand(PATH_PDB_LIGAND).gen_chemtable()
+    )
 
 
 ################################################################################
 if __name__ == "__main__":
     PATH_PDB_LIGAND = Path(sys.argv[1])
+    PATH_CHEM_OUT = PATH_PDB_LIGAND.with_suffix(".chem")
     main()
 
 
