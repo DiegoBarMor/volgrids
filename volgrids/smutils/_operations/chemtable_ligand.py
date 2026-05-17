@@ -8,7 +8,7 @@ import MDAnalysis as mda
 # //////////////////////////////////////////////////////////////////////////////
 class ChemTableLigand:
     MAX_BOND_LENGTH = 2.1
-    THRESHOLD_PLANARITY = 0.25
+    THRESHOLD_PLANARITY = 0.060
 
     # ------------------------------------------------------------------------------
     def __init__(self, path_pdb_ligand: Path):
@@ -27,19 +27,8 @@ class ChemTableLigand:
         }
 
         for cycle in cycles.values():
-            if len(cycle) <= 3: continue
-
-            normals = np.zeros((len(cycle), 3))
-            for idx,i in enumerate(cycle):
-                j = cycle[(idx+1) % len(cycle)]
-                k = cycle[(idx+2) % len(cycle)]
-                normals[idx] = self._get_normal(i, j, k)
-
-            dev = np.linalg.norm(
-                np.std(normals, axis = 0)
-            )
-            flat = dev < self.THRESHOLD_PLANARITY
-            msg = "FLAT" if flat else "...."
+            is_flat, dev = self._is_flat(cycle)
+            msg = "FLAT" if is_flat else "...."
             print(msg, cycle, dev)
 
 
@@ -66,7 +55,7 @@ class ChemTableLigand:
 
 
     # ------------------------------------------------------------------------------
-    def _find_cycles_dfs(self, idx_start: int) -> tuple[int]:
+    def _find_cycles_dfs(self, idx_start: int) -> tuple[int,...]:
         paths  : deque[list] = deque()
         queue  : deque[int]  = deque()
         parents: deque[int]  = deque()
@@ -94,6 +83,35 @@ class ChemTableLigand:
             parents.extend([node for _ in neighs])
 
 
+    # ------------------------------------------------------------------------------
+    def _is_flat(self, cycle: list[int]) -> bool:
+        normals = []
+        for idx,node in enumerate(cycle):
+            neighs = self._get_neighs(node)
+
+            if len(neighs) > 3:
+                return False, np.inf
+
+            i = cycle[(idx-1) % len(cycle)]
+            j = node
+            k = cycle[(idx+1) % len(cycle)]
+            normals.append(self._get_normal(i, j, k))
+
+            if len(neighs) != 3: continue
+
+            l = neighs[0] if neighs[0] not in (i,k) else (
+                neighs[1] if neighs[1] not in (i,k) else
+                neighs[2]
+            )
+            normals.append(self._get_normal(l, j, i))
+            normals.append(self._get_normal(k, j, l))
+
+        dev = np.linalg.norm(
+            np.std(normals, axis = 0)
+        )
+        return dev < self.THRESHOLD_PLANARITY, dev
+
+
 # //////////////////////////////////////////////////////////////////////////////
 # ------------------------------------------------------------------------------
 def main():
@@ -108,3 +126,8 @@ if __name__ == "__main__":
 
 
 ################################################################################
+### check:
+# 1raw_ligand_AMP_1
+# 6c8e_ligand_EQ1_1
+# 6u8u_ligand_Q1V_1
+# 8swo_ligand_G3A_2
