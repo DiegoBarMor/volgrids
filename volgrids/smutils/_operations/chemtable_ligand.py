@@ -8,6 +8,7 @@ import MDAnalysis as mda
 # //////////////////////////////////////////////////////////////////////////////
 class ChemTableLigand:
     MAX_BOND_LENGTH = 2.1
+    THRESHOLD_PLANARITY = 0.25
 
     # ------------------------------------------------------------------------------
     def __init__(self, path_pdb_ligand: Path):
@@ -23,11 +24,15 @@ class ChemTableLigand:
 
         bonds = (0 < dist) & (dist < self.MAX_BOND_LENGTH)
 
-        cycles = set(
+        gen_cycles = (
             self._find_cycles_dfs(bonds, i) for i in range(len(self.coords))
-        ) - {None}
+        )
+        cycles = {
+            tuple(sorted(cycle)) : cycle
+            for cycle in gen_cycles if cycle is not None
+        }
 
-        for cycle in cycles:
+        for cycle in cycles.values():
             if len(cycle) <= 3: continue
 
             normals = np.zeros((len(cycle), 3))
@@ -44,17 +49,19 @@ class ChemTableLigand:
             dev = np.linalg.norm(
                 np.std(normals, axis = 0)
             )
-            print(cycle, "DEVIATION:", dev)
+            flat = dev < self.THRESHOLD_PLANARITY
+            msg = "FLAT:" if flat else "....:"
+            print(cycle, msg, dev)
 
 
     # ------------------------------------------------------------------------------
     @classmethod
     def _find_cycles_dfs(cls, graph: np.ndarray, idx_start: int) -> tuple[int]:
-        paths  : deque[set] = deque()
-        queue  : deque[int] = deque()
-        parents: deque[int] = deque()
+        paths  : deque[list] = deque()
+        queue  : deque[int]  = deque()
+        parents: deque[int]  = deque()
 
-        paths.append(set())
+        paths.append([])
         queue.append(idx_start)
         parents.append(-1)
 
@@ -67,11 +74,11 @@ class ChemTableLigand:
             neighs = [int(i) for i in idxs[graph[node]] if i != parent]
 
             if len(path) and node == idx_start:
-                return tuple(sorted(path))
+                return path
 
             if node in path: continue
 
-            path.add(node)
+            path.append(node)
 
             queue.extend(neighs)
             paths.extend([path.copy() for _ in neighs])
