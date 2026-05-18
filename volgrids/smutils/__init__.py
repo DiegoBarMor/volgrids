@@ -1,4 +1,5 @@
 from ._operations.residues_nucleic import ResiduesNucleic
+from ._operations.chemtable_ligand import ChemTableLigand
 from ._operations.histogram import Histogram
 
 from ._occupancies.hbaccepts import OgHBAccepts
@@ -20,6 +21,8 @@ OG_RADIUS_HBD: float = 2.0
 OG_RADIUS_HYDROPHOBIC: float = 2.0
 # OG_RADIUS_HYDROPHILIC: float = 2.0
 # OG_RADIUS_APBS: float = 2.0
+
+DEBUG_CHEMTABLE_LIGAND: bool = False
 
 __config_keys__ = set(globals().keys()) - _keys_other
 __config_keys__.remove("_keys_other")

@@ -9,6 +9,7 @@
     * remove the dependency to `gridData` in `grid_io.py`
         * use the [mrcfile](https://mrcfile.readthedocs.io/en/stable/) library directly for handling MRC/CCP4 files.
         * DX parser (read) could be manually implemented.
+* improve the calls to `AppMain.load_configs`?
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -59,6 +60,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMUtils
+* check why `DEBUG_CHEMTABLE_LIGAND` config isn't being taken into account
 * ideas:
     * `findsphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
 

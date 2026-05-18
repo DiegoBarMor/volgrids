@@ -20,6 +20,10 @@
     @res_nostk
         path_in[]1.PATH
     !@
+    @chemgen
+        path_in[]1.PATH
+        ~path_out[]1.PATH
+    !@
     @histogram
         path_in[]1.PATH
         ~path_out[o,out]1.PATH

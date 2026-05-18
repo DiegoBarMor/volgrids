@@ -1,12 +1,14 @@
-import sys
 import numpy as np
 from pathlib import Path
 from collections import deque
-
 import MDAnalysis as mda
+
+import volgrids.smutils as su
 
 # //////////////////////////////////////////////////////////////////////////////
 class ChemTableLigand:
+    ### cycles whose normalized plane normals have a standard deviation
+    ### below this value are considered flat enough for stacking
     THRESHOLD_PLANARITY = 0.15
 
     # ------------------------------------------------------------------------------
@@ -30,9 +32,11 @@ class ChemTableLigand:
         flat_rings = []
         for cycle in cycles.values():
             is_flat, dev = self._is_flat(cycle)
+            if is_flat: flat_rings.append(cycle)
+
+            if not su.DEBUG_CHEMTABLE_LIGAND: continue
             msg = "FLAT" if is_flat else "...."
             print(msg, cycle, dev)
-            if is_flat: flat_rings.append(cycle)
 
         return flat_rings
 
@@ -87,6 +91,8 @@ class ChemTableLigand:
         queue  : deque[int]  = deque()
         parents: deque[int]  = deque()
 
+        ### use lists instead of sets to guarantee order of cycle nodes
+        ### this is important to have normals consistently oriented when checking planarity
         paths.append([])
         queue.append(idx_start)
         parents.append(-1)
@@ -111,14 +117,16 @@ class ChemTableLigand:
 
 
     # ------------------------------------------------------------------------------
-    def _is_flat(self, cycle: list[int]) -> bool:
+    def _is_flat(self, cycle: list[int]) -> tuple[bool, float]:
         normals = []
         for idx,node in enumerate(cycle):
             neighs = self._get_neighs(node)
 
+            ##### immediately reject planarity for tetrahedral atoms
             if len(neighs) > 3:
                 return False, np.inf
 
+            ##### add normals for the internal plane of the ring
             i = cycle[(idx-1) % len(cycle)]
             j = node
             k = cycle[(idx+1) % len(cycle)]
@@ -126,6 +134,7 @@ class ChemTableLigand:
 
             if len(neighs) != 3: continue
 
+            ##### add normals for planes defined by any additional substituents
             l = neighs[0] if neighs[0] not in (i,k) else (
                 neighs[1] if neighs[1] not in (i,k) else
                 neighs[2]
@@ -140,23 +149,3 @@ class ChemTableLigand:
 
 
 # //////////////////////////////////////////////////////////////////////////////
-# ------------------------------------------------------------------------------
-def main():
-    PATH_CHEM_OUT.write_text(
-        ChemTableLigand(PATH_PDB_LIGAND).gen_chemtable()
-    )
-
-
-################################################################################
-if __name__ == "__main__":
-    PATH_PDB_LIGAND = Path(sys.argv[1])
-    PATH_CHEM_OUT = PATH_PDB_LIGAND.with_suffix(".chem")
-    main()
-
-
-################################################################################
-### check:
-# 1raw_ligand_AMP_1
-# 6c8e_ligand_EQ1_1
-# 6u8u_ligand_Q1V_1
-# 8swo_ligand_G3A_2
