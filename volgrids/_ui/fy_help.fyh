@@ -54,6 +54,13 @@
         !fyh:path_in
             File path to a molecular structure e.g. a PDB file.
     !@
+    @chemgen
+        !fyh:_ (experimental) Automatically generates a .chem file for a ligand given its 3D structure (e.g. PDB file).
+            Currently only generates rows for stacking interactions, following a heuristic geometrical approach.
+        !fyh:path_in File path to the molecular structure (e.g. PDB file) of a ligand.
+        !fyh:path_out Path where to store the automatic .chem file.
+            Defaults to path_in with extension ".chem".
+    !@
     @histogram
         !fyh:_ Plot the distribution histogram of non-zero voxel values in a grid file.
             For multi-frame CMAP files, all frames are concatenated unless --key is specified.

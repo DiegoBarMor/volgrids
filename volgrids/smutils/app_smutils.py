@@ -16,6 +16,7 @@ class AppSMUtils(vg.AppSubcommand):
         if operation == "occupancy": return self._run_occupancy()
         if operation == "res_nobp" : return self._run_res_nobp()
         if operation == "res_nostk": return self._run_res_nostk()
+        if operation == "chemgen"  : return self._run_chemgen()
         if operation == "histogram": return self._run_histogram()
         if operation == "log_apbs" : return self._run_log_apbs()
         raise ValueError(f"Unknown operation: {operation}")
@@ -36,6 +37,17 @@ class AppSMUtils(vg.AppSubcommand):
     def _run_res_nostk(self) -> None:
         path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
         print(su.ResiduesNucleic.get_residues_nostk(path_in))
+
+
+    # --------------------------------------------------------------------------
+    def _run_chemgen(self) -> None:
+        path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.get_arg_path("path_out",
+            assertion = fy.PathAssertion.FILE_OUT, default = path_in.with_suffix(".chem")
+        )
+        path_out.write_text(
+            su.ChemTableLigand(path_in).gen_chemtable()
+        )
 
 
     # --------------------------------------------------------------------------
