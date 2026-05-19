@@ -41,6 +41,19 @@
             !use:_smif_mode
         !@
     !@
+    @pwoverlap
+        !fyh:_ (experimental) Calculate point-wise overlaps between two biomolecular structures.
+            Generates a CSV file with the overlaps.
+            Currently only considers stacking interactions.
+        !fyh:path_source Source molecule for the SMIF interactions.
+            That is, the fields are centered around the atoms of this structure.
+            [WIP] Currently only supports macromolecules, not ligands.
+        !fyh:path_target Target molecule for the SMIF interactions.
+            That is, this represents the "external" molecule that interacts with the source SMIFs.
+            Every row of the output CSV file corresponds to a residue of this molecule.
+            [WIP] Currently only supports macromolecules, not ligands.
+        !fyh:path_out Path for the output CSV file.
+    !@
     @res_nobp
         !fyh:_ Print the set of non-base-paired residues in a given RNA structure.
             A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue.

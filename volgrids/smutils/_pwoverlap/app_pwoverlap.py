@@ -56,12 +56,14 @@ class AppPwOverlap(vg.AppSubcommand):
 
 
         normals_dst += cogs_dst
+        chain_ids = (ag[0].chainID for ag in agroups_dst)
+        resids    = (ag[0].resid for ag in agroups_dst)
+        residues  = [f"{chain_id}.{resid}" for chain_id, resid in zip(chain_ids, resids)]
 
         self.path_out.write_text(
-            "overlap,xcog,ycog,zcog,xnormal,ynormal,znormal\n"+
+            "residue,pwoverlap_stk\n"+
             '\n'.join(
-                f"{val:.6f},{cog[0]:.3f},{cog[1]:.3f},{cog[2]:.3f},{n[0]:.3f},{n[1]:.3f},{n[2]:.3f}"
-                for val, cog, n in zip(arr_dst[0][0], cogs_dst[0][0], normals_dst[0][0])
+                f"{res},{val:.6f}" for res, val in zip(residues, arr_dst[0][0])
             )
         )
 
