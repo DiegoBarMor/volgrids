@@ -60,6 +60,12 @@ C: N1 C2 N3 C4 C5 C6
 A: N1 C2 N3 C4 C5 C6 N7 C8 N9
 G: N1 C2 N3 C4 C5 C6 N7 C8 N9
 
+
+; justification to prioritize nucleobases for HBONDS:
+;;; https://pmc.ncbi.nlm.nih.gov/articles/PMC4111737/
+;;; https://www.mdpi.com/2075-1729/15/1/104
+
+
 [NAMES_HBACCEPTORS]
 ; https://onlinelibrary.wiley.com/iucr/itc/Fa/ch22o2v0001/sec22o2o4.pdf
 U: O2=C2->O2 O4=C4->O4
@@ -69,9 +75,6 @@ G: N3=C2.C4->N3 N7=C5.C8->N7 O6=C6->O6
 
 [NAMES_HBDONORS]
 ; https://pubs.acs.org/doi/10.1021/j100645a012
-; priopritize nuclobases:
-;;; https://pmc.ncbi.nlm.nih.gov/articles/PMC4111737/
-;;; https://www.mdpi.com/2075-1729/15/1/104
 U: N3=C6->N3!
 C: N4=C5->C4! N4=N3->C4!
 A: N6=C5->C6! N6=N1->C6!
