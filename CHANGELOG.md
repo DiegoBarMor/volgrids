@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.2] - 2026-05-19
+- Added new experimental features to `smutils`.
+    - `chemgen` subcommand for automatic generation of `.chem` files given a molecule's 3D structure (e.g. PDB file).
+        - Its goal is to enable the automatization of SMIFs pipelines for ligands.
+        - Currently only implemented for stacking interactions, following a heuristic geometrical approach.
+    - `pwoverlap` subcommand for calculation of point-wise overlaps between two biomolecular structures.
+        - Motivation: SMIF grid approach can be sensitive to resolution/coordinate system of the grid when evaluating SMIF values at precise points in space.
+        - A **point-wise (PW)** overlap is proposed instead, where the same underlying model from SMIFs is used, but at concrete points in space instead of a discrete grid.
+
+
 ## [0.11.1] - 2026-05-12
 - Added option to run smiffer on both protein and nucleic atoms at the same time, by using the `macro` subcommand (in place of `prot` or `rna`).
 - Fixed bug in `smutils occupancy`.
@@ -75,7 +85,6 @@
     - Added new `KOperation` `ABSMAX` for internal usage (eventually).
     - Added AMBER charges and radius data, as used by `pdb2pqr`
         - This might be useful later on for a possible way of implementing `OgAPBS`, or with any other application that needs those partial charges.
-
 
 
 ## [0.8.2] - 2026-04-24
