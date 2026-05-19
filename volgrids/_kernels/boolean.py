@@ -10,7 +10,7 @@ class KernelSphere(vg.Kernel):
         kop: vg.KOperation = vg.KOperation.OR
     ):
         super().__init__(radius, deltas, dtype, kop)
-        self.arr[self.dist < radius] = 1
+        self.arr[self.dists < radius] = 1
 
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ class KernelCylinder(vg.Kernel):
         kop: vg.KOperation = vg.KOperation.OR
     ):
         super().__init__(radius, deltas, dtype, kop)
-        w = vg.Math.get_projection_height(self.shifted_coords, vdirection)
+        w = vg.Math.get_projection_height(self.coords, vdirection)
         self.arr[w < width] = 1
 
 
@@ -33,7 +33,7 @@ class KernelDisk(KernelSphere):
         kop: vg.KOperation = vg.KOperation.OR
     ):
         super().__init__(radius, deltas, dtype, kop)
-        projection = vg.Math.get_projection(self.shifted_coords, vnormal)
+        projection = vg.Math.get_projection(self.coords, vnormal)
         projection = np.abs(projection)
         self.arr[projection >= height] = 0
 
@@ -46,7 +46,7 @@ class KernelDiskConecut(KernelDisk):
         kop: vg.KOperation = vg.KOperation.OR
     ):
         super().__init__(radius, vnormal, height, deltas, dtype, kop)
-        angle = vg.Math.get_angle(self.shifted_coords, vdirection, in_degrees = False)
+        angle = vg.Math.get_angle(self.coords, vdirection, in_degrees = False)
         self.arr[angle > max_angle/2] = 0
 
 

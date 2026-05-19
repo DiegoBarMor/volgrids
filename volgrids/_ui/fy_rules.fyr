@@ -14,11 +14,20 @@
         @macro  !use:_smif_mode !@
         @ligand !use:_smif_mode !@
     !@
+    @pwoverlap
+        path_source[]1.PATH
+        path_target[]1.PATH
+        path_out[]1.PATH
+    !@
     @res_nobp
         path_in[]1.PATH
     !@
     @res_nostk
         path_in[]1.PATH
+    !@
+    @chemgen
+        path_in[]1.PATH
+        ~path_out[]1.PATH
     !@
     @histogram
         path_in[]1.PATH

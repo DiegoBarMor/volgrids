@@ -14,13 +14,8 @@ class SmifStacking(sm.Smif):
             deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_STACK
         )
         for atoms_plane in self.iter_particles():
-            cog = atoms_plane.center_of_geometry()
-            a,b,c = atoms_plane.positions[:3]
-            u = vg.Math.normalize(b - a)
-            v = vg.Math.normalize(c - a)
-            normal = vg.Math.normalize(np.cross(u, v))
-
-            kernel.recalculate_kernel(normal, isStacking = True)
+            cog, normal = self.get_cog_normal(atoms_plane)
+            kernel.recalculate_kernel(normal, is_stacking = True)
             kernel.stamp(grid, cog, multiply_by = sm.ENERGY_SCALE)
 
         grid.dirty = True
@@ -56,6 +51,17 @@ class SmifStacking(sm.Smif):
                     if len(atoms_plane) < 3: continue # include rings even if they're not completely inside the grid's boundaries
 
                     yield atoms_plane
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def get_cog_normal(atoms_plane) -> tuple[np.ndarray, np.ndarray]:
+        cog = atoms_plane.center_of_geometry()
+        a,b,c = atoms_plane.positions[:3]
+        u = vg.Math.normalize(b - a)
+        v = vg.Math.normalize(c - a)
+        normal = vg.Math.normalize(np.cross(u, v))
+        return cog, normal
 
 
 # //////////////////////////////////////////////////////////////////////////////

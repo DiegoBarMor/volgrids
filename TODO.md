@@ -9,6 +9,7 @@
     * remove the dependency to `gridData` in `grid_io.py`
         * use the [mrcfile](https://mrcfile.readthedocs.io/en/stable/) library directly for handling MRC/CCP4 files.
         * DX parser (read) could be manually implemented.
+* improve the calls to `AppMain.load_configs`?
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -21,6 +22,8 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
+* remove the need to write a prot/rna/macro/ligand subcommand.
+* can't use the -r flag when PQR structure is used because it doesn't have chain information.
 * check what happens with structure files with multiple models.
 * list of spheres for trajectory+pocket_sphere mode
 * maybe: replace the RNDS trimming with a faster method
@@ -33,9 +36,6 @@
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
 * check whether the trimmer can still be saved when no smifs are calculated
-* reduce the number of file writes performed during trajectory mode
-  * introduce multithreading for calculating multiple frames concurrently?
-* `rna` subcommand for smiffer now also considers DNA, change to `nucl`?
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -59,6 +59,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMUtils
+* check why `DEBUG_CHEMTABLE_LIGAND` config isn't being taken into account
 * ideas:
     * `findsphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
 

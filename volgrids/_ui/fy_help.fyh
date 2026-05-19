@@ -41,6 +41,19 @@
             !use:_smif_mode
         !@
     !@
+    @pwoverlap
+        !fyh:_ (experimental) Calculate point-wise overlaps between two biomolecular structures.
+            Generates a CSV file with the overlaps.
+            Currently only considers stacking interactions.
+        !fyh:path_source Source molecule for the SMIF interactions.
+            That is, the fields are centered around the atoms of this structure.
+            [WIP] Currently only supports macromolecules, not ligands.
+        !fyh:path_target Target molecule for the SMIF interactions.
+            That is, this represents the "external" molecule that interacts with the source SMIFs.
+            Every row of the output CSV file corresponds to a residue of this molecule.
+            [WIP] Currently only supports macromolecules, not ligands.
+        !fyh:path_out Path for the output CSV file.
+    !@
     @res_nobp
         !fyh:_ Print the set of non-base-paired residues in a given RNA structure.
             A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue.
@@ -53,6 +66,13 @@
             Requires rnapolis.
         !fyh:path_in
             File path to a molecular structure e.g. a PDB file.
+    !@
+    @chemgen
+        !fyh:_ (experimental) Automatically generates a .chem file for a ligand given its 3D structure (e.g. PDB file).
+            Currently only generates rows for stacking interactions, following a heuristic geometrical approach.
+        !fyh:path_in File path to the molecular structure (e.g. PDB file) of a ligand.
+        !fyh:path_out Path where to store the automatic .chem file.
+            Defaults to path_in with extension ".chem".
     !@
     @histogram
         !fyh:_ Plot the distribution histogram of non-zero voxel values in a grid file.
