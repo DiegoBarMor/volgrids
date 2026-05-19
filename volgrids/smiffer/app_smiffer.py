@@ -42,7 +42,20 @@ class AppSmiffer(vg.AppSubcommand):
         self._assert_ligand_has_table()
 
         app_main.load_configs(vg, sm)
+        self.init_params()
 
+        ### these must be initialized after the configs are loaded,
+        ### so it's appropriate to place them at the end of init
+        self.ms = sm.MolSystem(sm.PATH_STRUCT, self.path_traj)
+        self.timer = vg.Timer(
+            f">>> {sm.CURRENT_MOLTYPE.name:<4} {'Sphere' if self.ms.do_ps else 'Whole'} "+\
+            f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
+        )
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def init_params():
         sm.PARAMS_HPHOB = vg.ParamsGaussianUnivariate(
             mu = sm.MU_HYDROPHOBIC, sigma = sm.SIGMA_HYDROPHOBIC,
         )
@@ -72,14 +85,6 @@ class AppSmiffer(vg.AppSubcommand):
 
         ### square root of the DIST contribution to sm.COV_STACKING,
         sm.SIGMA_DIST_STACKING = np.sqrt(sm.COV_STACKING_11)
-
-        ### these must be initialized after the configs are loaded,
-        ### so it's appropriate to place them at the end of init
-        self.ms = sm.MolSystem(sm.PATH_STRUCT, self.path_traj)
-        self.timer = vg.Timer(
-            f">>> {sm.CURRENT_MOLTYPE.name:<4} {'Sphere' if self.ms.do_ps else 'Whole'} "+\
-            f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
-        )
 
 
     # --------------------------------------------------------------------------

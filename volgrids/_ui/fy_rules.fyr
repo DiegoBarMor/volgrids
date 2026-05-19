@@ -14,6 +14,13 @@
         @macro  !use:_smif_mode !@
         @ligand !use:_smif_mode !@
     !@
+    @pwoverlap
+        # @prot   !use:_pwoverlap !@
+        # @rna    !use:_pwoverlap !@
+        # @macro  !use:_pwoverlap !@
+        # @ligand !use:_pwoverlap !@ # [WIP]
+        !use:_pwoverlap
+    !@
     @res_nobp
         path_in[]1.PATH
     !@
@@ -105,6 +112,12 @@
     ~sphere[s,sphere]4.FLOAT
     ~residues[r,residues]1+.STR
     ~nproc[n,nproc]1.INT=1
+!fed
+
+!def _pwoverlap
+    path_source[]1.PATH
+    path_target[]1.PATH
+    path_out[]1.PATH
 !fed
 
 !def _io_1_input

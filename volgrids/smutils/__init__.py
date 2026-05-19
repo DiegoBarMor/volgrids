@@ -8,6 +8,8 @@ from ._occupancies.stacking import OgStacking
 from ._occupancies.hydrophobic import OgHydrophobic
 # [TODO] hydrophilic? electrostatic?
 
+from ._pwoverlap.app_pwoverlap import AppPwOverlap
+
 from ._occupancies.app_occupancy import AppOccupancy
 from .app_smutils import AppSMUtils
 

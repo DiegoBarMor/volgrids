@@ -14,6 +14,7 @@ class AppSMUtils(vg.AppSubcommand):
     def run(self):
         operation = self.main.subcommands.pop(0)
         if operation == "occupancy": return self._run_occupancy()
+        if operation == "pwoverlap": return self._run_pwoverlap()
         if operation == "res_nobp" : return self._run_res_nobp()
         if operation == "res_nostk": return self._run_res_nostk()
         if operation == "chemgen"  : return self._run_chemgen()
@@ -25,6 +26,11 @@ class AppSMUtils(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _run_occupancy(self) -> None:
         su.AppOccupancy(self.main).run()
+
+
+    # --------------------------------------------------------------------------
+    def _run_pwoverlap(self) -> None:
+        su.AppPwOverlap(self.main).run()
 
 
     # --------------------------------------------------------------------------

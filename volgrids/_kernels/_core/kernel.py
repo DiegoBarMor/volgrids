@@ -25,10 +25,10 @@ class Kernel:
         self.arr: np.ndarray = np.zeros(self.kernel_res, dtype = dtype)
 
         ##### initizalize auxiliary kernel of distance values
+        coords_no_shift = vg.Math.get_coords_array(self.kernel_res, self.deltas)
         self.center = np.floor(self.kernel_res / 2) * self.deltas
-        self.coords = vg.Math.get_coords_array(self.kernel_res, self.deltas)
-        self.shifted_coords = self.coords - self.center
-        self.dist = vg.Math.get_norm(self.shifted_coords)
+        self.coords = coords_no_shift - self.center
+        self.dists = vg.Math.get_norm(self.coords)
 
         ##### set operation
         self.operation: callable = vg.KOperation.get_np_operation(kop)
