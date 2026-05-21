@@ -5,13 +5,6 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class ParserChemTable:
-    _RESNAME_NUCLEIC_ALIASES = {
-        " U": "U",  "C": "C",  "A": "A",  "G": "G", # standard RNA residue names
-        "RU": "U", "RC": "C", "RA": "A", "RG": "G", # alternative RNA residue names
-        "DT": "U", "DC": "C", "DA": "A", "DG": "G", # DNA residue names (mapped to RNA standard)
-    }
-
-    # --------------------------------------------------------------------------
     def __init__(self, path_table):
         self._selection_query: str = ''
         self._selection_query_custom: str = ''
@@ -35,13 +28,13 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def get_residue_hphob(self, atom):
-        resname = self._standardize_resname(atom.resname)
+        resname = sm.ResnameStandard.standardize(atom.resname)
         return self._residues_hphob.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_atom_hphob(self, atom):
-        resname = self._standardize_resname(atom.resname)
+        resname = sm.ResnameStandard.standardize(atom.resname)
         dict_resid = self._atoms_hphob.get(resname)
         if dict_resid is None: return None
         return dict_resid.get(atom.name)
@@ -49,19 +42,19 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def get_names_stacking(self, resname: str) -> list[str] | None:
-        resname = self._standardize_resname(resname)
+        resname = sm.ResnameStandard.standardize(resname)
         return self._names_stk.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hba(self, resname: str):
-        resname = self._standardize_resname(resname)
+        resname = sm.ResnameStandard.standardize(resname)
         return self._names_hba.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hbd(self, resname: str):
-        resname = self._standardize_resname(resname)
+        resname = sm.ResnameStandard.standardize(resname)
         return self._names_hbd.get(resname)
 
 
@@ -107,13 +100,6 @@ class ParserChemTable:
 
 
     # --------------------------------------------------------------------------
-    @classmethod
-    def _standardize_resname(cls, resname: str) -> str:
-        if not sm.CURRENT_MOLTYPE.is_rna(): return resname
-        return cls._RESNAME_NUCLEIC_ALIASES.get(resname, resname)
-
-
-    # --------------------------------------------------------------------------
     def _parse_table(self):
         """
         Populate the fields of the ParserChemTable instance by parsing the lines of the .chem table file.
@@ -135,11 +121,11 @@ class ParserChemTable:
             self._selection_query_custom =\
                 self._selection_query_custom[:-4] + ")" # remove the last " or "
 
-        self.parse_res_hphobicity    (self._parser_ini)
-        self.parse_atom_hphobicity   (self._parser_ini)
-        self.parse_names_stacking    (self._parser_ini)
-        self.parse_names_hbacceptors (self._parser_ini)
-        self.parse_names_hbdonors    (self._parser_ini)
+        self.parse_res_hphobicity   (self._parser_ini)
+        self.parse_atom_hphobicity  (self._parser_ini)
+        self.parse_names_stacking   (self._parser_ini)
+        self.parse_names_hbacceptors(self._parser_ini)
+        self.parse_names_hbdonors   (self._parser_ini)
 
 
     # --------------------------------------------------------------------------

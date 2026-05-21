@@ -2,44 +2,46 @@
 
 @smiffer
     !fyh:_ Calculate Statistical Molecular Interaction Fields (SMIFs) for biomolecular structures.
-    @prot
-        !fyh:_ Calculate SMIFs for protein structures.
-        !use:_smif_mode
-    !@
-    @rna
-        !fyh:_ Calculate SMIFs for RNA/DNA structures.
-        !use:_smif_mode
-    !@
-    @macro
-        !fyh:_ Calculate SMIFs for protein/DNA/RNA structures.
-        !use:_smif_mode
-    !@
-    @ligand
-        !fyh:_ Calculate SMIFs for ligand structures. A .chem table must be provided.
-        !use:_smif_mode
-    !@
+    # @prot
+    #     !fyh:_ Calculate SMIFs for protein structures.
+    #     !use:_smif_mode
+    # !@
+    # @rna
+    #     !fyh:_ Calculate SMIFs for RNA/DNA structures.
+    #     !use:_smif_mode
+    # !@
+    # @macro
+    #     !fyh:_ Calculate SMIFs for protein/DNA/RNA structures.
+    #     !use:_smif_mode
+    # !@
+    # @ligand
+    #     !fyh:_ Calculate SMIFs for ligand structures. A .chem table must be provided.
+    #     !use:_smif_mode
+    # !@
+    !use:_smif_mode
 !@
 
 @smutils
     !fyh:_ Utilities related to more advanced SMIF usage.
     @occupancy
-        !fyh:_ Calculate occupancy grids (OGs) for biomolecular structures.
-        @prot
-            !fyh:_ Calculate OGs for protein structures.
-            !use:_smif_mode
-        !@
-        @rna
-            !fyh:_ Calculate OGs for RNA/DNA structures.
-            !use:_smif_mode
-        !@
-        @macro
-            !fyh:_ Calculate OGs for protein/DNA/RNA structures.
-            !use:_smif_mode
-        !@
-        @ligand
-            !fyh:_ Calculate OGs for ligand structures. A .chem table must be provided.
-            !use:_smif_mode
-        !@
+        # !fyh:_ Calculate occupancy grids (OGs) for biomolecular structures.
+        # @prot
+        #     !fyh:_ Calculate OGs for protein structures.
+        #     !use:_smif_mode
+        # !@
+        # @rna
+        #     !fyh:_ Calculate OGs for RNA/DNA structures.
+        #     !use:_smif_mode
+        # !@
+        # @macro
+        #     !fyh:_ Calculate OGs for protein/DNA/RNA structures.
+        #     !use:_smif_mode
+        # !@
+        # @ligand
+        #     !fyh:_ Calculate OGs for ligand structures. A .chem table must be provided.
+        #     !use:_smif_mode
+        # !@
+        !use:_smif_mode
     !@
     @pwoverlap
         !fyh:_ (experimental) Calculate point-wise overlaps between two biomolecular structures.
@@ -213,7 +215,8 @@
         File path to a cached output of APBS for the respective structure file.
         Prevents the automatic calculation of APBS performed by volgrids' smiffer.
     !fyh:path_chem
-        File path to a .chem table file to use for ligand mode, or to override the default macromolecules' tables.
+        File path to a .chem file to override the default macromolecules' table.
+        Use this flag with an appropriate .chem file for running smiffer in "ligand" mode.
     !fyh:configs
         File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
         Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).

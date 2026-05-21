@@ -1,9 +1,9 @@
-from ._core.mol_type import MolType
 from ._core.mol_system import MolSystem
 from ._core.traj_multiprocess import TrajMultiprocess
 from ._core.cavity_finder import CavityFinder
 from ._core.trimmer import Trimmer
 
+from ._parsers.resname_standard import ResnameStandard
 from ._parsers.parser_chem_table import ParserChemTable
 
 from ._smifs import _core as _smifs_core
@@ -100,12 +100,11 @@ __config_keys__.remove("_keys_other")
 ### CLI parsed by freyacli.
 
 import pathlib as _pathlib
-PATH_STRUCT: _pathlib.Path = None # "path/input/struct.pdb"
+PATH_STRUCT:      _pathlib.Path = None # "path/input/struct.pdb"
 PATH_APBS:        _pathlib.Path = None # "path/input/apbs.pqr.dx"
-PATH_CHEM_CUSTOM: _pathlib.Path = None # "path/input/table.chem"
+PATH_CHEM_LIGAND: _pathlib.Path = None # "path/input/table.chem"
 
-SPHERE: SphereInfo  = None              # pocket sphere info: [x, y, z, radius]
-CURRENT_MOLTYPE: MolType = MolType.NONE # type of the current molecule
+SPHERE: SphereInfo  = None # pocket sphere info: [x, y, z, radius]
 
 CUSTOM_RESIDUES: str = "" # "A.3 A.4 A.5 B.10 ..."
 

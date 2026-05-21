@@ -19,7 +19,7 @@ for name in "${names[@]}"; do
     cp "$fpdb_orig/$name.pdb" "$fout/$name.pdb"
 
     ##### PART 0: H-bonds for only nucleobases, all residues
-    python3 volgrids smiffer rna  "$fpdb_clean/$name.pdb" -o "$fout" \
+    python3 volgrids smiffer "$fpdb_clean/$name.pdb" -o "$fout" \
         -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true
     mv "$fout/$name.cmap" "$fout/$name.nbases.cmap"
 
@@ -32,12 +32,12 @@ for name in "${names[@]}"; do
     fi
     echo "... non-base-paired residues for $name: $residues"
 
-    python3 volgrids smiffer rna  "$fpdb_clean/$name.pdb" -o "$fout" \
+    python3 volgrids smiffer "$fpdb_clean/$name.pdb" -o "$fout" \
         -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true -r "$residues"
     mv "$fout/$name.cmap" "$fout/$name.nbases.nobp.cmap"
 
 
     ##### PART 2: H-bonds for all residues + APBS
-    python3 volgrids smiffer rna  "$fpdb_clean/$name.pdb" -o "$fout" \
+    python3 volgrids smiffer "$fpdb_clean/$name.pdb" -o "$fout" \
         -c "$conf_just_hbond" DO_SMIF_APBS=true -a "$fapbs/$name.pdb.mrc"
 done

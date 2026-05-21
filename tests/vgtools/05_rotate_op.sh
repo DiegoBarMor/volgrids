@@ -19,8 +19,8 @@ conf_just_stacking="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO
 
 mkdir -p $fop
 cp $f_interface/* $fop/
-python3 volgrids smiffer prot $fop/prot.pdb --config "$conf_just_stacking"
-python3 volgrids smiffer rna  $fop/rna.pdb  --config "$conf_just_stacking"
+python3 volgrids smiffer $fop/prot.pdb --config "$conf_just_stacking"
+python3 volgrids smiffer $fop/rna.pdb  --config "$conf_just_stacking"
 
 python3 volgrids vgtools op abs $fop/prot.cmap $fop/prot.abs.cmap
 python3 volgrids vgtools op abs $fop/rna.cmap  $fop/rna.abs.cmap

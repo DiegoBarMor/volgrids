@@ -23,13 +23,10 @@ class AppSmiffer(vg.AppSubcommand):
         self.trimmer: sm.Trimmer
         self.grid_smif: vg.Grid
 
-        mode = self.main.subcommands.pop(0)
-        sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
-
         sm.PATH_STRUCT      = self.main.get_arg_path("path_in",   assertion = fy.PathAssertion.FILE_IN)
         sm.PATH_APBS        = self.main.get_arg_path("path_apbs", assertion = fy.PathAssertion.FILE_IN)
         self.path_traj      = self.main.get_arg_path("path_traj", assertion = fy.PathAssertion.FILE_IN)
-        sm.PATH_CHEM_CUSTOM = self.main.get_arg_path("path_chem", assertion = fy.PathAssertion.FILE_IN)
+        sm.PATH_CHEM_LIGAND = self.main.get_arg_path("path_chem", assertion = fy.PathAssertion.FILE_IN)
         self.folder_out     = self.main.get_arg_path("folder_out",
             default = sm.PATH_STRUCT.parent, assertion = fy.PathAssertion.DIR_OUT
         )
@@ -39,7 +36,6 @@ class AppSmiffer(vg.AppSubcommand):
         self._handle_params_resids()
         self._handle_params_sphere()
         self._assert_traj_apbs()
-        self._assert_ligand_has_table()
 
         app_main.load_configs(vg, sm)
         self.init_params()
@@ -48,7 +44,7 @@ class AppSmiffer(vg.AppSubcommand):
         ### so it's appropriate to place them at the end of init
         self.ms = sm.MolSystem(sm.PATH_STRUCT, self.path_traj)
         self.timer = vg.Timer(
-            f">>> {sm.CURRENT_MOLTYPE.name:<4} {'Sphere' if self.ms.do_ps else 'Whole'} "+\
+            f">>> {'Sphere' if self.ms.do_ps else 'Whole'} "+\
             f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
         )
 
@@ -98,7 +94,7 @@ class AppSmiffer(vg.AppSubcommand):
                 path_pqr.write_text(vg.TMP_APBS_CONTENT_PQR)
 
 
-        if sm.CURRENT_MOLTYPE.is_ligand():
+        if (sm.PATH_CHEM_LIGAND is not None) and sm.DO_SMIF_APBS:
             sm.DO_SMIF_APBS = False
             print(f"\n...--- ligand: {fy.Color.red('skipping APBS')} SMIF calculation.", end = ' ', flush = True)
 
@@ -288,15 +284,6 @@ class AppSmiffer(vg.AppSubcommand):
             f"The APBS output '{sm.PATH_APBS}' was provided. However, "+
             "trajectory mode is enabled, so this file would be ambiguous. "+
             "Please either disable trajectory mode or remove the APBS file input. "
-        )
-
-
-    # --------------------------------------------------------------------------
-    def _assert_ligand_has_table(self):
-        if not sm.CURRENT_MOLTYPE.is_ligand(): return
-        if sm.PATH_CHEM_CUSTOM is not None: return
-        self.main.help_and_exit(1,
-            "No table file provided for ligand mode. Use -b or --table to specify the path to the .chem table file."
         )
 
 

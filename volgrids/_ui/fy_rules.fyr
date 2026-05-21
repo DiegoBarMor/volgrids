@@ -1,18 +1,20 @@
 ### subcommands section for the root app starts here
 @smiffer
     ### subcommands section for the "smiffer" sub-app starts here
-    @prot   !use:_smif_mode !@
-    @rna    !use:_smif_mode !@
-    @macro  !use:_smif_mode !@
-    @ligand !use:_smif_mode !@
+    # @prot   !use:_smif_mode !@
+    # @rna    !use:_smif_mode !@
+    # @macro  !use:_smif_mode !@
+    # @ligand !use:_smif_mode !@
+    !use:_smif_mode
 !@
 
 @smutils
     @occupancy
-        @prot   !use:_smif_mode !@
-        @rna    !use:_smif_mode !@
-        @macro  !use:_smif_mode !@
-        @ligand !use:_smif_mode !@
+        # @prot   !use:_smif_mode !@
+        # @rna    !use:_smif_mode !@
+        # @macro  !use:_smif_mode !@
+        # @ligand !use:_smif_mode !@
+        !use:_smif_mode
     !@
     @pwoverlap
         path_source[]1.PATH
@@ -105,7 +107,7 @@
     ~folder_out[o,out]1.PATH
     ~path_traj[t,traj]1.PATH
     ~path_apbs[a,apbs]1.PATH
-    ~path_chem[b,table]1.PATH
+    ~path_chem[e,chem]1.PATH
     ~configs[c,config]*.STR
     ~sphere[s,sphere]4.FLOAT
     ~residues[r,residues]1+.STR
