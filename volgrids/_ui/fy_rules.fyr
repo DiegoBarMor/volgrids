@@ -1,16 +1,21 @@
+!def _smif_mode
+    path_in[]1.PATH
+    ~folder_out[o,out]1.PATH
+    ~path_traj[t,traj]1.PATH
+    ~path_apbs[a,apbs]1.PATH
+    ~path_chem[e,chem]1.PATH
+    ~configs[c,config]*.STR
+    ~sphere[s,sphere]4.FLOAT
+    ~residues[r,residues]1+.STR
+    ~nproc[n,nproc]1.INT=1
+!fed
+
 @smiffer
     !use:_smif_mode
 !@
 
 @smutils
-    @occupancy
-        !use:_smif_mode
-    !@
-    @pwoverlap
-        path_source[]1.PATH
-        path_target[]1.PATH
-        path_out[]1.PATH
-    !@
+    #### Utilities useful when running smiffer
     @res_nobp
         path_in[]1.PATH
     !@
@@ -21,11 +26,18 @@
         path_in[]1.PATH
         ~path_out[]1.PATH
     !@
-    @histogram
-        path_in[]1.PATH
-        ~path_out[o,out]1.PATH
-        ~key[k,key]1.STR
+
+    #### Advanced applications of the SMIF model
+    @occupancy
+        !use:_smif_mode
     !@
+    @pwoverlap
+        path_source[]1.PATH
+        path_target[]1.PATH
+        path_out[]1.PATH
+    !@
+
+    #### Miscellaneous
     @log_apbs
         !use:_io_1_input
     !@
@@ -39,6 +51,7 @@
 !@
 
 @vgtools
+    #### Operations for reorganizing grids
     @convert
         path_in[]1.PATH
         ~out_dx[d,dx]1?.PATH
@@ -54,19 +67,10 @@
         path_in[]1.PATH
         ~folder_out[]1.PATH
     !@
+
+    #### Operations for transforming single grids
     @fix_cmap
         !use:_io_1_input
-    !@
-    @average
-        !use:_io_1_input
-    !@
-    @summary
-        path_in[]1.PATH
-    !@
-    @compare
-        path_0[]1.PATH
-        path_1[]1.PATH
-        ~threshold[t,threshold]1.FLOAT=1e-3
     !@
     @rotate
         !use:_io_1_input
@@ -74,9 +78,10 @@
         ~y[y,xz]1.FLOAT=0.0
         ~z[z,xy]1.FLOAT=0.0
     !@
-    @points
-        path_in[]1.PATH
-        points[]3+.FLOAT
+
+    #### Operations for combining multiple grids
+    @average
+        !use:_io_1_input
     !@
     @op
         @abs !use:_io_1_input  !@
@@ -87,19 +92,26 @@
         @and !use:_io_2_inputs !@
         @or  !use:_io_2_inputs !@
     !@
-!@
 
-!def _smif_mode
-    path_in[]1.PATH
-    ~folder_out[o,out]1.PATH
-    ~path_traj[t,traj]1.PATH
-    ~path_apbs[a,apbs]1.PATH
-    ~path_chem[e,chem]1.PATH
-    ~configs[c,config]*.STR
-    ~sphere[s,sphere]4.FLOAT
-    ~residues[r,residues]1+.STR
-    ~nproc[n,nproc]1.INT=1
-!fed
+    #### Operations for inspecting/analyzing grids
+    @summary
+        path_in[]1.PATH
+    !@
+    @histogram
+        path_in[]1.PATH
+        ~path_out[o,out]1.PATH
+        ~key[k,key]1.STR
+    !@
+    @compare
+        path_0[]1.PATH
+        path_1[]1.PATH
+        ~threshold[t,threshold]1.FLOAT=1e-3
+    !@
+    @points
+        path_in[]1.PATH
+        points[]3+.FLOAT
+    !@
+!@
 
 !def _io_1_input
     path_in[]1.PATH
