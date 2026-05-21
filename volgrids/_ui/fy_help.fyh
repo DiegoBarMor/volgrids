@@ -2,45 +2,13 @@
 
 @smiffer
     !fyh:_ Calculate Statistical Molecular Interaction Fields (SMIFs) for biomolecular structures.
-    # @prot
-    #     !fyh:_ Calculate SMIFs for protein structures.
-    #     !use:_smif_mode
-    # !@
-    # @rna
-    #     !fyh:_ Calculate SMIFs for RNA/DNA structures.
-    #     !use:_smif_mode
-    # !@
-    # @macro
-    #     !fyh:_ Calculate SMIFs for protein/DNA/RNA structures.
-    #     !use:_smif_mode
-    # !@
-    # @ligand
-    #     !fyh:_ Calculate SMIFs for ligand structures. A .chem table must be provided.
-    #     !use:_smif_mode
-    # !@
     !use:_smif_mode
 !@
 
 @smutils
     !fyh:_ Utilities related to more advanced SMIF usage.
     @occupancy
-        # !fyh:_ Calculate occupancy grids (OGs) for biomolecular structures.
-        # @prot
-        #     !fyh:_ Calculate OGs for protein structures.
-        #     !use:_smif_mode
-        # !@
-        # @rna
-        #     !fyh:_ Calculate OGs for RNA/DNA structures.
-        #     !use:_smif_mode
-        # !@
-        # @macro
-        #     !fyh:_ Calculate OGs for protein/DNA/RNA structures.
-        #     !use:_smif_mode
-        # !@
-        # @ligand
-        #     !fyh:_ Calculate OGs for ligand structures. A .chem table must be provided.
-        #     !use:_smif_mode
-        # !@
+        !fyh:_ Calculate occupancy grids (OGs) for biomolecular structures.
         !use:_smif_mode
     !@
     @pwoverlap

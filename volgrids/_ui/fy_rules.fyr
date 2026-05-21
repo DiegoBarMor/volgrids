@@ -1,19 +1,9 @@
-### subcommands section for the root app starts here
 @smiffer
-    ### subcommands section for the "smiffer" sub-app starts here
-    # @prot   !use:_smif_mode !@
-    # @rna    !use:_smif_mode !@
-    # @macro  !use:_smif_mode !@
-    # @ligand !use:_smif_mode !@
     !use:_smif_mode
 !@
 
 @smutils
     @occupancy
-        # @prot   !use:_smif_mode !@
-        # @rna    !use:_smif_mode !@
-        # @macro  !use:_smif_mode !@
-        # @ligand !use:_smif_mode !@
         !use:_smif_mode
     !@
     @pwoverlap
@@ -49,7 +39,6 @@
 !@
 
 @vgtools
-    ### subcommands section for the "vgtools" sub-app starts here
     @convert
         path_in[]1.PATH
         ~out_dx[d,dx]1?.PATH
@@ -100,8 +89,6 @@
     !@
 !@
 
-### macros can be placed anywhere, even at the end
-### just dont place macro definitions inside other macro definitions
 !def _smif_mode
     path_in[]1.PATH
     ~folder_out[o,out]1.PATH

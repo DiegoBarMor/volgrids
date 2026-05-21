@@ -23,14 +23,28 @@ class AppSmiffer(vg.AppSubcommand):
         self.trimmer: sm.Trimmer
         self.grid_smif: vg.Grid
 
-        sm.PATH_STRUCT      = self.main.get_arg_path("path_in",   assertion = fy.PathAssertion.FILE_IN)
-        sm.PATH_APBS        = self.main.get_arg_path("path_apbs", assertion = fy.PathAssertion.FILE_IN)
-        self.path_traj      = self.main.get_arg_path("path_traj", assertion = fy.PathAssertion.FILE_IN)
-        sm.PATH_CHEM_LIGAND = self.main.get_arg_path("path_chem", assertion = fy.PathAssertion.FILE_IN)
-        self.folder_out     = self.main.get_arg_path("folder_out",
-            default = sm.PATH_STRUCT.parent, assertion = fy.PathAssertion.DIR_OUT
+        #### CLI arguments
+        sm.PATH_STRUCT = self.main.get_arg_path(
+            "path_in",   assertion = fy.PathAssertion.FILE_IN
         )
-        self.nproc          = max(1, self.main.get_arg_int("nproc", default = 1))
+        sm.PATH_APBS = self.main.get_arg_path(
+            "path_apbs", assertion = fy.PathAssertion.FILE_IN,
+            allow_none = True
+        )
+        self.path_traj = self.main.get_arg_path(
+            "path_traj", assertion = fy.PathAssertion.FILE_IN,
+            allow_none = True
+        )
+        sm.PATH_CHEM_LIGAND = self.main.get_arg_path(
+            "path_chem", assertion = fy.PathAssertion.FILE_IN,
+            allow_none = True
+        )
+        self.folder_out = self.main.get_arg_path(
+            "folder_out", assertion = fy.PathAssertion.DIR_OUT,
+            default = sm.PATH_STRUCT.parent
+        )
+        self.nproc = max(1, self.main.get_arg_int("nproc", default = 1))
+
 
         self._handle_params_configs()
         self._handle_params_resids()
