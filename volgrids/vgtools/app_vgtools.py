@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import volgrids as vg
 import volgrids.vgtools as vgt
 from volgrids._vendors import freyacli as fy
@@ -30,29 +32,31 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_convert(self):
-        kw_file_out = dict(assertion = fy.PathAssertion.FILE_OUT, allow_none = True)
-        path_in       = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        path_out_dx   = self.main.get_arg_path("out_dx",   **kw_file_out)
-        path_out_mrc  = self.main.get_arg_path("out_mrc",  **kw_file_out)
-        path_out_ccp4 = self.main.get_arg_path("out_ccp4", **kw_file_out)
-        path_out_cmap = self.main.get_arg_path("out_cmap", **kw_file_out)
+        def _handle_out_arg(key: str, default_suffix: str) -> Path | None:
+            path = self.main.get_arg_path(key, allow_none = True)
 
-        if path_out_dx is True: # -d flag with no path specified
-            path_out_dx = path_in.with_suffix(".dx")
+            #### CASE 0: flag not provided -> do not convert to this format
+            if path is None: return
 
-        if path_out_mrc is True: # -m flag with no path specified
-            path_out_mrc = path_in.with_suffix(".mrc")
+            #### CASE 1: flag provided with no path -> convert to this format, using input path with new suffix
+            if path is True: return path_in.with_suffix(default_suffix)
 
-        if path_out_ccp4 is True: # -p flag with no path specified
-            path_out_ccp4 = path_in.with_suffix(".ccp4")
-
-        if path_out_cmap is True: # -c flag with no path specified
-            path_out_cmap = path_in.with_suffix(".cmap")
+            #### CASE 2: flag provided with path -> convert to this format, using provided path
+            err = fy.PathAssertion.FILE_OUT(path)
+            if isinstance(err, fy.ArgDTypeError):
+                self.main.help_and_exit(1, err.err_message)
+            return path
 
         def _convert(path_out, fmt_out: vg.GridFormat):
             if path_out is None: return
             print(f">>> Converting {fy.Color.yellow(path_in)} file to {fy.Color.magenta(fmt_out.name)}: {fy.Color.blue(path_out)}")
             vgt.VGOperations.convert(path_in, path_out, fmt_out)
+
+        path_in       = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out_dx   = _handle_out_arg("out_dx",   ".dx")
+        path_out_mrc  = _handle_out_arg("out_mrc",  ".mrc")
+        path_out_ccp4 = _handle_out_arg("out_ccp4", ".ccp4")
+        path_out_cmap = _handle_out_arg("out_cmap", ".cmap")
 
         _convert(path_out_dx,   vg.GridFormat.DX)
         _convert(path_out_mrc,  vg.GridFormat.MRC)

@@ -24,5 +24,5 @@ python3 volgrids smiffer $fout/all_ump.pdb -o $fout -c $conf_no_apbs
 
 cp $fout/all_cyt.pdb $fout/all_cyt_equilateral.pdb
 # shellcheck disable=SC2086
-python3 volgrids smiffer rna $fout/all_cyt_equilateral.pdb -o $fout -c $conf_equilateral # tests also expansion of -c arguments
+python3 volgrids smiffer $fout/all_cyt_equilateral.pdb -o $fout -c $conf_equilateral # tests also expansion of -c arguments
 rm -f $fout/all_cyt_equilateral.pdb
