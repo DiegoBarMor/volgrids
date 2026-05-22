@@ -46,10 +46,10 @@ conf_cmap="$conf_just_stacking GRID_FORMAT_OUTPUT=CMAP"
 
 
 ############################# CONVERSIONS
-python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_dx"
-python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_mrc"
-python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_ccp4"
-python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_cmap"
+python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_dx"
+python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_mrc"
+python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_ccp4"
+python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_cmap"
 
 mv $fc/1iqj.stacking.dx   $fc/1iqj.stk.dx
 mv $fc/1iqj.stacking.mrc  $fc/1iqj.stk.mrc
@@ -58,7 +58,7 @@ mv $fc/1iqj.stacking.cmap $fc/1iqj.stk.cmap
 
 
 ############################# PACKING
-python3 volgrids smiffer rna $fpdb_nosolv/2esj.pdb -o $fp -s 21.865 -6.397 16.946 15.708 --config "$conf_no_apbs"
+python3 volgrids smiffer $fpdb_nosolv/2esj.pdb -o $fp -s 21.865 -6.397 16.946 15.708 --config "$conf_no_apbs"
 
 mv $fp/2esj.hbacceptors.mrc $fp/2esj.hba.mrc
 mv $fp/2esj.hbdonors.mrc    $fp/2esj.hbd.mrc
@@ -68,7 +68,7 @@ mv $fp/2esj.stacking.mrc    $fp/2esj.stk.mrc
 
 
 ############################# UNPACKING
-python3 volgrids smiffer prot $fpdb_nosolv/1iqj.pdb -o $fu -s 4.682 21.475 7.161 14.675 --config "$conf_no_apbs"
+python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fu -s 4.682 21.475 7.161 14.675 --config "$conf_no_apbs"
 
 cd $fu
 python3 ../../../volgrids vgtools pack \

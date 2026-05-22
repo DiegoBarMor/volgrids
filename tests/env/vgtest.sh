@@ -10,8 +10,8 @@ root=${PWD}
 fout="testdata/env"
 
 ### try running it in the repo's root
-python3 volgrids smiffer prot testdata/smiffer/toy_systems/peptide.pdb -o $fout
+python3 volgrids smiffer testdata/smiffer/toy_systems/peptide.pdb -o $fout
 
 ### try running it somewhere else
 cd ~
-python3 "$root"/volgrids smiffer macro "$root"/testdata/smiffer/toy_systems/peptide.pdb -o $fout
+python3 "$root"/volgrids smiffer "$root"/testdata/smiffer/toy_systems/peptide.pdb -o $fout

@@ -15,9 +15,6 @@ class AppPwOverlap(vg.AppSubcommand):
         self.ms_dst: sm.MolSystem
         self.path_out: Path
 
-        mode = self.main.subcommands.pop(0)
-        sm.CURRENT_MOLTYPE = sm.MolType.from_str(mode)
-
         path_src = self.main.get_arg_path("path_source", assertion = fy.PathAssertion.FILE_IN)
         path_dst = self.main.get_arg_path("path_target", assertion = fy.PathAssertion.FILE_IN)
         self.path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
