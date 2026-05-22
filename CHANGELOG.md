@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.12.0] - 2026-05-22
+- CLI changes in `smiffer` (**IMPORTANT**: breaks compatibility with calls to older versions of the smiffer's command).
+    - Renamed the `-b`/`--table` flag to `-e`/`--chem` to better represent its intent (i.e. use it for passing a custom `.chem` file).
+    - Removed the `prot`/`rna`/`macro`/`ligand` subcommand for using smiffer.
+        - Motivation: the subcommand was cumbersome and error prone.
+        - Now, a single `default.chem` file contains the data for both protein and nucleic structures. By default, SMIFs will be calculated for all peptide and nucleic acids found in the provided PDB (the user must perform any relevant preprocessing if they want to focus on only one macromolecule type).
+            - Ligand mode is achieved by simply using the `-e`/`--chem` flag.
+
+- CLI changes in `vgtools` / `smutils`.
+    - moved `histogram` subcommand to vgtools.
+    - reorganized vgtools and smutils subcommands order.
+
+
 ## [0.11.2] - 2026-05-19
 - Added new experimental features to `smutils`.
     - `chemgen` subcommand for automatic generation of `.chem` files given a molecule's 3D structure (e.g. PDB file).

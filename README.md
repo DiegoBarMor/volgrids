@@ -18,7 +18,7 @@ volgrids --help
 git clone --depth 1 https://github.com/DiegoBarMor/volgrids
 cd volgrids
 pip install -r requirements.txt
-python3 volgrids --help # required vendors will automatically be downloaded
+python3 volgrids --help # required vendors will automatically be downloaded the first time volgrids is run
 ```
 
 
@@ -120,26 +120,20 @@ Follow the instructions at the [test data repo](https://github.com/DiegoBarMor/v
 # Usage
 ## Summary of subcommands
 Run the subcommands without any further arguments to read more about their specific usage.
-- `volgrids apbs`: Generate raw APBS potential grids for biomolecular structures.
-- `volgrids smiffer prot`: Calculate SMIFs for protein structures.
-- `volgrids smiffer rna`: Calculate SMIFs for RNA structures.
-- `volgrids smiffer ligand`: Calculate SMIFs for ligand structures. A .chem table must be provided.
+- `volgrids smiffer`: Calculate Statistical Molecular Interaction Fields (SMIFs) for biomolecular structures.
 - `volgrids smutils res_nobp`: Print the set of non-base-paired residues in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires rnapolis.
 - `volgrids smutils res_nostk`: Print the set of residues in a given RNA structure for residues that aren't participating in 2 stacking interactions. Requires rnapolis.
-- `volgrids smutils histogram`: Plot the distribution histogram of non-zero voxel values in a grid file. For multi-frame CMAP files, all frames are concatenated unless --key is specified. Percentiles (p50, p75, p90, p95, p99, p99.9) are printed to the console. Requires matplotlib.
-- `volgrids smutils occupancy prot`: Calculate OGs for protein structures.
-- `volgrids smutils occupancy rna`: Calculate OGs for RNA structures.
-- `volgrids smutils occupancy ligand`: Calculate OGs for ligand structures. A .chem table must be provided.
-- `volgrids smutils log_apbs`: Heuristic transformationn of APBS grids, useful for some visualization pipelines.
+- `volgrids smutils chemgen`: (experimental) Automatically generates a .chem file for a ligand given its 3D structure (e.g. PDB file). Currently only generates rows for stacking interactions, following a heuristic geometrical approach.
+- `volgrids smutils occupancy`: Calculate occupancy grids (OGs) for biomolecular structures.
+- `volgrids smutils pwoverlap`: (experimental) Calculate point-wise overlaps between two biomolecular structures. Generates a CSV file with the overlaps. Currently only considers stacking interactions.
+- `volgrids smutils log_apbs`: Heuristic transformation of APBS grids, useful for some visualization pipelines.
+- `volgrids apbs`: Generate raw APBS potential grids for biomolecular structures.
 - `volgrids vgtools convert`: Convert grid files between formats.
 - `volgrids vgtools pack`: Pack multiple grid files into a single CMAP series-file.
 - `volgrids vgtools unpack`: Unpack a CMAP series-file into multiple grid files.
 - `volgrids vgtools fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
-- `volgrids vgtools average`: Average all grids in a CMAP series-file into a single grid.
-- `volgrids vgtools summary`: Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.
-- `volgrids vgtools compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
 - `volgrids vgtools rotate`: Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
-- `volgrids vgtools points`: Get the grid value(s) for specific XYZ point(s) in space. Grid values for every point are returned space-separated.
+- `volgrids vgtools average`: Average all grids in a CMAP series-file into a single grid.
 - `volgrids vgtools op abs`: Element-wise absolute value of the grid's points.
 - `volgrids vgtools op add`: Element-wise addition of the grids' points.
 - `volgrids vgtools op sub`: Element-wise substraction of the grids' points. Order is "grid_0 - grid_1".
@@ -147,28 +141,32 @@ Run the subcommands without any further arguments to read more about their speci
 - `volgrids vgtools op div`: Element-wise division of the grids' points. Order is "grid_0 / grid_1". Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
 - `volgrids vgtools op and`: Element-wise AND of the boolean grids' points.
 - `volgrids vgtools op or`: Element-wise OR of the boolean grids' points.
+- `volgrids vgtools summary`: Print a summary of the grid file (format, dimensions, resolution, etc.) to the console.
+- `volgrids vgtools histogram`: Plot the distribution histogram of non-zero voxel values in a grid file. For multi-frame CMAP files, all frames are concatenated unless --key is specified. Percentiles (p50, p75, p90, p95, p99, p99.9) are printed to the console. Requires matplotlib.
+- `volgrids vgtools compare`: Compare two grid files by printing the number of differing points and their accumulated difference.
+- `volgrids vgtools points`: Get the grid value(s) for specific XYZ point(s) in space. Grid values for every point are returned space-separated.
 
 
 <!-- ----------------------------------------------------------------------- -->
 ## Commands examples (smiffer)
-- Calculate SMIFs for a protein system (`prot`) considering only the space inside a pocket sphere (`-s`).
+- Calculate SMIFs for a protein system considering only the space inside a pocket sphere (`-s`).
 ```bash
-volgrids smiffer prot testdata/smiffer/pdb_clean/1iqj.pdb -s 4.682 21.475 7.161 14.675
+volgrids smiffer testdata/smiffer/pdb_clean/1iqj.pdb -s 4.682 21.475 7.161 14.675
 ```
 
-- Calculate SMIFs for a whole RNA system (`rna`) considering APBS data (`-a`).
+- Calculate SMIFs for a whole RNA system considering APBS data (`-a`).
 ```bash
-volgrids smiffer rna testdata/smiffer/pdb_clean/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pdb.mrc
+volgrids smiffer testdata/smiffer/pdb_clean/5bjo.pdb -a testdata/smiffer/apbs/5bjo.pdb.mrc
 ```
 
-- Calculate SMIFs for an RNA system (`rna`) along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.
+- Calculate SMIFs for an RNA system along a trajectory (`-t`). Note that for "pocket sphere" mode, the same coordinates/radius are used for the whole trajectory.
 ```bash
-volgrids smiffer rna testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
+volgrids smiffer testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xtc
 ```
 
 - Combine `resids_nonpb` with smiffer's `--resids` (`-i`) flag to have more polished hbond results, e.g.:
 ```bash
-python3 volgrids smiffer rna 1akx.pdb \
+python3 volgrids smiffer 1akx.pdb \
     -i "$(python3 volgrids smutils res_nobp 1akx.pdb)" \
     -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
         DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
@@ -190,9 +188,14 @@ python3 volgrids smiffer rna 1akx.pdb \
 
 
 ### MRC/CCP4 data in ChimeraX
-Use this command when visualizing MRC/CCP4 data with negative values in ChimeraX (replace `1` with the actual number of the model).
+- Use this command when visualizing MRC/CCP4 data with negative values in ChimeraX (replace `1` with the actual number of the model).
 ```
 volume #1 capFaces false
+```
+
+- For permanently saving this ssetting, use:
+```
+volume default capFaces false save true
 ```
 
 
