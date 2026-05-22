@@ -22,7 +22,7 @@ class MolSystem:
         self.molname = path_struct.stem
         self.do_traj = path_traj is not None
         self.do_ps = sm.SPHERE is not None
-        self.chemtable = sm.ParserChemTable(self._get_path_table())
+        self.chemtable = self._init_chemtable()
 
         if self.do_traj:
             self.system = mda.Universe(str(path_struct), str(path_traj))
@@ -113,24 +113,20 @@ class MolSystem:
         return box
 
 
-
     # --------------------------------------------------------------------------
-    def _get_path_table(self) -> Path:
-        if sm.PATH_CHEM_CUSTOM: return sm.PATH_CHEM_CUSTOM
+    def _init_chemtable(self) -> "sm.ParserChemTable":
+        if sm.PATH_CHEM_LIGAND:
+            return sm.ParserChemTable(sm.PATH_CHEM_LIGAND)
 
         folder_default_tables = vg.resolve_path_package("_data/smiffer_tables")
+        chem = sm.ParserChemTable(folder_default_tables / "default.chem")
 
-        if sm.CURRENT_MOLTYPE == sm.MolType.PROT:
-            return folder_default_tables / "prot.chem"
+        if sm.HBONDS_ONLY_NUCLEOBASE:
+            ini = vg.ParserIni.from_file(folder_default_tables / "rna_simple_hb.chem")
+            chem.parse_names_hbacceptors(ini)
+            chem.parse_names_hbdonors(ini)
 
-        if sm.CURRENT_MOLTYPE == sm.MolType.RNA:
-            name = "rna_simple_hb" if sm.HBONDS_ONLY_NUCLEOBASE else "rna"
-            return folder_default_tables / f"{name}.chem"
-
-        if sm.CURRENT_MOLTYPE == sm.MolType.MACRO:
-            return folder_default_tables / "macro.chem"
-
-        raise ValueError(f"No default table for the specified molecular type '{sm.CURRENT_MOLTYPE}'. Please provide a path to a custom table.")
+        return chem
 
 
 # //////////////////////////////////////////////////////////////////////////////

@@ -25,22 +25,21 @@ conf_simple_smifs="DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SM
 conf_benchmark="$conf_no_smifs $(conf_cavities True False False True 3)"
 
 run_benchmarks() {
-    local moltype=$1
-    local names=$2
+    local names=$1
     for name in $names; do
         for i in 1 2 3; do
-            python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_benchmark" CAVITIES_NPASSES=$i
+            python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_benchmark" CAVITIES_NPASSES=$i
             mv "$fout_benchmark/$name.cmap" $fout_benchmark/npasses_$i.cmap
         done
 
-        python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" \
+        python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" \
             CAVITIES_WEIGHT=1.0 GRID_FORMAT_OUTPUT=CMAP CAVITIES_NPASSES=2
 
         for smif in stacking hbacceptors hbdonors; do
             mv "$fout_benchmark/$name.$smif.cmap" "$fout_benchmark/$name.$smif.weighted.cmap"
         done
 
-        python3 volgrids smiffer "$moltype" "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" SAVE_TRIMMING_MASK=true
+        python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" SAVE_TRIMMING_MASK=true
         (
             shopt -s nullglob
             cmaps=( "$fout_benchmark"/npasses*.cmap "$fout_benchmark/$name".*.cmap )
@@ -55,8 +54,8 @@ run_benchmarks() {
     rm -f $fout_benchmark/npasses_*
 }
 
-run_benchmarks "prot" "1bg0 1eby 1ehe 1h7l 1iqj 1ofz 3dd0 3ee4 5m9w 6e9a"
-run_benchmarks "rna" "1akx 1i9v 2esj 4f8u 5bjo 5kx9 6tf3 7oax0 7oax1 8eyv"
+run_benchmarks "1bg0 1eby 1ehe 1h7l 1iqj 1ofz 3dd0 3ee4 5m9w 6e9a"   # prt
+run_benchmarks "1akx 1i9v 2esj 4f8u 5bjo 5kx9 6tf3 7oax0 7oax1 8eyv"
 
 
 ############################# OPTIONS
@@ -74,11 +73,11 @@ cp $path_pdb $fout_options/config_01.pdb
 cp $path_pdb $fout_options/config_02.pdb
 cp $path_pdb $fout_options/config_03.pdb
 cp $path_pdb $fout_options/config_04.pdb
-python3 volgrids smiffer prot $fout_options/config_00.pdb --config "$conf_options_00"
-python3 volgrids smiffer prot $fout_options/config_01.pdb --config "$conf_options_01"
-python3 volgrids smiffer prot $fout_options/config_02.pdb --config "$conf_options_02"
-python3 volgrids smiffer prot $fout_options/config_03.pdb --config "$conf_options_03"
-python3 volgrids smiffer prot $fout_options/config_04.pdb --config "$conf_options_04"
+python3 volgrids smiffer $fout_options/config_00.pdb --config "$conf_options_00"
+python3 volgrids smiffer $fout_options/config_01.pdb --config "$conf_options_01"
+python3 volgrids smiffer $fout_options/config_02.pdb --config "$conf_options_02"
+python3 volgrids smiffer $fout_options/config_03.pdb --config "$conf_options_03"
+python3 volgrids smiffer $fout_options/config_04.pdb --config "$conf_options_04"
 
 
 ######################### threshold
@@ -93,12 +92,12 @@ cp $path_pdb $fout_options/config_t1.pdb
 cp $path_pdb $fout_options/config_t2.pdb
 cp $path_pdb $fout_options/config_t3.pdb
 cp $path_pdb $fout_options/config_t4.pdb
-python3 volgrids smiffer prot $fout_options/config_t0.pdb --config "$conf_options_t0"
-python3 volgrids smiffer prot $fout_options/config_t1.pdb --config "$conf_options_t1"
-python3 volgrids smiffer prot $fout_options/config_t2.pdb --config "$conf_options_t2"
-python3 volgrids smiffer prot $fout_options/config_t3.pdb --config "$conf_options_t3"
-python3 volgrids smiffer prot $fout_options/config_t4.pdb --config "$conf_options_t4"
+python3 volgrids smiffer $fout_options/config_t0.pdb --config "$conf_options_t0"
+python3 volgrids smiffer $fout_options/config_t1.pdb --config "$conf_options_t1"
+python3 volgrids smiffer $fout_options/config_t2.pdb --config "$conf_options_t2"
+python3 volgrids smiffer $fout_options/config_t3.pdb --config "$conf_options_t3"
+python3 volgrids smiffer $fout_options/config_t4.pdb --config "$conf_options_t4"
 
 ##### bonus: pocket sphere run
-python3 volgrids smiffer prot $fpdb/1iqj.pdb -o $fout_pocketsphere -s 4.682 21.475 7.161 14.675 --config "$conf_options_t3"
+python3 volgrids smiffer $fpdb/1iqj.pdb -o $fout_pocketsphere -s 4.682 21.475 7.161 14.675 --config "$conf_options_t3"
 cp $fpdb_orig/1iqj.pdb $fout_pocketsphere/

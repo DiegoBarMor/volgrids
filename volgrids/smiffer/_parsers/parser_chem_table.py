@@ -3,50 +3,8 @@ from collections import defaultdict
 import volgrids as vg
 import volgrids.smiffer as sm
 
-# ------------------------------------------------------------------------------
-def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str, bool]:
-    def _assert(condition: bool):
-        assert condition, \
-            f"Triplet '{triplet}' is not in the expected formats 'I=T->H' or 'I=T0.T1->H'."
-
-    stripped = triplet.strip('!')
-    hbond_fixed = stripped != triplet
-
-    parts = stripped.split('=')
-    _assert(len(parts) == 2)
-
-    interactor, direction = parts
-    parts = direction.split("->")
-    _assert(len(parts) == 2)
-
-    tail, head = parts
-    _assert(tail and head and interactor)
-
-    ### valid syntax?  | yes | no |
-    ### 'i=t->h'       |  X  |    |
-    ### 'i=t0.t1->h'   |  X  |    |
-    ### 'i=t0.t1.t2->h'|  X  |    |
-    ### 'i=t0.->h'     |     | X  |
-    ### 'i=.t1->h'     |     | X  |
-    tail_points = tail.split('.')
-    _assert(len(tail_points) > 0 and all(tail_points))
-
-    return interactor, tail_points, head, hbond_fixed
-
-
 # //////////////////////////////////////////////////////////////////////////////
 class ParserChemTable:
-    _RESNAME_NUCL_STANDARD = (
-        "U", "C", "A", "G"
-    )
-    _RESNAME_DNA_TO_STANDARD = {
-        "DT": "U", "DC": "C", "DA": "A", "DG": "G"
-    }
-    _RESNAME_ALTRNA_TO_STANDARD = {
-        "RU": "U", "RC": "C", "RA": "A", "RG": "G"
-    }
-
-    # --------------------------------------------------------------------------
     def __init__(self, path_table):
         self._selection_query: str = ''
         self._selection_query_custom: str = ''
@@ -70,13 +28,13 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def get_residue_hphob(self, atom):
-        resname = self._standardize_resname_nucl(atom.resname)
+        resname = sm.ResnameStandard.standardize(atom.resname)
         return self._residues_hphob.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_atom_hphob(self, atom):
-        resname = self._standardize_resname_nucl(atom.resname)
+        resname = sm.ResnameStandard.standardize(atom.resname)
         dict_resid = self._atoms_hphob.get(resname)
         if dict_resid is None: return None
         return dict_resid.get(atom.name)
@@ -84,39 +42,70 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def get_names_stacking(self, resname: str) -> list[str] | None:
-        resname = self._standardize_resname_nucl(resname)
+        resname = sm.ResnameStandard.standardize(resname)
         return self._names_stk.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hba(self, resname: str):
-        resname = self._standardize_resname_nucl(resname)
+        resname = sm.ResnameStandard.standardize(resname)
         return self._names_hba.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hbd(self, resname: str):
-        resname = self._standardize_resname_nucl(resname)
+        resname = sm.ResnameStandard.standardize(resname)
         return self._names_hbd.get(resname)
 
 
     # --------------------------------------------------------------------------
-    @classmethod
-    def _standardize_resname_nucl(cls, resname: str) -> str:
-        if not sm.CURRENT_MOLTYPE.is_rna(): return resname
-        if resname in cls._RESNAME_NUCL_STANDARD: return resname
+    def parse_res_hphobicity(self, data_ini: vg.ParserIni):
+        for resname, value in data_ini.iter_splitted_lines("RES_HPHOBICITY", sep = ':'):
+            self._residues_hphob[resname] = float(value)
 
-        if resname in cls._RESNAME_ALTRNA_TO_STANDARD:
-            return cls._RESNAME_ALTRNA_TO_STANDARD[resname]
 
-        if resname in cls._RESNAME_DNA_TO_STANDARD:
-            return cls._RESNAME_DNA_TO_STANDARD[resname]
+    # --------------------------------------------------------------------------
+    def parse_atom_hphobicity(self, data_ini: vg.ParserIni):
+        for names, value in data_ini.iter_splitted_lines("ATOM_HPHOBICITY", sep = ':'):
+            resname, atomname = names.split('/')
+            self._atoms_hphob[resname][atomname] = float(value)
 
-        return resname
+        ### expand the atoms declared with the '*' wildcard to all residues
+        hphob_wildcard = self._atoms_hphob.get('*')
+        if hphob_wildcard is None: return
+
+        del self._atoms_hphob['*']
+        for res_dict in self._atoms_hphob.values():
+            res_dict.update(hphob_wildcard)
+
+
+    # --------------------------------------------------------------------------
+    def parse_names_stacking(self, data_ini: vg.ParserIni):
+        for resname, atomnames in data_ini.iter_splitted_lines("NAMES_STACKING", sep = ':'):
+            self._names_stk[resname].append(atomnames)
+
+
+    # --------------------------------------------------------------------------
+    def parse_names_hbacceptors(self, data_ini: vg.ParserIni):
+        for resname, str_triplets in data_ini.iter_splitted_lines("NAMES_HBACCEPTORS", sep = ':'):
+            triplets = map(self._parse_atoms_triplet, str_triplets.split())
+            self._names_hba[resname] = [(hba,tail,head,False) for hba,tail,head,_ in triplets] # hbond_fixed must always be False for HBAcceptors
+
+
+    # --------------------------------------------------------------------------
+    def parse_names_hbdonors(self, data_ini: vg.ParserIni):
+        for resname, str_triplets in data_ini.iter_splitted_lines("NAMES_HBDONORS", sep = ':'):
+            triplets = list(map(self._parse_atoms_triplet, str_triplets.split()))
+            self._names_hbd[resname] = triplets
 
 
     # --------------------------------------------------------------------------
     def _parse_table(self):
+        """
+        Populate the fields of the ParserChemTable instance by parsing the lines of the .chem table file.
+        Should only be called once during initialization.
+        """
+
         ### extract values from the lines
         query = self._parser_ini.get("SELECTION_QUERY")
         if query is None: raise ValueError("No selection query found in the table file.")
@@ -132,32 +121,43 @@ class ParserChemTable:
             self._selection_query_custom =\
                 self._selection_query_custom[:-4] + ")" # remove the last " or "
 
+        self.parse_res_hphobicity   (self._parser_ini)
+        self.parse_atom_hphobicity  (self._parser_ini)
+        self.parse_names_stacking   (self._parser_ini)
+        self.parse_names_hbacceptors(self._parser_ini)
+        self.parse_names_hbdonors   (self._parser_ini)
 
-        for resname, value in self._parser_ini.iter_splitted_lines("RES_HPHOBICITY", sep = ':'):
-            self._residues_hphob[resname] = float(value)
 
-        for names, value in self._parser_ini.iter_splitted_lines("ATOM_HPHOBICITY", sep = ':'):
-            resname, atomname = names.split('/')
-            self._atoms_hphob[resname][atomname] = float(value)
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def _parse_atoms_triplet(triplet: str) -> tuple[str, str, str, str, bool]:
+        def _assert(condition: bool):
+            assert condition, \
+                f"Triplet '{triplet}' is not in the expected formats 'I=T->H' or 'I=T0.T1->H'."
 
-        for resname, atomnames in self._parser_ini.iter_splitted_lines("NAMES_STACKING", sep = ':'):
-            self._names_stk[resname].append(atomnames)
+        stripped = triplet.strip('!')
+        hbond_fixed = stripped != triplet
 
-        for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBACCEPTORS", sep = ':'):
-            triplets = map(_parse_atoms_triplet, str_triplets.split())
-            self._names_hba[resname] = [(hba,tail,head,False) for hba,tail,head,_ in triplets] # hbond_fixed must always be False for HBAcceptors
+        parts = stripped.split('=')
+        _assert(len(parts) == 2)
 
-        for resname, str_triplets in self._parser_ini.iter_splitted_lines("NAMES_HBDONORS", sep = ':'):
-            triplets = list(map(_parse_atoms_triplet, str_triplets.split()))
-            self._names_hbd[resname] = triplets
+        interactor, direction = parts
+        parts = direction.split("->")
+        _assert(len(parts) == 2)
 
-        ### expand the atoms declared with the '*' wildcard to all residues (hydrophobicity)
-        hphob_wildcard = self._atoms_hphob.get('*')
-        if hphob_wildcard is None: return
+        tail, head = parts
+        _assert(tail and head and interactor)
 
-        del self._atoms_hphob['*']
-        for res_dict in self._atoms_hphob.values():
-            res_dict.update(hphob_wildcard)
+        ### valid syntax?  | yes | no |
+        ### 'i=t->h'       |  X  |    |
+        ### 'i=t0.t1->h'   |  X  |    |
+        ### 'i=t0.t1.t2->h'|  X  |    |
+        ### 'i=t0.->h'     |     | X  |
+        ### 'i=.t1->h'     |     | X  |
+        tail_points = tail.split('.')
+        _assert(len(tail_points) > 0 and all(tail_points))
+
+        return interactor, tail_points, head, hbond_fixed
 
 
 # //////////////////////////////////////////////////////////////////////////////
