@@ -29,6 +29,7 @@ class AppVGTools(vg.AppSubcommand):
         if operation == "histogram": return self._run_histogram()
         if operation == "compare"  : return self._run_compare()
         if operation == "points"   : return self._run_points()
+        raise ValueError(f"Unknown operation: {operation}")
 
 
     # --------------------------------------------------------------------------
