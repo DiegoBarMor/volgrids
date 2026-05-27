@@ -35,7 +35,6 @@
 * add tests for apbs
 * add tests for -r flag
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
-* reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
 * check whether the trimmer can still be saved when no smifs are calculated
 
 
@@ -55,14 +54,12 @@
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
 * give a warning if "convert" doesn't take any output option.
-* improve the CMAP keys that are automatically assigned when packing.
 
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMUtils
 * check why `DEBUG_CHEMTABLE_LIGAND` config isn't being taken into account
-* ideas:
-    * `findsphere` to find the position and (optionally extendable) radius of a sphere surrounding a query for the structure.
+* reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
 
 
 <!-- ----------------------------------------------------------------------- -->

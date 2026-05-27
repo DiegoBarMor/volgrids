@@ -48,14 +48,7 @@ class AppSMUtils(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_sphere_pos(self) -> None:
-        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        path_traj = self.main.get_arg_path("path_traj",
-            assertion = fy.PathAssertion.FILE_IN, allow_none = True
-        )
-        query = self.main.get_arg_str("query")
-        radius_extra = self.main.get_arg_float("radius_extra")
-
-        print(su.Spheres.find_spheres(path_in, path_traj, query, radius_extra))
+        su.AppSpheres(self.main).run()
 
 
     # --------------------------------------------------------------------------
