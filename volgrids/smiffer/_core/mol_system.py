@@ -118,7 +118,7 @@ class MolSystem:
         if sm.PATH_CHEM_LIGAND:
             return sm.ParserChemTable(sm.PATH_CHEM_LIGAND)
 
-        folder_default_tables = vg.resolve_path_package("_data/smiffer_tables")
+        folder_default_tables = vg.Utils.resolve_path_package("_data/smiffer_tables")
         chem = sm.ParserChemTable(folder_default_tables / "default.chem")
 
         if sm.HBONDS_ONLY_NUCLEOBASE:

@@ -34,7 +34,7 @@ class AppSpheres(vg.AppSubcommand):
             radius = max_dist + radius_extra
             return f"{cog[0]:.3f} {cog[1]:.3f} {cog[2]:.3f} {radius:.3f}"
 
-        u = vg.create_mda_universe_quiet(path_pdb, path_traj)
+        u = vg.Utils.create_mda_universe_quiet(path_pdb, path_traj)
         atoms = u.select_atoms(query)
         if len(atoms) == 0:
             raise ValueError(f"No atoms found for query: {query}")

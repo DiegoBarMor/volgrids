@@ -16,7 +16,7 @@ class AppMain(fy.App):
 
     # --------------------------------------------------------------------------
     def __init__(self,  argv: list[str]):
-        dir_ui = vg.resolve_path_package("_ui")
+        dir_ui = vg.Utils.resolve_path_package("_ui")
         super().__init__(
             args = argv,
             path_fyr = dir_ui / "fy_rules.fyr",
