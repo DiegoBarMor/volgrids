@@ -17,6 +17,11 @@ class SmifHBAccepts(SmifHBonds):
 
 
     # --------------------------------------------------------------------------
+    def can_be_interactor(self, triplet: Triplet) -> bool:
+        return True # acceptors can always be interactors, no special cases
+
+
+    # --------------------------------------------------------------------------
     def find_tail_head_positions(self, triplet: Triplet) -> None:
         triplet.set_pos_head(self.res_atoms)
 

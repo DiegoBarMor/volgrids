@@ -20,6 +20,12 @@ class SmifHBonds(Smif, ABC):
 
     # --------------------------------------------------------------------------
     @abstractmethod
+    def can_be_interactor(self, triplet: Triplet) -> bool:
+        raise NotImplementedError()
+
+
+    # --------------------------------------------------------------------------
+    @abstractmethod
     def find_tail_head_positions(self, triplet: Triplet) -> None:
         raise NotImplementedError()
 
@@ -58,9 +64,21 @@ class SmifHBonds(Smif, ABC):
                 if not hbond_tuple: continue  # skip residues without HBond pairs
 
                 triplet = Triplet(res, *hbond_tuple)
+                if not self.can_be_interactor(triplet): continue
+
                 self.res_atoms = self.all_atoms.select_atoms(triplet.str_this_res)
                 triplet.set_pos_interactor(self.res_atoms)
                 yield triplet
+
+
+    # ------------------------------------------------------------------------------
+    def _has_prev_res(self, triplet: Triplet) -> bool:
+        return len(self.all_atoms.select_atoms(triplet.str_prev_res)) > 0
+
+
+    # ------------------------------------------------------------------------------
+    def _has_next_res(self, triplet: Triplet) -> bool:
+        return len(self.all_atoms.select_atoms(triplet.str_next_res)) > 0
 
 
 # //////////////////////////////////////////////////////////////////////////////

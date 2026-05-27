@@ -23,6 +23,7 @@ class AppVGTools(vg.AppSubcommand):
         if operation == "fix_cmap" : return self._run_fix_cmap()
         if operation == "rotate"   : return self._run_rotate()
         if operation == "average"  : return self._run_average()
+        if operation == "std_dev"  : return self._run_std_dev()
         if operation == "op"       : return self._run_op()
         if operation == "summary"  : return self._run_summary()
         if operation == "histogram": return self._run_histogram()
@@ -114,6 +115,16 @@ class AppVGTools(vg.AppSubcommand):
 
         print(f">>> Averaging CMAP file: {fy.Color.yellow(path_in)}")
         grid = vgt.VGOperations.average(path_in)
+        vg.GridIO.write_auto(path_out, grid)
+
+
+    # --------------------------------------------------------------------------
+    def _run_std_dev(self):
+        path_in  = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
+
+        print(f">>> Standard Deviation for CMAP file: {fy.Color.yellow(path_in)}")
+        grid = vgt.VGOperations.std_dev(path_in)
         vg.GridIO.write_auto(path_out, grid)
 
 

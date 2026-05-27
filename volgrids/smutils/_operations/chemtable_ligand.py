@@ -15,7 +15,7 @@ class ChemTableLigand:
     def __init__(self, path_pdb_ligand: Path):
         u = mda.Universe(str(path_pdb_ligand))
         u.guess_TopologyAttrs(to_guess = ["bonds"])
-        self.atoms = u.select_atoms("not (name H*)")
+        self.atoms = u.select_atoms("not (name H*) and not water") # [TODO] will presence of ions be an issue?
         self.coords: np.ndarray = self.atoms.positions
         self.bonds : np.ndarray = self._get_bonds_matrix()
         self.idxs  : np.ndarray = np.arange(len(self.bonds))

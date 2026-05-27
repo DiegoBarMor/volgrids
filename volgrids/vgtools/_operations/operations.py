@@ -30,7 +30,7 @@ class VGOperations:
     def pack(paths_in: list[Path], path_out: Path) -> None:
         resolution = None
         warned = False
-        for path_in in paths_in:
+        for path_in, key in zip(paths_in, VGOperations.get_keys_packing(paths_in)):
             grid = vg.GridIO.read_auto(path_in)
             if resolution is None:
                 resolution = f"{grid.xres()} {grid.yres()} {grid.zres()}"
@@ -44,7 +44,6 @@ class VGOperations:
                 )
                 warned = True
 
-            key = str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
             vg.GridIO.write_cmap(path_out, grid, key)
 
 
@@ -87,6 +86,25 @@ class VGOperations:
         grid_avg: vg.Grid = vg.Grid(grid.box, init_grid = False)
         grid_avg.arr = avg
         return grid_avg
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def std_dev(path_in: Path) -> "vg.Grid":
+        keys = vg.GridIO.get_cmap_keys(path_in)
+        nframes = len(keys)
+
+        grid = vg.GridIO.read_cmap(path_in, keys[0])
+        grid_avg = VGOperations.average(path_in)
+
+        stddev = np.zeros_like(grid.arr)
+        for key in keys:
+            stddev += (vg.GridIO.read_cmap(path_in, key).arr - grid_avg.arr) ** 2
+        stddev = np.sqrt(stddev / nframes)
+
+        grid_stddev: vg.Grid = vg.Grid(grid.box, init_grid = False)
+        grid_stddev.arr = stddev
+        return grid_stddev
 
 
     # --------------------------------------------------------------------------
@@ -268,6 +286,22 @@ class VGOperations:
         if not interpolate_to_common_box: return
         print(f"...>>> Interpolating {str_grid_0} to {str_new_box}...")
         grid_0.reshape_as_box(new_box)
+
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def get_keys_packing(paths_in: list[Path]) -> list[str]:
+        keys = [path_in.stem for path_in in paths_in]
+        if len(set(keys)) == len(keys): # no duplicates
+            return keys
+
+        ### when there are duplicate keys, fall back to using the whole path (except extension)
+        keys = [
+            str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
+            for path_in in paths_in
+        ]
+        return keys
 
 
 # //////////////////////////////////////////////////////////////////////////////

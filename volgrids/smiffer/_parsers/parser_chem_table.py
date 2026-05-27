@@ -22,6 +22,7 @@ class ParserChemTable:
         """
         Custom query includes an additional condition to select only the residues specified in the `CUSTOM_RESIDUES` parameter.
         Otherwise, the standard query is returned (i.e. that one specified in the .chem table), which does not filter by residue.
+        The distinction is needed because SMIFs are to be computed only for the specified residues, but trimming needs to consider all residues.
         """
         return self._selection_query_custom if use_custom else self._selection_query
 
