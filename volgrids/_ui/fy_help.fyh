@@ -161,30 +161,30 @@
         !@
         @add
             !fyh:_ Element-wise addition of the grids' points.
-            !use:_io_2_inputs_op
+            !use:_io_2_inputs
         !@
         @sub
             !fyh:_ Element-wise substraction of the grids' points.
                 Order is "grid_0 - grid_1".
-            !use:_io_2_inputs_op
+            !use:_io_2_inputs
         !@
         @mul
             !fyh:_ Element-wise multiplication of the grids' points.
-            !use:_io_2_inputs_op
+            !use:_io_2_inputs
         !@
         @div
             !fyh:_ Element-wise division of the grids' points.
                 Order is "grid_0 / grid_1".
                 Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
-            !use:_io_2_inputs_op
+            !use:_io_2_inputs
         !@
         @and
             !fyh:_ Element-wise AND of the boolean grids' points.
-            !use:_io_2_inputs_op
+            !use:_io_2_inputs
         !@
         @or
             !fyh:_ Element-wise OR of the boolean grids' points.
-            !use:_io_2_inputs_op
+            !use:_io_2_inputs
         !@
     !@
 

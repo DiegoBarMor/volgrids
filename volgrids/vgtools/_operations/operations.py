@@ -30,7 +30,7 @@ class VGOperations:
     def pack(paths_in: list[Path], path_out: Path) -> None:
         resolution = None
         warned = False
-        for path_in in paths_in:
+        for path_in, key in zip(paths_in, VGOperations.get_keys_packing(paths_in)):
             grid = vg.GridIO.read_auto(path_in)
             if resolution is None:
                 resolution = f"{grid.xres()} {grid.yres()} {grid.zres()}"
@@ -44,7 +44,6 @@ class VGOperations:
                 )
                 warned = True
 
-            key = str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
             vg.GridIO.write_cmap(path_out, grid, key)
 
 
@@ -287,6 +286,22 @@ class VGOperations:
         if not interpolate_to_common_box: return
         print(f"...>>> Interpolating {str_grid_0} to {str_new_box}...")
         grid_0.reshape_as_box(new_box)
+
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def get_keys_packing(paths_in: list[Path]) -> list[str]:
+        keys = [path_in.stem for path_in in paths_in]
+        if len(set(keys)) == len(keys): # no duplicates
+            return keys
+
+        ### when there are duplicate keys, fall back to using the whole path (except extension)
+        keys = [
+            str(path_in.parent / path_in.stem).replace(' ', '_').replace('/', '_').replace('\\', '_')
+            for path_in in paths_in
+        ]
+        return keys
 
 
 # //////////////////////////////////////////////////////////////////////////////

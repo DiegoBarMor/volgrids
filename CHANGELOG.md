@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.12.1] - 2026-05-27
+- Fixed bug where trimming was considering water and other unwanted atoms.
+    - This bug was introduced in `0.12.0` when the default chem files were refactored.
+- Fixed bug where HBDonor OGs were including unwanted atoms.
+    - The special cases for RNAs and proteins were not being taken into account.
+- Added `std_dev` subcommand to `vgtools`.
+    Similar to the `average` subcommand, it allows to obtain the standard deviation grid for multiple grids in a CMAP file.
+
+
 ## [0.12.0] - 2026-05-22
 - CLI changes in `smiffer` (**IMPORTANT**: breaks compatibility with calls to older versions of the smiffer's command).
     - Renamed the `-b`/`--table` flag to `-e`/`--chem` to better represent its intent (i.e. use it for passing a custom `.chem` file).
