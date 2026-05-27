@@ -83,6 +83,9 @@
     @average
         !use:_io_1_input
     !@
+    @std_dev
+        !use:_io_1_input
+    !@
     @op
         @abs !use:_io_1_input  !@
         @add !use:_io_2_inputs !@

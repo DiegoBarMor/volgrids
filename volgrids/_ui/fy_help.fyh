@@ -144,6 +144,11 @@
         !fyh:path_in Path to the CMAP series-file to be averaged.
         !fyh:path_out Path where to save the averaged CMAP file.
     !@
+    @std_dev
+        !fyh:_ Standard deviation grid for all grids in a CMAP series-file.
+        !fyh:path_in Path to the CMAP series-file to be averaged.
+        !fyh:path_out Path where to save the averaged CMAP file.
+    !@
     @op
         !fyh:_
             Perform numeric operations between two grids.
