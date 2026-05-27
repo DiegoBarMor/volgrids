@@ -91,6 +91,25 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def std_dev(path_in: Path) -> "vg.Grid":
+        keys = vg.GridIO.get_cmap_keys(path_in)
+        nframes = len(keys)
+
+        grid = vg.GridIO.read_cmap(path_in, keys[0])
+        grid_avg = VGOperations.average(path_in)
+
+        stddev = np.zeros_like(grid.arr)
+        for key in keys:
+            stddev += (vg.GridIO.read_cmap(path_in, key).arr - grid_avg.arr) ** 2
+        stddev = np.sqrt(stddev / nframes)
+
+        grid_stddev: vg.Grid = vg.Grid(grid.box, init_grid = False)
+        grid_stddev.arr = stddev
+        return grid_stddev
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def summary(path_in: Path) -> None:
         def numerics(g: vg.Grid, key: str):
             n_total = g.arr.size
