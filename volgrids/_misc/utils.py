@@ -35,4 +35,27 @@ def assert_vendors():
     )))
 
 
+# --------------------------------------------------------------------------
+def create_mda_universe_quiet(path_pdb: Path, path_traj: Path|None):
+    import io
+    import logging
+    import warnings
+    import MDAnalysis as mda
+    from contextlib import redirect_stdout, redirect_stderr
+
+    buf = io.StringIO()
+    logger = logging.getLogger("MDAnalysis")
+    old_level = logger.getEffectiveLevel()
+    try:
+        logger.setLevel(logging.ERROR)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            with redirect_stdout(buf), redirect_stderr(buf):
+                args_traj = [str(path_traj)] if path_traj is not None else []
+                u = mda.Universe(str(path_pdb), *args_traj)
+    finally:
+        logger.setLevel(old_level)
+    return u
+
+
 # ------------------------------------------------------------------------------

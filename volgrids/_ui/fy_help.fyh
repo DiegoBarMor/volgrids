@@ -60,6 +60,13 @@
         !fyh:path_out Path where to store the automatic .chem file.
             Defaults to path_in with extension ".chem".
     !@
+    @sphere_pos
+        !fyh:_
+        !fyh:path_in File path to a molecular structure e.g. a PDB file.
+        !fyh:query Query for selecting the atoms that will be enclosed by the sphere (MDAnalysis query format).
+        !fyh:path_traj File path to a trajectory file (e.g. XTC) supported by MDAnalysis.
+        !fyh:radius_extra Increment the radius of the returned sphere information by an optional amount.
+    !@
 
     #### Advanced applications of the SMIF model
     @occupancy

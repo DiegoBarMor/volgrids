@@ -13,12 +13,13 @@ class AppSMUtils(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def run(self):
         operation = self.main.subcommands.pop(0)
-        if operation == "res_nobp" : return self._run_res_nobp()
-        if operation == "res_nostk": return self._run_res_nostk()
-        if operation == "chemgen"  : return self._run_chemgen()
-        if operation == "occupancy": return self._run_occupancy()
-        if operation == "pwoverlap": return self._run_pwoverlap()
-        if operation == "log_apbs" : return self._run_log_apbs()
+        if operation == "res_nobp"  : return self._run_res_nobp()
+        if operation == "res_nostk" : return self._run_res_nostk()
+        if operation == "chemgen"   : return self._run_chemgen()
+        if operation == "sphere_pos": return self._run_sphere_pos()
+        if operation == "occupancy" : return self._run_occupancy()
+        if operation == "pwoverlap" : return self._run_pwoverlap()
+        if operation == "log_apbs"  : return self._run_log_apbs()
         raise ValueError(f"Unknown operation: {operation}")
 
 
@@ -36,13 +37,25 @@ class AppSMUtils(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_chemgen(self) -> None:
-        path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
         path_out = self.main.get_arg_path("path_out",
             assertion = fy.PathAssertion.FILE_OUT, default = path_in.with_suffix(".chem")
         )
         path_out.write_text(
             su.ChemTableLigand(path_in).gen_chemtable()
         )
+
+
+    # --------------------------------------------------------------------------
+    def _run_sphere_pos(self) -> None:
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_traj = self.main.get_arg_path("path_traj",
+            assertion = fy.PathAssertion.FILE_IN, allow_none = True
+        )
+        query = self.main.get_arg_str("query")
+        radius_extra = self.main.get_arg_float("radius_extra")
+
+        print(su.Spheres.find_spheres(path_in, path_traj, query, radius_extra))
 
 
     # --------------------------------------------------------------------------

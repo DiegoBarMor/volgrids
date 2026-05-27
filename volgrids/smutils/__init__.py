@@ -1,5 +1,6 @@
 from ._operations.residues_nucleic import ResiduesNucleic
 from ._operations.chemtable_ligand import ChemTableLigand
+from ._operations.spheres import Spheres
 
 from ._occupancies.hbaccepts import OgHBAccepts
 from ._occupancies.hbdonors import OgHBDonors
