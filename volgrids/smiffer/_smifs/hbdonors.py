@@ -1,5 +1,4 @@
 import warnings
-from abc import ABC
 import MDAnalysis as mda
 
 import volgrids as vg
@@ -9,7 +8,7 @@ from ._core.hbonds import SmifHBonds
 from ._core.triplet import Triplet
 
 # //////////////////////////////////////////////////////////////////////////////
-class SmifHBDonors(SmifHBonds, ABC):
+class SmifHBDonors(SmifHBonds):
     # --------------------------------------------------------------------------
     def __init__(self, ms: "sm.MolSystem"):
         super().__init__(ms)
@@ -25,6 +24,22 @@ class SmifHBDonors(SmifHBonds, ABC):
 
 
     # --------------------------------------------------------------------------
+    def can_be_interactor(self, triplet: Triplet) -> bool:
+        if sm.ResnameStandard.is_prot(triplet.resname):
+            if triplet.resname == "PRO": # donor only if there is no previous residue
+                return not self._has_prev_res(triplet)
+
+        if sm.ResnameStandard.is_nucleic(triplet.resname):
+            if triplet.interactor == "O3'": # donor only if there is no next residue
+                return not self._has_next_res(triplet)
+
+            if triplet.interactor == "O5'": # donor only if there is no previous residue
+                return not self._has_prev_res(triplet)
+
+        return True # all other cases can be interactors
+
+
+    # --------------------------------------------------------------------------
     def find_tail_head_positions(self, triplet: Triplet) -> None:
         if triplet.pos_head is not None: # head position is already set for succesful sm.USE_STRUCTURE_HYDROGENS iterations
             return
@@ -34,10 +49,7 @@ class SmifHBDonors(SmifHBonds, ABC):
         ############################### TAIL POSITION
         ### special cases for protein
         if sm.ResnameStandard.is_prot(triplet.resname):
-            if triplet.resname == "PRO": # donor only if there is no previous residue
-                if self._has_prev_res(triplet): return
-
-            elif triplet.interactor == "N": # tail points are in different residues
+            if triplet.interactor == "N": # tail points are in different residues
                 if self._has_prev_res(triplet):
                     triplet.set_pos_tail_custom( # N of peptide bond
                         atoms = self.all_atoms,
@@ -54,15 +66,6 @@ class SmifHBDonors(SmifHBonds, ABC):
                 )
                 self.kernel = self._get_relevant_kernel(triplet)
                 return
-
-
-        ### special cases for RNA
-        if sm.ResnameStandard.is_nucleic(triplet.resname):
-            if triplet.interactor == "O3'": # donor only if there is no next residue
-                if self._has_next_res(triplet): return
-
-            elif triplet.interactor == "O5'": # donor only if there is no previous residue
-                if self._has_prev_res(triplet): return
 
         triplet.set_pos_tail(self.res_atoms)
 
@@ -110,16 +113,6 @@ class SmifHBDonors(SmifHBonds, ABC):
 
         ### the bonds are contained in these newly defined atomgroup, so update the all_atoms reference
         self.all_atoms = u.atoms
-
-
-    # ------------------------------------------------------------------------------
-    def _has_prev_res(self, triplet: Triplet) -> bool:
-        return len(self.all_atoms.select_atoms(triplet.str_prev_res)) > 0
-
-
-    # ------------------------------------------------------------------------------
-    def _has_next_res(self, triplet: Triplet) -> bool:
-        return len(self.all_atoms.select_atoms(triplet.str_next_res)) > 0
 
 
 # //////////////////////////////////////////////////////////////////////////////
