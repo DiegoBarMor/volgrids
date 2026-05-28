@@ -136,9 +136,7 @@ class AppSmiffer(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def process_frame(self, frame_idx: int) -> None:
         """Set per-frame state and run `_process_grids`."""
-        self.ms.system.trajectory[frame_idx]
-        self.ms.frame = frame_idx + 1
-
+        self.ms.switch_frame(frame_idx)
         n_frames = len(self.ms.system.trajectory)
         timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
         timer.start()

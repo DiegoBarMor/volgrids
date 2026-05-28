@@ -54,6 +54,13 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
+    def switch_frame(self, frame_idx: int):
+        """frame_idx is 0-based; self.frame is 1-based (user display)."""
+        self.system.trajectory[frame_idx]
+        self.frame = frame_idx + 1
+
+
+    # --------------------------------------------------------------------------
     def get_min_coords(self): return self.box.min_coords
     def get_max_coords(self): return self.box.max_coords
     def get_resolution(self): return self.box.resolution
