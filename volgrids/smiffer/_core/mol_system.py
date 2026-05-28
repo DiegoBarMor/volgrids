@@ -24,12 +24,8 @@ class MolSystem:
         self.do_ps = sm.SPHERE is not None
         self.chemtable = self._init_chemtable()
 
-        if self.do_traj:
-            self.system = mda.Universe(str(path_struct), str(path_traj))
-            self.frame = 0
-        else:
-            self.system = mda.Universe(str(path_struct))
-            self.frame = None
+        self.system = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
+        self.frame = 0 if self.do_traj else None
 
         self.box = self._get_init_box() if box is None else box
 
@@ -58,6 +54,13 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
+    def switch_frame(self, frame_idx: int):
+        """frame_idx is 0-based; self.frame is 1-based (user display)."""
+        self.system.trajectory[frame_idx]
+        self.frame = frame_idx + 1
+
+
+    # --------------------------------------------------------------------------
     def get_min_coords(self): return self.box.min_coords
     def get_max_coords(self): return self.box.max_coords
     def get_resolution(self): return self.box.resolution
@@ -72,12 +75,9 @@ class MolSystem:
         if self.do_ps: query += f"and point {sm.SPHERE.get_str_query(extra_dist)}"
 
         atoms = self.system.select_atoms(query)
-        if len(atoms) == 0:
-            str_modes = fy.Color.magenta("'prot'/'rna'/'ligand'")
-            warnings.warn(
-                f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}. "+\
-                f"Are you using the adequate {str_modes} mode?\n"
-            )
+        if len(atoms) == 0: warnings.warn(
+            f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
+        )
         return atoms
 
 
@@ -118,7 +118,7 @@ class MolSystem:
         if sm.PATH_CHEM_LIGAND:
             return sm.ParserChemTable(sm.PATH_CHEM_LIGAND)
 
-        folder_default_tables = vg.resolve_path_package("_data/smiffer_tables")
+        folder_default_tables = vg.Utils.resolve_path_package("_data/smiffer_tables")
         chem = sm.ParserChemTable(folder_default_tables / "default.chem")
 
         if sm.HBONDS_ONLY_NUCLEOBASE:

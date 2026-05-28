@@ -1,10 +1,5 @@
-import io
-import logging
-import warnings
-from contextlib import redirect_stdout, redirect_stderr
 from collections import Counter
 from pathlib import Path
-import MDAnalysis as mda
 
 from rnapolis.common import Structure2D
 from rnapolis.annotator import  (
@@ -74,23 +69,6 @@ class ResiduesNucleic:
             if residue[0].isdigit() or residue[0] == '-': break
             residue = residue[1:]
         return f"{chain}.{residue}"
-
-
-    # --------------------------------------------------------------------------
-    @staticmethod
-    def _create_mda_universe_quiet(path_pdb) -> mda.Universe:
-        buf = io.StringIO()
-        logger = logging.getLogger("MDAnalysis")
-        old_level = logger.getEffectiveLevel()
-        try:
-            logger.setLevel(logging.ERROR)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                with redirect_stdout(buf), redirect_stderr(buf):
-                    u = mda.Universe(path_pdb)
-        finally:
-            logger.setLevel(old_level)
-        return u
 
 
     # --------------------------------------------------------------------------

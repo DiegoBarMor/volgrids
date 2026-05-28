@@ -124,6 +124,8 @@ Run the subcommands without any further arguments to read more about their speci
 - `volgrids smutils res_nobp`: Print the set of non-base-paired residues in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires rnapolis.
 - `volgrids smutils res_nostk`: Print the set of residues in a given RNA structure for residues that aren't participating in 2 stacking interactions. Requires rnapolis.
 - `volgrids smutils chemgen`: (experimental) Automatically generates a .chem file for a ligand given its 3D structure (e.g. PDB file). Currently only generates rows for stacking interactions, following a heuristic geometrical approach.
+- `volgrids smutils sphere find`: Get the sphere information (x,y,z,radius) for the smallest sphere that encloses all the atoms inside a selection query.
+- `volgrids smutils sphere grid`: Create a grid with a single boolean sphere (optionally moving in time if a trajectory is considered). The grid encloses completely the provided structure file.
 - `volgrids smutils occupancy`: Calculate occupancy grids (OGs) for biomolecular structures.
 - `volgrids smutils pwoverlap`: (experimental) Calculate point-wise overlaps between two biomolecular structures. Generates a CSV file with the overlaps. Currently only considers stacking interactions.
 - `volgrids smutils log_apbs`: Heuristic transformation of APBS grids, useful for some visualization pipelines.
@@ -134,6 +136,7 @@ Run the subcommands without any further arguments to read more about their speci
 - `volgrids vgtools fix_cmap`: Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary.
 - `volgrids vgtools rotate`: Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees).
 - `volgrids vgtools average`: Average all grids in a CMAP series-file into a single grid.
+- `volgrids vgtools std_dev`: Standard deviation grid for all grids in a CMAP series-file.
 - `volgrids vgtools op abs`: Element-wise absolute value of the grid's points.
 - `volgrids vgtools op add`: Element-wise addition of the grids' points.
 - `volgrids vgtools op sub`: Element-wise substraction of the grids' points. Order is "grid_0 - grid_1".

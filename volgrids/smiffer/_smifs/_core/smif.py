@@ -14,9 +14,11 @@ class Smif:
     # --------------------------------------------------------------------------
     @abstractmethod
     def populate_grid(self, grid: vg.Grid) -> None:
-        """Inherited versions of `populate_grid` should start by calling `grid.reset()` and set `grid.dirty = True` at some point."""
+        """
+        Inherited versions of `populate_grid` should start by calling `grid.reset()`.
+        `grid.dirty = True` will be automatically set by the calls to `Kernel.stamp()`.
+        """
         grid.reset()
-        grid.dirty = True
         raise NotImplementedError("Subclasses of Smif must implement the populate_grid method.")
 
 

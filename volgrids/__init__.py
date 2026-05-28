@@ -1,5 +1,5 @@
-from ._misc.utils import assert_vendors
-assert_vendors()
+from ._misc.utils import Utils
+Utils.assert_vendors()
 
 from ._version import __version__
 
@@ -17,7 +17,6 @@ from ._misc.math import Math
 from ._misc.params_gaussian import ParamsGaussian, \
     ParamsGaussianUnivariate, ParamsGaussianBivariate
 from ._misc.timer import Timer
-from ._misc.utils import resolve_path_package
 from ._misc.known_configs import KNOWN_CONFIGS
 
 from ._parsers.parser_ini import ParserIni

@@ -18,8 +18,6 @@ class SmifStacking(sm.Smif):
             kernel.recalculate_kernel(normal, is_stacking = True)
             kernel.stamp(grid, cog, multiply_by = sm.ENERGY_SCALE)
 
-        grid.dirty = True
-
 
     # --------------------------------------------------------------------------
     def iter_particles(self):

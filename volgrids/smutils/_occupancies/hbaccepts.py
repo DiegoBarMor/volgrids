@@ -30,7 +30,5 @@ class OgHBAccepts(sm._smifs_core.SmifHBonds):
             if triplet.pos_interactor is None: continue
             self.kernel.stamp(grid, triplet.pos_interactor)
 
-        grid.dirty = True
-
 
 # //////////////////////////////////////////////////////////////////////////////

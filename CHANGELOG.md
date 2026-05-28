@@ -1,12 +1,21 @@
 # Changelog
 
+## [0.13.0] - 2026-05-28
+- Added new subcommand group for `smutils`: `sphere`.
+    - `smutils sphere find`: Find the sphere information (x,y,z,radius) for the smallest sphere that encloses all the atoms inside a selection query.
+    - `smutils sphere grid`: Create a grid with a single boolean sphere. The grid encloses completely the provided structure file.
+    - These subcommands are meant to be used together (see example usage in `calc_spheres()` inside `examples/spheres/run.sh`).
+    - They can also consider trajectory files (for considering a single sphere moving in time).
+- Some code improvements.
+
+
 ## [0.12.1] - 2026-05-27
 - Fixed bug where trimming was considering water and other unwanted atoms.
     - This bug was introduced in `0.12.0` when the default chem files were refactored.
 - Fixed bug where HBDonor OGs were including unwanted atoms.
     - The special cases for RNAs and proteins were not being taken into account.
 - Added `std_dev` subcommand to `vgtools`.
-    Similar to the `average` subcommand, it allows to obtain the standard deviation grid for multiple grids in a CMAP file.
+    - Similar to the `average` subcommand, it allows to obtain the standard deviation grid for multiple grids in a CMAP file.
 
 
 ## [0.12.0] - 2026-05-22

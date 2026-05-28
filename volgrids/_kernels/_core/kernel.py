@@ -68,6 +68,7 @@ class Kernel:
         scaled_subkernel = subkernel if (multiply_by is None) else multiply_by * subkernel
 
         grid.arr[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] = self.operation(subgrid, scaled_subkernel)
+        grid.dirty = True
 
 
 # //////////////////////////////////////////////////////////////////////////////

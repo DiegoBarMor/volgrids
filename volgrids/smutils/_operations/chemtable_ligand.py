@@ -3,6 +3,7 @@ from pathlib import Path
 from collections import deque
 import MDAnalysis as mda
 
+import volgrids as vg
 import volgrids.smutils as su
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -13,7 +14,7 @@ class ChemTableLigand:
 
     # ------------------------------------------------------------------------------
     def __init__(self, path_pdb_ligand: Path):
-        u = mda.Universe(str(path_pdb_ligand))
+        u: mda.Universe = vg.Utils.create_mda_universe_quiet(path_pdb_ligand)
         u.guess_TopologyAttrs(to_guess = ["bonds"])
         self.atoms = u.select_atoms("not (name H*) and not water") # [TODO] will presence of ions be an issue?
         self.coords: np.ndarray = self.atoms.positions

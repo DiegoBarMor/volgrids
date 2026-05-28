@@ -7,8 +7,8 @@ import volgrids as vg
 
 # //////////////////////////////////////////////////////////////////////////////
 class APBSSubprocess:
-    _PATH_SH_APBS    = vg.resolve_path_package("apbs/apbs.sh")
-    _PATH_SH_PDB2PQR = vg.resolve_path_package("apbs/pdb2pqr.sh")
+    _PATH_SH_APBS    = vg.Utils.resolve_path_package("apbs/apbs.sh")
+    _PATH_SH_PDB2PQR = vg.Utils.resolve_path_package("apbs/pdb2pqr.sh")
 
     # --------------------------------------------------------------------------
     def __init__(self, atoms: AtomGroup, name_pdb: str, only_pdb2pqr: bool = False):

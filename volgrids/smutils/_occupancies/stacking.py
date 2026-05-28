@@ -19,7 +19,5 @@ class OgStacking(sm.SmifStacking):
             for atom in atoms_plane:
                 self.kernel.stamp(grid, atom.position)
 
-        grid.dirty = True
-
 
 # //////////////////////////////////////////////////////////////////////////////
