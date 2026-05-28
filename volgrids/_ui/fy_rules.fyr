@@ -31,7 +31,7 @@
             path_in[]1.PATH
             query[]1.STR
             ~path_traj[t,traj]1.PATH
-            ~radius_extra[r,radius-extra]1.FLOAT=2.0
+            ~radius_extra[r,radius-extra]1.FLOAT=0.0
         !@
         @grid
             path_in[]1.PATH

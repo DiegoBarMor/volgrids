@@ -152,7 +152,7 @@ class AppVGTools(vg.AppSubcommand):
             "or" : vg.Grid.__or__,
         }[command]
 
-        print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)}")
+        print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} with {fy.Color.blue(path_in_1)}")
         for key, grid in vgt.VGOperations.iter_op_binary(
             path_in_0, path_in_1, operation, interpolate_to_common_box
         ):
