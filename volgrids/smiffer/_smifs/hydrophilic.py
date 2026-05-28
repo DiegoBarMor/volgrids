@@ -15,7 +15,5 @@ class SmifHydrophilic(SmifHydro):
             if mul_factor > 0: continue
             kernel.stamp(grid, particle.position, multiply_by = -mul_factor)
 
-        grid.dirty = True
-
 
 # //////////////////////////////////////////////////////////////////////////////

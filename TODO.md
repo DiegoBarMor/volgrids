@@ -19,6 +19,7 @@
 * implement: raise an error if a format file is opened with the wrong function
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 * check if the implementation of the OVERWRITE_OK flag is user-convenient
+* idea: centralize the usage of universe instances into a single wrapper class (MolSystem is already there) and add `delete_traj_locks` in its destructor (will it work?).
 
 
 <!-- ----------------------------------------------------------------------- -->

@@ -37,8 +37,6 @@ class SmifHBonds(Smif, ABC):
             self.kernel.recalculate_kernel(vec_direction, is_stacking = False)
             self.kernel.stamp(grid, pos_interactor, multiply_by = sm.ENERGY_SCALE)
 
-        grid.dirty = True
-
 
     # --------------------------------------------------------------------------
     def iter_particles(self):

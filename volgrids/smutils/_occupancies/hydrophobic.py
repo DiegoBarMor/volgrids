@@ -21,7 +21,5 @@ class OgHydrophobic(sm.SmifHydrophobic):
             if logp_value <= 0: continue  # Only hydrophobic atoms
             self.kernel.stamp(grid, atom.position)
 
-        grid.dirty = True
-
 
 # //////////////////////////////////////////////////////////////////////////////

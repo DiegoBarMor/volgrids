@@ -131,8 +131,6 @@ class Trimmer:
 
         self._trim_occupancies(dist)
 
-        self._mask_specific.dirty = True
-
 
     # --------------------------------------------------------------------------
     def _run_cavities(self):
