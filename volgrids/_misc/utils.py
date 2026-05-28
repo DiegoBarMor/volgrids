@@ -41,7 +41,7 @@ class Utils:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def create_mda_universe_quiet(path_pdb: Path, path_traj: Path|None):
+    def create_mda_universe_quiet(path_pdb: Path, path_traj: Path|None = None):
         import io
         import logging
         import warnings

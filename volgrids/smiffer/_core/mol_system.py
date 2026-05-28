@@ -24,12 +24,8 @@ class MolSystem:
         self.do_ps = sm.SPHERE is not None
         self.chemtable = self._init_chemtable()
 
-        if self.do_traj:
-            self.system = mda.Universe(str(path_struct), str(path_traj))
-            self.frame = 0
-        else:
-            self.system = mda.Universe(str(path_struct))
-            self.frame = None
+        self.system = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
+        self.frame = 0 if self.do_traj else None
 
         self.box = self._get_init_box() if box is None else box
 
@@ -72,12 +68,9 @@ class MolSystem:
         if self.do_ps: query += f"and point {sm.SPHERE.get_str_query(extra_dist)}"
 
         atoms = self.system.select_atoms(query)
-        if len(atoms) == 0:
-            str_modes = fy.Color.magenta("'prot'/'rna'/'ligand'")
-            warnings.warn(
-                f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}. "+\
-                f"Are you using the adequate {str_modes} mode?\n"
-            )
+        if len(atoms) == 0: warnings.warn(
+            f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
+        )
         return atoms
 
 
