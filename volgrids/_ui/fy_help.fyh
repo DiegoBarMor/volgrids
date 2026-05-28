@@ -60,12 +60,27 @@
         !fyh:path_out Path where to store the automatic .chem file.
             Defaults to path_in with extension ".chem".
     !@
-    @sphere_pos
-        !fyh:_
-        !fyh:path_in File path to a molecular structure e.g. a PDB file.
-        !fyh:query Query for selecting the atoms that will be enclosed by the sphere (MDAnalysis query format).
-        !fyh:path_traj File path to a trajectory file (e.g. XTC) supported by MDAnalysis.
-        !fyh:radius_extra Increment the radius of the returned sphere information by an optional amount.
+    @sphere
+        !fyh:_ Collection of utilities related to spheres in grids.
+        @find
+            !fyh:_ Get the sphere information (x,y,z,radius) for the smallest sphere that encloses all the atoms inside a selection query.
+            !fyh:path_in File path to a molecular structure e.g. a PDB file.
+            !fyh:query Query for selecting the atoms that will be enclosed by the sphere (MDAnalysis query format).
+            !fyh:path_traj File path to a trajectory file (e.g. XTC) supported by MDAnalysis.
+                When considering trajectories, the sphere information of each frame is concatenated together into a single space-separated string.
+            !fyh:radius_extra Increment the radius of the returned sphere information by an optional amount.
+        !@
+        @grid
+            !fyh:_ Create a grid with a single boolean sphere (optionally moving in time if a trajectory is considered).
+                The grid encloses completely the provided structure file.
+            !fyh:path_in File path to a molecular structure e.g. a PDB file.
+            !fyh:sphere Sphere information in the format (x,y,z,radius), as provided by the "smutils sphere find" subcommand.
+            !fyh:folder_out
+                Folder path where the output grids should be stored.
+                If not provided, the parent folder of the input structure file will be used.
+            !fyh:path_traj File path to a trajectory file (e.g. XTC) supported by MDAnalysis.
+                When considering trajectories, the sphere information of all frames must be provided into a single space-separated string.
+        !@
     !@
 
     #### Advanced applications of the SMIF model

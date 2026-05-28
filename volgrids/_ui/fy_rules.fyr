@@ -26,11 +26,19 @@
         path_in[]1.PATH
         ~path_out[]1.PATH
     !@
-    @sphere_pos
-        path_in[]1.PATH
-        query[]1.STR
-        ~path_traj[t,traj]1.PATH
-        ~radius_extra[r,radius-extra]1.FLOAT=2.0
+    @sphere
+        @find
+            path_in[]1.PATH
+            query[]1.STR
+            ~path_traj[t,traj]1.PATH
+            ~radius_extra[r,radius-extra]1.FLOAT=2.0
+        !@
+        @grid
+            path_in[]1.PATH
+            sphere[s,sphere]4+.FLOAT
+            ~folder_out[o,out]1.PATH
+            ~path_traj[t,traj]1.PATH
+        !@
     !@
 
     #### Advanced applications of the SMIF model

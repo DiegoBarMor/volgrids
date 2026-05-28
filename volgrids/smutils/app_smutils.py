@@ -13,13 +13,13 @@ class AppSMUtils(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def run(self):
         operation = self.main.subcommands.pop(0)
-        if operation == "res_nobp"  : return self._run_res_nobp()
-        if operation == "res_nostk" : return self._run_res_nostk()
-        if operation == "chemgen"   : return self._run_chemgen()
-        if operation == "sphere_pos": return self._run_sphere_pos()
-        if operation == "occupancy" : return self._run_occupancy()
-        if operation == "pwoverlap" : return self._run_pwoverlap()
-        if operation == "log_apbs"  : return self._run_log_apbs()
+        if operation == "res_nobp" : return self._run_res_nobp()
+        if operation == "res_nostk": return self._run_res_nostk()
+        if operation == "chemgen"  : return self._run_chemgen()
+        if operation == "sphere"   : return self._run_sphere()
+        if operation == "occupancy": return self._run_occupancy()
+        if operation == "pwoverlap": return self._run_pwoverlap()
+        if operation == "log_apbs" : return self._run_log_apbs()
         raise ValueError(f"Unknown operation: {operation}")
 
 
@@ -47,7 +47,7 @@ class AppSMUtils(vg.AppSubcommand):
 
 
     # --------------------------------------------------------------------------
-    def _run_sphere_pos(self) -> None:
+    def _run_sphere(self) -> None:
         su.AppSpheres(self.main).run()
 
 
