@@ -63,4 +63,15 @@ class Utils:
         return u
 
 
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def delete_traj_locks(path_traj: Path|None):
+        if path_traj is None: return
+        if path_traj.suffix != ".xtc": return
+
+        preffix = str(path_traj.parent / f".{path_traj.stem}.xtc_offsets")
+        Path(f"{preffix}.lock").unlink(missing_ok = True)
+        Path(f"{preffix}.npz").unlink(missing_ok = True)
+
+
 # //////////////////////////////////////////////////////////////////////////////

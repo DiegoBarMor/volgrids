@@ -99,11 +99,10 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def run(self):
-        def _end(is_traj: bool):
+        def _end():
             self.timer.end(text = fy.Color.green("volgrids"), minus = sm.APBS_ELAPSED_TIME)
-            if is_traj:
-                self._delete_traj_locks()
-            elif vg.TMP_APBS_CONTENT_PQR:
+            vg.Utils.delete_traj_locks(self.path_traj)
+            if vg.TMP_APBS_CONTENT_PQR:
                 path_pqr = self.folder_out / f"{self.ms.molname}.pqr"
                 path_pqr.write_text(vg.TMP_APBS_CONTENT_PQR)
 
@@ -117,7 +116,7 @@ class AppSmiffer(vg.AppSubcommand):
         ##### 0) SINGLE PDB MODE
         if not self.ms.do_traj:
             self._process_grids()
-            return _end(is_traj = False)
+            return _end()
         #####
 
         print()
@@ -126,12 +125,12 @@ class AppSmiffer(vg.AppSubcommand):
         ### 1.a) TRAJECTORY MODE (multiprocessing)
         if self.nproc > 1:
             sm.TrajMultiprocess(self).run(n_frames)
-            return _end(is_traj = True)
+            return _end()
 
         ### 1.b) TRAJECTORY MODE (single process)
         for i in range(n_frames):
             self.process_frame(i)
-        return _end(is_traj = True)
+        return _end()
 
 
     # --------------------------------------------------------------------------
@@ -223,15 +222,6 @@ class AppSmiffer(vg.AppSubcommand):
         obj = sm.MolSystem.from_pqr_data(vg.TMP_APBS_CONTENT_PQR, self.ms.box)
         sm.MolSystem.copy_attributes_except_system(src = self.ms, dst = obj)
         return obj
-
-
-    # --------------------------------------------------------------------------
-    def _delete_traj_locks(self):
-        if self.path_traj.suffix != ".xtc": return
-
-        preffix = str(self.path_traj.parent / f".{self.path_traj.stem}.xtc_offsets")
-        Path(f"{preffix}.lock").unlink(missing_ok = True)
-        Path(f"{preffix}.npz").unlink(missing_ok = True)
 
 
     # --------------------------------------------------------------------------

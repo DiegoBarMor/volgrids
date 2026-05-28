@@ -26,7 +26,7 @@ class AppSpheres(vg.AppSubcommand):
 
     # -------------------------------------------------------------------------- LOGIC SECTION
     @staticmethod
-    def find(path_pdb: Path, path_traj: Path, query: str, radius_extra: float) -> str:
+    def find(path_pdb: Path, path_traj: Path|None, query: str, radius_extra: float) -> str:
         def get_sphere_info():
             coords = atoms.positions
             cog = np.mean(coords, axis = 0)
@@ -39,7 +39,9 @@ class AppSpheres(vg.AppSubcommand):
         if len(atoms) == 0:
             raise ValueError(f"No atoms found for query: {query}")
 
-        return ' '.join(get_sphere_info() for _ in u.trajectory)
+        info = ' '.join(get_sphere_info() for _ in u.trajectory)
+        vg.Utils.delete_traj_locks(path_traj)
+        return info
 
 
 # //////////////////////////////////////////////////////////////////////////////
