@@ -43,12 +43,13 @@ TSC/O1:  -1.05
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; STACKING
-;;; for every stacking group of the molecule, a row with the atom names composing the group should be provided
-;;; then for every row of atom names, a stacking SMIF will be placed in the center of geometry of the specified atoms
-;;; every row should have the format: "resname: atom1 atom2 atom3 ..."
+;;; a row should be provided for every residue with stacking groups. Groups of atoms are to be specified by separating them with '-'
+;;; if multiple groups are relevant, they are to be placed in the same row, separated by spaces
+;;; for every group of atom names, a stacking SMIF will be placed in the center of geometry of the specified atoms
+;;; every row should have the format: "resname: a1-a2-a3 b1-b2-b3" with 'a' and 'b' being atoms of separate stacking groups
 
 [NAMES_STACKING]
-TSC: CD2 CE3 CZ3 CH2 CZ2 CE2
+TSC: CD2-CE3-CZ3-CH2-CZ2-CE2
 
 
 

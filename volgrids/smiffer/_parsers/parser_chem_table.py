@@ -11,7 +11,7 @@ class ParserChemTable:
         self._parser_ini = vg.ParserIni.from_file(path_table)
         self._residues_hphob: dict[str, float] = {}
         self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
-        self._names_stk: dict[str, list[str]] = defaultdict(list)
+        self._names_stk: dict[str, list[str]] = {}
         self._names_hba: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._names_hbd: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._parse_table()
@@ -82,8 +82,10 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def parse_names_stacking(self, data_ini: vg.ParserIni):
-        for resname, atomnames in data_ini.iter_splitted_lines("NAMES_STACKING", sep = ':'):
-            self._names_stk[resname].append(atomnames)
+        for resname, str_cycles in data_ini.iter_splitted_lines("NAMES_STACKING", sep = ':'):
+            self._names_stk[resname] = [
+                cycle.replace('-', ' ') for cycle in str_cycles.split()
+            ]
 
 
     # --------------------------------------------------------------------------
