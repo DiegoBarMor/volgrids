@@ -1,6 +1,7 @@
 [SELECTION_QUERY]
 (protein or nucleic) and not (name H*)
 
+
 [RES_HPHOBICITY]
 ASP: -1.23 ; WW hydrophobicity scale
 GLU: -2.02 ; negative means hydrophilic
@@ -23,56 +24,15 @@ LYS: -0.99
 ARG: -0.81
 GLY: -0.01
 
+
 [ATOM_HPHOBICITY]
-*/O5': -2.02 ; phosphate ~ GLU
-*/P: -2.02
-*/OP1: -2.02
-*/OP2: -2.02
-*/O3': -2.02
-*/C1': -0.13 ; sugar ~ SER
-*/C2': -0.13
-*/C3': -0.13
-*/C4': -0.13
-*/C5': -0.13
-*/O2': -0.13
-*/O4': -0.13
-URA/N1: 1.13 ; URA ~ PHE
-URA/C2: 1.13
-URA/N3: 1.13
-URA/C4: 1.13
-URA/C5: 1.13
-URA/C6: 1.13
-URA/O2: 1.13
-URA/O4: 1.13
-CYT/N1: 1.13 ; CYT ~ PHE
-CYT/C2: 1.13
-CYT/N3: 1.13
-CYT/C4: 1.13
-CYT/C5: 1.13
-CYT/C6: 1.13
-CYT/O2: 1.13
-CYT/N4: 1.13
-ADE/N1: 1.85 ; ADE ~ TRP
-ADE/C2: 1.85
-ADE/N3: 1.85
-ADE/C4: 1.85
-ADE/C5: 1.85
-ADE/C6: 1.85
-ADE/N7: 1.85
-ADE/C8: 1.85
-ADE/N9: 1.85
-ADE/N6: 1.85
-GUA/N1: 1.85 ; GUA ~ TRP
-GUA/C2: 1.85
-GUA/N3: 1.85
-GUA/C4: 1.85
-GUA/C5: 1.85
-GUA/C6: 1.85
-GUA/N7: 1.85
-GUA/C8: 1.85
-GUA/N9: 1.85
-GUA/N2: 1.85
-GUA/O6: 1.85
+;;; phosphate ~ GLU (-2.02) ; sugar ~ SER (-0.13)
+;;; URA ~ PHE (1.13); CYT ~ PHE (1.13); ADE ~ TRP (1.85); GUA ~ TRP (1.85)
+URA: O5',P,OP1,OP2,O3'=-2.02   C1',C2',C3',C4',C5',O2',O4'=-0.13   N1,C2,N3,C4,C5,C6,O2,O4=1.13
+CYT: O5',P,OP1,OP2,O3'=-2.02   C1',C2',C3',C4',C5',O2',O4'=-0.13   N1,C2,N3,C4,C5,C6,O2,N4=1.13
+ADE: O5',P,OP1,OP2,O3'=-2.02   C1',C2',C3',C4',C5',O2',O4'=-0.13   N1,C2,N3,C4,C5,C6,N7,C8,N9,N6=1.85
+GUA: O5',P,OP1,OP2,O3'=-2.02   C1',C2',C3',C4',C5',O2',O4'=-0.13   N1,C2,N3,C4,C5,C6,N7,C8,N9,N2,O6=1.85
+
 
 [NAMES_STACKING]
 ARG: CZ-NE-NH1-NH2
@@ -88,8 +48,9 @@ GUA: N1-C2-N3-C4-C5-C6-N7-C8-N9
 ; ADE: N1-C2-N3-C4-C5-C6   C4-C5-N7-C8-N9 ;; alternative 2-ring version
 ; GUA: N1-C2-N3-C4-C5-C6   C4-C5-N7-C8-N9
 
+
 [NAMES_HBACCEPTORS]
-; https://chemistry.stackexchange.com/questions/42085/can-an-amide-nitrogen-be-a-hydrogen-bond-acceptor
+;;; https://chemistry.stackexchange.com/questions/42085/can-an-amide-nitrogen-be-a-hydrogen-bond-acceptor
 ALA: O=C->O
 ARG: O=C->O
 ASN: O=C->O OD1=CG->OD1
@@ -111,11 +72,12 @@ TRP: O=C->O
 TYR: O=C->O OH=CZ->OH
 VAL: O=C->O
 ;;;;
-; https://onlinelibrary.wiley.com/iucr/itc/Fa/ch22o2v0001/sec22o2o4.pdf
+;;; https://onlinelibrary.wiley.com/iucr/itc/Fa/ch22o2v0001/sec22o2o4.pdf
 URA: O2'=C2'->O2' O3'=C3'.P->O3' O4'=C1'.C4'->O4' O5'=C5'.P->O5' OP1=P->OP1 OP2=P->OP2 O2=C2->O2 O4=C4->O4
 CYT: O2'=C2'->O2' O3'=C3'.P->O3' O4'=C1'.C4'->O4' O5'=C5'.P->O5' OP1=P->OP1 OP2=P->OP2 O2=C2->O2 N3=C2.C4->N3
 ADE: O2'=C2'->O2' O3'=C3'.P->O3' O4'=C1'.C4'->O4' O5'=C5'.P->O5' OP1=P->OP1 OP2=P->OP2 N1=C2.C6->N1 N3=C2.C4->N3 N7=C5.C8->N7
 GUA: O2'=C2'->O2' O3'=C3'.P->O3' O4'=C1'.C4'->O4' O5'=C5'.P->O5' OP1=P->OP1 OP2=P->OP2 N3=C2.C4->N3 N7=C5.C8->N7 O6=C6->O6
+
 
 [NAMES_HBDONORS]
 ALA: N=C.CA->N ; in peptide bonds it's hbdonors_fixed, that's handled internally in the code
@@ -139,7 +101,7 @@ TRP: N=C.CA->N NE1=CD1.CE2->NE1!
 TYR: N=C.CA->N OH=CZ->OH
 VAL: N=C.CA->N
 ;;;;
-; https://pubs.acs.org/doi/10.1021/j100645a012
+;;; https://pubs.acs.org/doi/10.1021/j100645a012
 URA: O2'=C2'->O2' O3'=C3'->O3' O5'=C5'->O5' N3=C6->N3!
 CYT: O2'=C2'->O2' O3'=C3'->O3' O5'=C5'->O5' N4=C5->C4! N4=N3->C4!
 ADE: O2'=C2'->O2' O3'=C3'->O3' O5'=C5'->O5' N6=C5->C6! N6=N1->C6!

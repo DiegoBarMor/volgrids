@@ -26,19 +26,10 @@ resname TSC
 
 
 [ATOM_HPHOBICITY]
-TSC/CG:   1.01 ; atom scales have the following format: resname/atomname
-*/CD2:    1.05 ; instead of the resname, you can also use the * wildcard to apply for any residue
-*/CE3:    1.05 ; this is useful in case the selection query covers multiple residues, or just as syntactic sugar
-TSC/CZ3:  1.10 ; note: in this example, the numerical values are arbitrary
-TSC/CH2:  1.10
-TSC/CZ2:  1.05
-TSC/CE2:  0.50
-TSC/NE1: -0.80
-TSC/CD1:  0.50
-TSC/CB:   0.80
-TSC/CA:   0.50
-TSC/N:   -1.05
-TSC/O1:  -1.05
+;;; atom scales have the following format: "resname: a1,a2,a3=valA  b1,b2,b3=valB"
+;;; where 'a' and 'b' are atoms associated to two different hydrophobocity values.
+;;; note: in this example, the numerical values are arbitrary
+TSC: CG=1.01  CD2,CE3,CZ2= 1.05  CZ3,CH2=1.10  CE2,CD1,CA=0.50  NE1=-0.80  CB=0.80  N,O1=-1.05
 
 
 

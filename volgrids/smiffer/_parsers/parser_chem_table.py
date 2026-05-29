@@ -67,17 +67,14 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def parse_atom_hphobicity(self, data_ini: vg.ParserIni):
-        for names, value in data_ini.iter_splitted_lines("ATOM_HPHOBICITY", sep = ':'):
-            resname, atomname = names.split('/')
-            self._atoms_hphob[resname][atomname] = float(value)
-
-        ### expand the atoms declared with the '*' wildcard to all residues
-        hphob_wildcard = self._atoms_hphob.get('*')
-        if hphob_wildcard is None: return
-
-        del self._atoms_hphob['*']
-        for res_dict in self._atoms_hphob.values():
-            res_dict.update(hphob_wildcard)
+        for resname, str_groups in data_ini.iter_splitted_lines("ATOM_HPHOBICITY", sep = ':'):
+            self._atoms_hphob[resname] = {}
+            for group in str_groups.split():
+                str_atoms, value = group.split('=')
+                value = float(value)
+                self._atoms_hphob[resname].update(**{
+                    atom.strip() : value for atom in str_atoms.split(',')
+                })
 
 
     # --------------------------------------------------------------------------
