@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 import volgrids as vg
 import volgrids.smiffer as sm
 
@@ -9,8 +7,7 @@ class ParserChemTable:
         self._selection_query: str = ''
         self._selection_query_custom: str = ''
         self._parser_ini = vg.ParserIni.from_file(path_table)
-        self._residues_hphob: dict[str, float] = {}
-        self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
+        self._atoms_hphob: dict[str, dict[str, float]] = {}
         self._names_stk: dict[str, list[str]] = {}
         self._names_hba: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._names_hbd: dict[str, list[tuple[str, str, str, bool]]] = {}
@@ -25,12 +22,6 @@ class ParserChemTable:
         The distinction is needed because SMIFs are to be computed only for the specified residues, but trimming needs to consider all residues.
         """
         return self._selection_query_custom if use_custom else self._selection_query
-
-
-    # --------------------------------------------------------------------------
-    def get_residue_hphob(self, atom):
-        resname = sm.ResnameStandard.standardize(atom.resname)
-        return self._residues_hphob.get(resname)
 
 
     # --------------------------------------------------------------------------
@@ -57,12 +48,6 @@ class ParserChemTable:
     def get_names_hbd(self, resname: str):
         resname = sm.ResnameStandard.standardize(resname)
         return self._names_hbd.get(resname)
-
-
-    # --------------------------------------------------------------------------
-    def parse_res_hphobicity(self, data_ini: vg.ParserIni):
-        for resname, value in data_ini.iter_splitted_lines("RES_HPHOBICITY", sep = ':'):
-            self._residues_hphob[resname] = float(value)
 
 
     # --------------------------------------------------------------------------
@@ -121,7 +106,6 @@ class ParserChemTable:
             self._selection_query_custom =\
                 self._selection_query_custom[:-4] + ")" # remove the last " or "
 
-        self.parse_res_hphobicity   (self._parser_ini)
         self.parse_atom_hphobicity  (self._parser_ini)
         self.parse_names_stacking   (self._parser_ini)
         self.parse_names_hbacceptors(self._parser_ini)

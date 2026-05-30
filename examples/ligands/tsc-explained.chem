@@ -14,21 +14,11 @@ resname TSC
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; HYDROPHOBIC/HYDROPHILIC
-;;; the hydrophobocity/hydrophilicity SMIF currently has two kinds of scales
-;;; - RES_HPHOBICITY: a global residue scale, where the atoms' types are disregarded and instead a common factor is applied according to the residue they're part of (e.g. protein SMIFs, to follow the philosophy of residue hydrophobicity scales like KD or WW)
-;;; - ATOM_HPHOBICITY: a local atomic scale, where the residue is disregarded and every atom name has its own scale (e.g. rna SMIFs, useful to make the distinction between phosphate-ribose-base)
-;;; inside the code, both scales are multiplied for every calculation. However, this might not make much sense
-;;; so in practice it could be best to use only one of the two options (the other defaults to 1 if left empty)
-
-[RES_HPHOBICITY]
-
-; for ligands it probably makes more sense to use the atom-wise scale, so leave this one empty for now
-
-
-[ATOM_HPHOBICITY]
-;;; atom scales have the following format: "resname: a1,a2,a3=valA  b1,b2,b3=valB"
+;;; the hydrophobocity/hydrophilicity scales have the following format: "resname: a1,a2,a3=valA  b1,b2,b3=valB"
 ;;; where 'a' and 'b' are atoms associated to two different hydrophobocity values.
 ;;; note: in this example, the numerical values are arbitrary
+
+[ATOM_HPHOBICITY]
 TSC: CG=1.01  CD2,CE3,CZ2= 1.05  CZ3,CH2=1.10  CE2,CD1,CA=0.50  NE1=-0.80  CB=0.80  N,O1=-1.05
 
 
