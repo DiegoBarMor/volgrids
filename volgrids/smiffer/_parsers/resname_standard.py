@@ -3,12 +3,12 @@ class ResnameStandard:
     ### [WIP] add a more comprehensive mapping of aliases
     ### see: https://github.com/MDAnalysis/mdanalysis/blob/develop/package/MDAnalysis/core/selection.py
     ALIASES_RNA = {
-         "U": "URA",  "C": "CYT",  "A": "ADE",  "G": "GUA", # standard RNA residue names
-        "RU": "URA", "RC": "CYT", "RA": "ADE", "RG": "GUA", # alternative RNA residue names
+         "U": "U",  "C": "C",  "A": "A",  "G": "G", # standard RNA residue names
+        "RU": "U", "RC": "C", "RA": "A", "RG": "G", # alternative RNA residue names
     }
     ### [TODO] properly distinguish between RNA and DNA standard names, both here and in the .chem tables
     ALIASES_DNA = {
-        "DT": "URA", "DC": "CYT", "DA": "ADE", "DG": "GUA", # DNA residue names (mapped to RNA standard)
+        "DT": "U", "DC": "C", "DA": "A", "DG": "G", # DNA residue names (mapped to RNA standard)
     }
     ALIASES_PROT = {
         "ALA": "ALA", "ARG": "ARG", "ASN": "ASN", "ASP": "ASP", "CYS": "CYS",

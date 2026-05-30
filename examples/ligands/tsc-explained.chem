@@ -18,7 +18,7 @@ resname TSC
 ;;; where 'a' and 'b' are atoms associated to two different hydrophobocity values.
 ;;; note: in this example, the numerical values are arbitrary
 
-[ATOM_HPHOBICITY]
+[HYDROPHOBICITY]
 TSC: CG=1.01  CD2,CE3,CZ2= 1.05  CZ3,CH2=1.10  CE2,CD1,CA=0.50  NE1=-0.80  CB=0.80  N,O1=-1.05
 
 
@@ -29,7 +29,7 @@ TSC: CG=1.01  CD2,CE3,CZ2= 1.05  CZ3,CH2=1.10  CE2,CD1,CA=0.50  NE1=-0.80  CB=0.
 ;;; for every group of atom names, a stacking SMIF will be placed in the center of geometry of the specified atoms
 ;;; every row should have the format: "resname: a1-a2-a3 b1-b2-b3" with 'a' and 'b' being atoms of separate stacking groups
 
-[NAMES_STACKING]
+[STACKING]
 TSC: CD2-CE3-CZ3-CH2-CZ2-CE2
 
 
@@ -53,9 +53,9 @@ TSC: CD2-CE3-CZ3-CH2-CZ2-CE2
 ;;; finally, when there's a geometrical constraint that allows to infer the precise direction in which the hydrogen should be, the model takes this into account
 ;;; in this case, a "!" character must be added at the end of the interaction to inform the model about this detail
 
-[NAMES_HBACCEPTORS]
+[HBACCEPTORS]
 TSC: O1=CA->O1
 
 
-[NAMES_HBDONORS]
+[HBDONORS]
 TSC: O1=CA->O1 N=CA->N NE1=CD1.CE2->NE1!

@@ -52,7 +52,7 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def parse_atom_hphobicity(self, data_ini: vg.ParserIni):
-        for resname, str_groups in data_ini.iter_splitted_lines("ATOM_HPHOBICITY", sep = ':'):
+        for resname, str_groups in data_ini.iter_splitted_lines("HYDROPHOBICITY", sep = ':'):
             self._atoms_hphob[resname] = {}
             for group in str_groups.split():
                 str_atoms, value = group.split('=')
@@ -64,7 +64,7 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def parse_names_stacking(self, data_ini: vg.ParserIni):
-        for resname, str_cycles in data_ini.iter_splitted_lines("NAMES_STACKING", sep = ':'):
+        for resname, str_cycles in data_ini.iter_splitted_lines("STACKING", sep = ':'):
             self._names_stk[resname] = [
                 cycle.replace('-', ' ') for cycle in str_cycles.split()
             ]
@@ -72,14 +72,14 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def parse_names_hbacceptors(self, data_ini: vg.ParserIni):
-        for resname, str_triplets in data_ini.iter_splitted_lines("NAMES_HBACCEPTORS", sep = ':'):
+        for resname, str_triplets in data_ini.iter_splitted_lines("HBACCEPTORS", sep = ':'):
             triplets = map(self._parse_atoms_triplet, str_triplets.split())
             self._names_hba[resname] = [(hba,tail,head,False) for hba,tail,head,_ in triplets] # hbond_fixed must always be False for HBAcceptors
 
 
     # --------------------------------------------------------------------------
     def parse_names_hbdonors(self, data_ini: vg.ParserIni):
-        for resname, str_triplets in data_ini.iter_splitted_lines("NAMES_HBDONORS", sep = ':'):
+        for resname, str_triplets in data_ini.iter_splitted_lines("HBDONORS", sep = ':'):
             triplets = list(map(self._parse_atoms_triplet, str_triplets.split()))
             self._names_hbd[resname] = triplets
 
