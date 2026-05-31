@@ -2,9 +2,11 @@ desktop.ini
 **/__pycache__/
 .vscode/
 
-volgrids/_vendors/freyacli
-volgrids/_vendors/molutils
-
 plugins/
 testdata/
 tmp/
+
+examples/bin_format/clusters
+
+volgrids/_vendors/freyacli
+volgrids/_vendors/molutils

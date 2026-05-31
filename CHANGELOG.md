@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.1] - 2026-05-31
+- Added `BIN` format for grids.
+    - `BIN` is a straightforward binary format that packs a grid in the following way (little-endian):
+        3 unsigned ints: resolution (nx, ny, nz); 3 floats: deltas; 3 floats: origin; nx*ny*nz float32 values: flattened array in C-order
+    - it's meant for easy parsing in lower level languages
+
+
 ## [0.13.0] - 2026-05-28
 - Added new subcommand group for `smutils`: `sphere`.
     - `smutils sphere find`: Find the sphere information (x,y,z,radius) for the smallest sphere that encloses all the atoms inside a selection query.
