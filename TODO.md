@@ -55,6 +55,7 @@
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
 * give a warning if "convert" doesn't take any output option.
+* add tests for BIN format.
 
 
 <!-- ----------------------------------------------------------------------- -->

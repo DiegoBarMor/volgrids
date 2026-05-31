@@ -69,6 +69,7 @@
     @convert
         path_in[]1.PATH
         ~out_dx[d,dx]1?.PATH
+        ~out_bin[b,bin]1?.PATH
         ~out_mrc[m,mrc]1?.PATH
         ~out_ccp4[p,ccp4]1?.PATH
         ~out_cmap[c,cmap]1?.PATH

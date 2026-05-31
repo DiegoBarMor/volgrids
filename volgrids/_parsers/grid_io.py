@@ -22,6 +22,37 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def read_bin(path_bin: str|Path) -> "vg.Grid":
+        """Load grid from a binary file in the following order (little-endian):
+        - 3 unsigned ints: resolution `(nx, ny, nz)`
+        - 3 floats: `deltas`
+        - 3 floats: `origin`
+        - `nx*ny*nz` float32 values: flattened array in C-order
+        """
+        import struct
+
+        with open(path_bin, "rb") as file:
+            res_bytes = file.read(12)  # 3 * 4 bytes (unsigned int)
+            if len(res_bytes) < 12:
+                raise ValueError("File too small to contain resolution")
+
+            resolution = struct.unpack("<3I", res_bytes)
+            deltas = struct.unpack("<3f", file.read(12))
+            origin = struct.unpack("<3f", file.read(12))
+            npoints = int(resolution[0]) * int(resolution[1]) * int(resolution[2])
+            data = file.read(npoints * 4)
+            if len(data) < npoints * 4:
+                raise ValueError("File too small to contain grid data")
+
+            box = vg.Box(origin, resolution, deltas)
+            vgrid = vg.Grid(box, init_grid = False)
+            vgrid.arr = np.frombuffer(data, dtype = np.float32, count = npoints).reshape(resolution)
+            vgrid.fmt = vg.GridFormat.BIN
+        return vgrid
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def read_mrc(path_mrc: str|Path) -> "vg.Grid":
         with gd.mrc.mrcfile.open(path_mrc) as parser:
             ##### assume that MRC always follows the origin follows the "real space" MRC convention
@@ -148,6 +179,27 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @classmethod
+    def write_bin(cls, path_bin: str|Path, data: "vg.Grid"):
+        """Save grid to a binary file in the following order (little-endian):
+        - 3 unsigned ints: resolution (nx, ny, nz)
+        - 3 floats: deltas
+        - 3 floats: origin
+        - nx*ny*nz float32 values: flattened array in C-order
+        """
+        import struct
+        path_bin = Path(path_bin)
+        cls.confirm_overwrite(path_bin)
+        path_bin.parent.mkdir(parents = True, exist_ok = True)
+
+        with open(path_bin, "wb") as file:
+            file.write(struct.pack("<3I", data.xres(), data.yres(), data.zres()))
+            file.write(struct.pack("<3f", data.dx()  , data.dy()  , data.dz()  ))
+            file.write(struct.pack("<3f", data.xmin(), data.ymin(), data.zmin()))
+            file.write(data.arr.astype(np.float32).ravel(order="C").tobytes())
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
     def write_mrc(cls, path_mrc: str|Path, data: "vg.Grid"):
         path_mrc = Path(path_mrc)
         cls.confirm_overwrite(path_mrc)
@@ -236,6 +288,7 @@ class GridIO:
         # [TODO] improve the format detection?
         ext = Path(path_grid).suffix.lower()
         if ext == ".dx": return vg.GridFormat.DX
+        if ext == ".bin": return vg.GridFormat.BIN
         if ext == ".mrc": return vg.GridFormat.MRC
         if ext == ".ccp4": return vg.GridFormat.CCP4
         if ext == ".cmap":
@@ -255,6 +308,9 @@ class GridIO:
 
         if fmt == vg.GridFormat.DX:
             return GridIO.read_dx(path_grid)
+
+        if fmt == vg.GridFormat.BIN:
+            return GridIO.read_bin(path_grid)
 
         if fmt == vg.GridFormat.MRC:
             return GridIO.read_mrc(path_grid)
@@ -283,6 +339,10 @@ class GridIO:
 
         if fmt == vg.GridFormat.DX:
             GridIO.write_dx(path_grid, data)
+            return
+
+        if fmt == vg.GridFormat.BIN:
+            GridIO.write_bin(path_grid, data)
             return
 
         if fmt == vg.GridFormat.MRC:

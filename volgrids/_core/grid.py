@@ -214,6 +214,10 @@ class Grid:
             vg.GridIO.write_dx(path_out, self)
             return
 
+        if grid_format == vg.GridFormat.BIN:
+            vg.GridIO.write_bin(path_out, self)
+            return
+
         if grid_format == vg.GridFormat.MRC:
             vg.GridIO.write_mrc(path_out, self)
             return

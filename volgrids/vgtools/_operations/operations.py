@@ -14,6 +14,7 @@ class VGOperations:
 
         func: callable = {
             vg.GridFormat.DX: vg.GridIO.write_dx,
+            vg.GridFormat.BIN: vg.GridIO.write_bin,
             vg.GridFormat.MRC: vg.GridIO.write_mrc,
             vg.GridFormat.CCP4: vg.GridIO.write_ccp4,
             vg.GridFormat.CMAP: vg.GridIO.write_cmap,
