@@ -56,11 +56,13 @@ class AppVGTools(vg.AppSubcommand):
 
         path_in       = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
         path_out_dx   = _handle_out_arg("out_dx",   ".dx")
+        path_out_bin  = _handle_out_arg("out_bin",  ".bin")
         path_out_mrc  = _handle_out_arg("out_mrc",  ".mrc")
         path_out_ccp4 = _handle_out_arg("out_ccp4", ".ccp4")
         path_out_cmap = _handle_out_arg("out_cmap", ".cmap")
 
         _convert(path_out_dx,   vg.GridFormat.DX)
+        _convert(path_out_bin,  vg.GridFormat.BIN)
         _convert(path_out_mrc,  vg.GridFormat.MRC)
         _convert(path_out_ccp4, vg.GridFormat.CCP4)
         _convert(path_out_cmap, vg.GridFormat.CMAP)

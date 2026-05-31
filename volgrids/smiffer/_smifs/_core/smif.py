@@ -39,6 +39,7 @@ class Smif:
             cmap_key = title
 
             if   grid_format == vg.GridFormat.DX: path_out = add_suffix(path_out, ".dx")
+            elif grid_format == vg.GridFormat.BIN: path_out = add_suffix(path_out, ".bin")
             elif grid_format == vg.GridFormat.MRC: path_out = add_suffix(path_out, ".mrc")
             elif grid_format == vg.GridFormat.CCP4: path_out = add_suffix(path_out, ".ccp4")
 

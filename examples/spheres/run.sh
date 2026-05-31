@@ -12,8 +12,7 @@ calc_spheres() {
     fout="$fdata/sphere_$idx"
     echo "Calculating spheres for query: $query"
     info_spheres=$(python3 volgrids smutils sphere find $path_pdb "$query" -t $path_traj -r $radius_extra)
-    # shellcheck disable=SC2086
-    python3 volgrids smutils sphere grid $path_pdb -s $info_spheres -t $path_traj -o "$fout"
+    python3 volgrids smutils sphere grid $path_pdb -s "$info_spheres" -t $path_traj -o "$fout"
 }
 calc_spheres 1 "resid 7 8" &\
 calc_spheres 2 "resid 9 10" &\
