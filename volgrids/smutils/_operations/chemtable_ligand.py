@@ -49,11 +49,9 @@ class ChemTableLigand:
         chemtable = '\n'.join((
             "[SELECTION_QUERY]",
             f"resname {resname}", "",
-            "[NAMES_STACKING]",
-            *(
-                f"{resname}: {' '.join(self.atoms[ring].names)}"
-                for ring in rings
-            )
+            "[STACKING]",
+            ### separate the cycles with extra spaces for readability
+            f"{resname}: {'   '.join('-'.join(self.atoms[ring].names) for ring in rings)}",
         ))
         return chemtable
 

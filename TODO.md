@@ -29,7 +29,7 @@
 * check what happens with structure files with multiple models.
 * list of spheres for trajectory+pocket_sphere mode
 * maybe: replace the RNDS trimming with a faster method
-* change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
+* change the ligand example to one that uses both HBACCEPTORS, HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
 * add safeguard when there's no atoms for the specified molecule type
