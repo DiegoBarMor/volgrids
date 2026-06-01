@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 typedef struct Grid {
     float dx, dy, dz;
@@ -11,8 +12,13 @@ typedef struct Grid {
     float* data;
 } Grid;
 
+typedef struct Node {
+    uint64_t value;
+    struct Node* next;
+} Node;
+
 // -----------------------------------------------------------------------------
-static int system_is_little_endian(void) {
+static bool system_is_little_endian(void) {
     uint16_t x = 1;
     return (*(uint8_t*)&x) == 1;
 }
@@ -59,7 +65,7 @@ static void write_u32_le(FILE* file, uint32_t v) {
 
 // -----------------------------------------------------------------------------
 static void write_f32_le(FILE* file, float v) {
-uint32_t u;
+    uint32_t u;
     memcpy(&u, &v, sizeof(float));
     write_u32_le(file, u);
 }
@@ -80,7 +86,6 @@ static int zeros_like(Grid* new_grid, Grid* ref) {
     new_grid->data = (float*)malloc(ref->npoints * sizeof(float));
     if (!new_grid->data) { fprintf(stderr, "malloc failed\n"); return 1; }
     for (uint64_t i = 0; i < ref->npoints; ++i) new_grid->data[i] = 0;
-
     return 0;
 }
 
@@ -138,8 +143,7 @@ static int write_bin(const char* path_bin, Grid* grid) {
     write_f32_le(file, grid->oy);
     write_f32_le(file, grid->oz);
 
-    int little2 = system_is_little_endian();
-    if (little2) {
+    if (system_is_little_endian()) {
         size_t wrote = fwrite(grid->data, sizeof(float), (size_t)grid->npoints, file);
         if (wrote != (size_t)grid->npoints) { fprintf(stderr, "Error writing data\n"); free(grid->data); fclose(file); return 1; }
         fclose(file);
@@ -159,6 +163,34 @@ static int write_bin(const char* path_bin, Grid* grid) {
 }
 
 // -----------------------------------------------------------------------------
+static Node* extend_linked_list(
+    Node* graph, // start of the linked list (i.e. "graph" array)
+    Node* node,  // pointer to the current node's index (i.e. "graph[i]")
+    int idx_neighbor // flattened index for the arrays, -1 if out of bounds
+) {
+    if (idx_neighbor < 0) return node;
+
+    Node* neighbor = graph + idx_neighbor;
+
+    if (neighbor->next) return node; // already in the list, skip
+    neighbor->value = (uint64_t)idx_neighbor;
+
+    neighbor->next = node->next;
+    node->next = neighbor;
+
+    return node->next;
+}
+
+// -----------------------------------------------------------------------------
+static Node* pop_linked_list(Node* node) {
+    if (!node) return NULL;
+    Node* next = node->next;
+    node->next = NULL; // mark as visited
+    return next;
+}
+
+
+// -----------------------------------------------------------------------------
 int main(int argc, char **argv) {
     if (argc < 4) {
         fprintf(stderr, "Usage: %s input.bin output.bin threshold\n", argv[0]);
@@ -169,40 +201,131 @@ int main(int argc, char **argv) {
     float thr = (float)atof(argv[3]);
     int status;
 
-    Grid grid = { 0 };
-    status = read_bin(path_in, &grid);
+    Grid smif = { 0 }; // input grid
+    status = read_bin(path_in, &smif);
     if (status != 0) { return status; }
 
-    Grid clusters = { 0 };
-    status = zeros_like(&clusters, &grid);
+    Grid clusters = { 0 }; // output grid
+    status = zeros_like(&clusters, &smif);
     if (status != 0) { return status; }
 
+    // linked list for traversing grid points' neighbors
+    Node* graph = (Node*)malloc(smif.npoints * sizeof(Node));
+    if (!graph) { fprintf(stderr, "malloc failed\n"); return 1; }
+    for (uint64_t i = 0; i < smif.npoints; ++i) {
+        graph[i].value = 0; graph[i].next = NULL;
+    }
 
-    uint32_t nz = grid.nz;
-    uint32_t nyz = grid.ny * nz;
-    float current_cluster = 1.0f;
-    // [WIP] sample logic, this won't actually provide a proper segmentation
-    for (uint64_t i = 0; i < grid.npoints; ++i) {
-        float point = grid.data[i];
-        int idx_xn = i - nyz;
-        int idx_yn = i % nyz >= nz ? i - nz : -1;
-        int idx_zn = i % nz > 0.0f ? i - 1 : -1;
+    uint32_t nx  = smif.nx;
+    uint32_t ny  = smif.ny;
+    uint32_t nz  = smif.nz;
+    uint32_t nyz = smif.ny * nz;
+    uint64_t npoints = smif.npoints;
+    float current_cluster = 0.0f; // float (despite cluster labels being integers) because the output grid is float
 
-        if (grid.data[i] < thr) continue;
-        if (idx_xn >= 0 && clusters.data[idx_xn]) { clusters.data[i] = clusters.data[idx_xn]; continue; }
-        if (idx_yn >= 0 && clusters.data[idx_yn]) { clusters.data[i] = clusters.data[idx_yn]; continue; }
-        if (idx_zn >= 0 && clusters.data[idx_zn]) { clusters.data[i] = clusters.data[idx_zn]; continue; }
+    for (uint64_t i = 0; i < npoints; ++i) {
+        if (smif.data[i] < thr || clusters.data[i]) continue;
 
-        clusters.data[i] = current_cluster++;
+        current_cluster++;
+
+        Node* head = graph + i;
+        head->value = (uint64_t)i;
+
+        while (head) {
+            uint64_t idx = head->value;
+
+            if (smif.data[idx] < thr || clusters.data[idx]) {
+                head = pop_linked_list(head);
+                continue;
+            }
+
+            clusters.data[idx] = current_cluster;
+
+            int x =  idx / nyz;
+            int y = (idx % nyz) / nz;
+            int z =  idx % nz;
+
+            bool xmin = x == 0;
+            bool xmax = x == (int)nx - 1;
+            bool ymin = y == 0;
+            bool ymax = y == (int)ny - 1;
+            bool zmin = z == 0;
+            bool zmax = z == (int)nz - 1;
+
+            int x0y_z_ = xmin?-1: (x-1) * nyz +  y    * nz +  z   ;
+            int x1y_z_ = xmax?-1: (x+1) * nyz +  y    * nz +  z   ;
+            int x_y0z_ = ymin?-1:  x    * nyz + (y-1) * nz +  z   ;
+            int x_y1z_ = ymax?-1:  x    * nyz + (y+1) * nz +  z   ;
+            int x_y_z0 = zmin?-1:  x    * nyz +  y    * nz + (z-1);
+            int x_y_z1 = zmax?-1:  x    * nyz +  y    * nz + (z+1);
+
+            int x0y0z_ = (xmin || ymin)?-1: (x-1) * nyz + (y-1) * nz +  z   ;
+            int x0y1z_ = (xmin || ymax)?-1: (x-1) * nyz + (y+1) * nz +  z   ;
+            int x0y_z0 = (xmin || zmin)?-1: (x-1) * nyz +  y    * nz + (z-1);
+            int x0y_z1 = (xmin || zmax)?-1: (x-1) * nyz +  y    * nz + (z+1);
+
+            int x1y0z_ = (xmax || ymin)?-1: (x+1) * nyz + (y-1) * nz +  z   ;
+            int x1y1z_ = (xmax || ymax)?-1: (x+1) * nyz + (y+1) * nz +  z   ;
+            int x1y_z0 = (xmax || zmin)?-1: (x+1) * nyz +  y    * nz + (z-1);
+            int x1y_z1 = (xmax || zmax)?-1: (x+1) * nyz +  y    * nz + (z+1);
+
+            int x_y0z0 = (ymin || zmin)?-1:  x    * nyz + (y-1) * nz + (z-1);
+            int x_y0z1 = (ymin || zmax)?-1:  x    * nyz + (y-1) * nz + (z+1);
+            int x_y1z0 = (ymax || zmin)?-1:  x    * nyz + (y+1) * nz + (z-1);
+            int x_y1z1 = (ymax || zmax)?-1:  x    * nyz + (y+1) * nz + (z+1);
+
+            int x0y0z0 = (xmin || ymin || zmin)?-1: (x-1) * nyz + (y-1) * nz + (z-1);
+            int x0y0z1 = (xmin || ymin || zmax)?-1: (x-1) * nyz + (y-1) * nz + (z+1);
+            int x0y1z0 = (xmin || ymax || zmin)?-1: (x-1) * nyz + (y+1) * nz + (z-1);
+            int x0y1z1 = (xmin || ymax || zmax)?-1: (x-1) * nyz + (y+1) * nz + (z+1);
+
+            int x1y0z0 = (xmax || ymin || zmin)?-1: (x+1) * nyz + (y-1) * nz + (z-1);
+            int x1y0z1 = (xmax || ymin || zmax)?-1: (x+1) * nyz + (y-1) * nz + (z+1);
+            int x1y1z0 = (xmax || ymax || zmin)?-1: (x+1) * nyz + (y+1) * nz + (z-1);
+            int x1y1z1 = (xmax || ymax || zmax)?-1: (x+1) * nyz + (y+1) * nz + (z+1);
+
+            extend_linked_list(graph, head, x0y_z_);
+            extend_linked_list(graph, head, x1y_z_);
+            extend_linked_list(graph, head, x_y0z_);
+            extend_linked_list(graph, head, x_y1z_);
+            extend_linked_list(graph, head, x_y_z0);
+            extend_linked_list(graph, head, x_y_z1);
+            extend_linked_list(graph, head, x0y0z_);
+            extend_linked_list(graph, head, x0y1z_);
+            extend_linked_list(graph, head, x0y_z0);
+            extend_linked_list(graph, head, x0y_z1);
+            extend_linked_list(graph, head, x1y0z_);
+            extend_linked_list(graph, head, x1y1z_);
+            extend_linked_list(graph, head, x1y_z0);
+            extend_linked_list(graph, head, x1y_z1);
+            extend_linked_list(graph, head, x_y0z0);
+            extend_linked_list(graph, head, x_y0z1);
+            extend_linked_list(graph, head, x_y1z0);
+            extend_linked_list(graph, head, x_y1z1);
+            extend_linked_list(graph, head, x0y0z0);
+            extend_linked_list(graph, head, x0y0z1);
+            extend_linked_list(graph, head, x0y1z0);
+            extend_linked_list(graph, head, x0y1z1);
+            extend_linked_list(graph, head, x1y0z0);
+            extend_linked_list(graph, head, x1y0z1);
+            extend_linked_list(graph, head, x1y1z0);
+            extend_linked_list(graph, head, x1y1z1);
+
+            head = pop_linked_list(head);
+        }
     }
 
     status = write_bin(path_out, &clusters);
     if (status != 0) { return status; }
 
-    free(grid.data);
+    free(smif.data);
     free(clusters.data);
+    free(graph);
 
-    printf("Wrote %s (nx=%u ny=%u nz=%u) thresholded at %g\n", path_out, grid.nx, grid.ny, grid.nz, (double)thr);
+    printf(
+        ">>> Wrote %i clusters to %s.\n... resolution: (nx=%u ny=%u nz=%u)\n... threshold: %g\n",
+        (int)current_cluster, path_out, clusters.nx, clusters.ny, clusters.nz, (double)thr
+    );
     return 0;
 }
 
