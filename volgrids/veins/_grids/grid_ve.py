@@ -35,7 +35,7 @@ class GridVolumetricEnergy(vg.Grid):
         direction = b - a  # get the direction vector between two particles
 
         ##### perform kernel operations
-        radius = np.linalg.norm(direction) * self.RADIUS_FIX
+        length = np.linalg.norm(direction) * self.RADIUS_FIX
         kernel = vg.KernelCylinder(
             radius = radius, vdirection = direction, width = self.WIDTH_CYLINDERS,
             deltas = self.box.deltas, dtype = np.float32
@@ -74,8 +74,8 @@ class GridVolumetricEnergy(vg.Grid):
         normal = b - d            # get the direction vector between the second two non-adjacent particles
 
         ##### perform kernel operations
-        radius0 = np.linalg.norm(direction) * self.RADIUS_FIX
-        radius1 = np.linalg.norm(normal) * self.RADIUS_FIX
+        length0 = np.linalg.norm(direction) * self.RADIUS_FIX
+        length1 = np.linalg.norm(normal) * self.RADIUS_FIX
         kernel0 = vg.KernelCylinder(
             radius = radius0, vdirection = direction, width = self.WIDTH_CYLINDERS,
             deltas = self.box.deltas, dtype = np.float32

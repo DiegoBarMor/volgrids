@@ -1,4 +1,5 @@
-from ._core.grid_ve import GridVolumetricEnergy
+from ._grids.grid_ve import GridVolumetricEnergy
+from ._grids.grid_vf import GridVolumetricForce
 
 from .app_veins import AppVeins
 
