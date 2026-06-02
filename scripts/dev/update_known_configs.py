@@ -32,7 +32,6 @@ if __name__ == "__main__":
         ROOT / "smiffer" / "__init__.py",
         ROOT / "smutils" / "__init__.py",
         ROOT / "vgtools" / "__init__.py",
-        ROOT / "veins"   / "__init__.py",
     ]
     main()
 

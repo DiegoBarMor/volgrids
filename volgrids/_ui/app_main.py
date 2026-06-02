@@ -30,7 +30,6 @@ class AppMain(fy.App):
             "smutils": self._init_smutils,
             "apbs":    self._init_apbs,
             "vgtools": self._init_vgtools,
-            "veins":   self._init_veins,
         }[command]
         self.sub_app: "vg.AppSubcommand" = func_init()
 
@@ -79,12 +78,6 @@ class AppMain(fy.App):
     def _init_vgtools(self) -> "vg.AppSubcommand":
         import volgrids.vgtools as vgt
         return vgt.AppVGTools(self)
-
-
-    # --------------------------------------------------------------------------
-    def _init_veins(self) -> "vg.AppSubcommand":
-        import volgrids.veins as ve
-        return ve.AppVeins(self)
 
 
     # --------------------------------------------------------------------------

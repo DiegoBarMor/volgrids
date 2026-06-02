@@ -39,14 +39,6 @@
 
 
 <!-- ----------------------------------------------------------------------- -->
-## VEINS
-* finish/rework "energies" mode implementation
-* implement "forces" mode
-* move Grid's static fields into config_volgrids.ini
-* add tests
-
-
-<!-- ----------------------------------------------------------------------- -->
 ## VGTools
 * add missing vgtools tests.
 * check what happens if performing "fix_cmap" operation when cmap input and output are the same file
