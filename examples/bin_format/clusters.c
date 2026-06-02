@@ -191,40 +191,23 @@ static Node* pop_linked_list(Node* node) {
 
 
 // -----------------------------------------------------------------------------
-int main(int argc, char **argv) {
-    if (argc < 4) {
-        fprintf(stderr, "Usage: %s input.bin output.bin threshold\n", argv[0]);
-        return 1;
-    }
-    const char* path_in  = argv[1];
-    const char* path_out = argv[2];
-    float thr = (float)atof(argv[3]);
-    int status;
-
-    Grid smif = { 0 }; // input grid
-    status = read_bin(path_in, &smif);
-    if (status != 0) { return status; }
-
-    Grid clusters = { 0 }; // output grid
-    status = zeros_like(&clusters, &smif);
-    if (status != 0) { return status; }
-
+static int find_clusters(Grid* smif, Grid* clusters, float threshold) {
     // linked list for traversing grid points' neighbors
-    Node* graph = (Node*)malloc(smif.npoints * sizeof(Node));
-    if (!graph) { fprintf(stderr, "malloc failed\n"); return 1; }
-    for (uint64_t i = 0; i < smif.npoints; ++i) {
+    Node* graph = (Node*)malloc(smif->npoints * sizeof(Node));
+    if (!graph) { fprintf(stderr, "malloc failed\n"); return -1; }
+    for (uint64_t i = 0; i < smif->npoints; ++i) {
         graph[i].value = 0; graph[i].next = NULL;
     }
 
-    uint32_t nx  = smif.nx;
-    uint32_t ny  = smif.ny;
-    uint32_t nz  = smif.nz;
-    uint32_t nyz = smif.ny * nz;
-    uint64_t npoints = smif.npoints;
+    uint32_t nx  = smif->nx;
+    uint32_t ny  = smif->ny;
+    uint32_t nz  = smif->nz;
+    uint32_t nyz = ny * nz;
+    uint64_t npoints = smif->npoints;
     float current_cluster = 0.0f; // float (despite cluster labels being integers) because the output grid is float
 
     for (uint64_t i = 0; i < npoints; ++i) {
-        if (smif.data[i] < thr || clusters.data[i]) continue;
+        if (smif->data[i] < threshold || clusters->data[i]) continue;
 
         current_cluster++;
 
@@ -234,12 +217,12 @@ int main(int argc, char **argv) {
         while (head) {
             uint64_t idx = head->value;
 
-            if (smif.data[idx] < thr || clusters.data[idx]) {
+            if (smif->data[idx] < threshold || clusters->data[idx]) {
                 head = pop_linked_list(head);
                 continue;
             }
 
-            clusters.data[idx] = current_cluster;
+            clusters->data[idx] = current_cluster;
 
             int x =  idx / nyz;
             int y = (idx % nyz) / nz;
@@ -315,16 +298,43 @@ int main(int argc, char **argv) {
         }
     }
 
+    free(graph);
+    return current_cluster;
+}
+
+
+// -----------------------------------------------------------------------------
+int main(int argc, char **argv) {
+    if (argc < 4) {
+        fprintf(stderr, "Usage: %s input.bin output.bin threshold\n", argv[0]);
+        return 1;
+    }
+    const char* path_in  = argv[1];
+    const char* path_out = argv[2];
+    float thr = (float)atof(argv[3]);
+    int status;
+
+    Grid smif = { 0 }; // input grid
+    status = read_bin(path_in, &smif);
+    if (status != 0) { return status; }
+
+    Grid clusters = { 0 }; // output grid
+    status = zeros_like(&clusters, &smif);
+    if (status != 0) { return status; }
+
+    int nclusters = find_clusters(&smif, &clusters, thr);
+    if (nclusters == -1) { return 1; }
+
+    free(smif.data);
+
     status = write_bin(path_out, &clusters);
     if (status != 0) { return status; }
 
-    free(smif.data);
     free(clusters.data);
-    free(graph);
 
     printf(
         ">>> Wrote %i clusters to %s.\n... resolution: (nx=%u ny=%u nz=%u)\n... threshold: %g\n",
-        (int)current_cluster, path_out, clusters.nx, clusters.ny, clusters.nz, (double)thr
+        (int)nclusters, path_out, clusters.nx, clusters.ny, clusters.nz, (double)thr
     );
     return 0;
 }
