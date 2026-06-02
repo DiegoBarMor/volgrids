@@ -1,4 +1,3 @@
-import re
 from pathlib import Path
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -83,6 +82,7 @@ class ParserIni:
         The body is the text after the header's closing bracket up to the next header or end of string.
         Text preceding the first header is captured under an empty string key.
         """
+        import re
 
         def split_body(start: int, end: int) -> list[str]:
             return data[start:end].strip().splitlines()

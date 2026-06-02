@@ -1,7 +1,4 @@
-import h5py
-import contextlib
 import numpy as np
-import gridData as gd
 from pathlib import Path
 
 import volgrids as vg
@@ -12,6 +9,8 @@ class GridIO:
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ MAIN I/O OPERATIONS
     @staticmethod
     def read_dx(path_dx: str|Path) -> "vg.Grid":
+        import gridData as gd
+
         parser = gd.Grid(path_dx)
         box = vg.Box(parser.origin, parser.grid.shape, parser.delta)
         vgrid = vg.Grid(box, init_grid = False)
@@ -54,6 +53,8 @@ class GridIO:
     # --------------------------------------------------------------------------
     @staticmethod
     def read_mrc(path_mrc: str|Path) -> "vg.Grid":
+        import gridData as gd
+
         with gd.mrc.mrcfile.open(path_mrc) as parser:
             ##### assume that MRC always follows the origin follows the "real space" MRC convention
             orig = parser.header["origin"]
@@ -67,6 +68,8 @@ class GridIO:
     # --------------------------------------------------------------------------
     @staticmethod
     def read_ccp4(path_ccp4: str|Path) -> "vg.Grid":
+        import gridData as gd
+
         with gd.mrc.mrcfile.open(path_ccp4) as parser:
             orig = parser.header["origin"]
             if (orig['x'] == 0.0 and orig['y'] == 0.0 and orig['z'] == 0.0):
@@ -90,6 +93,8 @@ class GridIO:
     @staticmethod
     def read_cmap(path_cmap: str|Path, key: str) -> "vg.Grid":
         """Asserts that the specified key exists in the CMAP file and then reads its corresponding grid."""
+        import h5py
+
         with h5py.File(path_cmap, 'r') as parser:
             if key not in parser["Chimera"].keys(): raise KeyError(
                 f"Key '{key}' not found in '{path_cmap}'. Available keys: {list(parser['Chimera'].keys())}"
@@ -201,6 +206,8 @@ class GridIO:
     # --------------------------------------------------------------------------
     @classmethod
     def write_mrc(cls, path_mrc: str|Path, data: "vg.Grid"):
+        import gridData as gd
+
         path_mrc = Path(path_mrc)
         cls.confirm_overwrite(path_mrc)
         path_mrc.parent.mkdir(parents = True, exist_ok = True)
@@ -218,6 +225,8 @@ class GridIO:
     # --------------------------------------------------------------------------
     @classmethod
     def write_ccp4(cls, path_ccp4: str|Path, data: "vg.Grid"):
+        import gridData as gd
+
         path_ccp4 = Path(path_ccp4)
         cls.confirm_overwrite(path_ccp4)
         path_ccp4.parent.mkdir(parents = True, exist_ok = True)
@@ -238,6 +247,9 @@ class GridIO:
     # --------------------------------------------------------------------------
     @classmethod
     def write_cmap(cls, path_cmap: str|Path, data: "vg.Grid", key):
+        import h5py
+        import contextlib
+
         ### imitate the Chimera cmap format, as "specified" in this sample:
         ### https://github.com/RBVI/ChimeraX/blob/develop/testdata/cell15_timeseries.cmap
         def _add_generic_attrs(group, c = "GROUP"):
@@ -364,10 +376,13 @@ class GridIO:
         """Returns the list of keys (frame names) in a CMAP file.
         If assert_has_keys is True, raises an error if no keys are found."""
         if not path_cmap.is_file():
-            keys = []
-        else:
-            with h5py.File(path_cmap, 'r') as h5:
-                keys = list(h5["Chimera"].keys())
+            if assert_has_keys:
+                raise FileNotFoundError(f"CMAP file not found: {path_cmap}")
+            return []
+
+        import h5py
+        with h5py.File(path_cmap, 'r') as h5:
+            keys = list(h5["Chimera"].keys())
 
         if assert_has_keys and not keys:
             raise ValueError(f"Empty cmap file: {path_cmap}")
@@ -406,6 +421,8 @@ class GridIO:
 
 # ------------------------------------------------------------------------------
 def _read_mrc_ccp4(path_mrc: Path, origin: np.ndarray) -> "vg.Grid":
+    import gridData as gd
+
     with gd.mrc.mrcfile.open(path_mrc) as parser:
         # machine_stamp = parser.header.machst
         ### [68 68 0 0] or [68 65 0 0] for little-endian <--- tested

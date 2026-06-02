@@ -1,7 +1,6 @@
 import tempfile
 import warnings
 import numpy as np
-import MDAnalysis as mda
 from pathlib import Path
 
 import volgrids as vg
@@ -11,6 +10,8 @@ from volgrids._vendors import freyacli as fy
 # //////////////////////////////////////////////////////////////////////////////
 class MolSystem:
     def __init__(self, path_struct: Path, path_traj: Path = None, box: vg.Box = None):
+        import MDAnalysis as mda
+
         self.molname  : str                 # name of the molecule
         self.do_traj  : None | bool         # whether this is a trajectory or a single structure (None if no structure is provided)
         self.system   : None | mda.Universe # MDAnalysis Universe object for the molecular system

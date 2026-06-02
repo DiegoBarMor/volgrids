@@ -1,6 +1,3 @@
-import multiprocessing as mp
-from collections import deque
-
 import volgrids as vg
 import volgrids.smiffer as sm
 
@@ -13,6 +10,9 @@ class TrajMultiprocess:
 
     # --------------------------------------------------------------------------
     def run(self, n_frames: int) -> None:
+        import multiprocessing as mp
+        from collections import deque
+
         ### Pre-clear stale CMAP outputs once in the parent. Workers must not race on this.
         if vg.REMOVE_OLD_CMAP_OUTPUT:
             for path in self._worker_app.folder_out.glob(f"{self._worker_app.ms.molname}.*.cmap"):

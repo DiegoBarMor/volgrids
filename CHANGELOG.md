@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.14.0] - 2026-06-02
+- Refactored and cleaned up `.chem` tables.
+    - Added distinction between RNA and DNA residues.
+    - Simplified header names.
+
+    - Atoms of a stacking group are now to be provided separated by a `-` character.
+    - For residues with multiple stacking groups, they are to be provided in the same row, separated by spaces.
+
+    - Removed the `*` wildcard for hydrophobicity atoms.
+        - Names for atoms with the same hydrophobicity value can now be more conveniently grouped using the `,` char as delimiter, e.g.: `URA: O5',P,OP1,OP2,O3'=-2.02 C1',C2',C3',C4',C5',O2',O4'=-0.13 N1,C2,N3,C4,C5,C6,O2,O4=1.13`.
+    - Removed the generic hydrophobicity scale for whole residues (now it's always specificed for individual atoms of a given residue).
+    - Default hydrophobicity scale for proteins now ignores the common peptide atoms (i.e. `N CA C O`).
+
+- Moved imports of some rare/heavy dependencies to inside relevant methods.
+    - This way, the heavy overhead of libraries like MDAnalysis can be avoided when performing simple operation that doesn't need them (e.g. running `volgrids -h`).
+
+
+## [0.13.1] - 2026-06-01
+- Added `BIN` format for grids.
+    - `BIN` is a straightforward binary format that packs a grid in the following way (little-endian):
+        3 unsigned ints: resolution (nx, ny, nz); 3 floats: deltas; 3 floats: origin; nx*ny*nz float32 values: flattened array in C-order
+    - it's meant for easy parsing in lower level languages
+
+
 ## [0.13.0] - 2026-05-28
 - Added new subcommand group for `smutils`: `sphere`.
     - `smutils sphere find`: Find the sphere information (x,y,z,radius) for the smallest sphere that encloses all the atoms inside a selection query.

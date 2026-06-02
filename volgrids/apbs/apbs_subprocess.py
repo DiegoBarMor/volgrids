@@ -1,7 +1,6 @@
 import tempfile
 import subprocess
 from pathlib import Path
-from MDAnalysis.core.groups import AtomGroup
 
 import volgrids as vg
 
@@ -11,7 +10,7 @@ class APBSSubprocess:
     _PATH_SH_PDB2PQR = vg.Utils.resolve_path_package("apbs/pdb2pqr.sh")
 
     # --------------------------------------------------------------------------
-    def __init__(self, atoms: AtomGroup, name_pdb: str, only_pdb2pqr: bool = False):
+    def __init__(self, atoms, name_pdb: str, only_pdb2pqr: bool = False):
         """
         The `only_pdb2pqr` argument allows smiffer to split the APBS calculation in two halves
         (first PQR generation, then APBS itself). The temporary PQR and IN files generated in the
