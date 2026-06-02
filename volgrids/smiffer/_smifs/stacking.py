@@ -1,6 +1,5 @@
 import numpy as np
 from collections import defaultdict
-import MDAnalysis as mda
 
 import volgrids as vg
 import volgrids.smiffer as sm
@@ -21,6 +20,8 @@ class SmifStacking(sm.Smif):
 
     # --------------------------------------------------------------------------
     def iter_particles(self):
+        import MDAnalysis as mda
+
         resname_to_ids = defaultdict(set)
         atoms = self.ms.get_relevant_atoms()
 

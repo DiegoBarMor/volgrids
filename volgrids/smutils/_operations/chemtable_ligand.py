@@ -1,7 +1,6 @@
 import numpy as np
 from pathlib import Path
 from collections import deque
-import MDAnalysis as mda
 
 import volgrids as vg
 import volgrids.smutils as su
@@ -14,6 +13,8 @@ class ChemTableLigand:
 
     # ------------------------------------------------------------------------------
     def __init__(self, path_pdb_ligand: Path):
+        import MDAnalysis as mda
+
         u: mda.Universe = vg.Utils.create_mda_universe_quiet(path_pdb_ligand)
         u.guess_TopologyAttrs(to_guess = ["bonds"])
         self.atoms = u.select_atoms("not (name H*) and not water") # [TODO] will presence of ions be an issue?
@@ -49,11 +50,9 @@ class ChemTableLigand:
         chemtable = '\n'.join((
             "[SELECTION_QUERY]",
             f"resname {resname}", "",
-            "[NAMES_STACKING]",
-            *(
-                f"{resname}: {' '.join(self.atoms[ring].names)}"
-                for ring in rings
-            )
+            "[STACKING]",
+            ### separate the cycles with extra spaces for readability
+            f"{resname}: {'   '.join('-'.join(self.atoms[ring].names) for ring in rings)}",
         ))
         return chemtable
 

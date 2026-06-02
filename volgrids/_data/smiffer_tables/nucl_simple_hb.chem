@@ -1,0 +1,24 @@
+; justification to prioritize nucleobases for HBONDS:
+;;; https://pmc.ncbi.nlm.nih.gov/articles/PMC4111737/
+;;; https://www.mdpi.com/2075-1729/15/1/104
+
+[HBACCEPTORS]
+U: O2=C2->O2 O4=C4->O4
+C: O2=C2->O2 N3=C2.C4->N3
+A: N1=C2.C6->N1 N3=C2.C4->N3 N7=C5.C8->N7
+G: N3=C2.C4->N3 N7=C5.C8->N7 O6=C6->O6
+DT: O2=C2->O2 O4=C4->O4
+DC: O2=C2->O2 N3=C2.C4->N3
+DA: N1=C2.C6->N1 N3=C2.C4->N3 N7=C5.C8->N7
+DG: N3=C2.C4->N3 N7=C5.C8->N7 O6=C6->O6
+
+
+[HBDONORS]
+U: N3=C6->N3!
+C: N4=C5->C4! N4=N3->C4!
+A: N6=C5->C6! N6=N1->C6!
+G: N1=C4->N1! N2=N1->C2! N2=N3->C2!
+DT: N3=C6->N3!
+DC: N4=C5->C4! N4=N3->C4!
+DA: N6=C5->C6! N6=N1->C6!
+DG: N1=C4->N1! N2=N1->C2! N2=N3->C2!

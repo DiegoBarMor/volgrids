@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 import volgrids as vg
 import volgrids.smiffer as sm
 
@@ -9,9 +7,8 @@ class ParserChemTable:
         self._selection_query: str = ''
         self._selection_query_custom: str = ''
         self._parser_ini = vg.ParserIni.from_file(path_table)
-        self._residues_hphob: dict[str, float] = {}
-        self._atoms_hphob: defaultdict[str, dict[str, float]] = defaultdict(dict)
-        self._names_stk: dict[str, list[str]] = defaultdict(list)
+        self._atoms_hphob: dict[str, dict[str, float]] = {}
+        self._names_stk: dict[str, list[str]] = {}
         self._names_hba: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._names_hbd: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._parse_table()
@@ -25,12 +22,6 @@ class ParserChemTable:
         The distinction is needed because SMIFs are to be computed only for the specified residues, but trimming needs to consider all residues.
         """
         return self._selection_query_custom if use_custom else self._selection_query
-
-
-    # --------------------------------------------------------------------------
-    def get_residue_hphob(self, atom):
-        resname = sm.ResnameStandard.standardize(atom.resname)
-        return self._residues_hphob.get(resname)
 
 
     # --------------------------------------------------------------------------
@@ -60,42 +51,35 @@ class ParserChemTable:
 
 
     # --------------------------------------------------------------------------
-    def parse_res_hphobicity(self, data_ini: vg.ParserIni):
-        for resname, value in data_ini.iter_splitted_lines("RES_HPHOBICITY", sep = ':'):
-            self._residues_hphob[resname] = float(value)
-
-
-    # --------------------------------------------------------------------------
     def parse_atom_hphobicity(self, data_ini: vg.ParserIni):
-        for names, value in data_ini.iter_splitted_lines("ATOM_HPHOBICITY", sep = ':'):
-            resname, atomname = names.split('/')
-            self._atoms_hphob[resname][atomname] = float(value)
-
-        ### expand the atoms declared with the '*' wildcard to all residues
-        hphob_wildcard = self._atoms_hphob.get('*')
-        if hphob_wildcard is None: return
-
-        del self._atoms_hphob['*']
-        for res_dict in self._atoms_hphob.values():
-            res_dict.update(hphob_wildcard)
+        for resname, str_groups in data_ini.iter_splitted_lines("HYDROPHOBICITY", sep = ':'):
+            self._atoms_hphob[resname] = {}
+            for group in str_groups.split():
+                str_atoms, value = group.split('=')
+                value = float(value)
+                self._atoms_hphob[resname].update(**{
+                    atom.strip() : value for atom in str_atoms.split(',')
+                })
 
 
     # --------------------------------------------------------------------------
     def parse_names_stacking(self, data_ini: vg.ParserIni):
-        for resname, atomnames in data_ini.iter_splitted_lines("NAMES_STACKING", sep = ':'):
-            self._names_stk[resname].append(atomnames)
+        for resname, str_cycles in data_ini.iter_splitted_lines("STACKING", sep = ':'):
+            self._names_stk[resname] = [
+                cycle.replace('-', ' ') for cycle in str_cycles.split()
+            ]
 
 
     # --------------------------------------------------------------------------
     def parse_names_hbacceptors(self, data_ini: vg.ParserIni):
-        for resname, str_triplets in data_ini.iter_splitted_lines("NAMES_HBACCEPTORS", sep = ':'):
+        for resname, str_triplets in data_ini.iter_splitted_lines("HBACCEPTORS", sep = ':'):
             triplets = map(self._parse_atoms_triplet, str_triplets.split())
             self._names_hba[resname] = [(hba,tail,head,False) for hba,tail,head,_ in triplets] # hbond_fixed must always be False for HBAcceptors
 
 
     # --------------------------------------------------------------------------
     def parse_names_hbdonors(self, data_ini: vg.ParserIni):
-        for resname, str_triplets in data_ini.iter_splitted_lines("NAMES_HBDONORS", sep = ':'):
+        for resname, str_triplets in data_ini.iter_splitted_lines("HBDONORS", sep = ':'):
             triplets = list(map(self._parse_atoms_triplet, str_triplets.split()))
             self._names_hbd[resname] = triplets
 
@@ -122,7 +106,6 @@ class ParserChemTable:
             self._selection_query_custom =\
                 self._selection_query_custom[:-4] + ")" # remove the last " or "
 
-        self.parse_res_hphobicity   (self._parser_ini)
         self.parse_atom_hphobicity  (self._parser_ini)
         self.parse_names_stacking   (self._parser_ini)
         self.parse_names_hbacceptors(self._parser_ini)

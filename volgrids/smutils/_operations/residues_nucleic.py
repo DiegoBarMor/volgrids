@@ -1,12 +1,4 @@
-from collections import Counter
 from pathlib import Path
-
-from rnapolis.common import Structure2D
-from rnapolis.annotator import  (
-    extract_base_interactions,
-    handle_input_file,
-    read_3d_structure,
-)
 
 from volgrids._vendors import molutils as mu
 
@@ -17,7 +9,9 @@ class ResiduesNucleic:
     # --------------------------------------------------------------------------
     @classmethod
     def get_residues_bp_canonical(cls, path_pdb: Path) -> set[str]:
-        structure2d = cls._get_rnapolis_struct2d(path_pdb)
+        from rnapolis.common import Structure2D
+
+        structure2d: Structure2D = cls._get_rnapolis_struct2d(path_pdb)
         base_pairs = [bp for bp in structure2d.base_pairs if bp.saenger is not None]
         bp_full_names = [
             [bp.nt1.full_name, bp.nt2.full_name] for bp in base_pairs
@@ -31,7 +25,10 @@ class ResiduesNucleic:
     @classmethod
     def get_residues_stacking(cls, path_pdb: Path) -> set[str]:
         """Return residues that are participating in at least `STACKING_THRESHOLD` stacking interactions."""
-        structure2d = cls._get_rnapolis_struct2d(path_pdb)
+        from collections import Counter
+        from rnapolis.common import Structure2D
+
+        structure2d: Structure2D = cls._get_rnapolis_struct2d(path_pdb)
         stackings = [bp for bp in structure2d.stackings if bp.topology is not None]
         stk_full_names = [
             [stk.nt1.full_name, stk.nt2.full_name] for stk in stackings
@@ -73,7 +70,13 @@ class ResiduesNucleic:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def _get_rnapolis_struct2d(path_pdb: Path) -> Structure2D:
+    def _get_rnapolis_struct2d(path_pdb: Path):
+        from rnapolis.annotator import  (
+            extract_base_interactions,
+            handle_input_file,
+            read_3d_structure,
+        )
+
         file = handle_input_file(path_pdb)
         structure3d = read_3d_structure(file, None)
         base_interactions = extract_base_interactions(structure3d)

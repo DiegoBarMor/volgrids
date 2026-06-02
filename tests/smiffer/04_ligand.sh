@@ -13,5 +13,8 @@ python3 volgrids smiffer $folder/all_interactions/tsc_noH.pdb -e $folder/all_int
 ### Ligand: 9U3 aka N,N,N',N'-tetramethylethane-1,2-diamine
 python3 volgrids smiffer $folder/nr3_case/9u3.pdb -e $folder/nr3_case/9u3.chem
 
+### Ligand: ROS
+python3 volgrids smiffer $folder/multiple_rings/ros.pdb -e $folder/multiple_rings/ros.chem
+
 ### Protein system (for reference)
 # python3 volgrids smiffer prot $folder/1lph.pdb

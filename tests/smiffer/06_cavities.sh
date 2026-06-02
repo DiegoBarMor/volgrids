@@ -54,8 +54,8 @@ run_benchmarks() {
     rm -f $fout_benchmark/npasses_*
 }
 
-run_benchmarks "1bg0 1eby 1ehe 1h7l 1iqj 1ofz 3dd0 3ee4 5m9w 6e9a"   # prt
-run_benchmarks "1akx 1i9v 2esj 4f8u 5bjo 5kx9 6tf3 7oax0 7oax1 8eyv"
+run_benchmarks "1bg0 1eby" # 1ehe 1h7l 1iqj 1ofz 3dd0 3ee4 5m9w 6e9a"   # prot
+run_benchmarks "1akx 1i9v" # 2esj 4f8u 5bjo 5kx9 6tf3 7oax0 7oax1 8eyv" # rna
 
 
 ############################# OPTIONS

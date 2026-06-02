@@ -15,24 +15,23 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## VolGrids
+* generalize the usage of the `-c` flag (for customazing configurations) in all modes.
 * add explanations to the list of configs printed with the empty `-c` flag
 * implement: raise an error if a format file is opened with the wrong function
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 * check if the implementation of the OVERWRITE_OK flag is user-convenient
-* idea: centralize the usage of universe instances into a single wrapper class (MolSystem is already there) and add `delete_traj_locks` in its destructor (will it work?).
+* idea: centralize the usage of `mda.Universe` instances into a single wrapper class (MolSystem is already there) and add `delete_traj_locks` in its destructor (will it work?).
 
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
-* remove the need to write a prot/rna/macro/ligand subcommand.
+* there seems to be some previous bugs in trajectory mode; track down and fix.
 * can't use the -r flag when PQR structure is used because it doesn't have chain information.
 * check what happens with structure files with multiple models.
-* list of spheres for trajectory+pocket_sphere mode
 * maybe: replace the RNDS trimming with a faster method
-* change the ligand example to one that uses both NAMES_HBACCEPTORS, NAMES_HBDONORS and NAMES_HBD_FIXED
+* change the ligand example to one that uses both HBACCEPTORS, HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
-* add safeguard when there's no atoms for the specified molecule type
 * add tests for apbs
 * add tests for -r flag
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)

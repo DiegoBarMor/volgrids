@@ -1,7 +1,4 @@
 import numpy as np
-from scipy import \
-    interpolate as scipy_interpolate,\
-    ndimage as scipy_ndimage
 
 import volgrids as vg
 
@@ -124,7 +121,9 @@ class Math:
     # --------------------------------------------------------------------------
     @staticmethod
     def interpolate_3d(x0, y0, z0, data_0, new_coords) -> np.ndarray:
-        return scipy_interpolate.RegularGridInterpolator(
+        from scipy import interpolate
+
+        return interpolate.RegularGridInterpolator(
             (x0, y0, z0), data_0, bounds_error = False, fill_value = 0
         )(new_coords).T
 
@@ -136,9 +135,11 @@ class Math:
     ) -> np.ndarray:
         """the `reverse` flag reverses both the order of the rotations and the signs of the angles,
         so that the same function can be used to rotate back to the original orientation"""
+        from scipy import ndimage
+
         def rot(angle, axes):
             if angle == 0.0: return coords
-            return scipy_ndimage.rotate( # takes angles in degrees
+            return ndimage.rotate( # takes angles in degrees
                 coords, angle, axes = axes, reshape = False,
                 order = 0, mode = "nearest", prefilter = False
             )

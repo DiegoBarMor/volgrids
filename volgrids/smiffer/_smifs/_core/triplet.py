@@ -1,11 +1,9 @@
 import numpy as np
-import MDAnalysis as mda
-from MDAnalysis.core.groups import Residue
 
 import volgrids as vg
 
 # ------------------------------------------------------------------------------
-def _safe_return_coords(atoms: mda.AtomGroup, sel_string: str):
+def _safe_return_coords(atoms, sel_string: str):
     sel_atoms = atoms.select_atoms(sel_string)
     if len(sel_atoms) == 0: return None
     return sel_atoms.center_of_geometry()
@@ -14,7 +12,7 @@ def _safe_return_coords(atoms: mda.AtomGroup, sel_string: str):
 # //////////////////////////////////////////////////////////////////////////////
 class Triplet:
     def __init__(self,
-        res: Residue, interactor: str,
+        res, interactor: str,
         tail: tuple[str], head: str, hbond_fixed: bool
     ):
         self._tail = tail
@@ -32,21 +30,21 @@ class Triplet:
         self.str_next_res = f"segid {res.segid} and resid {res.resid + 1}"
 
     # --------------------------------------------------------------------------
-    def set_pos_tail(self, atoms: mda.AtomGroup) -> np.ndarray | None:
+    def set_pos_tail(self, atoms) -> np.ndarray | None:
         self.pos_tail = _safe_return_coords(
             atoms, f"name {' '.join(self._tail)}"
         )
 
 
     # --------------------------------------------------------------------------
-    def set_pos_head(self, atoms: mda.AtomGroup) -> np.ndarray | None:
+    def set_pos_head(self, atoms) -> np.ndarray | None:
         self.pos_head = _safe_return_coords(
             atoms, f"name {self._head}"
         )
 
 
     # --------------------------------------------------------------------------
-    def set_pos_interactor(self, atoms: mda.AtomGroup) -> np.ndarray | None:
+    def set_pos_interactor(self, atoms) -> np.ndarray | None:
         self.pos_interactor = _safe_return_coords(
             atoms, f"name {self.interactor}"
         )
@@ -54,7 +52,7 @@ class Triplet:
 
     # --------------------------------------------------------------------------
     def set_pos_tail_custom(self,
-        atoms: mda.AtomGroup, query_t0: str, query_t1: str
+        atoms, query_t0: str, query_t1: str
     ) -> np.ndarray | None:
         """
         Reserved for special cases in protein and RNA.
@@ -69,7 +67,7 @@ class Triplet:
 
 
     # ------------------------------------------------------------------------------
-    def get_interactor_bonded_hydrogens(self, atoms: mda.AtomGroup) -> tuple:
+    def get_interactor_bonded_hydrogens(self, atoms) -> tuple:
         sel_atoms = atoms.select_atoms(f"name {self.interactor}")
         if len(sel_atoms) == 0:
             return []
