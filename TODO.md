@@ -21,6 +21,7 @@
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
 * check if the implementation of the OVERWRITE_OK flag is user-convenient
 * idea: centralize the usage of `mda.Universe` instances into a single wrapper class (MolSystem is already there) and add `delete_traj_locks` in its destructor (will it work?).
+* deal somehow with using a wrong comment char inside a config file
 
 
 <!-- ----------------------------------------------------------------------- -->

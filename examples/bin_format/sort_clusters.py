@@ -14,22 +14,26 @@ import volgrids as vg
 def main():
     grid = vg.GridIO.read_bin(PATH_BIN)
     grid.arr = grid.arr.astype(int)
+
     cluster_ids = set(grid.arr.flatten()) - {0}
+    volumes = {
+        cluster_id : np.sum(grid.arr == cluster_id) for cluster_id in cluster_ids
+    }.items()
+    volumes = sorted(volumes, key = lambda x: x[1], reverse = True)
+    cluster_ids = [pair[0] for pair in volumes if pair[1] >= VOLUME_THRESHOLD]
 
-    for cluster_id in cluster_ids:
-        mask = vg.Grid(grid.box, init_grid = False)
-        mask.arr = grid.arr == cluster_id
+    new_arr = np.zeros_like(grid.arr)
+    for i, cluster_id in enumerate(cluster_ids, start = 1):
+        new_arr[grid.arr == cluster_id] = i
 
-        volume = np.sum(mask.arr)
-
-        print(f"Volume cluster {cluster_id}: {volume}")
-        vg.GridIO.write_cmap(PATH_CMAP, mask, key = f"cluster.{cluster_id:04}")
+    grid.arr = new_arr
+    vg.GridIO.write_bin(PATH_BIN, grid)
 
 
 ################################################################################
 if __name__ == "__main__":
-    PATH_BIN  = Path(sys.argv[1])
-    PATH_CMAP = PATH_BIN.with_suffix(".cmap")
+    PATH_BIN = Path(sys.argv[1])
+    VOLUME_THRESHOLD = int(sys.argv[2])
     main()
 
 
