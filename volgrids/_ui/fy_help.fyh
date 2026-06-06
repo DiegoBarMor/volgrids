@@ -103,6 +103,10 @@
     !@
 
     #### Miscellaneous
+    @box_dim
+        !fyh:_ Print the size of the enclosing box for a molecular structure.
+        !fyh:path_in File path to a molecular structure e.g. a PDB file.
+    !@
     @log_apbs
         !fyh:_ Heuristic transformation of APBS grids, useful for some visualization pipelines.
         !fyh:path_in Path to an APBS grid file (original or already processed by smiffer).

@@ -52,6 +52,9 @@
     !@
 
     #### Miscellaneous
+    @box_dim
+        path_in[]1.PATH
+    !@
     @log_apbs
         !use:_io_1_input
     !@
