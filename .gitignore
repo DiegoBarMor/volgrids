@@ -6,7 +6,7 @@ plugins/
 testdata/
 tmp/
 
-examples/bin_format/clusters
+volgrids/_backend/segmentation/main
 
 volgrids/_vendors/freyacli
 volgrids/_vendors/molutils

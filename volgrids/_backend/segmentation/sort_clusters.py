@@ -3,10 +3,9 @@ import numpy as np
 from pathlib import Path
 
 ### simulate having "volgrids" installed as a package
-### this way it's not necessary to install the repo to run this script
+### because this script is independent from the volgrids package and is ran by a subprocess call
 import sys; from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-### you can remove the previous two lines if volgrids is installed
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 import volgrids as vg
 
@@ -28,6 +27,7 @@ def main():
 
     grid.arr = new_arr
     vg.GridIO.write_bin(PATH_BIN, grid)
+    print(f"...>>> Kept {len(cluster_ids)} clusters with volume >= {VOLUME_THRESHOLD}")
 
 
 ################################################################################

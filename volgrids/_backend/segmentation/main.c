@@ -191,7 +191,7 @@ static Node* pop_linked_list(Node* node) {
 
 
 // -----------------------------------------------------------------------------
-static int find_clusters(Grid* smif, Grid* clusters, float threshold) {
+static int find_clusters(Grid* smif, Grid* clusters, float isovalue) {
     // linked list for traversing grid points' neighbors
     Node* graph = (Node*)malloc(smif->npoints * sizeof(Node));
     if (!graph) { fprintf(stderr, "malloc failed\n"); return -1; }
@@ -207,7 +207,7 @@ static int find_clusters(Grid* smif, Grid* clusters, float threshold) {
     float current_cluster = 0.0f; // float (despite cluster labels being integers) because the output grid is float
 
     for (uint64_t i = 0; i < npoints; ++i) {
-        if (smif->data[i] < threshold || clusters->data[i]) continue;
+        if (smif->data[i] < isovalue || clusters->data[i]) continue;
 
         current_cluster++;
 
@@ -217,7 +217,7 @@ static int find_clusters(Grid* smif, Grid* clusters, float threshold) {
         while (head) {
             uint64_t idx = head->value;
 
-            if (smif->data[idx] < threshold || clusters->data[idx]) {
+            if (smif->data[idx] < isovalue || clusters->data[idx]) {
                 head = pop_linked_list(head);
                 continue;
             }
@@ -306,12 +306,12 @@ static int find_clusters(Grid* smif, Grid* clusters, float threshold) {
 // -----------------------------------------------------------------------------
 int main(int argc, char **argv) {
     if (argc < 4) {
-        fprintf(stderr, "Usage: %s input.bin output.bin threshold\n", argv[0]);
+        fprintf(stderr, "Usage: %s input.bin output.bin isovalue\n", argv[0]);
         return 1;
     }
     const char* path_in  = argv[1];
     const char* path_out = argv[2];
-    float thr = (float)atof(argv[3]);
+    float iso = (float)atof(argv[3]);
     int status;
 
     Grid smif = { 0 }; // input grid
@@ -322,7 +322,7 @@ int main(int argc, char **argv) {
     status = zeros_like(&clusters, &smif);
     if (status != 0) { return status; }
 
-    int nclusters = find_clusters(&smif, &clusters, thr);
+    int nclusters = find_clusters(&smif, &clusters, iso);
     if (nclusters == -1) { return 1; }
 
     free(smif.data);
@@ -333,8 +333,8 @@ int main(int argc, char **argv) {
     free(clusters.data);
 
     printf(
-        ">>> Wrote %i clusters to %s.\n... resolution: (nx=%u ny=%u nz=%u)\n... threshold: %g\n",
-        (int)nclusters, path_out, clusters.nx, clusters.ny, clusters.nz, (double)thr
+        "...>>> Wrote %i clusters to %s.\n...... resolution: (nx=%u ny=%u nz=%u)\n...... isovalue: %g\n",
+        (int)nclusters, path_out, clusters.nx, clusters.ny, clusters.nz, (double)iso
     );
     return 0;
 }

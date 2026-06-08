@@ -22,20 +22,27 @@ class Utils:
         if all((dir_vendors / name).is_dir() for name in names_vendors):
             return
 
-        import subprocess
         print(">>> Fetching vendor dependencies for the first time...")
+        cls.run_bash(
+            "_vendors/fetch_vendors.sh", err_msg = "Failed to fetch vendors"
+        )
 
-        path_sh = cls.resolve_path_package("_vendors/fetch_vendors.sh")
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def run_bash(cls, path_sh: str, *args, err_msg: str = "") -> str:
+        import subprocess
+        args = (str(arg) for arg in args)
         proc = subprocess.run(
-            ["/bin/bash", str(path_sh)],
+            ["/bin/bash", str(cls.resolve_path_package(path_sh)), *args],
             capture_output = True, text = True
         )
-        if proc.returncode == 0: return
+        if proc.returncode == 0: return proc.stdout
 
         raise RuntimeError('\n'.join((
-            f"Failed to fetch vendors (code={proc.returncode}):",
-            proc.stderr or "<empty_stderr>",
+            f"{err_msg} (code={proc.returncode}):",
             proc.stdout or "<empty_stdout>",
+            proc.stderr or "<empty_stderr>",
         )))
 
 
