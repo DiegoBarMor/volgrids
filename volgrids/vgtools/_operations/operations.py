@@ -50,12 +50,12 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def unpack(path_in: Path, folder_out: Path) -> None:
+    def unpack(path_in: Path, folder_out: Path, fmt: vg.GridFormat) -> None:
         keys = vg.GridIO.get_cmap_keys(path_in)
         for key in keys:
-            path_out = folder_out / f"{key}.cmap"
+            path_out = folder_out / f"{key}.{fmt.to_ext()}"
             grid = vg.GridIO.read_cmap(path_in, key)
-            vg.GridIO.write_cmap(path_out, grid, key)
+            grid.save_data(path_out, fmt, key)
 
 
     # --------------------------------------------------------------------------

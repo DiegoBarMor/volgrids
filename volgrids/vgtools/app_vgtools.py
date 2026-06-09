@@ -85,8 +85,15 @@ class AppVGTools(vg.AppSubcommand):
         path_out = self.main.get_arg_path("folder_out",
             assertion = fy.PathAssertion.DIR_OUT, default = path_in.parent
         )
+        str_fmt = self.main.get_arg_str("format")
+
+        try:
+            fmt = vg.GridFormat.from_str(str_fmt)
+        except ValueError as e:
+            self.main.help_and_exit(1, str(e))
+
         print(f">>> Unpacking '{fy.Color.yellow(path_in)}' into '{fy.Color.blue(path_out)}'")
-        vgt.VGOperations.unpack(path_in, path_out)
+        vgt.VGOperations.unpack(path_in, path_out, fmt)
 
 
     # --------------------------------------------------------------------------

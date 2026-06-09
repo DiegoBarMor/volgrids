@@ -84,6 +84,7 @@
     @unpack
         path_in[]1.PATH
         ~folder_out[]1.PATH
+        ~format[f,format]1.STR=MRC
     !@
 
     #### Operations for transforming single grids

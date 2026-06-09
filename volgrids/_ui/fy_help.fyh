@@ -148,6 +148,8 @@
         !fyh:path_in Path to the CMAP series-file to be unpacked.
         !fyh:folder_out Folder path where to save the unpacked grids.
             If not provided, the parent folder of the input packed file will be used.
+        !fyh:format Grid format in which to unpack the CMAP file.
+            Supported formats: DX, BIN, MRC, CCP4, CMAP.
     !@
 
     #### Operations for transforming single grids

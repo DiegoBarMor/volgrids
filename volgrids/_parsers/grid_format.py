@@ -19,7 +19,14 @@ class GridFormat(Enum):
         if s == "CCP4": return cls.CCP4
         if s == "CMAP": return cls.CMAP
         if s == "CMAP_PACKED": return cls.CMAP_PACKED
-        raise ValueError(f"Unknown grid format: {s}.")
+        known_formats = ", ".join(fmt.name for fmt in cls)
+        raise ValueError(f"Unknown grid format: {s}. Known formats: {known_formats}.")
+
+
+    # --------------------------------------------------------------------------
+    def to_ext(self) -> str:
+        if self == self.CMAP_PACKED: return "cmap"
+        return self.name.lower()
 
 
     # --------------------------------------------------------------------------
