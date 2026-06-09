@@ -52,6 +52,9 @@
     !@
 
     #### Miscellaneous
+    @box_dim
+        path_in[]1.PATH
+    !@
     @log_apbs
         !use:_io_1_input
     !@
@@ -92,6 +95,11 @@
         ~x[x,yz]1.FLOAT=0.0
         ~y[y,xz]1.FLOAT=0.0
         ~z[z,xy]1.FLOAT=0.0
+    !@
+    @segment
+        !use:_io_1_input
+        ~isovalue[i,isovalue]1.FLOAT=0.1
+        ~volume_thr[v,volume-threshold]1.INT=200
     !@
 
     #### Operations for combining multiple grids

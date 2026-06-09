@@ -131,6 +131,7 @@ Run the subcommands without any further arguments to read more about their speci
 | `volgrids smutils sphere grid` | Create a grid with a single boolean sphere (optionally moving in time if a trajectory is considered). The grid encloses completely the provided structure file. |
 | `volgrids smutils occupancy` | Calculate occupancy grids (OGs) for biomolecular structures. |
 | `volgrids smutils pwoverlap` | (experimental) Calculate point-wise overlaps between two biomolecular structures. Generates a CSV file with the overlaps. Currently only considers stacking interactions. |
+| `volgrids smutils box_dim` | Print the size of the enclosing box for a molecular structure. |
 | `volgrids smutils log_apbs` | Heuristic transformation of APBS grids, useful for some visualization pipelines. |
 | `volgrids apbs` | Generate raw APBS potential grids for biomolecular structures. |
 | `volgrids vgtools convert` | Convert grid files between formats. |
@@ -138,6 +139,7 @@ Run the subcommands without any further arguments to read more about their speci
 | `volgrids vgtools unpack` | Unpack a CMAP series-file into multiple grid files. |
 | `volgrids vgtools fix_cmap` | Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary. |
 | `volgrids vgtools rotate` | Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees). |
+| `volgrids vgtools segment` | Segment the regions of space enclosed by a certain isovalue and save their cluster labels into a new grid. |
 | `volgrids vgtools average` | Average all grids in a CMAP series-file into a single grid. |
 | `volgrids vgtools std_dev` | Standard deviation grid for all grids in a CMAP series-file. |
 | `volgrids vgtools op abs` | Element-wise absolute value of the grid's points. |

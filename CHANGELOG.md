@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.1] - 2026-06-09
+- Added `segment` subcommand for vgtools.
+    - It segments the regions of space enclosed by a certain isovalue and saves their cluster labels into a new grid.
+- Added `box_dim` subcommand for smutils.
+    - It prints the size of the enclosing box for a molecular structure. This corresponds to the box that would be used to generate a SMIF grid.
+
+
 ## [0.14.0] - 2026-06-02
 - Refactored and cleaned up `.chem` tables.
     - Added distinction between RNA and DNA residues.

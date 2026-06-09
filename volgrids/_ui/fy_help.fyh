@@ -103,6 +103,10 @@
     !@
 
     #### Miscellaneous
+    @box_dim
+        !fyh:_ Print the size of the enclosing box for a molecular structure.
+        !fyh:path_in File path to a molecular structure e.g. a PDB file.
+    !@
     @log_apbs
         !fyh:_ Heuristic transformation of APBS grids, useful for some visualization pipelines.
         !fyh:path_in Path to an APBS grid file (original or already processed by smiffer).
@@ -159,6 +163,16 @@
         !fyh:x Rotation angle in degrees along the yz plane (in degrees).
         !fyh:y Rotation angle in degrees along the xz plane (in degrees).
         !fyh:z Rotation angle in degrees along the xy plane (in degrees).
+    !@
+    @segment
+        !fyh:_ Segment the regions of space enclosed by a certain isovalue and save their cluster labels into a new grid.
+        !fyh:path_in Path to a grid file.
+            Must be in "BIN" format.
+        !fyh:path_out Path for grid output with the cluster labels.
+            The labels are integers starting from 1.
+            The clusters are sorted in descending order by size (i.e. from largest to smallest).
+        !fyh:isovalue Continuous voxels with a value higher than this parameter will be considered part of the same cluster.
+        !fyh:volume_thr Clusters with an amount of voxels lower than this parameter will be discarded from the resulting grid.
     !@
 
     #### Operations for combining multiple grids

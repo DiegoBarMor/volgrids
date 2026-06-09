@@ -71,6 +71,7 @@ static void write_f32_le(FILE* file, float v) {
 }
 
 // -----------------------------------------------------------------------------
+// initializes `new_grid` with the same resolution and origin as `ref`, with all data values set to zero. Returns 1 on error.
 static int zeros_like(Grid* new_grid, Grid* ref) {
     new_grid->nx = ref->nx;
     new_grid->ny = ref->ny;
@@ -90,6 +91,7 @@ static int zeros_like(Grid* new_grid, Grid* ref) {
 }
 
 // -----------------------------------------------------------------------------
+// reads a grid from `path_bin` in BIN format. Returns 1 on error.
 static int read_bin(const char* path_bin, Grid* grid) {
     FILE* file = fopen(path_bin, "rb");
     if (!file) { perror("fopen input"); return 1; }
@@ -129,6 +131,7 @@ static int read_bin(const char* path_bin, Grid* grid) {
 }
 
 // -----------------------------------------------------------------------------
+// writes a grid to `path_bin` in BIN format. Returns 1 on error.
 static int write_bin(const char* path_bin, Grid* grid) {
     FILE* file = fopen(path_bin, "wb");
     if (!file) { perror("fopen output"); free(grid->data); return 1; }
@@ -163,68 +166,53 @@ static int write_bin(const char* path_bin, Grid* grid) {
 }
 
 // -----------------------------------------------------------------------------
-static Node* extend_linked_list(
+// extends the linked list with the neighbor node if it's not already in the list.
+// `idx_neighbor=-1` represents an out-of-bounds neighbor and is ignored.
+static void extend_ll_neigh(
     Node* graph, // start of the linked list (i.e. "graph" array)
     Node* node,  // pointer to the current node's index (i.e. "graph[i]")
     int idx_neighbor // flattened index for the arrays, -1 if out of bounds
 ) {
-    if (idx_neighbor < 0) return node;
+    if (idx_neighbor < 0) return;
 
     Node* neighbor = graph + idx_neighbor;
 
-    if (neighbor->next) return node; // already in the list, skip
+    if (neighbor->next) return; // already in the list, skip
     neighbor->value = (uint64_t)idx_neighbor;
 
     neighbor->next = node->next;
     node->next = neighbor;
-
-    return node->next;
 }
 
 // -----------------------------------------------------------------------------
-static Node* pop_linked_list(Node* node) {
-    if (!node) return NULL;
-    Node* next = node->next;
-    node->next = NULL; // mark as visited
+// pops the head of the linked list and returns the new head, or NULL if the list is empty
+static Node* pop_ll_head(Node* head) {
+    if (!head) return NULL;
+    Node* next = head->next;
+    head->next = NULL; // mark as visited
     return next;
 }
 
 
 // -----------------------------------------------------------------------------
-int main(int argc, char **argv) {
-    if (argc < 4) {
-        fprintf(stderr, "Usage: %s input.bin output.bin threshold\n", argv[0]);
-        return 1;
-    }
-    const char* path_in  = argv[1];
-    const char* path_out = argv[2];
-    float thr = (float)atof(argv[3]);
-    int status;
-
-    Grid smif = { 0 }; // input grid
-    status = read_bin(path_in, &smif);
-    if (status != 0) { return status; }
-
-    Grid clusters = { 0 }; // output grid
-    status = zeros_like(&clusters, &smif);
-    if (status != 0) { return status; }
-
+// returns the number of clusters found, or -1 on error
+static int find_clusters(Grid* smif, Grid* clusters, float isovalue) {
     // linked list for traversing grid points' neighbors
-    Node* graph = (Node*)malloc(smif.npoints * sizeof(Node));
-    if (!graph) { fprintf(stderr, "malloc failed\n"); return 1; }
-    for (uint64_t i = 0; i < smif.npoints; ++i) {
+    Node* graph = (Node*)malloc(smif->npoints * sizeof(Node));
+    if (!graph) { fprintf(stderr, "malloc failed\n"); return -1; }
+    for (uint64_t i = 0; i < smif->npoints; ++i) {
         graph[i].value = 0; graph[i].next = NULL;
     }
 
-    uint32_t nx  = smif.nx;
-    uint32_t ny  = smif.ny;
-    uint32_t nz  = smif.nz;
-    uint32_t nyz = smif.ny * nz;
-    uint64_t npoints = smif.npoints;
+    uint32_t nx  = smif->nx;
+    uint32_t ny  = smif->ny;
+    uint32_t nz  = smif->nz;
+    uint32_t nyz = ny * nz;
+    uint64_t npoints = smif->npoints;
     float current_cluster = 0.0f; // float (despite cluster labels being integers) because the output grid is float
 
     for (uint64_t i = 0; i < npoints; ++i) {
-        if (smif.data[i] < thr || clusters.data[i]) continue;
+        if (smif->data[i] < isovalue || clusters->data[i]) continue;
 
         current_cluster++;
 
@@ -234,12 +222,12 @@ int main(int argc, char **argv) {
         while (head) {
             uint64_t idx = head->value;
 
-            if (smif.data[idx] < thr || clusters.data[idx]) {
-                head = pop_linked_list(head);
+            if (smif->data[idx] < isovalue || clusters->data[idx]) {
+                head = pop_ll_head(head);
                 continue;
             }
 
-            clusters.data[idx] = current_cluster;
+            clusters->data[idx] = current_cluster;
 
             int x =  idx / nyz;
             int y = (idx % nyz) / nz;
@@ -252,79 +240,74 @@ int main(int argc, char **argv) {
             bool zmin = z == 0;
             bool zmax = z == (int)nz - 1;
 
-            int x0y_z_ = xmin?-1: (x-1) * nyz +  y    * nz +  z   ;
-            int x1y_z_ = xmax?-1: (x+1) * nyz +  y    * nz +  z   ;
-            int x_y0z_ = ymin?-1:  x    * nyz + (y-1) * nz +  z   ;
-            int x_y1z_ = ymax?-1:  x    * nyz + (y+1) * nz +  z   ;
-            int x_y_z0 = zmin?-1:  x    * nyz +  y    * nz + (z-1);
-            int x_y_z1 = zmax?-1:  x    * nyz +  y    * nz + (z+1);
+            extend_ll_neigh(graph, head, xmin?-1: (x-1) * nyz +  y    * nz +  z   ); // x_prev,y_this,z_this
+            extend_ll_neigh(graph, head, xmax?-1: (x+1) * nyz +  y    * nz +  z   ); // x_next,y_this,z_this
+            extend_ll_neigh(graph, head, ymin?-1:  x    * nyz + (y-1) * nz +  z   ); // x_this,y_prev,z_this
+            extend_ll_neigh(graph, head, ymax?-1:  x    * nyz + (y+1) * nz +  z   ); // x_this,y_next,z_this
+            extend_ll_neigh(graph, head, zmin?-1:  x    * nyz +  y    * nz + (z-1)); // x_this,y_this,z_prev
+            extend_ll_neigh(graph, head, zmax?-1:  x    * nyz +  y    * nz + (z+1)); // x_this,y_this,z_next
+            extend_ll_neigh(graph, head, (xmin || ymin)?-1: (x-1) * nyz + (y-1) * nz +  z   ); // x_prev,y_prev,z_this
+            extend_ll_neigh(graph, head, (xmin || ymax)?-1: (x-1) * nyz + (y+1) * nz +  z   ); // x_prev,y_next,z_this
+            extend_ll_neigh(graph, head, (xmin || zmin)?-1: (x-1) * nyz +  y    * nz + (z-1)); // x_prev,y_this,z_prev
+            extend_ll_neigh(graph, head, (xmin || zmax)?-1: (x-1) * nyz +  y    * nz + (z+1)); // x_prev,y_this,z_next
+            extend_ll_neigh(graph, head, (xmax || ymin)?-1: (x+1) * nyz + (y-1) * nz +  z   ); // x_next,y_prev,z_this
+            extend_ll_neigh(graph, head, (xmax || ymax)?-1: (x+1) * nyz + (y+1) * nz +  z   ); // x_next,y_next,z_this
+            extend_ll_neigh(graph, head, (xmax || zmin)?-1: (x+1) * nyz +  y    * nz + (z-1)); // x_next,y_this,z_prev
+            extend_ll_neigh(graph, head, (xmax || zmax)?-1: (x+1) * nyz +  y    * nz + (z+1)); // x_next,y_this,z_next
+            extend_ll_neigh(graph, head, (ymin || zmin)?-1:  x    * nyz + (y-1) * nz + (z-1)); // x_this,y_prev,z_prev
+            extend_ll_neigh(graph, head, (ymin || zmax)?-1:  x    * nyz + (y-1) * nz + (z+1)); // x_this,y_prev,z_next
+            extend_ll_neigh(graph, head, (ymax || zmin)?-1:  x    * nyz + (y+1) * nz + (z-1)); // x_this,y_next,z_prev
+            extend_ll_neigh(graph, head, (ymax || zmax)?-1:  x    * nyz + (y+1) * nz + (z+1)); // x_this,y_next,z_next
+            extend_ll_neigh(graph, head, (xmin || ymin || zmin)?-1: (x-1) * nyz + (y-1) * nz + (z-1)); // x_prev,y_prev,z_prev
+            extend_ll_neigh(graph, head, (xmin || ymin || zmax)?-1: (x-1) * nyz + (y-1) * nz + (z+1)); // x_prev,y_prev,z_next
+            extend_ll_neigh(graph, head, (xmin || ymax || zmin)?-1: (x-1) * nyz + (y+1) * nz + (z-1)); // x_prev,y_next,z_prev
+            extend_ll_neigh(graph, head, (xmin || ymax || zmax)?-1: (x-1) * nyz + (y+1) * nz + (z+1)); // x_prev,y_next,z_next
+            extend_ll_neigh(graph, head, (xmax || ymin || zmin)?-1: (x+1) * nyz + (y-1) * nz + (z-1)); // x_next,y_prev,z_prev
+            extend_ll_neigh(graph, head, (xmax || ymin || zmax)?-1: (x+1) * nyz + (y-1) * nz + (z+1)); // x_next,y_prev,z_next
+            extend_ll_neigh(graph, head, (xmax || ymax || zmin)?-1: (x+1) * nyz + (y+1) * nz + (z-1)); // x_next,y_next,z_prev
+            extend_ll_neigh(graph, head, (xmax || ymax || zmax)?-1: (x+1) * nyz + (y+1) * nz + (z+1)); // x_next,y_next,z_next
 
-            int x0y0z_ = (xmin || ymin)?-1: (x-1) * nyz + (y-1) * nz +  z   ;
-            int x0y1z_ = (xmin || ymax)?-1: (x-1) * nyz + (y+1) * nz +  z   ;
-            int x0y_z0 = (xmin || zmin)?-1: (x-1) * nyz +  y    * nz + (z-1);
-            int x0y_z1 = (xmin || zmax)?-1: (x-1) * nyz +  y    * nz + (z+1);
-
-            int x1y0z_ = (xmax || ymin)?-1: (x+1) * nyz + (y-1) * nz +  z   ;
-            int x1y1z_ = (xmax || ymax)?-1: (x+1) * nyz + (y+1) * nz +  z   ;
-            int x1y_z0 = (xmax || zmin)?-1: (x+1) * nyz +  y    * nz + (z-1);
-            int x1y_z1 = (xmax || zmax)?-1: (x+1) * nyz +  y    * nz + (z+1);
-
-            int x_y0z0 = (ymin || zmin)?-1:  x    * nyz + (y-1) * nz + (z-1);
-            int x_y0z1 = (ymin || zmax)?-1:  x    * nyz + (y-1) * nz + (z+1);
-            int x_y1z0 = (ymax || zmin)?-1:  x    * nyz + (y+1) * nz + (z-1);
-            int x_y1z1 = (ymax || zmax)?-1:  x    * nyz + (y+1) * nz + (z+1);
-
-            int x0y0z0 = (xmin || ymin || zmin)?-1: (x-1) * nyz + (y-1) * nz + (z-1);
-            int x0y0z1 = (xmin || ymin || zmax)?-1: (x-1) * nyz + (y-1) * nz + (z+1);
-            int x0y1z0 = (xmin || ymax || zmin)?-1: (x-1) * nyz + (y+1) * nz + (z-1);
-            int x0y1z1 = (xmin || ymax || zmax)?-1: (x-1) * nyz + (y+1) * nz + (z+1);
-
-            int x1y0z0 = (xmax || ymin || zmin)?-1: (x+1) * nyz + (y-1) * nz + (z-1);
-            int x1y0z1 = (xmax || ymin || zmax)?-1: (x+1) * nyz + (y-1) * nz + (z+1);
-            int x1y1z0 = (xmax || ymax || zmin)?-1: (x+1) * nyz + (y+1) * nz + (z-1);
-            int x1y1z1 = (xmax || ymax || zmax)?-1: (x+1) * nyz + (y+1) * nz + (z+1);
-
-            extend_linked_list(graph, head, x0y_z_);
-            extend_linked_list(graph, head, x1y_z_);
-            extend_linked_list(graph, head, x_y0z_);
-            extend_linked_list(graph, head, x_y1z_);
-            extend_linked_list(graph, head, x_y_z0);
-            extend_linked_list(graph, head, x_y_z1);
-            extend_linked_list(graph, head, x0y0z_);
-            extend_linked_list(graph, head, x0y1z_);
-            extend_linked_list(graph, head, x0y_z0);
-            extend_linked_list(graph, head, x0y_z1);
-            extend_linked_list(graph, head, x1y0z_);
-            extend_linked_list(graph, head, x1y1z_);
-            extend_linked_list(graph, head, x1y_z0);
-            extend_linked_list(graph, head, x1y_z1);
-            extend_linked_list(graph, head, x_y0z0);
-            extend_linked_list(graph, head, x_y0z1);
-            extend_linked_list(graph, head, x_y1z0);
-            extend_linked_list(graph, head, x_y1z1);
-            extend_linked_list(graph, head, x0y0z0);
-            extend_linked_list(graph, head, x0y0z1);
-            extend_linked_list(graph, head, x0y1z0);
-            extend_linked_list(graph, head, x0y1z1);
-            extend_linked_list(graph, head, x1y0z0);
-            extend_linked_list(graph, head, x1y0z1);
-            extend_linked_list(graph, head, x1y1z0);
-            extend_linked_list(graph, head, x1y1z1);
-
-            head = pop_linked_list(head);
+            head = pop_ll_head(head);
         }
     }
+
+    free(graph);
+    return current_cluster;
+}
+
+
+// -----------------------------------------------------------------------------
+int main(int argc, char **argv) {
+    if (argc < 4) {
+        fprintf(stderr, "Usage: %s input.bin output.bin isovalue\n", argv[0]);
+        return 1;
+    }
+    const char* path_in  = argv[1];
+    const char* path_out = argv[2];
+    float iso = (float)atof(argv[3]);
+    int status;
+
+    Grid smif = { 0 }; // input grid
+    status = read_bin(path_in, &smif);
+    if (status != 0) { return status; }
+
+    Grid clusters = { 0 }; // output grid
+    status = zeros_like(&clusters, &smif);
+    if (status != 0) { return status; }
+
+    int nclusters = find_clusters(&smif, &clusters, iso);
+    if (nclusters == -1) { return 1; }
+
+    free(smif.data);
 
     status = write_bin(path_out, &clusters);
     if (status != 0) { return status; }
 
-    free(smif.data);
     free(clusters.data);
-    free(graph);
 
     printf(
-        ">>> Wrote %i clusters to %s.\n... resolution: (nx=%u ny=%u nz=%u)\n... threshold: %g\n",
-        (int)current_cluster, path_out, clusters.nx, clusters.ny, clusters.nz, (double)thr
+        "...>>> Wrote %i clusters to %s.\n...... resolution: (nx=%u ny=%u nz=%u)\n...... isovalue: %g\n",
+        (int)nclusters, path_out, clusters.nx, clusters.ny, clusters.nz, (double)iso
     );
     return 0;
 }

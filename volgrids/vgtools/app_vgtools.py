@@ -22,6 +22,7 @@ class AppVGTools(vg.AppSubcommand):
         if operation == "unpack"   : return self._run_unpack()
         if operation == "fix_cmap" : return self._run_fix_cmap()
         if operation == "rotate"   : return self._run_rotate()
+        if operation == "segment"  : return self._run_segment()
         if operation == "average"  : return self._run_average()
         if operation == "std_dev"  : return self._run_std_dev()
         if operation == "op"       : return self._run_op()
@@ -109,6 +110,40 @@ class AppVGTools(vg.AppSubcommand):
         print(f">>> Rotating grid: {fy.Color.yellow(path_in)} by {rotate_xy}° (xy), {rotate_yz}° (yz), {rotate_xz}° (xz)")
         grid = vgt.VGOperations.rotate(path_in, rotate_xy, rotate_yz, rotate_xz)
         vg.GridIO.write_auto(path_out, grid)
+
+
+    # --------------------------------------------------------------------------
+    def _run_segment(self):
+        path_in    = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
+        path_out   = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
+        isovalue   = self.main.get_arg_float("isovalue")
+        volume_thr = self.main.get_arg_int("volume_thr")
+
+        fmt_in = vg.GridIO.detect_format(path_in)
+        if fmt_in != vg.GridFormat.BIN:
+            cmd_example = fy.Color.yellow(f"volgrids vgtools convert {path_in} --bin")
+            self.main.help_and_exit(1,
+                f"Segmentation currently only supports 'BIN' format. " +\
+                f"Got '{fy.Color.red(fmt_in.name)}' format instead. " +\
+                f"Convert the grid first e.g.\n    {cmd_example}"
+            )
+
+        fmt_out = vg.GridIO.detect_format(path_out)
+        if fmt_out != vg.GridFormat.BIN:
+            path_out = Path(str(path_out).replace(path_out.suffix, ".bin"))
+            print(
+                f"...>>> Warning: output format '{fy.Color.red(fmt_out.name)}' not supported for segmentation.",
+                f"Will save as BIN format to '{fy.Color.blue(path_out)}' instead."
+            )
+
+        str_iso = fy.Color.green(f"isovalue={isovalue:2.2f}")
+        str_thr = fy.Color.cyan(f"volume threshold={volume_thr}")
+        print(f">>> Segmenting {fy.Color.yellow(path_in)} with {str_iso} and {str_thr} voxels")
+        stdout = vg.Utils.run_bash(
+            "_backend/segmentation/run.sh", path_in, path_out, isovalue, volume_thr,
+            err_msg = "Grid segmentation failed"
+        )
+        print(stdout)
 
 
     # --------------------------------------------------------------------------

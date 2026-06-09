@@ -19,6 +19,7 @@ class AppSMUtils(vg.AppSubcommand):
         if operation == "sphere"   : return self._run_sphere()
         if operation == "occupancy": return self._run_occupancy()
         if operation == "pwoverlap": return self._run_pwoverlap()
+        if operation == "box_dim"  : return self._run_box_dim()
         if operation == "log_apbs" : return self._run_log_apbs()
         raise ValueError(f"Unknown operation: {operation}")
 
@@ -59,6 +60,17 @@ class AppSMUtils(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _run_pwoverlap(self) -> None:
         su.AppPwOverlap(self.main).run()
+
+
+    # --------------------------------------------------------------------------
+    def _run_box_dim(self) -> None:
+        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+
+        box = sm.MolSystem(path_in).box
+        x = box.max_coords[0] - box.min_coords[0]
+        y = box.max_coords[1] - box.min_coords[1]
+        z = box.max_coords[2] - box.min_coords[2]
+        print(f"{x:.3f} {y:.3f} {z:.3f}")
 
 
     # --------------------------------------------------------------------------
