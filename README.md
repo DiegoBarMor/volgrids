@@ -1,9 +1,9 @@
 # Volumetric Grids (VolGrids)
 VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. The following applications are provided:
-  - [**SMIF Calculator**](#statistical-molecular-interaction-fields-smif-calculator) via `volgrids smiffer`. This is an implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
-  - [**Smiffer Utilities**](#smiffer-utilities)  via `volgrids smutils`. Utilities related to more advanced SMIF usage.
+  - **SMIF Calculator** via `volgrids smiffer`. This is an implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
+  - **Smiffer Utilities**  via `volgrids smutils`. Utilities related to more advanced SMIF usage.
   - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
-  - [**Volgrid Tools**](#volgrid-tools) via `volgrids vgtools`. Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
+  - **Volgrid Tools** via `volgrids vgtools`. Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
 
 You can read more in the [subcommands summary](#summary-of-subcommands).
 
@@ -37,7 +37,7 @@ python3 volgrids --help # required vendors will automatically be downloaded the 
 - [**rnapolis**](https://github.com/tzok/rnapolis-py) (`pip install rnapolis`) for running residue-selection utilities from `smutils`.
 
 ### Vendors
-The following are dependencies that are included as vendors in `volgrid`'s pip distribution. If you don't want to use pip, it will be fetched automatically the first time you run `volgrids`. Alternatively, run `bash scripts/_prepare.sh` in your local copy of the `volgrids` repo to fetch the vendor packages manually.
+The following are dependencies that are included as vendors in `volgrid`'s pip distribution. If you don't want to use pip, they will be fetched automatically from GitHub the first time you run `volgrids`. Alternatively, run `bash scripts/_prepare.sh` in your local copy of the `volgrids` repo to fetch the vendor packages manually at any moment.
 - [**freyacli**](https://github.com/DiegoBarMor/freyacli) for CLI management
 - [**molutils**](https://github.com/DiegoBarMor/molutils) for utilities dealing with PDB files.
 

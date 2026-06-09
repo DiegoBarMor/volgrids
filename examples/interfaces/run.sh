@@ -44,9 +44,10 @@ pack $fn2p/n2p.stk.bin $fn2p/n2p.hbd.bin $fn2p/n2p.hba.bin $fdata/rna_smif.prot_
 ######### PART 4: Calculate segmentation (from "examples/bin_format") for one of the grids
 path_smif="$fp2n/prot.stacking.bin"
 path_clusters="$fdata/prot.stacking.clusters.bin"
-threshold=0.1
+isovalue=0.1
 
-bash examples/bin_format/segmentation.sh "$path_smif" "$path_clusters" $threshold
+python3 volgrids vgtools segment "$path_smif" "$path_clusters" -i $isovalue
+python3 examples/bin_format/expand_mrc2cmap.py "$path_clusters" ### [WIP] move this to a proper operation
 
 
 ######### CLEANUP
