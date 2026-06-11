@@ -67,10 +67,9 @@ class AppSMUtils(vg.AppSubcommand):
         path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
 
         box = sm.MolSystem(path_in).box
-        x = box.max_coords[0] - box.min_coords[0]
-        y = box.max_coords[1] - box.min_coords[1]
-        z = box.max_coords[2] - box.min_coords[2]
-        print(f"{x:.3f} {y:.3f} {z:.3f}")
+        xmin, ymin, zmin = box.min_coords
+        xmax, ymax, zmax = box.max_coords
+        print(f"{xmin:.3f} {xmax:.3f} {ymin:.3f} {ymax:.3f} {zmin:.3f} {zmax:.3f}")
 
 
     # --------------------------------------------------------------------------
