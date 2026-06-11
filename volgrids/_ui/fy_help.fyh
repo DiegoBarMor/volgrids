@@ -18,6 +18,9 @@
     !fyh:configs
         File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
         Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
+    !fyh:box
+        Provide the box information that should be used to build the grids.
+        Values must be passed in the following order: x_min x_max y_min y_max z_min z_max.
     !fyh:sphere
         Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere.
         If not provided, 'whole' mode is assumed.
@@ -104,7 +107,8 @@
 
     #### Miscellaneous
     @box_dim
-        !fyh:_ Print the size of the enclosing box for a molecular structure.
+        !fyh:_ Print information for the box that would enclose a molecular structure.
+            Box information is printed as "x_min x_max y_min y_max z_min z_max".
         !fyh:path_in File path to a molecular structure e.g. a PDB file.
     !@
     @log_apbs
@@ -130,12 +134,10 @@
     @convert
         !fyh:_ Convert grid files between formats.
         !fyh:path_in Path of the grid to be converted.
-        !fyh:out_dx Path where to save the converted grid in DX format.
-        !fyh:out_bin Path where to save the converted grid in BIN format.
-        !fyh:out_mrc Path where to save the converted grid in MRC format.
-        !fyh:out_ccp4 Path where to save the converted grid in CCP4 format.
-        !fyh:out_cmap Path where to save the converted grid in CMAP format.
-            The stem of the input file will be used as the CMAP key.
+        !fyh:folder_out Folder path where to save the output grid.
+            If not provided, the parent folder of the input file will be used.
+        !fyh:format Grid format in which to convert the grid.
+            Supported formats: DX, BIN, MRC, CCP4, CMAP.
     !@
     @pack
         !fyh:_ Pack multiple grid files into a single CMAP series-file.
@@ -148,6 +150,8 @@
         !fyh:path_in Path to the CMAP series-file to be unpacked.
         !fyh:folder_out Folder path where to save the unpacked grids.
             If not provided, the parent folder of the input packed file will be used.
+        !fyh:format Grid format in which to unpack the CMAP file.
+            Supported formats: DX, BIN, MRC, CCP4, CMAP.
     !@
 
     #### Operations for transforming single grids

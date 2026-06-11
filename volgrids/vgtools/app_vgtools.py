@@ -35,38 +35,16 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_convert(self):
-        def _handle_out_arg(key: str, default_suffix: str) -> Path | None:
-            path = self.main.get_arg_path(key, allow_none = True)
+        path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        folder_out = self.main.get_arg_path("folder_out",
+            assertion = fy.PathAssertion.DIR_OUT, default = path_in.parent
+        )
+        fmt = self._get_valid_fmt_arg()
 
-            #### CASE 0: flag not provided -> do not convert to this format
-            if path is None: return
+        path_out = folder_out / f"{path_in.stem}.{fmt.to_ext()}"
 
-            #### CASE 1: flag provided with no path -> convert to this format, using input path with new suffix
-            if path is True: return path_in.with_suffix(default_suffix)
-
-            #### CASE 2: flag provided with path -> convert to this format, using provided path
-            err = fy.PathAssertion.FILE_OUT(path)
-            if isinstance(err, fy.ArgDTypeError):
-                self.main.help_and_exit(1, err.err_message)
-            return path
-
-        def _convert(path_out, fmt_out: vg.GridFormat):
-            if path_out is None: return
-            print(f">>> Converting {fy.Color.yellow(path_in)} file to {fy.Color.magenta(fmt_out.name)}: {fy.Color.blue(path_out)}")
-            vgt.VGOperations.convert(path_in, path_out, fmt_out)
-
-        path_in       = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        path_out_dx   = _handle_out_arg("out_dx",   ".dx")
-        path_out_bin  = _handle_out_arg("out_bin",  ".bin")
-        path_out_mrc  = _handle_out_arg("out_mrc",  ".mrc")
-        path_out_ccp4 = _handle_out_arg("out_ccp4", ".ccp4")
-        path_out_cmap = _handle_out_arg("out_cmap", ".cmap")
-
-        _convert(path_out_dx,   vg.GridFormat.DX)
-        _convert(path_out_bin,  vg.GridFormat.BIN)
-        _convert(path_out_mrc,  vg.GridFormat.MRC)
-        _convert(path_out_ccp4, vg.GridFormat.CCP4)
-        _convert(path_out_cmap, vg.GridFormat.CMAP)
+        print(f">>> Converting {fy.Color.yellow(path_in)} file to {fy.Color.magenta(fmt.name)}: {fy.Color.blue(path_out)}")
+        vgt.VGOperations.convert(path_in, path_out, fmt)
 
 
     # --------------------------------------------------------------------------
@@ -81,12 +59,14 @@ class AppVGTools(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_unpack(self):
-        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        path_out = self.main.get_arg_path("folder_out",
+        path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        folder_out = self.main.get_arg_path("folder_out",
             assertion = fy.PathAssertion.DIR_OUT, default = path_in.parent
         )
-        print(f">>> Unpacking '{fy.Color.yellow(path_in)}' into '{fy.Color.blue(path_out)}'")
-        vgt.VGOperations.unpack(path_in, path_out)
+        fmt = self._get_valid_fmt_arg()
+
+        print(f">>> Unpacking '{fy.Color.yellow(path_in)}' into '{fy.Color.blue(folder_out)}'")
+        vgt.VGOperations.unpack(path_in, folder_out, fmt)
 
 
     # --------------------------------------------------------------------------
@@ -121,7 +101,7 @@ class AppVGTools(vg.AppSubcommand):
 
         fmt_in = vg.GridIO.detect_format(path_in)
         if fmt_in != vg.GridFormat.BIN:
-            cmd_example = fy.Color.yellow(f"volgrids vgtools convert {path_in} --bin")
+            cmd_example = fy.Color.yellow(f"volgrids vgtools convert {path_in} --format BIN")
             self.main.help_and_exit(1,
                 f"Segmentation currently only supports 'BIN' format. " +\
                 f"Got '{fy.Color.red(fmt_in.name)}' format instead. " +\
@@ -263,6 +243,16 @@ class AppVGTools(vg.AppSubcommand):
 
         points = zip(*[points_flat[i::3] for i in range(3)])
         print(*vgt.VGOperations.points(path_in, *points))
+
+
+    # --------------------------------------------------------------------------
+    def _get_valid_fmt_arg(self):
+        str_fmt = self.main.get_arg_str("format")
+
+        try:
+            return vg.GridFormat.from_str(str_fmt)
+        except ValueError as e:
+            self.main.help_and_exit(1, str(e))
 
 
 # //////////////////////////////////////////////////////////////////////////////

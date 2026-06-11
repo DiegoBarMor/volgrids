@@ -10,7 +10,7 @@ path_smif="$fout/guanine.stacking.bin"
 path_clusters="$fout/guanine.stacking.clusters.bin"
 isovalue=0.01
 
-python3 volgrids vgtools convert "$path_smif" -m
+python3 volgrids vgtools convert "$path_smif" -f MRC
 python3 volgrids vgtools segment "$path_smif" "$path_clusters" -i $isovalue
 
 python3 examples/bin_format/expand_mrc2cmap.py "$path_clusters" # outputs a CMAP

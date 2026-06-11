@@ -26,6 +26,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
+* validate the INI headers when parsing a user's provided chem table
 * there seems to be some previous bugs in trajectory mode; track down and fix.
 * can't use the -r flag when PQR structure is used because it doesn't have chain information.
 * check what happens with structure files with multiple models.
@@ -47,7 +48,6 @@
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
 * when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
-* give a warning if "convert" doesn't take any output option.
 * add tests for BIN format and for "segment".
 * let "vgtools summary" receive multiple input files.
 

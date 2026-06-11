@@ -100,17 +100,18 @@ __config_keys__.remove("_keys_other")
 ### CLI parsed by freyacli.
 
 import pathlib as _pathlib
+import volgrids as _vg
 PATH_STRUCT:      _pathlib.Path = None # "path/input/struct.pdb"
 PATH_APBS:        _pathlib.Path = None # "path/input/apbs.pqr.dx"
 PATH_CHEM_LIGAND: _pathlib.Path = None # "path/input/table.chem"
 
 SPHERE: SphereInfo  = None # pocket sphere info: [x, y, z, radius]
+BOX_ENFORCED: _vg.Box = None # box enforced by the user: [x_min, x_max, y_min, y_max, z_min, z_max]
 
 CUSTOM_RESIDUES: str = "" # "A.3 A.4 A.5 B.10 ..."
 
 
 ############################### RUNTIME GLOBALS ################################
-import volgrids as _vg
 PARAMS_HBA:       _vg.ParamsGaussianBivariate
 PARAMS_HBD_FREE:  _vg.ParamsGaussianBivariate
 PARAMS_HBD_FIXED: _vg.ParamsGaussianBivariate

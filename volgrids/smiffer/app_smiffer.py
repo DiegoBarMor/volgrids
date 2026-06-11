@@ -49,6 +49,7 @@ class AppSmiffer(vg.AppSubcommand):
         self._handle_params_configs()
         self._handle_params_resids()
         self._handle_params_sphere()
+        self._handle_params_box()
         self._assert_traj_apbs()
 
         app_main.load_configs(vg, sm)
@@ -272,10 +273,21 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_sphere(self):
-        sphere = self.main.get_arg_float("sphere", is_list = True)
-        if not sphere: return
+        sphere_info = self.main.get_arg_float("sphere", is_list = True)
+        if not sphere_info: return
 
-        sm.SPHERE = sm.SphereInfo(*sphere)
+        sm.SPHERE = sm.SphereInfo(*sphere_info)
+
+
+    # --------------------------------------------------------------------------
+    def _handle_params_box(self):
+        box = self.main.get_arg_float("box", is_list = True)
+        if not box: return
+
+        x_min, x_max, y_min, y_max, z_min, z_max = box
+        min_coords = np.array([x_min, y_min, z_min])
+        max_coords = np.array([x_max, y_max, z_max])
+        sm.BOX_ENFORCED = vg.Box.from_min_max(min_coords, max_coords)
 
 
     # --------------------------------------------------------------------------
