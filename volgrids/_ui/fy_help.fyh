@@ -18,6 +18,9 @@
     !fyh:configs
         File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
         Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
+    !fyh:box
+        Provide the box information that should be used to build the grids.
+        Values must be passed in the following order: x_min x_max y_min y_max z_min z_max.
     !fyh:sphere
         Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere.
         If not provided, 'whole' mode is assumed.

@@ -23,6 +23,7 @@ class MolSystem:
         self.molname = path_struct.stem
         self.do_traj = path_traj is not None
         self.do_ps = sm.SPHERE is not None
+        self.do_box_enforced = sm.BOX_ENFORCED is not None
         self.chemtable = self._init_chemtable()
 
         self.system = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
@@ -84,6 +85,8 @@ class MolSystem:
 
     # --------------------------------------------------------------------------
     def _get_init_box(self) -> vg.Box:
+        if self.do_box_enforced: return sm.BOX_ENFORCED
+
         if self.do_ps:
             box = vg.Box(None, None, None, do_init = False)
             box.cog = np.array([sm.SPHERE.x, sm.SPHERE.y, sm.SPHERE.z])

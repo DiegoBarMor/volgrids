@@ -32,8 +32,8 @@ class Box:
     @classmethod
     def from_min_max(cls, min_coords: np.ndarray, max_coords: np.ndarray) -> "Box":
         box = cls(None, None, None, do_init = False)
-        box.min_coords = min_coords
-        box.max_coords = max_coords
+        box.min_coords = np.array(min_coords)
+        box.max_coords = np.array(max_coords)
         box.infer_deltas_resolution()
         box.infer_radius_and_cog()
         return box
