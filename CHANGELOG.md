@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.15.0] - 2026-06-11
+- Added `box` flag to smiffer.
+    - The box used for building the grid can be provided by using the `-b`/`--box` flag.
+    - Values must be passed in the following order: x_min x_max y_min y_max z_min z_max.
+- `smutils box_dim` subcommand now prints the min and max coords of the box.
+    - It follows the same format as the one expected by the `box` flag from smiffer.
+- Can now specify output format when unpacking a CMAP file with `vgtools unpack` with the `f` flag.
+- Improved the way `vgtools convert` is used (similar to `unpack`'s `f` flag).
+
+
 ## [0.14.1] - 2026-06-09
 - Added `segment` subcommand for vgtools.
     - It segments the regions of space enclosed by a certain isovalue and saves their cluster labels into a new grid.
@@ -11,6 +21,10 @@
 - Refactored and cleaned up `.chem` tables.
     - Added distinction between RNA and DNA residues.
     - Simplified header names.
+        - ATOM_HPHOBICITY -> HYDROPHOBICITY
+        - NAMES_STACKING -> STACKING
+        - NAMES_HBACCEPTORS -> HBACCEPTORS
+        - NAMES_HBDONORS -> HBDONORS
 
     - Atoms of a stacking group are now to be provided separated by a `-` character.
     - For residues with multiple stacking groups, they are to be provided in the same row, separated by spaces.

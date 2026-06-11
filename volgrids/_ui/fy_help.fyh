@@ -134,12 +134,10 @@
     @convert
         !fyh:_ Convert grid files between formats.
         !fyh:path_in Path of the grid to be converted.
-        !fyh:out_dx Path where to save the converted grid in DX format.
-        !fyh:out_bin Path where to save the converted grid in BIN format.
-        !fyh:out_mrc Path where to save the converted grid in MRC format.
-        !fyh:out_ccp4 Path where to save the converted grid in CCP4 format.
-        !fyh:out_cmap Path where to save the converted grid in CMAP format.
-            The stem of the input file will be used as the CMAP key.
+        !fyh:folder_out Folder path where to save the output grid.
+            If not provided, the parent folder of the input file will be used.
+        !fyh:format Grid format in which to convert the grid.
+            Supported formats: DX, BIN, MRC, CCP4, CMAP.
     !@
     @pack
         !fyh:_ Pack multiple grid files into a single CMAP series-file.

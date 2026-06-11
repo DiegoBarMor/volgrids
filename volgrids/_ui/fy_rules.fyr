@@ -72,11 +72,8 @@
     #### Operations for reorganizing grids
     @convert
         path_in[]1.PATH
-        ~out_dx[d,dx]1?.PATH
-        ~out_bin[b,bin]1?.PATH
-        ~out_mrc[m,mrc]1?.PATH
-        ~out_ccp4[p,ccp4]1?.PATH
-        ~out_cmap[c,cmap]1?.PATH
+        ~folder_out[]1.PATH
+        ~format[f,format]1.STR=MRC
     !@
     @pack
         paths_in[]1+.PATH
