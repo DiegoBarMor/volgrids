@@ -22,7 +22,7 @@ class MolSystem:
 
         self.molname = path_struct.stem
         self.do_traj = path_traj is not None
-        self.do_ps = sm.SPHERE is not None
+        self.do_ps = len(sm.SPHERES) > 0
         self.do_box_enforced = sm.BOX_ENFORCED is not None
         self.chemtable = self._init_chemtable()
 
@@ -30,6 +30,10 @@ class MolSystem:
         self.frame = 0 if self.do_traj else None
 
         self.box = self._get_init_box() if box is None else box
+
+        if self.do_ps:
+            nframes = self.system.trajectory.n_frames if self.do_traj else 1
+            sm.SphereInfo.assert_sphere_list(sm.SPHERES, nframes)
 
 
     # --------------------------------------------------------------------------
@@ -57,9 +61,8 @@ class MolSystem:
 
     # --------------------------------------------------------------------------
     def switch_frame(self, frame_idx: int):
-        """frame_idx is 0-based; self.frame is 1-based (user display)."""
         self.system.trajectory[frame_idx]
-        self.frame = frame_idx + 1
+        self.frame = frame_idx
 
 
     # --------------------------------------------------------------------------
@@ -72,9 +75,21 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
+    def get_all_atoms(self, use_custom = True):
+        query = self.chemtable.get_selection_query(use_custom)
+        atoms = self.system.select_atoms(query)
+        if len(atoms) == 0: warnings.warn(
+            f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
+        )
+        return atoms
+
+
+    # --------------------------------------------------------------------------
     def get_relevant_atoms(self, use_custom = True, extra_dist: float = 0.0):
         query = self.chemtable.get_selection_query(use_custom)
-        if self.do_ps: query += f"and point {sm.SPHERE.get_str_query(extra_dist)}"
+        if self.do_ps:
+            sphere = self._get_current_sphere()
+            query += f"and point {sphere.get_str_query(extra_dist)}"
 
         atoms = self.system.select_atoms(query)
         if len(atoms) == 0: warnings.warn(
@@ -88,11 +103,12 @@ class MolSystem:
         if self.do_box_enforced: return sm.BOX_ENFORCED
 
         if self.do_ps:
+            sphere = self._get_current_sphere()
             box = vg.Box(None, None, None, do_init = False)
-            box.cog = np.array([sm.SPHERE.x, sm.SPHERE.y, sm.SPHERE.z])
-            box.min_coords = box.cog - sm.SPHERE.radius
-            box.max_coords = box.cog + sm.SPHERE.radius
-            box.radius = sm.SPHERE.radius
+            box.cog = np.array(sphere.get_pos())
+            box.min_coords = box.cog - sphere.radius
+            box.max_coords = box.cog + sphere.radius
+            box.radius = sphere.radius
             box.infer_deltas_resolution()
             if vg.ENSURE_EQUILATERAL: box.enforce_equilateral()
             return box
@@ -131,6 +147,14 @@ class MolSystem:
             chem.parse_names_hbdonors(ini)
 
         return chem
+
+
+    # --------------------------------------------------------------------------
+    def _get_current_sphere(self) -> "sm.SphereInfo":
+        if not self.do_ps: raise ValueError("No pocket sphere info available.")
+        if self.frame is None: return sm.SPHERES[0]
+        return sm.SPHERES[self.frame]
+
 
 
 # //////////////////////////////////////////////////////////////////////////////

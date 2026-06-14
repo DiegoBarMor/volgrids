@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.16.0] - 2026-06-14
+- Smiffer for trajectories now receives list of spheres for the -s flag.
+    - This way, it has a similar usage as `smutils sphere grid` (where the spheres are simply the output from `smutils sphere find`).
+- Fixed bug where APBS in trajectories was always using the coordinates of the first frame.
+- Fixed trimming issue in smifer trajectory mode with pockets.
+- `ms.frame` is now 0-based (indexing).
+
+
 ## [0.15.0] - 2026-06-11
 - Added `box` flag to smiffer.
     - The box used for building the grid can be provided by using the `-b`/`--box` flag.

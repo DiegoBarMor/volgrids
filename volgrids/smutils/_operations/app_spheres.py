@@ -39,15 +39,8 @@ class AppSpheres(vg.AppSubcommand):
         )
         spheres_flat = self.main.get_arg_float("sphere", is_list = True)
 
-        if len(spheres_flat) % 4: self.main.help_and_exit(1,
-            f"Spheres should be provided as a list of floats, with 4 floats per sphere (x,y,z,radius). "+\
-            f"Got {len(spheres_flat)} floats, which is not a multiple of 4."
-        )
-
-        spheres = [
-            sm.SphereInfo(x, y, z, radius) for x,y,z,radius in
-            zip(*[spheres_flat[i::4] for i in range(4)])
-        ]
+        try: spheres = sm.SphereInfo.sphere_list(spheres_flat)
+        except ValueError as e: self.main.help_and_exit(1, f"{e}")
 
         self.main.load_configs(vg, sm, su) # needed for loading sm.GRID_FORMAT_OUTPUT (used by Smif.save_data)
 
@@ -81,11 +74,7 @@ class AppSpheres(vg.AppSubcommand):
         ms = sm.MolSystem(path_pdb, path_traj)
         nframes = ms.system.trajectory.n_frames
 
-        if len(spheres) != nframes:
-            raise ValueError(
-                f"Number of spheres provided ({len(spheres)}) does not match number of frames in trajectory ({nframes})." +\
-                "\nEach sphere should correspond to one frame in the trajectory."
-            )
+        sm.SphereInfo.assert_sphere_list(spheres, nframes)
 
         grid = vg.Grid(ms.box, dtype = bool)
         for i,sphere in enumerate(spheres):

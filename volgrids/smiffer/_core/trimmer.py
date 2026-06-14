@@ -149,7 +149,7 @@ class Trimmer:
     # --------------------------------------------------------------------------
     def _trim_occupancies(self, radius: float):
         kernel = vg.KernelSphere(radius, self.ms.get_deltas(), bool)
-        for a in self.ms.get_relevant_atoms(use_custom = False, extra_dist = radius):
+        for a in self.ms.get_all_atoms(use_custom = False):
             kernel.stamp(self._mask_specific, a.position)
 
 
@@ -213,7 +213,7 @@ class Trimmer:
     def _trim_faraway(self):
         grid = self._mask_common.copy()
         kernel = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.get_deltas(), bool)
-        for a in self.ms.get_relevant_atoms(use_custom = False, extra_dist = sm.TRIM_FARAWAY_DIST):
+        for a in self.ms.get_all_atoms(use_custom = False):
             kernel.stamp(grid, a.position)
         self._mask_common.arr[~grid.arr] = True
 

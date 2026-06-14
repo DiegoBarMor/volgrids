@@ -206,6 +206,8 @@ class AppSmiffer(vg.AppSubcommand):
             self.trimmer.run_for_saving("mid")
             sm.Smif.save_data(self.trimmer.cavfinder.grid, ms, self.folder_out, "cavities")
 
+        vg.TMP_APBS_CONTENT_PQR = "" # clear temporary PQR so that (optionally) subsequent frames recalculate it
+
         del self.grid_smif # just in case
         del self.trimmer
 
@@ -273,10 +275,11 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_sphere(self):
-        sphere_info = self.main.get_arg_float("sphere", is_list = True)
-        if not sphere_info: return
+        spheres_flat = self.main.get_arg_float("sphere", is_list = True)
+        if not spheres_flat: return
 
-        sm.SPHERE = sm.SphereInfo(*sphere_info)
+        try: sm.SPHERES = sm.SphereInfo.sphere_list(spheres_flat)
+        except ValueError as e: self.main.help_and_exit(1, f"{e}")
 
 
     # --------------------------------------------------------------------------
