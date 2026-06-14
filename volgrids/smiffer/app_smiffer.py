@@ -206,6 +206,8 @@ class AppSmiffer(vg.AppSubcommand):
             self.trimmer.run_for_saving("mid")
             sm.Smif.save_data(self.trimmer.cavfinder.grid, ms, self.folder_out, "cavities")
 
+        vg.TMP_APBS_CONTENT_PQR = "" # clear temporary PQR so that (optionally) subsequent frames recalculate it
+
         del self.grid_smif # just in case
         del self.trimmer
 
