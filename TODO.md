@@ -26,7 +26,6 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
-* weird APBS in trajectory mode.
 * validate the INI headers when parsing a user's provided chem table
 * there seems to be some previous bugs in trajectory mode; track down and fix.
 * can't use the -r flag when PQR structure is used because it doesn't have chain information.

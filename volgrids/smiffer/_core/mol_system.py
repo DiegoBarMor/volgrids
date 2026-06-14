@@ -75,6 +75,16 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
+    def get_all_atoms(self, use_custom = True):
+        query = self.chemtable.get_selection_query(use_custom)
+        atoms = self.system.select_atoms(query)
+        if len(atoms) == 0: warnings.warn(
+            f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
+        )
+        return atoms
+
+
+    # --------------------------------------------------------------------------
     def get_relevant_atoms(self, use_custom = True, extra_dist: float = 0.0):
         query = self.chemtable.get_selection_query(use_custom)
         if self.do_ps:
