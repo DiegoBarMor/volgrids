@@ -6,7 +6,7 @@
     ~path_chem[e,chem]1.PATH
     ~configs[c,config]*.STR
     ~box[b,box]6.FLOAT
-    ~sphere[s,sphere]4.FLOAT
+    ~sphere[s,sphere]4+.FLOAT
     ~residues[r,residues]1+.STR
     ~nproc[n,nproc]1.INT=1
 !fed
