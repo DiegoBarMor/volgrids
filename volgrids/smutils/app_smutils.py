@@ -77,7 +77,7 @@ class AppSMUtils(vg.AppSubcommand):
         path_in  = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
         path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
-        grid = vg.GridIO.read_auto(path_in)
+        grid = vg.Grid.load(path_in)
         sm.SmifAPBS.apply_logabs_transform(grid)
         grid.save(path_out)
 

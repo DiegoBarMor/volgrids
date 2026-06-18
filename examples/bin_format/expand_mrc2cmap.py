@@ -12,7 +12,7 @@ import volgrids as vg
 
 # ------------------------------------------------------------------------------
 def main():
-    grid = vg.GridIO.read_bin(PATH_BIN)
+    grid = vg.Grid.load(PATH_BIN, vg.GridFormat.BIN)
     grid.arr = grid.arr.astype(int)
     cluster_ids = set(grid.arr.flatten()) - {0}
 

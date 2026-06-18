@@ -46,7 +46,7 @@
 * add missing vgtools tests.
 * check what happens if performing "fix_cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
-* when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
+* when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of `Grid.load` arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
 * add tests for BIN format and for "segment".
 * let "vgtools summary" receive multiple input files.

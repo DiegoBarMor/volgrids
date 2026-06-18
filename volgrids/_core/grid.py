@@ -11,7 +11,7 @@ class Grid:
         self.fmt: vg.GridFormat = None
         self.arr: np.ndarray|None
         self.dirty: bool = False # whether grid should be filled with 0s when calling reset()
-        self.key_cmap: str = "" # used when saving to cmap format
+        self.name: str = "" # mainly used as key when saving to cmap format
 
         if init_grid:
             self._warning_big_grid()
@@ -110,15 +110,46 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    @classmethod
+    def load(cls, path_in: Path, fmt: "vg.GridFormat" = None, key: str = "") -> "Grid":
+        """
+        If the format is not specified, it will be detected based on the input path extension.
+        If the file is a CMAP file and key is not specified, it will read the first key found in the file.
+        """
+        path_in = Path(path_in)
+        if fmt is None: fmt = vg.GridIO.detect_format(path_in)
+
+        if fmt == vg.GridFormat.DX:
+            return vg.GridIO.read_dx(path_in)
+
+        if fmt == vg.GridFormat.BIN:
+            return vg.GridIO.read_bin(path_in)
+
+        if fmt == vg.GridFormat.MRC:
+            return vg.GridIO.read_mrc(path_in)
+
+        if fmt == vg.GridFormat.CCP4:
+            return vg.GridIO.read_ccp4(path_in)
+
+        if fmt.is_cmap():
+            if key is None:
+                keys = vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True)
+                key = keys[0]
+            return vg.GridIO.read_cmap(path_in, key)
+
+        raise ValueError(f"Unknown input format: {fmt}.")
+
+
+    # --------------------------------------------------------------------------
     def save(self, path_out: Path, fmt: "vg.GridFormat" = None, key: str = ""):
         """
         If the format is not specified, it will be detected based on the output path extension.
-        When saving to CMAP, the key passed via `key` will be prioritized over the `Grid.key_cmap` attribute.
+        When saving to CMAP, the key passed via `key` will be prioritized over the `Grid.name` attribute.
         If neither is provided, a new key will be generated based on the number of existing keys in the CMAP file.
         """
         def _key_cmap():
             if key: return key
-            if self.key_cmap: return self.key_cmap
+            if self.name: return self.name
             if not path_out.is_file(): return "grid_0000"
             keys = vg.GridIO.get_cmap_keys(path_out)
             return f"grid_{len(keys)+1:04d}"
@@ -157,9 +188,8 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
-    def reset(self) -> None:
-        if not self.dirty: return
-        self.arr.fill(0)
+    def reset(self, force = False) -> None:
+        if force or self.dirty: self.arr.fill(0)
 
 
     # --------------------------------------------------------------------------

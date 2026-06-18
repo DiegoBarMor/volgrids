@@ -60,7 +60,7 @@ class GridIO:
             orig = parser.header["origin"]
             used_origin = np.array([orig['x'], orig['y'], orig['z']])
 
-        vgrid = _read_mrc_ccp4(path_mrc, used_origin)
+        vgrid = GridIO._read_mrc_ccp4(path_mrc, used_origin)
         vgrid.fmt = vg.GridFormat.MRC
         return vgrid
 
@@ -84,7 +84,7 @@ class GridIO:
                 ##### assume the origin follows the "real space" MRC convention, so use that one
                 used_origin = np.array([orig['x'], orig['y'], orig['z']])
 
-        vgrid = _read_mrc_ccp4(path_ccp4, used_origin)
+        vgrid = GridIO._read_mrc_ccp4(path_ccp4, used_origin)
         vgrid.fmt = vg.GridFormat.CCP4
         return vgrid
 
@@ -107,7 +107,7 @@ class GridIO:
             )
             vgrid = vg.Grid(box, init_grid = False)
             vgrid.arr = frame["data_zyx"][()].transpose(2,1,0)
-            vgrid.key_cmap = key
+            vgrid.name = key
 
             n_keys = len(parser["Chimera"].keys())
             vgrid.fmt = vg.GridFormat.CMAP_PACKED \
@@ -312,34 +312,6 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def read_auto(path_grid: Path, key: str = None) -> "vg.Grid":
-        """
-        Detect the format of the grid file based on its extension and then read it.
-        If the file is a CMAP file and key is not specified, it will read the first key found in the file.
-        """
-        fmt = GridIO.detect_format(path_grid)
-
-        if fmt == vg.GridFormat.DX:
-            return GridIO.read_dx(path_grid)
-
-        if fmt == vg.GridFormat.BIN:
-            return GridIO.read_bin(path_grid)
-
-        if fmt == vg.GridFormat.MRC:
-            return GridIO.read_mrc(path_grid)
-
-        if fmt == vg.GridFormat.CCP4:
-            return GridIO.read_ccp4(path_grid)
-
-        if fmt.is_cmap():
-            if key is None:
-                keys = GridIO.get_cmap_keys(path_grid, assert_has_keys = True)
-                key = keys[0]
-            return GridIO.read_cmap(path_grid, key)
-
-
-    # --------------------------------------------------------------------------
-    @staticmethod
     def get_cmap_keys(path_cmap: Path, assert_has_keys: bool = False) -> list[str]:
         """Returns the list of keys (frame names) in a CMAP file.
         If assert_has_keys is True, raises an error if no keys are found."""
@@ -385,51 +357,50 @@ class GridIO:
         grid.arr = grid.arr.astype(bool)
 
 
+    # ------------------------------------------------------------------------------
+    @staticmethod
+    def _read_mrc_ccp4(path_mrc: Path, origin: np.ndarray) -> "vg.Grid":
+        import gridData as gd
+
+        with gd.mrc.mrcfile.open(path_mrc) as parser:
+            # machine_stamp = parser.header.machst
+            ### [68 68 0 0] or [68 65 0 0] for little-endian <--- tested
+            ### [17 17 0 0] for big-endian <--- what happens in these cases?
+
+            vsize = np.array([
+                parser.voxel_size['x'],
+                parser.voxel_size['y'],
+                parser.voxel_size['z'],
+            ], dtype = vg.FLOAT_DTYPE)
+
+            res = np.array([
+                parser.header["mx"],
+                parser.header["my"],
+                parser.header["mz"],
+            ], dtype = int)
+
+            data: np.ndarray = parser.data.astype(vg.FLOAT_DTYPE)
+            origin = origin.astype(vg.FLOAT_DTYPE)
+
+            axes_correspondance =\
+                parser.header.mapc, parser.header.mapr, parser.header.maps
+
+            if axes_correspondance == (1, 2, 3):
+                box = vg.Box(origin, res, vsize)
+                obj = vg.Grid(box, init_grid = False)
+                obj.arr = data.transpose(2,1,0)
+                return obj
+
+            if axes_correspondance == (3, 2, 1):
+                box = vg.Box(origin[::-1], res[::-1], vsize[::-1])
+                obj = vg.Grid(box, init_grid = False)
+                obj.arr = data
+                return obj
+
+            raise NotImplementedError(
+                f"Unsupported axes correspondence in MRC file: {axes_correspondance}. "
+                "Expected (1, 2, 3) or (3, 2, 1)."
+            )
+
+
 # //////////////////////////////////////////////////////////////////////////////
-
-# ------------------------------------------------------------------------------
-def _read_mrc_ccp4(path_mrc: Path, origin: np.ndarray) -> "vg.Grid":
-    import gridData as gd
-
-    with gd.mrc.mrcfile.open(path_mrc) as parser:
-        # machine_stamp = parser.header.machst
-        ### [68 68 0 0] or [68 65 0 0] for little-endian <--- tested
-        ### [17 17 0 0] for big-endian <--- what happens in these cases?
-
-        vsize = np.array([
-            parser.voxel_size['x'],
-            parser.voxel_size['y'],
-            parser.voxel_size['z'],
-        ], dtype = vg.FLOAT_DTYPE)
-
-        res = np.array([
-            parser.header["mx"],
-            parser.header["my"],
-            parser.header["mz"],
-        ], dtype = int)
-
-        data: np.ndarray = parser.data.astype(vg.FLOAT_DTYPE)
-        origin = origin.astype(vg.FLOAT_DTYPE)
-
-        axes_correspondance =\
-            parser.header.mapc, parser.header.mapr, parser.header.maps
-
-        if axes_correspondance == (1, 2, 3):
-            box = vg.Box(origin, res, vsize)
-            obj = vg.Grid(box, init_grid = False)
-            obj.arr = data.transpose(2,1,0)
-            return obj
-
-        if axes_correspondance == (3, 2, 1):
-            box = vg.Box(origin[::-1], res[::-1], vsize[::-1])
-            obj = vg.Grid(box, init_grid = False)
-            obj.arr = data
-            return obj
-
-        raise NotImplementedError(
-            f"Unsupported axes correspondence in MRC file: {axes_correspondance}. "
-            "Expected (1, 2, 3) or (3, 2, 1)."
-        )
-
-
-# ------------------------------------------------------------------------------
