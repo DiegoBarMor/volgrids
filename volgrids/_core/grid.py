@@ -11,6 +11,7 @@ class Grid:
         self.fmt: vg.GridFormat = None
         self.arr: np.ndarray|None
         self.dirty: bool = False # whether grid should be filled with 0s when calling reset()
+        self.key_cmap: str = "" # used when saving to cmap format
 
         if init_grid:
             self._warning_big_grid()
@@ -109,6 +110,53 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def save(self, path_out: Path, fmt: "vg.GridFormat" = None, key: str = ""):
+        """
+        If the format is not specified, it will be detected based on the output path extension.
+        When saving to CMAP, the key passed via `key` will be prioritized over the `Grid.key_cmap` attribute.
+        If neither is provided, a new key will be generated based on the number of existing keys in the CMAP file.
+        """
+        def _key_cmap():
+            if key: return key
+            if self.key_cmap: return self.key_cmap
+            if not path_out.is_file(): return "grid_0000"
+            keys = vg.GridIO.get_cmap_keys(path_out)
+            return f"grid_{len(keys)+1:04d}"
+
+        path_out = Path(path_out)
+        if fmt is None: fmt = vg.GridIO.detect_format(path_out)
+
+        if fmt == vg.GridFormat.DX:
+            vg.GridIO.write_dx(path_out, self)
+            return
+
+        if fmt == vg.GridFormat.BIN:
+            vg.GridIO.write_bin(path_out, self)
+            return
+
+        if fmt == vg.GridFormat.MRC:
+            vg.GridIO.write_mrc(path_out, self)
+            return
+
+        if fmt == vg.GridFormat.CCP4:
+            vg.GridIO.write_ccp4(path_out, self)
+            return
+
+        if fmt == vg.GridFormat.CMAP:
+            vg.GridIO.clear_cmap(path_out)
+            vg.GridIO.write_cmap(path_out, self, _key_cmap())
+            return
+
+        if fmt == vg.GridFormat.CMAP_PACKED:
+            vg.GridIO.clear_cmap(path_out)
+            vg.REMOVE_OLD_CMAP_OUTPUT = False
+            vg.GridIO.write_cmap(path_out, self, _key_cmap())
+            return
+
+        raise ValueError(f"Unknown output format: {fmt}.")
+
+
+    # --------------------------------------------------------------------------
     def reset(self) -> None:
         if not self.dirty: return
         self.arr.fill(0)
@@ -204,40 +252,6 @@ class Grid:
             new_max = box.max_coords,
             new_res = box.resolution,
         )
-
-
-    # --------------------------------------------------------------------------
-    def save_data(self, path_out: Path, grid_format: "vg.GridFormat", cmap_key = "grid"):
-        path_out = Path(path_out)
-
-        if grid_format == vg.GridFormat.DX:
-            vg.GridIO.write_dx(path_out, self)
-            return
-
-        if grid_format == vg.GridFormat.BIN:
-            vg.GridIO.write_bin(path_out, self)
-            return
-
-        if grid_format == vg.GridFormat.MRC:
-            vg.GridIO.write_mrc(path_out, self)
-            return
-
-        if grid_format == vg.GridFormat.CCP4:
-            vg.GridIO.write_ccp4(path_out, self)
-            return
-
-        if grid_format == vg.GridFormat.CMAP:
-            vg.GridIO.clear_cmap(path_out)
-            vg.GridIO.write_cmap(path_out, self, cmap_key)
-            return
-
-        if grid_format == vg.GridFormat.CMAP_PACKED:
-            vg.GridIO.clear_cmap(path_out)
-            vg.REMOVE_OLD_CMAP_OUTPUT = False
-            vg.GridIO.write_cmap(path_out, self, cmap_key)
-            return
-
-        raise ValueError(f"Unknown output format: {grid_format}.")
 
 
     # --------------------------------------------------------------------------

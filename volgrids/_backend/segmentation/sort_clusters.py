@@ -26,7 +26,7 @@ def main():
         new_arr[grid.arr == cluster_id] = i
 
     grid.arr = new_arr
-    vg.GridIO.write_bin(PATH_BIN, grid)
+    grid.save(PATH_BIN, vg.GridFormat.BIN)
     print(f"...>>> Kept {len(cluster_ids)} clusters with volume >= {VOLUME_THRESHOLD}")
 
 

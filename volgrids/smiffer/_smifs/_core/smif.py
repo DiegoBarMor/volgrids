@@ -31,12 +31,12 @@ class Smif:
         if ms.do_traj:
             path_out = folder_out / f"{ms.molname}.{title}.cmap"
             grid_format = vg.GridFormat.CMAP_PACKED # ignores the GRID_FORMAT_OUTPUT config -> CMAP is the only format that supports multiple frames
-            cmap_key = f"{ms.molname}.{ms.frame:04}"
+            key_cmap = f"{ms.molname}.{ms.frame:04}"
 
         else:
             path_out = folder_out / f"{ms.molname}.{title}"
             grid_format = vg.GridFormat.from_str(sm.GRID_FORMAT_OUTPUT)
-            cmap_key = title
+            key_cmap = title
 
             if   grid_format == vg.GridFormat.DX: path_out = add_suffix(path_out, ".dx")
             elif grid_format == vg.GridFormat.BIN: path_out = add_suffix(path_out, ".bin")
@@ -45,13 +45,13 @@ class Smif:
 
             elif grid_format == vg.GridFormat.CMAP:
                 path_out = add_suffix(path_out, ".cmap")
-                cmap_key = ms.molname
+                key_cmap = ms.molname
 
             elif grid_format == vg.GridFormat.CMAP_PACKED:
                 path_out = folder_out / f"{ms.molname}.cmap"
-                cmap_key = f"{ms.molname}.{title}"
+                key_cmap = f"{ms.molname}.{title}"
 
-        grid.save_data(path_out, grid_format, cmap_key)
+        grid.save(path_out, grid_format, key_cmap)
 
 
 

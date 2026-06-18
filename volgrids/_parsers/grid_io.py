@@ -107,6 +107,7 @@ class GridIO:
             )
             vgrid = vg.Grid(box, init_grid = False)
             vgrid.arr = frame["data_zyx"][()].transpose(2,1,0)
+            vgrid.key_cmap = key
 
             n_keys = len(parser["Chimera"].keys())
             vgrid.fmt = vg.GridFormat.CMAP_PACKED \
@@ -246,7 +247,7 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def write_cmap(cls, path_cmap: str|Path, data: "vg.Grid", key):
+    def write_cmap(cls, path_cmap: str|Path, data: "vg.Grid", key: str) -> None:
         import h5py
         import contextlib
 
@@ -335,39 +336,6 @@ class GridIO:
                 keys = GridIO.get_cmap_keys(path_grid, assert_has_keys = True)
                 key = keys[0]
             return GridIO.read_cmap(path_grid, key)
-
-
-    # --------------------------------------------------------------------------
-    @staticmethod
-    def write_auto(path_grid: Path, data: "vg.Grid", key: str = None) -> None:
-        """Detect the format of the grid file based on its extension and then write it."""
-        def _cmap_key(): # [TODO] improve this?
-            if key is not None: return key
-            if not path_grid.is_file(): return path_grid.stem
-            keys = GridIO.get_cmap_keys(path_grid)
-            return f"map_{len(keys)+1}"
-
-        fmt = GridIO.detect_format(path_grid)
-
-        if fmt == vg.GridFormat.DX:
-            GridIO.write_dx(path_grid, data)
-            return
-
-        if fmt == vg.GridFormat.BIN:
-            GridIO.write_bin(path_grid, data)
-            return
-
-        if fmt == vg.GridFormat.MRC:
-            GridIO.write_mrc(path_grid, data)
-            return
-
-        if fmt == vg.GridFormat.CCP4:
-            GridIO.write_ccp4(path_grid, data)
-            return
-
-        if fmt.is_cmap():
-            GridIO.write_cmap(path_grid, data, key = _cmap_key())
-            return
 
 
     # --------------------------------------------------------------------------

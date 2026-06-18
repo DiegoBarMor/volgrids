@@ -23,7 +23,7 @@ def main():
         volume = np.sum(mask.arr)
 
         print(f"Volume cluster {cluster_id}: {volume}")
-        vg.GridIO.write_cmap(PATH_CMAP, mask, key = f"cluster.{cluster_id:04}")
+        mask.save(PATH_CMAP, vg.GridFormat.CMAP, key = f"cluster.{cluster_id:04}")
 
 
 ################################################################################

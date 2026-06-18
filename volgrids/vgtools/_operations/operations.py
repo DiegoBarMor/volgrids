@@ -10,20 +10,7 @@ from volgrids._vendors import freyacli as fy
 class VGOperations:
     @staticmethod
     def convert(path_in: Path, path_out: Path, fmt_out: vg.GridFormat) -> None:
-        grid = vg.GridIO.read_auto(path_in)
-
-        func: callable = {
-            vg.GridFormat.DX: vg.GridIO.write_dx,
-            vg.GridFormat.BIN: vg.GridIO.write_bin,
-            vg.GridFormat.MRC: vg.GridIO.write_mrc,
-            vg.GridFormat.CCP4: vg.GridIO.write_ccp4,
-            vg.GridFormat.CMAP: vg.GridIO.write_cmap,
-        }.get(fmt_out, None)
-        if func is None:
-            raise ValueError(f"Unknown format for conversion: {fmt_out}")
-
-        extra_args = (path_in.stem,) if fmt_out == vg.GridFormat.CMAP else ()
-        func(path_out, grid, *extra_args)
+        vg.GridIO.read_auto(path_in).save(path_out, fmt_out)
 
 
     # --------------------------------------------------------------------------
@@ -45,8 +32,7 @@ class VGOperations:
                 )
                 warned = True
 
-            vg.GridIO.write_cmap(path_out, grid, key)
-
+            grid.save(path_out, vg.GridFormat.CMAP, key = key)
 
     # --------------------------------------------------------------------------
     @staticmethod
@@ -55,7 +41,7 @@ class VGOperations:
         for key in keys:
             path_out = folder_out / f"{key}.{fmt.to_ext()}"
             grid = vg.GridIO.read_cmap(path_in, key)
-            grid.save_data(path_out, fmt, key)
+            grid.save(path_out, fmt)
 
 
     # --------------------------------------------------------------------------
@@ -69,7 +55,7 @@ class VGOperations:
                 resolution = grid.box.resolution
 
             grid.reshape(grid.box.min_coords, grid.box.max_coords, resolution)
-            vg.GridIO.write_cmap(path_out, grid, key)
+            grid.save(path_out, vg.GridFormat.CMAP, key = key)
 
 
     # --------------------------------------------------------------------------
@@ -208,18 +194,18 @@ class VGOperations:
     @staticmethod
     def iter_op_unary(
         path_in: Path, operation: callable
-    ) -> "Generator[tuple[str, vg.Grid]]":
+    ) -> "Generator[vg.Grid]":
         """
         Perform the numeric `operation` for one grid.
         Yields `(key, Grid)` pairs (`key` is the CMAP key, `None` for non-CMAP grids).
         """
         is_cmap = vg.GridIO.detect_format(path_in).is_cmap()
         if not is_cmap:
-            yield None, operation(vg.GridIO.read_auto(path_in))
+            yield operation(vg.GridIO.read_auto(path_in))
             return
 
         yield from (
-            (key, operation(vg.GridIO.read_cmap(path_in, key)))
+            operation(vg.GridIO.read_cmap(path_in, key))
             for key in vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True)
         )
 
@@ -229,7 +215,7 @@ class VGOperations:
     def iter_op_binary(cls,
         path_in_0: Path, path_in_1: Path, operation: callable,
         interpolate_to_common_box = False
-    ) -> "Generator[tuple[str, vg.Grid]]":
+    ) -> "Generator[vg.Grid]":
         """
         Perform the numeric `operation` between two grids.
         Supports multi-frame CMAP trajectories: frames are processed one-by-one, with
@@ -243,7 +229,7 @@ class VGOperations:
             grid_0 = vg.GridIO.read_auto(path_in_0)
             grid_1 = vg.GridIO.read_auto(path_in_1)
             cls._interpolate_if_needed(path_in_0, path_in_1, grid_0, grid_1, interpolate_to_common_box)
-            yield None, operation(grid_0, grid_1)
+            yield operation(grid_0, grid_1)
             return
 
         keys_0 = vg.GridIO.get_cmap_keys(path_in_0, assert_has_keys = True)
@@ -263,7 +249,9 @@ class VGOperations:
             grid_0 = vg.GridIO.read_cmap(path_in_0, k0)
             grid_1 = vg.GridIO.read_cmap(path_in_1, k1)
             cls._interpolate_if_needed(path_in_0, path_in_1, grid_0, grid_1, interpolate_to_common_box)
-            yield (k0 if n0 >= n1 else k1), operation(grid_0, grid_1)
+            out: vg.Grid = operation(grid_0, grid_1)
+            out.key_cmap = k0 if n0 >= n1 else k1
+            yield out
 
 
     # --------------------------------------------------------------------------
