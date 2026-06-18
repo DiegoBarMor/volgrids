@@ -111,7 +111,7 @@ class Grid:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def load(cls, path_in: Path, fmt: "vg.GridFormat" = None, key: str = "") -> "Grid":
+    def load(cls, path_in: Path, fmt: "vg.GridFormat" = None, key: str = None) -> "Grid":
         """
         If the format is not specified, it will be detected based on the input path extension.
         If the file is a CMAP file and key is not specified, it will read the first key found in the file.
