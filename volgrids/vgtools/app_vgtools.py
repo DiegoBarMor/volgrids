@@ -19,6 +19,7 @@ class AppVGTools(vg.AppSubcommand):
         if operation == "convert"  : return self._run_convert()
         if operation == "pack"     : return self._run_pack()
         if operation == "unpack"   : return self._run_unpack()
+        if operation == "extract"  : return self._run_extract()
         if operation == "fix_cmap" : return self._run_fix_cmap()
         if operation == "rotate"   : return self._run_rotate()
         if operation == "segment"  : return self._run_segment()
@@ -66,6 +67,14 @@ class AppVGTools(vg.AppSubcommand):
 
         print(f">>> Unpacking '{fy.Color.yellow(path_in)}' into '{fy.Color.blue(folder_out)}'")
         vgt.VGOperations.unpack(path_in, folder_out, fmt)
+
+
+    # --------------------------------------------------------------------------
+    def _run_extract(self):
+        path_in  = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
+
+        print(f">>> Extracting unique values from '{fy.Color.yellow(path_in)}'")
+        vgt.VGOperations.extract(path_in)
 
 
     # --------------------------------------------------------------------------

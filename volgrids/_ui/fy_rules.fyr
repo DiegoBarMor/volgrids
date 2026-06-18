@@ -84,6 +84,9 @@
         ~folder_out[]1.PATH
         ~format[f,format]1.STR=MRC
     !@
+    @extract
+        path_in[]1.PATH
+    !@
 
     #### Operations for transforming single grids
     @fix_cmap

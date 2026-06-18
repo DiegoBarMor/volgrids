@@ -46,6 +46,28 @@ class VGOperations:
 
     # --------------------------------------------------------------------------
     @staticmethod
+    def extract(path_in: Path) -> None:
+        fmt = vg.GridIO.detect_format(path_in)
+        keys = vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True) \
+            if fmt.is_cmap() else [""]
+
+        for key in keys:
+            grid_in = vg.Grid.load(path_in, key = key)
+
+            unique_values = np.unique(grid_in.arr)
+            msg_key = f" (key: {fy.Color.cyan(key)})" if key else ""
+            print(f"...>>> Found {len(unique_values)} unique values{msg_key}.")
+
+            grid_out = grid_in.copy()
+            for val in unique_values:
+                grid_out.arr = grid_in.arr == val
+                str_val = f"{val:.6f}".replace('.', '_')
+                path_out = path_in.parent / f"{path_in.stem}.{str_val}.{fmt.to_ext()}"
+                grid_out.save(path_out, fmt, key = key)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
     def fix_cmap(path_in: Path, path_out: Path) -> None:
         resolution = None
         keys = vg.GridIO.get_cmap_keys(path_in)
