@@ -8,7 +8,6 @@ DEFAULT_COMPARISON_THRESHOLD = 1e-5 # [TODO] this should be a config
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppVGTools(vg.AppSubcommand):
-    # --------------------------------------------------------------------------
     def __init__(self, app_main: "vg.AppMain"):
         super().__init__(app_main)
         app_main.load_configs(vg, vgt)

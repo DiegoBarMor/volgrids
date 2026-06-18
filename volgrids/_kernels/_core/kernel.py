@@ -2,20 +2,6 @@ import numpy as np
 
 import volgrids as vg
 
-# ------------------------------------------------------------------------------
-def _clamp_indices(g_idx0, g_idx1, k_idx0, k_idx1, g_res, k_res):
-    if (g_idx0 < 0) and (g_res <= g_idx1): # kernel would be larger than the big grid
-        return 0, g_res, -g_idx0, -g_idx0+g_res
-
-    if g_idx0 < 0: # kernel would start before the big grid
-        return 0, g_idx1, k_res-g_idx1, k_idx1
-
-    if g_idx1 >= g_res: # kernel would end after the big grid
-        return g_idx0, g_res, k_idx0, g_res-g_idx0
-
-    return g_idx0, g_idx1, k_idx0, k_idx1
-
-
 # //////////////////////////////////////////////////////////////////////////////
 class Kernel:
     def __init__(self, radius, deltas, dtype, kop: vg.KOperation = vg.KOperation.ADD):
@@ -56,9 +42,9 @@ class Kernel:
         k_rx, k_ry, k_rz = self.kernel_res
 
         ##### clamp the indices of both the big grid and the kernel
-        g_i0, g_i1, k_i0, k_i1 = _clamp_indices(g_i0, g_i1, k_i0, k_i1, g_rx, k_rx)
-        g_j0, g_j1, k_j0, k_j1 = _clamp_indices(g_j0, g_j1, k_j0, k_j1, g_ry, k_ry)
-        g_k0, g_k1, k_k0, k_k1 = _clamp_indices(g_k0, g_k1, k_k0, k_k1, g_rz, k_rz)
+        g_i0, g_i1, k_i0, k_i1 = self._clamp_indices(g_i0, g_i1, k_i0, k_i1, g_rx, k_rx)
+        g_j0, g_j1, k_j0, k_j1 = self._clamp_indices(g_j0, g_j1, k_j0, k_j1, g_ry, k_ry)
+        g_k0, g_k1, k_k0, k_k1 = self._clamp_indices(g_k0, g_k1, k_k0, k_k1, g_rz, k_rz)
 
         ##### stamp the kernel on the big grid
         subkernel = self.arr[k_i0:k_i1, k_j0:k_j1, k_k0:k_k1]
@@ -69,6 +55,21 @@ class Kernel:
 
         grid.arr[g_i0:g_i1, g_j0:g_j1, g_k0:g_k1] = self.operation(subgrid, scaled_subkernel)
         grid.dirty = True
+
+
+    # ------------------------------------------------------------------------------
+    @staticmethod
+    def _clamp_indices(g_idx0, g_idx1, k_idx0, k_idx1, g_res, k_res):
+        if (g_idx0 < 0) and (g_res <= g_idx1): # kernel would be larger than the big grid
+            return 0, g_res, -g_idx0, -g_idx0+g_res
+
+        if g_idx0 < 0: # kernel would start before the big grid
+            return 0, g_idx1, k_res-g_idx1, k_idx1
+
+        if g_idx1 >= g_res: # kernel would end after the big grid
+            return g_idx0, g_res, k_idx0, g_res-g_idx0
+
+        return g_idx0, g_idx1, k_idx0, k_idx1
 
 
 # //////////////////////////////////////////////////////////////////////////////
