@@ -8,7 +8,6 @@ DEFAULT_COMPARISON_THRESHOLD = 1e-5 # [TODO] this should be a config
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppVGTools(vg.AppSubcommand):
-    # --------------------------------------------------------------------------
     def __init__(self, app_main: "vg.AppMain"):
         super().__init__(app_main)
         app_main.load_configs(vg, vgt)
@@ -88,8 +87,9 @@ class AppVGTools(vg.AppSubcommand):
         rotate_xy = self.main.get_arg_float("z")
 
         print(f">>> Rotating grid: {fy.Color.yellow(path_in)} by {rotate_xy}° (xy), {rotate_yz}° (yz), {rotate_xz}° (xz)")
-        grid = vgt.VGOperations.rotate(path_in, rotate_xy, rotate_yz, rotate_xz)
-        vg.GridIO.write_auto(path_out, grid)
+        vgt.VGOperations.rotate(
+            path_in, rotate_xy, rotate_yz, rotate_xz
+        ).save(path_out)
 
 
     # --------------------------------------------------------------------------
@@ -132,8 +132,7 @@ class AppVGTools(vg.AppSubcommand):
         path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         print(f">>> Averaging CMAP file: {fy.Color.yellow(path_in)}")
-        grid = vgt.VGOperations.average(path_in)
-        vg.GridIO.write_auto(path_out, grid)
+        vgt.VGOperations.average(path_in).save(path_out)
 
 
     # --------------------------------------------------------------------------
@@ -142,8 +141,7 @@ class AppVGTools(vg.AppSubcommand):
         path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         print(f">>> Standard Deviation for CMAP file: {fy.Color.yellow(path_in)}")
-        grid = vgt.VGOperations.std_dev(path_in)
-        vg.GridIO.write_auto(path_out, grid)
+        vgt.VGOperations.std_dev(path_in).save(path_out)
 
 
     # --------------------------------------------------------------------------
@@ -170,10 +168,10 @@ class AppVGTools(vg.AppSubcommand):
         }[command]
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} with {fy.Color.blue(path_in_1)}")
-        for key, grid in vgt.VGOperations.iter_op_binary(
+        for grid in vgt.VGOperations.iter_op_binary(
             path_in_0, path_in_1, operation, interpolate_to_common_box
         ):
-            vg.GridIO.write_auto(path_out, grid, key)
+            grid.save(path_out)
 
 
     # --------------------------------------------------------------------------
@@ -187,8 +185,8 @@ class AppVGTools(vg.AppSubcommand):
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grid: {fy.Color.red(path_in)}")
 
-        for key, grid in vgt.VGOperations.iter_op_unary(path_in, operation):
-            vg.GridIO.write_auto(path_out, grid, key)
+        for grid in vgt.VGOperations.iter_op_unary(path_in, operation):
+            grid.save(path_out)
 
 
     # --------------------------------------------------------------------------

@@ -51,8 +51,7 @@ class Histogram:
     @staticmethod
     def _collect_values(path_in: Path, key: str | None) -> tuple[np.ndarray, int, str]:
         def get_arrnonzero_and_ntotal(path_in, key = "") -> tuple[np.ndarray, int]:
-            grid = vg.GridIO.read_cmap(path_in, key) \
-                if key else vg.GridIO.read_auto(path_in)
+            grid = vg.Grid.load(path_in, key)
             return grid.arr[grid.arr > 0].ravel(), grid.arr.size
 
         fmt = vg.GridIO.detect_format(path_in)

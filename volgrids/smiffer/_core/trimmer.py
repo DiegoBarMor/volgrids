@@ -5,8 +5,6 @@ import volgrids.smiffer as sm
 
 # //////////////////////////////////////////////////////////////////////////////
 class Trimmer:
-
-    # --------------------------------------------------------------------------
     def __init__(self, ms: "sm.MolSystem"):
         self.ms: "sm.MolSystem" = ms
         self.cavfinder: sm.CavityFinder = sm.CavityFinder()

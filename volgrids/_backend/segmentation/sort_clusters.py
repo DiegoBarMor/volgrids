@@ -11,7 +11,7 @@ import volgrids as vg
 
 # ------------------------------------------------------------------------------
 def main():
-    grid = vg.GridIO.read_bin(PATH_BIN)
+    grid = vg.Grid.load(PATH_BIN, vg.GridFormat.BIN)
     grid.arr = grid.arr.astype(int)
 
     cluster_ids = set(grid.arr.flatten()) - {0}
@@ -26,7 +26,7 @@ def main():
         new_arr[grid.arr == cluster_id] = i
 
     grid.arr = new_arr
-    vg.GridIO.write_bin(PATH_BIN, grid)
+    grid.save(PATH_BIN, vg.GridFormat.BIN)
     print(f"...>>> Kept {len(cluster_ids)} clusters with volume >= {VOLUME_THRESHOLD}")
 
 

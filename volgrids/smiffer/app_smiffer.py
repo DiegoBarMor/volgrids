@@ -7,7 +7,6 @@ from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):
-    # --------------------------------------------------------------------------
     def __init__(self, app_main: "vg.AppMain", str_mode: str = "SMIFs"):
         super().__init__(app_main)
         self.str_mode = str_mode # just for printing

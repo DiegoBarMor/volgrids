@@ -30,7 +30,7 @@ class SmifAPBS(sm.Smif):
             text = fy.Color.red("APBS"), end = ' '
         )
 
-        apbs = vg.GridIO.read_auto(path_apbs_in)
+        apbs = vg.Grid.load(path_apbs_in)
         apbs.reshape_as_box(grid.box)
         grid.arr = apbs.arr
         grid.dirty = True

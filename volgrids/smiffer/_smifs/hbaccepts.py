@@ -6,7 +6,6 @@ from ._core.triplet import Triplet
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBAccepts(SmifHBonds):
-    # --------------------------------------------------------------------------
     def __init__(self, ms: "sm.MolSystem"):
         super().__init__(ms)
         self.kernel = vg.KernelGaussianBivariateAngleDist(
