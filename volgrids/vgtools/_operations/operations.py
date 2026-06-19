@@ -27,7 +27,7 @@ class VGOperations:
             if (new_res != resolution) and not warned:
                 print(
                     f">>> {fy.Color.red('Warning')}: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\
-                    "Chimera won't recognize it as a volume series and open every grid in a separate representation. " +\
+                    "Chimera won't recognize it as a volume series and will open every grid in a separate representation. " +\
                     "Use `volgrids vgtools fix_cmap` if you want to fix this."
                 )
                 warned = True
@@ -39,7 +39,7 @@ class VGOperations:
     def unpack(path_in: Path, folder_out: Path, fmt: vg.GridFormat) -> None:
         keys = vg.GridIO.get_cmap_keys(path_in)
         for key in keys:
-            path_out = folder_out / f"{key}.{fmt.to_ext()}"
+            path_out = folder_out / f"{key}.{fmt.suffix()}"
             grid = vg.Grid.load(path_in, key = key)
             grid.save(path_out, fmt)
 
@@ -62,7 +62,7 @@ class VGOperations:
             for val in unique_values:
                 grid_out.arr = grid_in.arr == val
                 str_val = f"{val:.6f}".replace('.', '_')
-                path_out = path_in.parent / f"{path_in.stem}.{str_val}.{fmt.to_ext()}"
+                path_out = path_in.parent / f"{path_in.stem}.{str_val}.{fmt.suffix()}"
                 grid_out.save(path_out, fmt, key = key)
 
 

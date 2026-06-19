@@ -248,7 +248,7 @@ class AppSmiffer(vg.AppSubcommand):
                 key_cmap = f"{self.ms.molname}.{kind}"
                 return path_out, key_cmap
 
-            path_out = folder_out / f"{self.ms.molname}.{kind}.{self.EXTENSION}.{fmt.to_ext()}"
+            path_out = folder_out / f"{self.ms.molname}.{kind}.{self.EXTENSION}.{fmt.suffix()}"
             return path_out, kind
 
         paths = {}; keys = {}

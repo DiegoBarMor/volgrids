@@ -24,7 +24,7 @@ class GridFormat(Enum):
 
 
     # --------------------------------------------------------------------------
-    def to_ext(self) -> str:
+    def suffix(self) -> str:
         if self == self.CMAP_PACKED: return "cmap"
         return self.name.lower()
 
