@@ -4,8 +4,6 @@ import volgrids as vg
 import volgrids.vgtools as vgt
 from volgrids._vendors import freyacli as fy
 
-DEFAULT_COMPARISON_THRESHOLD = 1e-5 # [TODO] this should be a config
-
 # //////////////////////////////////////////////////////////////////////////////
 class AppVGTools(vg.AppSubcommand):
     def __init__(self, app_main: "vg.AppMain"):
@@ -221,7 +219,7 @@ class AppVGTools(vg.AppSubcommand):
         path_in_0 = self.main.get_arg_path("path_0", assertion = fy.PathAssertion.FILE_IN)
         path_in_1 = self.main.get_arg_path("path_1", assertion = fy.PathAssertion.FILE_IN)
 
-        threshold = self.main.get_arg_float("threshold", default = DEFAULT_COMPARISON_THRESHOLD)
+        threshold = self.main.get_arg_float("threshold")
 
         print(f">>> Comparing grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)} (threshold={threshold:2.2e})")
         result = vgt.VGOperations.compare(path_in_0, path_in_1, threshold)
