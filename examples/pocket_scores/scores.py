@@ -106,6 +106,13 @@ class PocketScoreCalculator:
                     self._assign_score("apbs-pos", pos_ps, pos_wh, pocket)
 
                 else:
+                    kind = {
+                        "hba": "hbacceptors",
+                        "hbd": "hbdonors",
+                        "stk": "stacking",
+                        "hphob": "hydrophobic",
+                        "hphil": "hydrophilic",
+                    }[kind]
                     self._assign_score(kind, smif_ps, smif_wh, pocket)
 
 

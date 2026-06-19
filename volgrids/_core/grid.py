@@ -174,12 +174,12 @@ class Grid:
             return
 
         if fmt == vg.GridFormat.CMAP:
-            vg.GridIO.clear_cmap(path_out)
+            # vg.GridIO.clear_cmap(path_out) # [WIP]
             vg.GridIO.write_cmap(path_out, self, _key_cmap())
             return
 
         if fmt == vg.GridFormat.CMAP_PACKED:
-            vg.GridIO.clear_cmap(path_out)
+            # vg.GridIO.clear_cmap(path_out)
             vg.REMOVE_OLD_CMAP_OUTPUT = False
             vg.GridIO.write_cmap(path_out, self, _key_cmap())
             return

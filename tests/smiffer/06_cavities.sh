@@ -29,14 +29,14 @@ run_benchmarks() {
     for name in $names; do
         for i in 1 2 3; do
             python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_benchmark" CAVITIES_NPASSES=$i
-            mv "$fout_benchmark/$name.cmap" $fout_benchmark/npasses_$i.cmap
+            mv "$fout_benchmark/$name.all.smif.cmap" $fout_benchmark/npasses_$i.cmap
         done
 
         python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" \
             CAVITIES_WEIGHT=1.0 GRID_FORMAT_OUTPUT=CMAP CAVITIES_NPASSES=2
 
-        for smif in stacking hbacceptors hbdonors; do
-            mv "$fout_benchmark/$name.$smif.cmap" "$fout_benchmark/$name.$smif.weighted.cmap"
+        for smif in stk hba hbd; do
+            mv "$fout_benchmark/$name.$smif.smif.cmap" "$fout_benchmark/$name.$smif.weighted.cmap"
         done
 
         python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" SAVE_TRIMMING_MASK=true

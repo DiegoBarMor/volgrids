@@ -21,7 +21,7 @@ for name in "${names[@]}"; do
     ##### PART 0: H-bonds for only nucleobases, all residues
     python3 volgrids smiffer "$fpdb_clean/$name.pdb" -o "$fout" \
         -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true
-    mv "$fout/$name.cmap" "$fout/$name.nbases.cmap"
+    mv "$fout/$name.all.smif.cmap" "$fout/$name.nbases.cmap"
 
 
     ##### PART 1: H-bonds for only nucleobases, non-base-paired residues only
@@ -34,7 +34,7 @@ for name in "${names[@]}"; do
 
     python3 volgrids smiffer "$fpdb_clean/$name.pdb" -o "$fout" \
         -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true -r "$residues"
-    mv "$fout/$name.cmap" "$fout/$name.nbases.nobp.cmap"
+    mv "$fout/$name.all.smif.cmap" "$fout/$name.nbases.nobp.cmap"
 
 
     ##### PART 2: H-bonds for all residues + APBS
