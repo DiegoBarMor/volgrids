@@ -115,6 +115,6 @@ cd - >/dev/null || exit 250 # ------------------------------------ back to origi
 if [[ "$CONVERT_TO_MRC" == "true" ]]; then
     ### if this sh script is moved somewhere else and the volgrids package is installed
     ### the command below can be simplified to just "volgrids vgtools convert ..."
-    python3 "$root_volgrids" vgtools convert "$folder_out/$name_pdb.dx" --mrc "$folder_out/$name_pdb.mrc"
+    python3 "$root_volgrids" vgtools convert "$folder_out/$name_pdb.dx" -f MRC
     rm -f "$folder_out/$name_pdb.dx"
 fi
