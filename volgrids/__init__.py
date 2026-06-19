@@ -33,7 +33,6 @@ from ._ui.app_main import AppMain
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
-REMOVE_OLD_CMAP_OUTPUT: bool = True
 GZIP_COMPRESSION: int = 9
 WARNING_GRID_SIZE: float = 5.0e7
 OVERWRITE_OK: bool = True

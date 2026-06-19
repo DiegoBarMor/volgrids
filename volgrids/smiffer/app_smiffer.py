@@ -116,6 +116,9 @@ class AppSmiffer(vg.AppSubcommand):
             sm.DO_SMIF_APBS = False
             print(f"\n...--- ligand: {fy.Color.red('skipping APBS')} SMIF calculation.", end = ' ', flush = True)
 
+        for path in self.paths_out.values(): # pre-clear stale CMAP outputs once
+            vg.GridIO.remove(path)
+
         self.timer.start()
 
         ##### 0) SINGLE PDB MODE
@@ -227,7 +230,7 @@ class AppSmiffer(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _get_paths_keys_out(self, folder_out: Path) -> tuple[dict[str, Path], dict[str, str]]:
         """Return two dictionaries: `{kind: path_out}`, `{kind: key_cmap}` for each SMIF kind that is enabled."""
-        def _path_out(kind: str) -> tuple[Path, str]:
+        def _path_key_out(kind: str) -> tuple[Path, str]:
             if self.ms.do_traj:
                 path_out = folder_out / f"{self.ms.molname}.{kind}.{self.EXTENSION}.cmap"
                 key_cmap = f"{self.ms.molname}.{self.ms.frame:04}"
@@ -249,14 +252,14 @@ class AppSmiffer(vg.AppSubcommand):
             return path_out, kind
 
         paths = {}; keys = {}
-        if sm.DO_SMIF_HBA:         paths["hba"],   keys["hba"]   = _path_out("hba") # old extension: hbacceptors
-        if sm.DO_SMIF_HBD:         paths["hbd"],   keys["hbd"]   = _path_out("hbd") # old extension: hbdonors
-        if sm.DO_SMIF_STACKING:    paths["stk"],   keys["stk"]   = _path_out("stk") # old extension: stacking
-        if sm.SAVE_CAVITIES:       paths["cav"],   keys["cav"]   = _path_out("cav") # old extension: cavities
-        if sm.DO_SMIF_APBS:        paths["apbs"],  keys["apbs"]  = _path_out("apbs") # old extension: apbs
-        if sm.SAVE_TRIMMING_MASK:  paths["trim"],  keys["trim"]  = _path_out("trim") # old extension: trimming
-        if sm.DO_SMIF_HYDROPHOBIC: paths["hphob"], keys["hphob"] = _path_out("hphob") # old extension: hydrophobic
-        if sm.DO_SMIF_HYDROPHILIC: paths["hphil"], keys["hphil"] = _path_out("hphil") # old extension: hydrophilic
+        if sm.DO_SMIF_HBA:         paths["hba"],   keys["hba"]   = _path_key_out("hba") # old extension: hbacceptors
+        if sm.DO_SMIF_HBD:         paths["hbd"],   keys["hbd"]   = _path_key_out("hbd") # old extension: hbdonors
+        if sm.DO_SMIF_STACKING:    paths["stk"],   keys["stk"]   = _path_key_out("stk") # old extension: stacking
+        if sm.SAVE_CAVITIES:       paths["cav"],   keys["cav"]   = _path_key_out("cav") # old extension: cavities
+        if sm.DO_SMIF_APBS:        paths["apbs"],  keys["apbs"]  = _path_key_out("apbs") # old extension: apbs
+        if sm.SAVE_TRIMMING_MASK:  paths["trim"],  keys["trim"]  = _path_key_out("trim") # old extension: trimming
+        if sm.DO_SMIF_HYDROPHOBIC: paths["hphob"], keys["hphob"] = _path_key_out("hphob") # old extension: hydrophobic
+        if sm.DO_SMIF_HYDROPHILIC: paths["hphil"], keys["hphil"] = _path_key_out("hphil") # old extension: hydrophilic
         return paths, keys
 
 

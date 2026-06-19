@@ -16,6 +16,7 @@ def main():
     grid.arr = grid.arr.astype(int)
     cluster_ids = set(grid.arr.flatten()) - {0}
 
+    vg.GridIO.remove(PATH_CMAP)
     for cluster_id in cluster_ids:
         mask = vg.Grid(grid.box, init_grid = False)
         mask.arr = grid.arr == cluster_id
