@@ -131,7 +131,7 @@ class Grid:
         if fmt == vg.GridFormat.CCP4:
             return vg.GridIO.read_ccp4(path_in)
 
-        if fmt.is_cmap():
+        if fmt == vg.GridFormat.CMAP:
             if key is None:
                 keys = vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True)
                 key = keys[0]
@@ -173,7 +173,7 @@ class Grid:
             vg.GridIO.write_ccp4(path_out, self)
             return
 
-        if fmt.is_cmap():
+        if fmt == vg.GridFormat.CMAP:
             vg.GridIO.write_cmap(path_out, self, _key_cmap())
             return
 

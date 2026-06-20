@@ -7,7 +7,6 @@ class GridFormat(Enum):
     MRC = auto()
     CCP4 = auto()
     CMAP = auto()
-    CMAP_PACKED = auto()
 
     # --------------------------------------------------------------------------
     @classmethod
@@ -18,20 +17,13 @@ class GridFormat(Enum):
         if s == "MRC": return cls.MRC
         if s == "CCP4": return cls.CCP4
         if s == "CMAP": return cls.CMAP
-        if s == "CMAP_PACKED": return cls.CMAP_PACKED
         known_formats = ", ".join(fmt.name for fmt in cls)
         raise ValueError(f"Unknown grid format: {s}. Known formats: {known_formats}.")
 
 
     # --------------------------------------------------------------------------
     def suffix(self) -> str:
-        if self == self.CMAP_PACKED: return "cmap"
         return self.name.lower()
-
-
-    # --------------------------------------------------------------------------
-    def is_cmap(self) -> bool:
-        return self == self.CMAP or self == self.CMAP_PACKED
 
 
 # //////////////////////////////////////////////////////////////////////////////

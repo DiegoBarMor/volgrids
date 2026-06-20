@@ -3,7 +3,7 @@ VolGrids is a framework for volumetric calculations, with emphasis in biological
   - **SMIF Calculator** via `volgrids smiffer`. This is an implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
   - **Smiffer Utilities**  via `volgrids smutils`. Utilities related to more advanced SMIF usage.
   - **APBS** via `volgrids apbs`. Requires installing [APBS](#installation-ubuntu).
-  - **Volgrid Tools** via `volgrids vgtools`. Collection of utilities for manipulating DX, MRC, CCP4 and CMAP grids.
+  - **Volgrid Tools** via `volgrids vgtools`. Collection of utilities for analysis or post-processing of generic grids.
 
 You can read more in the [subcommands summary](#summary-of-subcommands).
 

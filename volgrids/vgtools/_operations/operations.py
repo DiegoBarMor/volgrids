@@ -49,7 +49,7 @@ class VGOperations:
     def extract(path_in: Path) -> None:
         fmt = vg.GridIO.detect_format(path_in)
         keys = vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True) \
-            if fmt.is_cmap() else [""]
+            if fmt == vg.GridFormat.CMAP else [""]
 
         for key in keys:
             grid_in = vg.Grid.load(path_in, key = key)
@@ -127,7 +127,7 @@ class VGOperations:
             print(f"...... non-zero points: {n_nonzero}/{n_total} ({str_perc})")
 
         grid = vg.Grid.load(path_in)
-        grid_names = vg.GridIO.get_cmap_keys(path_in) if grid.fmt.is_cmap() else [path_in.stem]
+        grid_names = vg.GridIO.get_cmap_keys(path_in) if grid.fmt == vg.GridFormat.CMAP else [path_in.stem]
 
         str_res = fy.Color.green(f"{grid.xres()}x{grid.yres()}x{grid.zres()}")
         str_min = fy.Color.red(f"{grid.xmin():.2f},{grid.ymin():.2f},{grid.zmin():.2f}")
@@ -137,7 +137,7 @@ class VGOperations:
         print(f"... resolution: {str_res}; deltas: ({grid.dx():.2f},{grid.dy():.2f},{grid.dz():.2f})")
         print(f"... box: ({str_min})->({str_max})")
 
-        if not grid.fmt.is_cmap():
+        if not grid.fmt == vg.GridFormat.CMAP:
             grid.name = path_in.stem
             numerics(grid); print()
             return
@@ -217,7 +217,7 @@ class VGOperations:
         Perform the numeric `operation` for one grid.
         Yields `(key, Grid)` pairs (`key` is the CMAP key, `None` for non-CMAP grids).
         """
-        is_cmap = vg.GridIO.detect_format(path_in).is_cmap()
+        is_cmap = vg.GridIO.detect_format(path_in) == vg.GridFormat.CMAP
         if not is_cmap:
             yield operation(vg.Grid.load(path_in))
             return
@@ -240,8 +240,8 @@ class VGOperations:
         broadcasting if one side has a single frame and the other has N.
         Yields `(key, Grid)` pairs (`key` is the CMAP key, `None` for non-CMAP grids).
         """
-        is_cmap_0 = vg.GridIO.detect_format(path_in_0).is_cmap()
-        is_cmap_1 = vg.GridIO.detect_format(path_in_1).is_cmap()
+        is_cmap_0 = vg.GridIO.detect_format(path_in_0) == vg.GridFormat.CMAP
+        is_cmap_1 = vg.GridIO.detect_format(path_in_1) == vg.GridFormat.CMAP
 
         if not (is_cmap_0 and is_cmap_1):
             grid_0 = vg.Grid.load(path_in_0)

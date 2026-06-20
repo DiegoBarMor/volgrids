@@ -107,11 +107,8 @@ class GridIO:
             )
             vgrid = vg.Grid(box, init_grid = False)
             vgrid.arr = frame["data_zyx"][()].transpose(2,1,0)
+            vgrid.fmt = vg.GridFormat.CMAP
             vgrid.name = key
-
-            n_keys = len(parser["Chimera"].keys())
-            vgrid.fmt = vg.GridFormat.CMAP_PACKED \
-                if (n_keys > 1) else vg.GridFormat.CMAP
         return vgrid
 
 
@@ -299,15 +296,9 @@ class GridIO:
     @staticmethod
     def detect_format(path_grid: str|Path) -> "vg.GridFormat":
         # [TODO] improve the format detection?
-        ext = Path(path_grid).suffix.lower()
-        if ext == ".dx": return vg.GridFormat.DX
-        if ext == ".bin": return vg.GridFormat.BIN
-        if ext == ".mrc": return vg.GridFormat.MRC
-        if ext == ".ccp4": return vg.GridFormat.CCP4
-        if ext == ".cmap":
-            keys = GridIO.get_cmap_keys(path_grid)
-            return vg.GridFormat.CMAP_PACKED if len(keys) > 1 else vg.GridFormat.CMAP
-        raise ValueError(f"Unrecognized file format: {ext}")
+        return vg.GridFormat.from_str(
+            Path(path_grid).suffix.lower().lstrip('.')
+        )
 
 
     # --------------------------------------------------------------------------

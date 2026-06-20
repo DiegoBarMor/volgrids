@@ -238,12 +238,8 @@ class AppSmiffer(vg.AppSubcommand):
 
             fmt = vg.GridFormat.from_str(sm.GRID_FORMAT_OUTPUT)
 
+            ### if CMAP is chosen outside trajectory mode, smiffer will pack the grids into a single CMAP file.
             if fmt == vg.GridFormat.CMAP:
-                path_out = folder_out / f"{self.ms.molname}.{kind}.{self.EXTENSION}.cmap"
-                key_cmap = self.ms.molname
-                return path_out, key_cmap
-
-            if fmt == vg.GridFormat.CMAP_PACKED:
                 path_out = folder_out / f"{self.ms.molname}.all.{self.EXTENSION}.cmap"
                 key_cmap = f"{self.ms.molname}.{kind}"
                 return path_out, key_cmap
