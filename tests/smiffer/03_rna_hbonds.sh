@@ -12,7 +12,7 @@ fpdb_clean="testdata/smiffer/pdb_clean"
 fout="testdata/smiffer/whole-hbond_details"
 mkdir -p $fout
 
-conf_just_hbond="DO_SMIF_STACKING=false DO_SMIF_HBA=true DO_SMIF_HBD=true DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false DO_SMIF_APBS=false"
+conf_just_hbond="GRID_FORMAT_OUTPUT=CMAP DO_SMIF_STACKING=false DO_SMIF_HBA=true DO_SMIF_HBD=true DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false DO_SMIF_APBS=false"
 
 names=(1akx 1i9v 2esj 4f8u 5bjo 5kx9 6tf3 7oax0 8eyv)
 for name in "${names[@]}"; do

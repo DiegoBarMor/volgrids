@@ -14,11 +14,11 @@ rm -rf $fout
 mkdir -p $fout_benchmark $fout_pocketsphere $fout_options
 
 conf_cavities() { # trim_occ, trim_cav, save_trim, save_cav, threshold
-    echo "DO_TRIMMING_OCCUPANCY=$1 DO_TRIMMING_CAVITIES=$2 SAVE_TRIMMING_MASK=$3 SAVE_CAVITIES=$4 TRIMMING_CAVITIES_THRESHOLD=$5"
+    echo "GRID_FORMAT_OUTPUT=CMAP DO_TRIMMING_OCCUPANCY=$1 DO_TRIMMING_CAVITIES=$2 SAVE_TRIMMING_MASK=$3 SAVE_CAVITIES=$4 TRIMMING_CAVITIES_THRESHOLD=$5"
 }
-conf_no_smifs="DO_SMIF_STACKING=False DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
-conf_just_stak="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
-conf_simple_smifs="DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
+conf_no_smifs="GRID_FORMAT_OUTPUT=CMAP DO_SMIF_STACKING=False DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
+conf_just_stak="GRID_FORMAT_OUTPUT=CMAP DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
+conf_simple_smifs="GRID_FORMAT_OUTPUT=CMAP DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
 
 
 ############################# BENCHMARK SYSTEMS
@@ -33,10 +33,10 @@ run_benchmarks() {
         done
 
         python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" \
-            CAVITIES_WEIGHT=1.0 GRID_FORMAT_OUTPUT=CMAP CAVITIES_NPASSES=2
+            CAVITIES_WEIGHT=1.0 GRID_FORMAT_OUTPUT=MRC CAVITIES_NPASSES=2
 
         for smif in stk hba hbd; do
-            mv "$fout_benchmark/$name.$smif.smif.cmap" "$fout_benchmark/$name.$smif.weighted.cmap"
+            mv "$fout_benchmark/$name.$smif.smif.mrc" "$fout_benchmark/$name.$smif.weighted.mrc"
         done
 
         python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" SAVE_TRIMMING_MASK=true
@@ -46,7 +46,7 @@ run_benchmarks() {
             ### no need to include the last CMAP created, as "pack" will append the other files to this one
             python3 volgrids vgtools pack "${cmaps[@]}" -o "$fout_benchmark/$name.cmap"
         )
-        rm -f "$fout_benchmark/$name".*.weighted.cmap
+        rm -f "$fout_benchmark/$name".*.weighted.mrc
 
         cp "$fpdb_orig/$name.pdb" $fout_benchmark/
 
