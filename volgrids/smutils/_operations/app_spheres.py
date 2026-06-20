@@ -85,7 +85,9 @@ class AppSpheres(vg.AppSubcommand):
             grid.reset()
             kernel = vg.KernelSphere(sphere.radius, ms.get_deltas(), bool)
             kernel.stamp(grid, sphere.get_pos())
-            sm.Smif.save_data(grid, ms, folder_out, "sphere")
+            path_out = folder_out / f"{ms.molname}.sphere.cmap"
+            key_out = f"sphere.{i:04}"
+            sm.Smif.save_data(grid, ms, path_out, key_out) # [WIP] check this
 
             timer.end()
 

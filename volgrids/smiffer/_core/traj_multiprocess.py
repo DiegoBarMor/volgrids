@@ -13,12 +13,6 @@ class TrajMultiprocess:
         import multiprocessing as mp
         from collections import deque
 
-        ### Pre-clear stale CMAP outputs once in the parent. Workers must not race on this.
-        if vg.REMOVE_OLD_CMAP_OUTPUT:
-            for path in self._worker_app.folder_out.glob(f"{self._worker_app.ms.molname}.*.cmap"):
-                path.unlink()
-            vg.REMOVE_OLD_CMAP_OUTPUT = False
-
         ### "fork" so children inherit module state (configs, _WORKER_APP, etc.) without pickling
         ctx = mp.get_context("fork")
         vg.MP_CMAP_LOCK = ctx.Lock()

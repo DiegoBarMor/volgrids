@@ -305,10 +305,7 @@ int main(int argc, char **argv) {
 
     free(clusters.data);
 
-    printf(
-        "...>>> Wrote %i clusters to %s.\n...... resolution: (nx=%u ny=%u nz=%u)\n...... isovalue: %g\n",
-        (int)nclusters, path_out, clusters.nx, clusters.ny, clusters.nz, (double)iso
-    );
+    printf("...>>> Wrote %i clusters to %s.\n", (int)nclusters, path_out);
     return 0;
 }
 

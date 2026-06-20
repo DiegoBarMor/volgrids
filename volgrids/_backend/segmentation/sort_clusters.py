@@ -38,4 +38,4 @@ if __name__ == "__main__":
 
 
 ################################################################################
-# python3 examples/bin_format/expand_mrc2cmap.py testdata/smiffer/interfaces/prot_rna/prot.stacking.clusters.bin
+# python3 examples/bin_format/expand_mrc2cmap.py testdata/smiffer/interfaces/prot_rna/prot.stk.clusters.bin

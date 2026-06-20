@@ -16,6 +16,7 @@ def main():
     grid.arr = grid.arr.astype(int)
     cluster_ids = set(grid.arr.flatten()) - {0}
 
+    vg.GridIO.remove(PATH_CMAP)
     for cluster_id in cluster_ids:
         mask = vg.Grid(grid.box, init_grid = False)
         mask.arr = grid.arr == cluster_id
@@ -34,4 +35,4 @@ if __name__ == "__main__":
 
 
 ################################################################################
-# python3 examples/bin_format/expand_mrc2cmap.py testdata/smiffer/interfaces/prot_rna/prot.stacking.clusters.bin
+# python3 examples/bin_format/expand_mrc2cmap.py testdata/smiffer/interfaces/prot_rna/prot.stk.clusters.bin

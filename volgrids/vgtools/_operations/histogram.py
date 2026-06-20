@@ -57,7 +57,7 @@ class Histogram:
         fmt = vg.GridIO.detect_format(path_in)
         str_preffix = "Non-zero voxel distribution"
 
-        if not fmt.is_cmap():
+        if fmt != vg.GridFormat.CMAP:
             return *get_arrnonzero_and_ntotal(path_in), f"{str_preffix}: {path_in.stem}"
 
         if key is None:
