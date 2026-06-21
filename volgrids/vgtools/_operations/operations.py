@@ -6,6 +6,9 @@ import volgrids as vg
 import volgrids.vgtools as vgt
 from volgrids._vendors import freyacli as fy
 
+EXTRACT_MAX_UNIQUE_VALUES = 100 # [TODO] should be a config
+EXTRACT_SKIP_ZEROS = True # [TODO] should be a config
+
 # //////////////////////////////////////////////////////////////////////////////
 class VGOperations:
     @staticmethod
@@ -34,6 +37,7 @@ class VGOperations:
 
             grid.save(path_out, vg.GridFormat.CMAP, key = key)
 
+
     # --------------------------------------------------------------------------
     @staticmethod
     def unpack(path_in: Path, folder_out: Path, fmt: vg.GridFormat) -> None:
@@ -51,13 +55,26 @@ class VGOperations:
         keys = vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True) \
             if fmt == vg.GridFormat.CMAP else [""]
 
+        unique_values = set()
         for key in keys:
             grid_in = vg.Grid.load(path_in, key = key)
+            unique_values.update(np.unique(grid_in.arr))
 
-            unique_values = np.unique(grid_in.arr)
-            msg_key = f" (key: {fy.Color.cyan(key)})" if key else ""
-            print(f"...>>> Found {len(unique_values)} unique values{msg_key}.")
+        if EXTRACT_SKIP_ZEROS: unique_values.discard(0.0)
 
+        if len(unique_values) > EXTRACT_MAX_UNIQUE_VALUES:
+            raise ValueError(
+                f"Warning: Found {len(unique_values)} unique values across {len(keys)} subgrid(s). "+\
+                f"Maximum allowed is {EXTRACT_MAX_UNIQUE_VALUES}. Aborting."
+            )
+
+        str_nvals = fy.Color.yellow(f"{len(unique_values)}")
+        str_nkeys = fy.Color.cyan(f"{len(keys)}")
+        print(f"...>>> Found {str_nvals} unique values across {str_nkeys} subgrid(s).")
+
+        for key in keys:
+            print(f"...... Extracting unique values from subgrid '{key}'...")
+            grid_in = vg.Grid.load(path_in, key = key)
             grid_out = grid_in.copy()
             for val in unique_values:
                 grid_out.arr = grid_in.arr == val

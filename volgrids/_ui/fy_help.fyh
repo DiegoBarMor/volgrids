@@ -153,6 +153,11 @@
         !fyh:format Grid format in which to unpack the CMAP file.
             Supported formats: DX, BIN, MRC, CCP4, CMAP.
     !@
+    @extract
+        !fyh:_ Extract the unique values of a grid file into separate files.
+            In the case of a CMAP file, consider all values across all grids stored inside the file.
+        !fyh:path_in Path to a grid file.
+    !@
 
     #### Operations for transforming single grids
     @fix_cmap

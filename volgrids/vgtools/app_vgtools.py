@@ -218,7 +218,6 @@ class AppVGTools(vg.AppSubcommand):
     def _run_compare(self):
         path_in_0 = self.main.get_arg_path("path_0", assertion = fy.PathAssertion.FILE_IN)
         path_in_1 = self.main.get_arg_path("path_1", assertion = fy.PathAssertion.FILE_IN)
-
         threshold = self.main.get_arg_float("threshold")
 
         print(f">>> Comparing grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)} (threshold={threshold:2.2e})")
