@@ -35,7 +35,7 @@ ff="$fvgtools/fix_cmap"
 fop="$fvgtools/operations"
 
 mkdir -p $fc $fp $fu $ff $fop
-rm -f $fc/* $fp/* $fu/* $ff/*.cmap $fop/*.cmap
+rm -f $fc/**/* $fp/* $fu/* $ff/*.cmap $fop/*.cmap
 
 conf_no_apbs="GRID_FORMAT_OUTPUT=MRC DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SMIF_HYDROPHOBIC=True DO_SMIF_HYDROPHILIC=True DO_SMIF_STACKING=True DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
 conf_just_stacking="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
@@ -54,7 +54,7 @@ python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.6
 mv $fc/1iqj.stk.smif.dx   $fc/1iqj.stk.dx
 mv $fc/1iqj.stk.smif.mrc  $fc/1iqj.stk.mrc
 mv $fc/1iqj.stk.smif.ccp4 $fc/1iqj.stk.ccp4
-mv $fc/1iqj.stk.smif.cmap $fc/1iqj.stk.cmap
+mv $fc/1iqj.all.smif.cmap $fc/1iqj.stk.cmap
 
 
 ############################# PACKING
