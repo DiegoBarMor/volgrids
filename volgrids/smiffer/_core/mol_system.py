@@ -38,14 +38,29 @@ class MolSystem:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def from_pqr_data(cls, pqr_data: str, box: vg.Box = None):
+    def from_pqr_data(cls, pqr_data: str, box: vg.Box = None, chains: list[str] = None):
+        """Adds back the `chains` information that is empty in the PQR file. `chains` should be of size (nresidues,)."""
         if not pqr_data:
             raise ValueError("Empty PQR content, aborting MolSystem instantiation.")
 
         with tempfile.NamedTemporaryFile(mode = "w+", suffix = ".pqr", delete = True) as tmp_pqr:
             tmp_pqr.write(pqr_data)
             tmp_pqr.flush()
-            return cls(Path(tmp_pqr.name), path_traj = None, box = box)
+            obj = cls(Path(tmp_pqr.name), path_traj = None, box = box)
+
+        ### add back the chain information
+        if chains is None:
+            chains = ['A'] * len(obj.system.residues)
+
+        chains_per_atom = [
+            chains[i]
+            for i,residue in enumerate(obj.system.residues)
+            for _ in residue.atoms
+        ]
+
+        obj.system.add_TopologyAttr("chainIDs", chains_per_atom)
+        return obj
+
 
 
     # --------------------------------------------------------------------------

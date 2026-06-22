@@ -28,7 +28,6 @@
 ## SMIFFER
 * validate the INI headers when parsing a user's provided chem table
 * there seems to be some previous bugs in trajectory mode; track down and fix.
-* can't use the -r flag when PQR structure is used because it doesn't have chain information.
 * check what happens with structure files with multiple models.
 * maybe: replace the RNDS trimming with a faster method
 * change the ligand example to one that uses both HBACCEPTORS, HBDONORS and NAMES_HBD_FIXED
