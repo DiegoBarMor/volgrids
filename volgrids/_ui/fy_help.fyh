@@ -180,7 +180,7 @@
         !fyh:path_out Path for grid output with the cluster labels.
             The labels are integers starting from 1.
             The clusters are sorted in descending order by size (i.e. from largest to smallest).
-        !fyh:isovalue Continuous voxels with a value higher than this parameter will be considered part of the same cluster.
+        !fyh:isovalue Continuous voxels with an absolute value higher than this parameter will be considered part of the same cluster.
         !fyh:volume_thr Clusters with an amount of voxels lower than this parameter will be discarded from the resulting grid.
     !@
 

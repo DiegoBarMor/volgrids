@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 typedef struct Grid {
     float dx, dy, dz;
@@ -212,7 +213,7 @@ static int find_clusters(Grid* smif, Grid* clusters, float isovalue) {
     float current_cluster = 0.0f; // float (despite cluster labels being integers) because the output grid is float
 
     for (uint64_t i = 0; i < npoints; ++i) {
-        if (smif->data[i] < isovalue || clusters->data[i]) continue;
+        if (fabs(smif->data[i]) < isovalue || clusters->data[i]) continue;
 
         current_cluster++;
 
@@ -222,7 +223,7 @@ static int find_clusters(Grid* smif, Grid* clusters, float isovalue) {
         while (head) {
             uint64_t idx = head->value;
 
-            if (smif->data[idx] < isovalue || clusters->data[idx]) {
+            if (fabs(smif->data[idx]) < isovalue || clusters->data[idx]) {
                 head = pop_ll_head(head);
                 continue;
             }
