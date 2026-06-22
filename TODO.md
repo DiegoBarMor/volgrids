@@ -28,7 +28,6 @@
 ## SMIFFER
 * validate the INI headers when parsing a user's provided chem table
 * there seems to be some previous bugs in trajectory mode; track down and fix.
-* can't use the -r flag when PQR structure is used because it doesn't have chain information.
 * check what happens with structure files with multiple models.
 * RNDS trimming could be removed. instead of it, a post-processing with a similar (and probably better) effect could be done with SMIF segmentation.
 * change the ligand example to one that uses both HBACCEPTORS, HBDONORS and NAMES_HBD_FIXED
