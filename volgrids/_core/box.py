@@ -104,6 +104,41 @@ class Box:
 
     # --------------------------------------------------------------------------
     @classmethod
+    def list_from_csv(cls, path_csv) -> list["Box"]:
+        """Read a CSV of per-frame boxes (one row per frame), with 6 columns:
+        `x_min, x_max, y_min, y_max, z_min, z_max` (all in Angstrom), i.e. the same
+        ordering as the `--box` CLI flag. An optional non-numeric header row is
+        allowed and silently ignored. Each box's deltas/resolution are inferred
+        just like any other box built from min/max coordinates.
+        """
+        rows = np.atleast_2d(np.genfromtxt(path_csv, delimiter = ",", dtype = vg.FLOAT_DTYPE))
+
+        ##### genfromtxt parses a non-numeric header row as NaN; drop any such rows
+        rows = rows[~np.isnan(rows).any(axis = 1)]
+        if rows.size == 0: raise ValueError(
+            f"No valid numeric rows found in box CSV file: {path_csv}"
+        )
+        if rows.shape[1] != 6: raise ValueError(
+            f"Box CSV file must have exactly 6 columns "
+            f"(x_min, x_max, y_min, y_max, z_min, z_max), "
+            f"but got {rows.shape[1]} columns in: {path_csv}"
+        )
+
+        boxes = []
+        for i, (x_min, x_max, y_min, y_max, z_min, z_max) in enumerate(rows):
+            min_coords = np.array([x_min, y_min, z_min], dtype = vg.FLOAT_DTYPE)
+            max_coords = np.array([x_max, y_max, z_max], dtype = vg.FLOAT_DTYPE)
+            if np.any(max_coords <= min_coords): raise ValueError(
+                f"Each box max coordinate must be strictly greater than its min, "
+                f"but row {i} of {path_csv} has "
+                f"min ({x_min}, {y_min}, {z_min}) and max ({x_max}, {y_max}, {z_max})."
+            )
+            boxes.append(cls.from_min_max(min_coords, max_coords))
+        return boxes
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
     def smallest_enclosing_box(cls, *boxes: "Box") -> "Box":
         return cls.from_min_max(
             min_coords = np.min([box.min_coords for box in boxes], axis = 0),
