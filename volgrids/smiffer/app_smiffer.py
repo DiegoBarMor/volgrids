@@ -7,7 +7,7 @@ from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):
-    EXTENSION = "smif"
+    EXTENSION = "" # optional extension for derived classes, should start with dot e.g. ".og"
 
     # --------------------------------------------------------------------------
     def __init__(self, app_main: "vg.AppMain", str_mode: str = "SMIFs"):
@@ -232,7 +232,7 @@ class AppSmiffer(vg.AppSubcommand):
         """Return two dictionaries: `{kind: path_out}`, `{kind: key_cmap}` for each SMIF kind that is enabled."""
         def _path_key_out(kind: str) -> tuple[Path, str]:
             if self.ms.do_traj:
-                path_out = folder_out / f"{self.ms.molname}.{kind}.{self.EXTENSION}.cmap"
+                path_out = folder_out / f"{self.ms.molname}.{kind}{self.EXTENSION}.cmap"
                 key_cmap = f"{self.ms.molname}.{self.ms.frame:04}"
                 return path_out, key_cmap
 
@@ -240,11 +240,11 @@ class AppSmiffer(vg.AppSubcommand):
 
             ### if CMAP is chosen outside trajectory mode, smiffer will pack the grids into a single CMAP file.
             if fmt == vg.GridFormat.CMAP:
-                path_out = folder_out / f"{self.ms.molname}.all.{self.EXTENSION}.cmap"
+                path_out = folder_out / f"{self.ms.molname}.all{self.EXTENSION}.cmap"
                 key_cmap = f"{self.ms.molname}.{kind}"
                 return path_out, key_cmap
 
-            path_out = folder_out / f"{self.ms.molname}.{kind}.{self.EXTENSION}.{fmt.suffix()}"
+            path_out = folder_out / f"{self.ms.molname}.{kind}{self.EXTENSION}.{fmt.suffix()}"
             return path_out, kind
 
         paths = {}; keys = {}
