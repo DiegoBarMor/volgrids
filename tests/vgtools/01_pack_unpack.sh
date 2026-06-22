@@ -9,7 +9,7 @@ fp="$folder/packing"
 fu="$folder/unpacking"
 
 ############################# PACKING
-paths_in="$fp/2esj.hba.mrc $fp/2esj.hbd.mrc $fp/2esj.phi.mrc $fp/2esj.pho.mrc $fp/2esj.stk.mrc"
+paths_in="$fp/2esj.hba.mrc $fp/2esj.hbd.mrc $fp/2esj.hphil.mrc $fp/2esj.hphob.mrc $fp/2esj.stk.mrc"
 path_out="$fp/2esj.cmap"
 
 # shellcheck disable=SC2086

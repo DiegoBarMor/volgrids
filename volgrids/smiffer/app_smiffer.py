@@ -21,6 +21,9 @@ class AppSmiffer(vg.AppSubcommand):
         self.path_traj: Path
         self.nproc: int
 
+        self.paths_out: dict[str, Path]
+        self.keys_out: dict[str, str]
+
         #### set in every call of _process_grids
         self.trimmer: sm.Trimmer
         self.grid_smif: vg.Grid
@@ -46,6 +49,7 @@ class AppSmiffer(vg.AppSubcommand):
             default = sm.PATH_STRUCT.parent
         )
         self.nproc = max(1, self.main.get_arg_int("nproc", default = 1))
+        self.do_pack_output = self.main.get_arg_bool("pack")
 
 
         self._handle_params_configs()
@@ -238,8 +242,7 @@ class AppSmiffer(vg.AppSubcommand):
 
             fmt = vg.GridFormat.from_str(sm.GRID_FORMAT_OUTPUT)
 
-            ### if CMAP is chosen outside trajectory mode, smiffer will pack the grids into a single CMAP file.
-            if fmt == vg.GridFormat.CMAP:
+            if self.do_pack_output: # --pack flag disregards GRID_FORMAT_OUTPUT and uses CMAP
                 path_out = folder_out / f"{self.ms.molname}.all{self.EXTENSION}.cmap"
                 key_cmap = f"{self.ms.molname}.{kind}"
                 return path_out, key_cmap

@@ -32,6 +32,8 @@
         Number of worker processes to use in trajectory mode (1 disables multiprocessing), default no multiprocessing.
         Frames are dispatched to workers and processed in parallel; output ordering may differ from frame order.
         Has no effect outside trajectory mode.
+    !fyh:pack
+        Use this flag to pack the output grids into a single CMAP file (with "all" as its SMIF kind in the file extension).
 !fed
 
 @smiffer

@@ -51,8 +51,6 @@ python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.6
 python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_ccp4"
 python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_cmap"
 
-mv $fc/1iqj.all.cmap $fc/1iqj.stk.cmap
-
 
 ############################# PACKING
 python3 volgrids smiffer $fpdb_nosolv/2esj.pdb -o $fp -s 21.865 -6.397 16.946 15.708 --config "$conf_no_apbs"

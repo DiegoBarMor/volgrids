@@ -29,7 +29,7 @@ run_benchmarks() {
     for name in $names; do
         for i in 1 2 3; do
             python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_benchmark" CAVITIES_NPASSES=$i
-            mv "$fout_benchmark/$name.all.cmap" $fout_benchmark/npasses_$i.cmap
+            mv "$fout_benchmark/$name.cav.cmap" $fout_benchmark/npasses_$i.cmap
         done
 
         python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" \
