@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.16.1] - 2026-06-22
+- Fixed bug where smifer's -r flag couldn't be used when APBS is run.
+    - Note that because APBS is run beforehand, it's not straightforward to select the gridpoints that are only related to the desired residues, so it's currently not implemented.
+
+
 ## [0.16.0] - 2026-06-14
 - Smiffer for trajectories now receives list of spheres for the -s flag.
     - This way, it has a similar usage as `smutils sphere grid` (where the spheres are simply the output from `smutils sphere find`).
