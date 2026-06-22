@@ -4,7 +4,7 @@ import volgrids.smutils as su
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppOccupancy(sm.AppSmiffer):
-    EXTENSION = "og" # occupancy grid
+    EXTENSION = ".og" # occupancy grid
 
     # --------------------------------------------------------------------------
     def __init__(self, app_main: "vg.AppMain"):
