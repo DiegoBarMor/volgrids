@@ -51,7 +51,6 @@ class AppSmiffer(vg.AppSubcommand):
         self.nproc = max(1, self.main.get_arg_int("nproc", default = 1))
         self.do_pack_output = self.main.get_arg_bool("pack")
 
-
         self._handle_params_configs()
         self._handle_params_resids()
         self._handle_params_sphere()
@@ -70,6 +69,7 @@ class AppSmiffer(vg.AppSubcommand):
         )
 
         self.paths_out, self.keys_out = self._get_paths_keys_out(self.folder_out)
+        self.ms.enforce_cmap_output |= self.do_pack_output
 
 
     # --------------------------------------------------------------------------
@@ -240,13 +240,12 @@ class AppSmiffer(vg.AppSubcommand):
                 key_cmap = f"{self.ms.molname}.{self.ms.frame:04}"
                 return path_out, key_cmap
 
-            fmt = vg.GridFormat.from_str(sm.GRID_FORMAT_OUTPUT)
-
             if self.do_pack_output: # --pack flag disregards GRID_FORMAT_OUTPUT and uses CMAP
                 path_out = folder_out / f"{self.ms.molname}.all{self.EXTENSION}.cmap"
                 key_cmap = f"{self.ms.molname}.{kind}"
                 return path_out, key_cmap
 
+            fmt = vg.GridFormat.from_str(sm.GRID_FORMAT_OUTPUT)
             path_out = folder_out / f"{self.ms.molname}.{kind}{self.EXTENSION}.{fmt.suffix()}"
             return path_out, kind
 
