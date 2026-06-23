@@ -237,7 +237,7 @@ class AppSmiffer(vg.AppSubcommand):
         def _path_key_out(kind: str) -> tuple[Path, str]:
             if self.ms.do_traj:
                 path_out = folder_out / f"{self.ms.molname}.{kind}{self.EXTENSION}.cmap"
-                key_cmap = f"{self.ms.molname}.{self.ms.frame:04}"
+                key_cmap = self.ms.molname # frame number is to be appended in every iteration of the traj
                 return path_out, key_cmap
 
             if self.do_pack_output: # --pack flag disregards GRID_FORMAT_OUTPUT and uses CMAP

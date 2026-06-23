@@ -27,6 +27,7 @@ class Smif:
         # trajectory ignores the GRID_FORMAT_OUTPUT config -> CMAP is the only format that supports multiple frames
         fmt = vg.GridFormat.CMAP if ms.enforce_cmap_output \
             else vg.GridFormat.from_str(sm.GRID_FORMAT_OUTPUT)
+        if ms.do_traj: key_out += f".{ms.frame:04}"
         grid.save(path_out, fmt, key_out)
 
 

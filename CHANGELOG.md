@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.17.1] - 2026-06-23
+- **Hotfix:** fixed bug introduced in `0.17.0` for trajectory smifs outputs.
+
+
 ## [0.17.0] - 2026-06-23
 - `volgrids`
     - Removed `GridIO.write_auto` and consolidated `Grid.save` instead.
