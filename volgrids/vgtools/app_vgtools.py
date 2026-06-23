@@ -4,11 +4,8 @@ import volgrids as vg
 import volgrids.vgtools as vgt
 from volgrids._vendors import freyacli as fy
 
-DEFAULT_COMPARISON_THRESHOLD = 1e-5 # [TODO] this should be a config
-
 # //////////////////////////////////////////////////////////////////////////////
 class AppVGTools(vg.AppSubcommand):
-    # --------------------------------------------------------------------------
     def __init__(self, app_main: "vg.AppMain"):
         super().__init__(app_main)
         app_main.load_configs(vg, vgt)
@@ -20,6 +17,7 @@ class AppVGTools(vg.AppSubcommand):
         if operation == "convert"  : return self._run_convert()
         if operation == "pack"     : return self._run_pack()
         if operation == "unpack"   : return self._run_unpack()
+        if operation == "extract"  : return self._run_extract()
         if operation == "fix_cmap" : return self._run_fix_cmap()
         if operation == "rotate"   : return self._run_rotate()
         if operation == "segment"  : return self._run_segment()
@@ -41,7 +39,7 @@ class AppVGTools(vg.AppSubcommand):
         )
         fmt = self._get_valid_fmt_arg()
 
-        path_out = folder_out / f"{path_in.stem}.{fmt.to_ext()}"
+        path_out = folder_out / f"{path_in.stem}.{fmt.suffix()}"
 
         print(f">>> Converting {fy.Color.yellow(path_in)} file to {fy.Color.magenta(fmt.name)}: {fy.Color.blue(path_out)}")
         vgt.VGOperations.convert(path_in, path_out, fmt)
@@ -70,6 +68,14 @@ class AppVGTools(vg.AppSubcommand):
 
 
     # --------------------------------------------------------------------------
+    def _run_extract(self):
+        path_in  = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
+
+        print(f">>> Extracting unique values from '{fy.Color.yellow(path_in)}'")
+        vgt.VGOperations.extract(path_in)
+
+
+    # --------------------------------------------------------------------------
     def _run_fix_cmap(self):
         path_in  = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
         path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
@@ -88,8 +94,9 @@ class AppVGTools(vg.AppSubcommand):
         rotate_xy = self.main.get_arg_float("z")
 
         print(f">>> Rotating grid: {fy.Color.yellow(path_in)} by {rotate_xy}° (xy), {rotate_yz}° (yz), {rotate_xz}° (xz)")
-        grid = vgt.VGOperations.rotate(path_in, rotate_xy, rotate_yz, rotate_xz)
-        vg.GridIO.write_auto(path_out, grid)
+        vgt.VGOperations.rotate(
+            path_in, rotate_xy, rotate_yz, rotate_xz
+        ).save(path_out)
 
 
     # --------------------------------------------------------------------------
@@ -132,8 +139,7 @@ class AppVGTools(vg.AppSubcommand):
         path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         print(f">>> Averaging CMAP file: {fy.Color.yellow(path_in)}")
-        grid = vgt.VGOperations.average(path_in)
-        vg.GridIO.write_auto(path_out, grid)
+        vgt.VGOperations.average(path_in).save(path_out)
 
 
     # --------------------------------------------------------------------------
@@ -142,8 +148,7 @@ class AppVGTools(vg.AppSubcommand):
         path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         print(f">>> Standard Deviation for CMAP file: {fy.Color.yellow(path_in)}")
-        grid = vgt.VGOperations.std_dev(path_in)
-        vg.GridIO.write_auto(path_out, grid)
+        vgt.VGOperations.std_dev(path_in).save(path_out)
 
 
     # --------------------------------------------------------------------------
@@ -170,10 +175,10 @@ class AppVGTools(vg.AppSubcommand):
         }[command]
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} with {fy.Color.blue(path_in_1)}")
-        for key, grid in vgt.VGOperations.iter_op_binary(
+        for grid in vgt.VGOperations.iter_op_binary(
             path_in_0, path_in_1, operation, interpolate_to_common_box
         ):
-            vg.GridIO.write_auto(path_out, grid, key)
+            grid.save(path_out)
 
 
     # --------------------------------------------------------------------------
@@ -187,8 +192,8 @@ class AppVGTools(vg.AppSubcommand):
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grid: {fy.Color.red(path_in)}")
 
-        for key, grid in vgt.VGOperations.iter_op_unary(path_in, operation):
-            vg.GridIO.write_auto(path_out, grid, key)
+        for grid in vgt.VGOperations.iter_op_unary(path_in, operation):
+            grid.save(path_out)
 
 
     # --------------------------------------------------------------------------
@@ -213,8 +218,7 @@ class AppVGTools(vg.AppSubcommand):
     def _run_compare(self):
         path_in_0 = self.main.get_arg_path("path_0", assertion = fy.PathAssertion.FILE_IN)
         path_in_1 = self.main.get_arg_path("path_1", assertion = fy.PathAssertion.FILE_IN)
-
-        threshold = self.main.get_arg_float("threshold", default = DEFAULT_COMPARISON_THRESHOLD)
+        threshold = self.main.get_arg_float("threshold")
 
         print(f">>> Comparing grids: {fy.Color.red(path_in_0)} vs {fy.Color.blue(path_in_1)} (threshold={threshold:2.2e})")
         result = vgt.VGOperations.compare(path_in_0, path_in_1, threshold)

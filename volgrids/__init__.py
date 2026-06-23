@@ -5,6 +5,7 @@ from ._version import __version__
 
 from ._core.box import Box
 from ._core.grid import Grid
+from ._core.math import Math
 
 from ._kernels._core.k_operation import KOperation
 from ._kernels._core.kernel import Kernel
@@ -13,7 +14,6 @@ from ._kernels.boolean import \
 from ._kernels.gaussian import \
     KernelGaussianUnivariateDist, KernelGaussianBivariateAngleDist
 
-from ._misc.math import Math
 from ._misc.params_gaussian import ParamsGaussian, \
     ParamsGaussianUnivariate, ParamsGaussianBivariate
 from ._misc.timer import Timer
@@ -33,7 +33,6 @@ from ._ui.app_main import AppMain
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
-REMOVE_OLD_CMAP_OUTPUT: bool = True
 GZIP_COMPRESSION: int = 9
 WARNING_GRID_SIZE: float = 5.0e7
 OVERWRITE_OK: bool = True

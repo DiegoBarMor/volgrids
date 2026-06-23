@@ -29,7 +29,7 @@
 * validate the INI headers when parsing a user's provided chem table
 * there seems to be some previous bugs in trajectory mode; track down and fix.
 * check what happens with structure files with multiple models.
-* maybe: replace the RNDS trimming with a faster method
+* RNDS trimming could be removed. instead of it, a post-processing with a similar (and probably better) effect could be done with SMIF segmentation.
 * change the ligand example to one that uses both HBACCEPTORS, HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
@@ -45,7 +45,7 @@
 * add missing vgtools tests.
 * check what happens if performing "fix_cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
-* when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of GridIO.read_auto arbitrarily deciding to take the first key it finds in the CMAP header)
+* when editing a CMAP file (be it converting it or performing an operation on it), one should be able to specify the key of the relevant grid (instead of `Grid.load` arbitrarily deciding to take the first key it finds in the CMAP header)
 * bypass the "large grid" warning when processing an existing large grid with VGTools.
 * add tests for BIN format and for "segment".
 * let "vgtools summary" receive multiple input files.

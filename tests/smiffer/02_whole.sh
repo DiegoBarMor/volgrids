@@ -14,8 +14,8 @@ for name in "${names[@]}"; do
     cp "$fpdb_clean/$name.pdb" "$fout/$name.pdb"
 done
 
-python3 volgrids smiffer $fpdb_clean/1akx.pdb  -o $fout -a $fapbs/1akx.pdb.mrc # rna
-python3 volgrids smiffer $fpdb_clean/1bg0.pdb  -o $fout -a $fapbs/1bg0.pdb.mrc # prot
-python3 volgrids smiffer $fpdb_clean/2esj.pdb  -o $fout -a $fapbs/2esj.pdb.mrc # rna
-python3 volgrids smiffer $fpdb_clean/6e9a.pdb  -o $fout -a $fapbs/6e9a.pdb.mrc # prot
-python3 volgrids smiffer $fpdb_clean/7oax0.pdb -o $fout -a $fapbs/7oax0.pdb.mrc # rna
+python3 volgrids smiffer $fpdb_clean/1akx.pdb  -o $fout -a $fapbs/1akx.pdb.mrc  --pack # rna
+python3 volgrids smiffer $fpdb_clean/1bg0.pdb  -o $fout -a $fapbs/1bg0.pdb.mrc  --pack # prot
+python3 volgrids smiffer $fpdb_clean/2esj.pdb  -o $fout -a $fapbs/2esj.pdb.mrc  --pack # rna
+python3 volgrids smiffer $fpdb_clean/6e9a.pdb  -o $fout -a $fapbs/6e9a.pdb.mrc  --pack # prot
+python3 volgrids smiffer $fpdb_clean/7oax0.pdb -o $fout -a $fapbs/7oax0.pdb.mrc --pack # rna

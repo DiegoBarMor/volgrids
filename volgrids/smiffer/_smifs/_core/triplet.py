@@ -2,13 +2,6 @@ import numpy as np
 
 import volgrids as vg
 
-# ------------------------------------------------------------------------------
-def _safe_return_coords(atoms, sel_string: str):
-    sel_atoms = atoms.select_atoms(sel_string)
-    if len(sel_atoms) == 0: return None
-    return sel_atoms.center_of_geometry()
-
-
 # //////////////////////////////////////////////////////////////////////////////
 class Triplet:
     def __init__(self,
@@ -31,21 +24,21 @@ class Triplet:
 
     # --------------------------------------------------------------------------
     def set_pos_tail(self, atoms) -> np.ndarray | None:
-        self.pos_tail = _safe_return_coords(
+        self.pos_tail = self._safe_return_coords(
             atoms, f"name {' '.join(self._tail)}"
         )
 
 
     # --------------------------------------------------------------------------
     def set_pos_head(self, atoms) -> np.ndarray | None:
-        self.pos_head = _safe_return_coords(
+        self.pos_head = self._safe_return_coords(
             atoms, f"name {self._head}"
         )
 
 
     # --------------------------------------------------------------------------
     def set_pos_interactor(self, atoms) -> np.ndarray | None:
-        self.pos_interactor = _safe_return_coords(
+        self.pos_interactor = self._safe_return_coords(
             atoms, f"name {self.interactor}"
         )
 
@@ -59,7 +52,7 @@ class Triplet:
         """
         assert len(self._tail) == 2, "Custom tail position can only be set for triplets with two tail points."
         t0, t1 = self._tail
-        self.pos_tail = _safe_return_coords(
+        self.pos_tail = self._safe_return_coords(
             atoms,
             f"({query_t0} and name {t0}) or " +\
             f"({query_t1} and name {t1})"
@@ -83,6 +76,14 @@ class Triplet:
         if (self.pos_tail is None) or (self.pos_head is None):
             return None
         return vg.Math.normalize(self.pos_head - self.pos_tail)
+
+
+    # ------------------------------------------------------------------------------
+    @staticmethod
+    def _safe_return_coords(atoms, sel_string: str):
+        sel_atoms = atoms.select_atoms(sel_string)
+        if len(sel_atoms) == 0: return None
+        return sel_atoms.center_of_geometry()
 
 
 # //////////////////////////////////////////////////////////////////////////////

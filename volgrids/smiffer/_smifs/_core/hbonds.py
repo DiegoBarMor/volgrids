@@ -8,7 +8,6 @@ from .smif import Smif
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBonds(Smif, ABC):
-    # --------------------------------------------------------------------------
     def __init__(self, ms: "sm.MolSystem"):
         super().__init__(ms)
         self.kernel: vg.KernelGaussianBivariateAngleDist = None

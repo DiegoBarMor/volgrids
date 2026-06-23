@@ -19,11 +19,11 @@ rm -rf "$folder_smiffer/cavities"
 
 rm -rf "$folder_smutils/hist"
 
-rm -f $folder_vgtools/converting/out_dx
-rm -f $folder_vgtools/converting/out_mrc
-rm -f $folder_vgtools/converting/out_ccp4
-rm -f $folder_vgtools/converting/out_cmap
-rm -f $folder_vgtools/packing/2esj.cmap
-rm -f $folder_vgtools/unpacking/1iqj.*.cmap
-rm -f $folder_vgtools/fix_cmap/hbdonors.fixed.cmap
-rm -f $folder_vgtools/operations/*.cmap
+rm -rf $folder_vgtools/converting/out_dx
+rm -rf $folder_vgtools/converting/out_mrc
+rm -rf $folder_vgtools/converting/out_ccp4
+rm -rf $folder_vgtools/converting/out_cmap
+rm  -f $folder_vgtools/packing/2esj.cmap
+rm  -f $folder_vgtools/unpacking/1iqj.*.cmap
+rm  -f $folder_vgtools/fix_cmap/hbd.fixed.cmap
+rm  -f $folder_vgtools/operations/*.cmap

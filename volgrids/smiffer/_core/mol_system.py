@@ -35,6 +35,8 @@ class MolSystem:
             nframes = self.system.trajectory.n_frames if self.do_traj else 1
             sm.SphereInfo.assert_sphere_list(sm.SPHERES, nframes)
 
+        self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
+
 
     # --------------------------------------------------------------------------
     @classmethod
@@ -72,6 +74,7 @@ class MolSystem:
         dst.box = src.box
         dst.do_ps = src.do_ps
         dst.chemtable = src.chemtable
+        dst.enforce_cmap_output = src.enforce_cmap_output
 
 
     # --------------------------------------------------------------------------

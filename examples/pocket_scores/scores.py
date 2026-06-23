@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -74,23 +75,23 @@ class PocketScoreCalculator:
 
     # --------------------------------------------------------------------------
     def run(self, folder_ps: Path, folder_wh: Path) -> None:
-        for path_ps in folder_ps.glob("*.cmap"):
-            name_pdb = path_ps.stem
+        for path_ps in sorted(folder_ps.glob("*.cmap")):
+            name_pdb = path_ps.name.split('.')[0]
             print(f"Processing {name_pdb}...")
 
-            path_wh = folder_wh / f"{name_pdb}.cmap"
+            path_wh = folder_wh / f"{name_pdb}.all.cmap"
 
             self.data_pdb.append(name_pdb)
 
             ### boolean grid, points in space that are part of the pocket are "True"
-            pocket = vg.GridIO.read_cmap(path_ps, f"{name_pdb}.trimming").arr.astype(bool)
+            pocket = vg.Grid.load(path_ps, key = f"{name_pdb}.trim").arr.astype(bool)
 
             keys = set(vg.GridIO.get_cmap_keys(path_ps))
             for key in keys:
-                if key.startswith(name_pdb + ".trimming"): continue
+                if key.startswith(name_pdb + ".trim"): continue
 
-                smif_ps = vg.GridIO.read_cmap(path_ps, key).arr
-                smif_wh = vg.GridIO.read_cmap(path_wh, key).arr
+                smif_ps = vg.Grid.load(path_ps, key = key).arr
+                smif_wh = vg.Grid.load(path_wh, key = key).arr
                 kind = key.split('.')[-1]
 
                 if kind == "apbs":
@@ -106,6 +107,13 @@ class PocketScoreCalculator:
                     self._assign_score("apbs-pos", pos_ps, pos_wh, pocket)
 
                 else:
+                    kind = {
+                        "hba": "hbacceptors",
+                        "hbd": "hbdonors",
+                        "stk": "stacking",
+                        "hphob": "hydrophobic",
+                        "hphil": "hydrophilic",
+                    }[kind]
                     self._assign_score(kind, smif_ps, smif_wh, pocket)
 
 
@@ -146,10 +154,11 @@ class PocketScoreCalculator:
 
 ################################################################################
 if __name__ == "__main__":
-    # Run tests/smiffer/run.sh before running this script
-    # Run this script from the root folder of the repository
+    ### Run tests/smiffer/run.sh at least once before running this script
+    ### It will populate FOLDER_DATA with the needed files
+    ### Run this script from the root folder of the repository
 
-    FOLDER_DATA  = Path("testdata/smiffer")
+    FOLDER_DATA  = Path(sys.argv[1])
     PATH_CSV_OUT = Path("examples/pocket_scores/scores.csv")
 
     FOLDER_PS    = FOLDER_DATA / "pocket_sphere"
@@ -163,3 +172,4 @@ if __name__ == "__main__":
 
 
 ################################################################################
+# python3 examples/pocket_scores/scores.py testdata/smiffer

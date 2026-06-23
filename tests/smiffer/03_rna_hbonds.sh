@@ -12,7 +12,7 @@ fpdb_clean="testdata/smiffer/pdb_clean"
 fout="testdata/smiffer/whole-hbond_details"
 mkdir -p $fout
 
-conf_just_hbond="DO_SMIF_STACKING=false DO_SMIF_HBA=true DO_SMIF_HBD=true DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false DO_SMIF_APBS=false"
+conf_just_hbond="GRID_FORMAT_OUTPUT=CMAP DO_SMIF_STACKING=false DO_SMIF_HBA=true DO_SMIF_HBD=true DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false DO_SMIF_APBS=false"
 
 names=(1akx 1i9v 2esj 4f8u 5bjo 5kx9 6tf3 7oax0 8eyv)
 for name in "${names[@]}"; do
@@ -20,8 +20,8 @@ for name in "${names[@]}"; do
 
     ##### PART 0: H-bonds for only nucleobases, all residues
     python3 volgrids smiffer "$fpdb_clean/$name.pdb" -o "$fout" \
-        -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true
-    mv "$fout/$name.cmap" "$fout/$name.nbases.cmap"
+        --pack -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true
+    mv "$fout/$name.all.cmap" "$fout/$name.nbases.cmap"
 
 
     ##### PART 1: H-bonds for only nucleobases, non-base-paired residues only
@@ -33,8 +33,8 @@ for name in "${names[@]}"; do
     echo "... non-base-paired residues for $name: $residues"
 
     python3 volgrids smiffer "$fpdb_clean/$name.pdb" -o "$fout" \
-        -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true -r "$residues"
-    mv "$fout/$name.cmap" "$fout/$name.nbases.nobp.cmap"
+        --pack -c "$conf_just_hbond" HBONDS_ONLY_NUCLEOBASE=true -r "$residues"
+    mv "$fout/$name.all.cmap" "$fout/$name.nbases.nobp.cmap"
 
 
     ##### PART 2: H-bonds for all residues + APBS

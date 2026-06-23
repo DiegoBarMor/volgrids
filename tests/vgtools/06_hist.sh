@@ -24,11 +24,11 @@ python3 volgrids vgtools histogram "$fc/1iqj.stk.cmap" --out "$fhist/hist_cmap_s
 
 ############################# MULTI-FRAME CMAP (all frames)
 echo ">>> hist: multi-frame CMAP (all frames)"
-python3 volgrids vgtools histogram "$ff/hbdonors.issue.cmap" --out "$fhist/hist_cmap_all.png"
+python3 volgrids vgtools histogram "$ff/hbd.issue.cmap" --out "$fhist/hist_cmap_all.png"
 
 
 ############################# MULTI-FRAME CMAP (single key)
 echo ">>> hist: multi-frame CMAP (single key)"
-python3 volgrids vgtools histogram "$fu/1iqj.cmap" --key "1iqj.hbacceptors" --out "$fhist/hist_cmap_key.png"
+python3 volgrids vgtools histogram "$fu/1iqj.cmap" --key "1iqj.stk" --out "$fhist/hist_cmap_key.png"
 
 # [TODO] add test for grid with all 0 values

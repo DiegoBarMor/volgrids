@@ -7,6 +7,8 @@ from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class AppSmiffer(vg.AppSubcommand):
+    EXTENSION = "" # optional extension for derived classes, should start with dot e.g. ".og"
+
     # --------------------------------------------------------------------------
     def __init__(self, app_main: "vg.AppMain", str_mode: str = "SMIFs"):
         super().__init__(app_main)
@@ -18,6 +20,9 @@ class AppSmiffer(vg.AppSubcommand):
         self.folder_out: Path
         self.path_traj: Path
         self.nproc: int
+
+        self.paths_out: dict[str, Path]
+        self.keys_out: dict[str, str]
 
         #### set in every call of _process_grids
         self.trimmer: sm.Trimmer
@@ -44,7 +49,7 @@ class AppSmiffer(vg.AppSubcommand):
             default = sm.PATH_STRUCT.parent
         )
         self.nproc = max(1, self.main.get_arg_int("nproc", default = 1))
-
+        self.do_pack_output = self.main.get_arg_bool("pack")
 
         self._handle_params_configs()
         self._handle_params_resids()
@@ -62,6 +67,9 @@ class AppSmiffer(vg.AppSubcommand):
             f">>> {'Sphere' if self.ms.do_ps else 'Whole'} "+\
             f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
         )
+
+        self.paths_out, self.keys_out = self._get_paths_keys_out(self.folder_out)
+        self.ms.enforce_cmap_output |= self.do_pack_output
 
 
     # --------------------------------------------------------------------------
@@ -112,6 +120,9 @@ class AppSmiffer(vg.AppSubcommand):
             sm.DO_SMIF_APBS = False
             print(f"\n...--- ligand: {fy.Color.red('skipping APBS')} SMIF calculation.", end = ' ', flush = True)
 
+        for path in self.paths_out.values(): # pre-clear stale CMAP outputs once
+            vg.GridIO.remove(path)
+
         self.timer.start()
 
         ##### 0) SINGLE PDB MODE
@@ -152,29 +163,34 @@ class AppSmiffer(vg.AppSubcommand):
             if sm.DO_SMIF_APBS:
                 sm.SmifAPBS(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "large")
-                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "apbs")
+                path_out, key_out = self.paths_out["apbs"], self.keys_out["apbs"]
+                sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
 
         def run_with_trim_mid():
             if sm.DO_SMIF_HYDROPHOBIC:
                 sm.SmifHydrophobic(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
-                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "hydrophobic")
+                path_out, key_out = self.paths_out["hphob"], self.keys_out["hphob"]
+                sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
             if sm.DO_SMIF_HBA:
                 sm.SmifHBAccepts(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
-                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "hbacceptors")
+                path_out, key_out = self.paths_out["hba"], self.keys_out["hba"]
+                sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
             if sm.DO_SMIF_HBD:
                 sm.SmifHBDonors(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
-                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "hbdonors")
+                path_out, key_out = self.paths_out["hbd"], self.keys_out["hbd"]
+                sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
             if sm.DO_SMIF_STACKING:
                 sm.SmifStacking(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
-                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "stacking")
+                path_out, key_out = self.paths_out["stk"], self.keys_out["stk"]
+                sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
             if sm.SAVE_TRIMMING_MASK:
                 self.trimmer.run_for_saving("mid")
@@ -183,14 +199,16 @@ class AppSmiffer(vg.AppSubcommand):
                     print(fy.Color.red("WARNING: ") + "Trimming mask was requested to be saved, but it is None. Skipping.")
                 else:
                     reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
-                    sm.Smif.save_data(reverse, ms, self.folder_out, "trimming")
+                    path_out, key_out = self.paths_out["trim"], self.keys_out["trim"]
+                    sm.Smif.save_data(reverse, ms, path_out, key_out)
 
 
         def run_with_trim_small():
             if sm.DO_SMIF_HYDROPHILIC:
                 sm.SmifHydrophilic(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "small")
-                sm.Smif.save_data(self.grid_smif, ms, self.folder_out, "hydrophilic")
+                path_out, key_out = self.paths_out["hphil"], self.keys_out["hphil"]
+                sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
 
         ms = self._current_mol_system()
@@ -204,12 +222,43 @@ class AppSmiffer(vg.AppSubcommand):
 
         if sm.SAVE_CAVITIES and self.trimmer.should_do_cavities():
             self.trimmer.run_for_saving("mid")
-            sm.Smif.save_data(self.trimmer.cavfinder.grid, ms, self.folder_out, "cavities")
+            path_out, key_out = self.paths_out["cav"], self.keys_out["cav"]
+            sm.Smif.save_data(self.trimmer.cavfinder.grid, ms, path_out, key_out)
 
         vg.TMP_APBS_CONTENT_PQR = "" # clear temporary PQR so that (optionally) subsequent frames recalculate it
 
         del self.grid_smif # just in case
         del self.trimmer
+
+
+    # --------------------------------------------------------------------------
+    def _get_paths_keys_out(self, folder_out: Path) -> tuple[dict[str, Path], dict[str, str]]:
+        """Return two dictionaries: `{kind: path_out}`, `{kind: key_cmap}` for each SMIF kind that is enabled."""
+        def _path_key_out(kind: str) -> tuple[Path, str]:
+            if self.ms.do_traj:
+                path_out = folder_out / f"{self.ms.molname}.{kind}{self.EXTENSION}.cmap"
+                key_cmap = f"{self.ms.molname}.{self.ms.frame:04}"
+                return path_out, key_cmap
+
+            if self.do_pack_output: # --pack flag disregards GRID_FORMAT_OUTPUT and uses CMAP
+                path_out = folder_out / f"{self.ms.molname}.all{self.EXTENSION}.cmap"
+                key_cmap = f"{self.ms.molname}.{kind}"
+                return path_out, key_cmap
+
+            fmt = vg.GridFormat.from_str(sm.GRID_FORMAT_OUTPUT)
+            path_out = folder_out / f"{self.ms.molname}.{kind}{self.EXTENSION}.{fmt.suffix()}"
+            return path_out, kind
+
+        paths = {}; keys = {}
+        if sm.DO_SMIF_HBA:         paths["hba"],   keys["hba"]   = _path_key_out("hba") # old extension: hbacceptors
+        if sm.DO_SMIF_HBD:         paths["hbd"],   keys["hbd"]   = _path_key_out("hbd") # old extension: hbdonors
+        if sm.DO_SMIF_STACKING:    paths["stk"],   keys["stk"]   = _path_key_out("stk") # old extension: stacking
+        if sm.SAVE_CAVITIES:       paths["cav"],   keys["cav"]   = _path_key_out("cav") # old extension: cavities
+        if sm.DO_SMIF_APBS:        paths["apbs"],  keys["apbs"]  = _path_key_out("apbs") # old extension: apbs
+        if sm.SAVE_TRIMMING_MASK:  paths["trim"],  keys["trim"]  = _path_key_out("trim") # old extension: trimming
+        if sm.DO_SMIF_HYDROPHOBIC: paths["hphob"], keys["hphob"] = _path_key_out("hphob") # old extension: hydrophobic
+        if sm.DO_SMIF_HYDROPHILIC: paths["hphil"], keys["hphil"] = _path_key_out("hphil") # old extension: hydrophilic
+        return paths, keys
 
 
     # --------------------------------------------------------------------------
