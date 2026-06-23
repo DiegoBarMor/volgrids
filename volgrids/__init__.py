@@ -72,3 +72,8 @@ TMP_APBS_CONTENT_IN: str = ""
 TMP_APBS_CONTENT_PQR: str = ""
 FLOAT_DTYPE: type = _np.float32
 MP_CMAP_LOCK = None # multiprocessing lock around CMAP writes (set by trajectory MP runner)
+
+### To get the informations about the command line used and the time at which the program is launched
+import sys as _sys, shlex as _shlex, datetime as _datetime
+LAUNCH_COMMAND: str = _shlex.join(_sys.argv)
+LAUNCH_TIME:    str = _datetime.datetime.now().astimezone().isoformat(timespec = "seconds")
