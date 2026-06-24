@@ -139,7 +139,7 @@ class MolSystem:
             box.max_coords = box.cog + sphere.radius
             box.radius = sphere.radius
             box.infer_deltas_resolution()
-            if vg.ENSURE_EQUILATERAL: box.enforce_equilateral()
+            if vg.BOX_FORCE_EQUILATERAL: box.enforce_equilateral()
             return box
 
         if self.do_traj:
@@ -169,10 +169,10 @@ class MolSystem:
     @staticmethod
     def _padded_box(min_coords: np.ndarray, max_coords: np.ndarray) -> vg.Box:
         box = vg.Box.from_min_max(
-            min_coords = min_coords - vg.EXTRA_BOX_SIZE,
-            max_coords = max_coords + vg.EXTRA_BOX_SIZE,
+            min_coords = min_coords - vg.BOX_PADDING,
+            max_coords = max_coords + vg.BOX_PADDING,
         )
-        if vg.ENSURE_EQUILATERAL: box.enforce_equilateral()
+        if vg.BOX_FORCE_EQUILATERAL: box.enforce_equilateral()
         return box
 
 
