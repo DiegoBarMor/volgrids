@@ -31,6 +31,14 @@ class Box:
     # --------------------------------------------------------------------------
     @classmethod
     def from_min_max(cls, min_coords: np.ndarray, max_coords: np.ndarray) -> "Box":
+        if np.any(max_coords <= min_coords):
+            xmin, ymin, zmin = min_coords
+            xmax, ymax, zmax = max_coords
+            raise ValueError(
+                f"Can't create box with min=({xmin},{ymin},{zmin}) and max=({xmax},{ymax},{zmax}): "
+                f"Each box max coordinate must be strictly greater than its min."
+            )
+
         box = cls(None, None, None, do_init = False)
         box.min_coords = np.array(min_coords)
         box.max_coords = np.array(max_coords)
@@ -124,17 +132,13 @@ class Box:
             f"but got {rows.shape[1]} columns in: {path_csv}"
         )
 
-        boxes = []
-        for i, (x_min, x_max, y_min, y_max, z_min, z_max) in enumerate(rows):
-            min_coords = np.array([x_min, y_min, z_min], dtype = vg.FLOAT_DTYPE)
-            max_coords = np.array([x_max, y_max, z_max], dtype = vg.FLOAT_DTYPE)
-            if np.any(max_coords <= min_coords): raise ValueError(
-                f"Each box max coordinate must be strictly greater than its min, "
-                f"but row {i} of {path_csv} has "
-                f"min ({x_min}, {y_min}, {z_min}) and max ({x_max}, {y_max}, {z_max})."
+        return [
+            cls.from_min_max(
+                np.array([x_min, y_min, z_min], dtype = vg.FLOAT_DTYPE),
+                np.array([x_max, y_max, z_max], dtype = vg.FLOAT_DTYPE),
             )
-            boxes.append(cls.from_min_max(min_coords, max_coords))
-        return boxes
+            for x_min, x_max, y_min, y_max, z_min, z_max in rows
+        ]
 
 
     # --------------------------------------------------------------------------
