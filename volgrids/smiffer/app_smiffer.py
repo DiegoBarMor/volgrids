@@ -64,7 +64,7 @@ class AppSmiffer(vg.AppSubcommand):
         ### so it's appropriate to place them at the end of init
         self.ms = sm.MolSystem(sm.PATH_STRUCT, self.path_traj)
         self.timer = vg.Timer(
-            f">>> {'Sphere' if self.ms.do_ps else 'Whole'} "+\
+            f">>> {'Sphere' if self.ms.do_use_sphere else 'Whole'} "+\
             f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
         )
 
@@ -332,7 +332,7 @@ class AppSmiffer(vg.AppSubcommand):
         spheres_flat = self.main.get_arg_float("sphere", is_list = True)
         if not spheres_flat: return
 
-        try: sm.SPHERES = vg.SphereInfo.sphere_list(spheres_flat)
+        try: sm.SPHERES = vg.SphereInfo.parse_sphere_infos(spheres_flat)
         except ValueError as e: self.main.help_and_exit(1, f"{e}")
 
 
@@ -346,7 +346,7 @@ class AppSmiffer(vg.AppSubcommand):
             "the grid box). Please provide only one of them."
         )
 
-        try: box_infos = vg.BoxInfo.parse_list_box_infos(boxes_flat)
+        try: box_infos = vg.BoxInfo.parse_box_infos(boxes_flat)
         except ValueError as e: self.main.help_and_exit(1, f"{e}")
 
         sm.BOXES_ENFORCED = [box_info.create_box() for box_info in box_infos]
