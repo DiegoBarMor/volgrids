@@ -14,6 +14,7 @@ class Box:
         self.deltas     : np.ndarray[float] # spacing between grid point in each dimension (in armstrong)
         self.cog        : np.ndarray[float] # center of geometry of the bounding box
         self.radius     : float             # (maximum) radius of the bounding box
+        self.info       : vg.BoxInfo
 
         if not do_init: return # useful if values are to be set immediately after the Box initialization
 
@@ -27,15 +28,26 @@ class Box:
         self.deltas     = deltas
         self.infer_radius_and_cog()
 
+        self.info = vg.BoxInfo.from_box(self)
+
 
     # --------------------------------------------------------------------------
     @classmethod
     def from_min_max(cls, min_coords: np.ndarray, max_coords: np.ndarray) -> "Box":
+        if np.any(max_coords <= min_coords):
+            xmin, ymin, zmin = min_coords
+            xmax, ymax, zmax = max_coords
+            raise ValueError(
+                f"Can't create box with min=({xmin},{ymin},{zmin}) and max=({xmax},{ymax},{zmax}): "
+                f"Each box max coordinate must be strictly greater than its min."
+            )
+
         box = cls(None, None, None, do_init = False)
         box.min_coords = np.array(min_coords)
         box.max_coords = np.array(max_coords)
         box.infer_deltas_resolution()
         box.infer_radius_and_cog()
+        box.info = vg.BoxInfo.from_box(box)
         return box
 
 

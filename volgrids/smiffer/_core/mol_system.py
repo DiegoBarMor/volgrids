@@ -23,16 +23,19 @@ class MolSystem:
         self.molname = path_struct.stem
         self.do_traj = path_traj is not None
         self.do_ps = len(sm.SPHERES) > 0
-        self.do_box_enforced = sm.BOX_ENFORCED is not None
+        self.do_box_enforced = len(sm.BOXES_ENFORCED) > 0
         self.chemtable = self._init_chemtable()
 
         self.system = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
         self.frame = 0 if self.do_traj else None
+        nframes = self.system.trajectory.n_frames if self.do_traj else 1
+
+        if self.do_box_enforced:
+            vg.BoxInfo.assert_list_box_infos([box.info for box in sm.BOXES_ENFORCED], nframes)
 
         self.box = self._get_init_box() if box is None else box
 
         if self.do_ps:
-            nframes = self.system.trajectory.n_frames if self.do_traj else 1
             vg.SphereInfo.assert_sphere_list(sm.SPHERES, nframes)
 
         self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
@@ -81,6 +84,10 @@ class MolSystem:
     def switch_frame(self, frame_idx: int):
         self.system.trajectory[frame_idx]
         self.frame = frame_idx
+        if self.do_box_enforced:
+            self.box = sm.BOXES_ENFORCED[frame_idx]
+        elif vg.BOX_TIGHT_TRAJ:
+            self.box = self._box_from_current_frame()
 
 
     # --------------------------------------------------------------------------
@@ -118,7 +125,7 @@ class MolSystem:
 
     # --------------------------------------------------------------------------
     def _get_init_box(self) -> vg.Box:
-        if self.do_box_enforced: return sm.BOX_ENFORCED
+        if self.do_box_enforced: return sm.BOXES_ENFORCED[self.frame or 0]
 
         if self.do_ps:
             sphere = self._get_current_sphere()
@@ -143,6 +150,20 @@ class MolSystem:
             min_coords = np.min(self.system.coord.positions, axis = 0)
             max_coords = np.max(self.system.coord.positions, axis = 0)
 
+        return self._padded_box(min_coords, max_coords)
+
+
+    # --------------------------------------------------------------------------
+    def _box_from_current_frame(self) -> vg.Box:
+        """Build a box that tightly encloses the structure at the current frame
+        (used by --auto-crop, which makes the grid follow the moving structure)."""
+        positions = self.system.coord.positions
+        return self._padded_box(positions.min(axis = 0), positions.max(axis = 0))
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def _padded_box(min_coords: np.ndarray, max_coords: np.ndarray) -> vg.Box:
         box = vg.Box.from_min_max(
             min_coords = min_coords - vg.BOX_PADDING,
             max_coords = max_coords + vg.BOX_PADDING,

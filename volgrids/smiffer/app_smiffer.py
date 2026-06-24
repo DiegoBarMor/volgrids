@@ -131,6 +131,8 @@ class AppSmiffer(vg.AppSubcommand):
             return _end()
         #####
 
+        self._warn_chimerax_incompatible()
+
         print()
         n_frames = len(self.ms.system.trajectory)
 
@@ -336,10 +338,41 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_box(self):
-        flat_box = self.main.get_arg_float("box", is_list = True)
-        if not flat_box: return
+        boxes_flat = self.main.get_arg_str("box", is_list = True)
+        if not boxes_flat: return
 
-        sm.BOX_ENFORCED = vg.BoxInfo.from_list(flat_box).create_box()
+        if sm.SPHERES: self.main.help_and_exit(1,
+            "The --box-csv and --sphere options are mutually exclusive (both define "
+            "the grid box). Please provide only one of them."
+        )
+
+        try: box_infos = vg.BoxInfo.parse_list_box_infos(boxes_flat)
+        except ValueError as e: self.main.help_and_exit(1, f"{e}")
+
+        sm.BOXES_ENFORCED = [box_info.create_box() for box_info in box_infos]
+
+
+    # --------------------------------------------------------------------------
+    def _warn_chimerax_incompatible(self):
+        """Warn when the grid box changes across frames: such a CMAP is a valid HDF5
+        file but cannot be opened as a map series by ChimeraX (which requires every
+        frame to share the same grid dimensions and origin)."""
+        if vg.BOX_TIGHT_TRAJ:
+            varying = True
+        elif sm.BOXES_ENFORCED:
+            first = sm.BOXES_ENFORCED[0]
+            varying = any(not (box == first) for box in sm.BOXES_ENFORCED)
+        else:
+            varying = False
+
+        if not varying: return
+        print(
+            fy.Color.red("WARNING: ") +
+            "the grid box changes across frames, so each frame of the output CMAP "
+            "will have a different origin/size. The file is a valid HDF5 CMAP, but it "
+            + fy.Color.red("cannot be opened as a map series by ChimeraX") +
+            " (which requires all frames to share the same dimensions and origin)."
+        )
 
 
     # --------------------------------------------------------------------------

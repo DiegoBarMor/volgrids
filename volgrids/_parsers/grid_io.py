@@ -265,6 +265,8 @@ class GridIO:
             if not path_cmap.exists():
                 with h5py.File(path_cmap, 'w') as h5:
                     h5.attrs["PYTABLES_FORMAT_VERSION"] = np.bytes_("2.0")
+                    h5.attrs["volgrids_command"] = np.bytes_(vg.LAUNCH_COMMAND)
+                    h5.attrs["volgrids_launch_time"] = np.bytes_(vg.LAUNCH_TIME)
                     _add_generic_attrs(h5)
 
                     chim = h5.create_group("Chimera")
@@ -318,6 +320,19 @@ class GridIO:
         if assert_has_keys and not keys:
             raise ValueError(f"Empty cmap file: {path_cmap}")
         return keys
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def read_cmap_metadata(path_cmap: Path) -> dict[str, str]:
+        """Returns the custom run metadata (command, launch time) embedded as attributes by write_cmap."""
+        import h5py
+        out = {}
+        with h5py.File(path_cmap, 'r') as h5:
+            for attr in ("volgrids_command", "volgrids_launch_time"):
+                if attr in h5.attrs:
+                    out[attr] = bytes(h5.attrs[attr]).decode()
+        return out
 
 
     # --------------------------------------------------------------------------
