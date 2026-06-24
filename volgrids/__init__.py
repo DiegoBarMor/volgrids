@@ -43,9 +43,9 @@ GZIP_COMPRESSION: int = 9
 WARNING_GRID_SIZE: float = 5.0e7
 OVERWRITE_OK: bool = True
 
-USE_FIXED_DELTAS: bool = True
-ENSURE_EQUILATERAL: bool = False
-EXTRA_BOX_SIZE: int = 5
+BOX_PADDING: int = 5
+BOX_FORCE_EQUILATERAL: bool = False
+BOX_FROM_DELTAS: bool = True
 
 GRID_DX: float = 0.25
 GRID_DY: float = 0.25

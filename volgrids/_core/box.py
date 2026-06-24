@@ -57,7 +57,7 @@ class Box:
     # --------------------------------------------------------------------------
     def infer_deltas_resolution(self):
         box_size: np.ndarray = self.max_coords - self.min_coords
-        if vg.USE_FIXED_DELTAS:
+        if vg.BOX_FROM_DELTAS:
             self.deltas = np.array([vg.GRID_DX, vg.GRID_DY, vg.GRID_DZ])
             self.resolution = np.round(box_size / self.deltas).astype(int)
         else:
