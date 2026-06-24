@@ -37,10 +37,9 @@ class AppBoxes(vg.AppSubcommand):
     # -------------------------------------------------------------------------- LOGIC SECTION
     @staticmethod
     def info(path_pdb: Path) -> tuple[float]:
-        box = sm.MolSystem(path_pdb).box
-        xmin, ymin, zmin = box.min_coords
-        xmax, ymax, zmax = box.max_coords
-        return xmin, xmax, ymin, ymax, zmin, zmax
+        return vg.BoxInfo.from_box(
+            sm.MolSystem(path_pdb).box
+        ).values()
 
 
 # //////////////////////////////////////////////////////////////////////////////

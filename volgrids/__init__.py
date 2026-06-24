@@ -17,6 +17,7 @@ from ._core.kernels.gaussian import \
     KernelGaussianUnivariateDist, KernelGaussianBivariateAngleDist
 
 from ._containers.sphere_info import SphereInfo
+from ._containers.box_info import BoxInfo
 from ._containers.params_gaussian import ParamsGaussian, \
     ParamsGaussianUnivariate, ParamsGaussianBivariate
 
