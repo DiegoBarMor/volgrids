@@ -17,9 +17,9 @@ class AppSMUtils(vg.AppSubcommand):
         if operation == "res_nostk": return self._run_res_nostk()
         if operation == "chemgen"  : return self._run_chemgen()
         if operation == "sphere"   : return self._run_sphere()
+        if operation == "box"      : return self._run_box()
         if operation == "occupancy": return self._run_occupancy()
         if operation == "pwoverlap": return self._run_pwoverlap()
-        if operation == "box_dim"  : return self._run_box_dim()
         if operation == "log_apbs" : return self._run_log_apbs()
         raise ValueError(f"Unknown operation: {operation}")
 
@@ -53,6 +53,11 @@ class AppSMUtils(vg.AppSubcommand):
 
 
     # --------------------------------------------------------------------------
+    def _run_box(self) -> None:
+        su.AppBoxes(self.main).run()
+
+
+    # --------------------------------------------------------------------------
     def _run_occupancy(self) -> None:
         su.AppOccupancy(self.main).run()
 
@@ -60,16 +65,6 @@ class AppSMUtils(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _run_pwoverlap(self) -> None:
         su.AppPwOverlap(self.main).run()
-
-
-    # --------------------------------------------------------------------------
-    def _run_box_dim(self) -> None:
-        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-
-        box = sm.MolSystem(path_in).box
-        xmin, ymin, zmin = box.min_coords
-        xmax, ymax, zmax = box.max_coords
-        print(f"{xmin:.3f} {xmax:.3f} {ymin:.3f} {ymax:.3f} {zmin:.3f} {zmax:.3f}")
 
 
     # --------------------------------------------------------------------------

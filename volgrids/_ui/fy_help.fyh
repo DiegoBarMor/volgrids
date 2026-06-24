@@ -87,6 +87,19 @@
                 When considering trajectories, the sphere information of all frames must be provided into a single space-separated string.
         !@
     !@
+    @box
+        !fyh:_ Collection of utilities related to boxes for building grids.
+        @info
+            !fyh:_ Print information for the box that would enclose a molecular structure.
+                Box information is printed as "x_min x_max y_min y_max z_min z_max".
+            !fyh:path_in File path to a molecular structure e.g. a PDB file.
+        !@
+        @size
+            !fyh:_ Print size for the box that would enclose a molecular structure.
+                Size is printed as "x_size y_size z_size".
+            !fyh:path_in File path to a molecular structure e.g. a PDB file.
+        !@
+    !@
 
     #### Advanced applications of the SMIF model
     @occupancy
@@ -108,11 +121,6 @@
     !@
 
     #### Miscellaneous
-    @box_dim
-        !fyh:_ Print information for the box that would enclose a molecular structure.
-            Box information is printed as "x_min x_max y_min y_max z_min z_max".
-        !fyh:path_in File path to a molecular structure e.g. a PDB file.
-    !@
     @log_apbs
         !fyh:_ Heuristic transformation of APBS grids, useful for some visualization pipelines.
         !fyh:path_in Path to an APBS grid file (original or already processed by smiffer).

@@ -6,6 +6,7 @@ from ._occupancies.hydrophobic import OgHydrophobic # [TODO] hydrophilic? electr
 from ._operations.app_occupancy import AppOccupancy
 from ._operations.app_pwoverlap import AppPwOverlap
 from ._operations.app_spheres import AppSpheres
+from ._operations.app_boxes import AppBoxes
 
 from ._operations.residues_nucleic import ResiduesNucleic
 from ._operations.chemtable_ligand import ChemTableLigand

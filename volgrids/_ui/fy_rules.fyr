@@ -42,6 +42,14 @@
             ~path_traj[t,traj]1.PATH
         !@
     !@
+    @box
+        @info
+            path_in[]1.PATH
+        !@
+        @size
+            path_in[]1.PATH
+        !@
+    !@
 
     #### Advanced applications of the SMIF model
     @occupancy
@@ -54,9 +62,6 @@
     !@
 
     #### Miscellaneous
-    @box_dim
-        path_in[]1.PATH
-    !@
     @log_apbs
         !use:_io_1_input
     !@
