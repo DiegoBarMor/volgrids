@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+import volgrids as vg
+
 # //////////////////////////////////////////////////////////////////////////////
 @dataclass
 class SphereInfo:
@@ -12,14 +14,12 @@ class SphereInfo:
     @classmethod
     def sphere_list(cls, spheres_flat: list[float]) -> list["SphereInfo"]:
         if not spheres_flat: return []
-        if len(spheres_flat) % 4: raise ValueError(
-            f"Spheres should be provided as a list of floats, with 4 floats per sphere (x,y,z,radius). "+\
-            f"Got {len(spheres_flat)} floats, which is not a multiple of 4."
+
+        spheres = vg.NumberLists(spheres_flat, 4)
+        if spheres.error: raise ValueError(
+            f"Spheres should be provided as a list of floats, with 4 floats per sphere (x,y,z,radius). {spheres.error}"
         )
-        return [
-            cls(x, y, z, radius) for x,y,z,radius in
-            zip(*[spheres_flat[i::4] for i in range(4)])
-        ]
+        return [cls(x, y, z, radius) for x,y,z,radius in spheres.values]
 
 
     # --------------------------------------------------------------------------

@@ -240,13 +240,12 @@ class AppVGTools(vg.AppSubcommand):
     def _run_points(self):
         path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
         points_flat = self.main.get_arg_float("points", is_list = True)
-        if len(points_flat) % 3: self.main.help_and_exit(1,
-            f"Points should be provided as a list of floats, with 3 floats per XYZ point. "+\
-            f"Got {len(points_flat)} floats, which is not a multiple of 3."
-        )
 
-        points = zip(*[points_flat[i::3] for i in range(3)])
-        print(*vgt.VGOperations.points(path_in, *points))
+        points = vg.NumberLists(points_flat, 3)
+        if points.error: self.main.help_and_exit(1,
+            f"Points should be provided as a list of floats, with 3 floats per XYZ point. {points.error}"
+        )
+        print(*vgt.VGOperations.points(path_in, *points.values))
 
 
     # --------------------------------------------------------------------------
