@@ -26,7 +26,7 @@ def main():
 ################################################################################
 if __name__ == "__main__":
     ROOT = Path("volgrids")
-    PATH_PY = ROOT / "_misc" / "known_configs.py"
+    PATH_PY = ROOT / "_data" / "known_configs.py"
     PATHS_INIT = [
         ROOT / "__init__.py",
         ROOT / "smiffer" / "__init__.py",

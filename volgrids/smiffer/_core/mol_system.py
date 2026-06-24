@@ -33,7 +33,7 @@ class MolSystem:
 
         if self.do_ps:
             nframes = self.system.trajectory.n_frames if self.do_traj else 1
-            sm.SphereInfo.assert_sphere_list(sm.SPHERES, nframes)
+            vg.SphereInfo.assert_sphere_list(sm.SPHERES, nframes)
 
         self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
 
@@ -168,7 +168,7 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
-    def _get_current_sphere(self) -> "sm.SphereInfo":
+    def _get_current_sphere(self) -> "vg.SphereInfo":
         if not self.do_ps: raise ValueError("No pocket sphere info available.")
         if self.frame is None: return sm.SPHERES[0]
         return sm.SPHERES[self.frame]
