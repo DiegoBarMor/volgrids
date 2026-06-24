@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0] - 2026-06-24
+- Added `NumberLists` class to handle common parsing of lists of numbers.
+- reworked `smutils box_dim` into `smutils box`. This new subcommand provides two children subcommands:
+    - `info`: print the min and max coordinates of the box as `x_min x_max y_min y_max z_min z_max`.
+    - `size`: print the size of the enclosing box for a molecular structure as `x_size y_size z_size`.
+
+
 ## [0.17.1] - 2026-06-23
 - **Hotfix:** fixed bug introduced in `0.17.0` for trajectory smifs outputs.
 
@@ -50,10 +57,10 @@
 ## [0.15.0] - 2026-06-11
 - `smiffer`
     - Can now specify the box used for building the grid with the `-b`/`--box` flag.
-        - Box information has the format: `x_min x_max y_min y_max z_min z_max`
+        - Box information has the format: `x_min x_max y_min y_max z_min z_max`.
 - `smutils`
     - `box_dim` subcommand now prints the min and max coords of the box.
-        - Box information has the format: `x_min x_max y_min y_max z_min z_max`
+        - Box information has the format: `x_min x_max y_min y_max z_min z_max`.
 - `vgtools`
     - Can now specify output format when unpacking a CMAP file with the `-f`/`--format` flag.
     - The `convert` subcommand had a similar change, now using the `-f`/`--format` flag instead of multiple flags for every format.

@@ -7,21 +7,25 @@ from ._core.box import Box
 from ._core.grid import Grid
 from ._core.math import Math
 
-from ._kernels._core.k_operation import KOperation
-from ._kernels._core.kernel import Kernel
-from ._kernels.boolean import \
+from ._types.grid_format import GridFormat
+from ._types.k_operation import KOperation
+
+from ._core.kernels.kernel import Kernel
+from ._core.kernels.boolean import \
     KernelSphere, KernelCylinder, KernelDisk, KernelDiskConecut
-from ._kernels.gaussian import \
+from ._core.kernels.gaussian import \
     KernelGaussianUnivariateDist, KernelGaussianBivariateAngleDist
 
-from ._misc.params_gaussian import ParamsGaussian, \
+from ._containers.sphere_info import SphereInfo
+from ._containers.params_gaussian import ParamsGaussian, \
     ParamsGaussianUnivariate, ParamsGaussianBivariate
+
+from ._data.known_configs import KNOWN_CONFIGS
+
 from ._misc.timer import Timer
-from ._misc.known_configs import KNOWN_CONFIGS
 
 from ._parsers.parser_ini import ParserIni
 from ._parsers.parser_config import ParserConfig
-from ._parsers.grid_format import GridFormat
 from ._parsers.grid_io import GridIO
 from ._parsers.number_lists import NumberLists
 

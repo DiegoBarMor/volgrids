@@ -15,8 +15,6 @@ from ._smifs.hydrophilic import SmifHydrophilic
 from ._smifs.hydrophobic import SmifHydrophobic
 from ._smifs.stacking import SmifStacking
 
-from ._core.sphere_info import SphereInfo
-
 from .app_smiffer import AppSmiffer
 
 
@@ -105,7 +103,7 @@ PATH_STRUCT:      _pathlib.Path = None # "path/input/struct.pdb"
 PATH_APBS:        _pathlib.Path = None # "path/input/apbs.pqr.dx"
 PATH_CHEM_LIGAND: _pathlib.Path = None # "path/input/table.chem"
 
-SPHERES: list[SphereInfo] = [] # list of pocket sphere infos: [[x, y, z, radius], ...]
+SPHERES: list[_vg.SphereInfo] = [] # list of pocket sphere infos: [[x, y, z, radius], ...]
 BOX_ENFORCED: _vg.Box = None # box enforced by the user: [x_min, x_max, y_min, y_max, z_min, z_max]
 BOXES_PER_FRAME: list[_vg.Box] = None # per-frame boxes read from a CSV (trajectory mode only): one box per frame
 AUTO_CROP: bool = False # trajectory mode only: recompute a tight box around the structure at every frame

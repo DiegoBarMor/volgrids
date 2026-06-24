@@ -39,7 +39,7 @@ class AppSpheres(vg.AppSubcommand):
         )
         spheres_flat = self.main.get_arg_float("sphere", is_list = True)
 
-        try: spheres = sm.SphereInfo.sphere_list(spheres_flat)
+        try: spheres = vg.SphereInfo.sphere_list(spheres_flat)
         except ValueError as e: self.main.help_and_exit(1, f"{e}")
 
         self.main.load_configs(vg, sm, su) # needed for loading sm.GRID_FORMAT_OUTPUT (used by Smif.save_data)
@@ -70,11 +70,11 @@ class AppSpheres(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def grid(path_pdb: Path, path_traj: Path|None, folder_out: Path, spheres: list[sm.SphereInfo]) -> None:
+    def grid(path_pdb: Path, path_traj: Path|None, folder_out: Path, spheres: list[vg.SphereInfo]) -> None:
         ms = sm.MolSystem(path_pdb, path_traj)
         nframes = ms.system.trajectory.n_frames
 
-        sm.SphereInfo.assert_sphere_list(spheres, nframes)
+        vg.SphereInfo.assert_sphere_list(spheres, nframes)
 
         grid = vg.Grid(ms.box, dtype = bool)
         for i,sphere in enumerate(spheres):
