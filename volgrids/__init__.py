@@ -44,6 +44,7 @@ WARNING_GRID_SIZE: float = 5.0e7
 OVERWRITE_OK: bool = True
 
 BOX_PADDING: int = 5
+BOX_TIGHT_TRAJ: bool = False
 BOX_FORCE_EQUILATERAL: bool = False
 BOX_FROM_DELTAS: bool = True
 

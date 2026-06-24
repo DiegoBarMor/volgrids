@@ -56,7 +56,6 @@ class AppSmiffer(vg.AppSubcommand):
         self._handle_params_sphere()
         self._handle_params_box()
         self._handle_params_box_csv()
-        self._handle_params_auto_crop()
         self._assert_traj_apbs()
 
         app_main.load_configs(vg, sm)
@@ -372,36 +371,11 @@ class AppSmiffer(vg.AppSubcommand):
 
 
     # --------------------------------------------------------------------------
-    def _handle_params_auto_crop(self):
-        if not self.main.get_arg_bool("auto_crop"): return
-
-        if self.path_traj is None: self.main.help_and_exit(1,
-            "The --auto-crop option follows the moving structure frame-by-frame and "
-            "is only available in trajectory mode. Please also provide a trajectory "
-            "file with --traj."
-        )
-        if sm.BOX_ENFORCED is not None: self.main.help_and_exit(1,
-            "The --auto-crop and --box options are mutually exclusive (both define "
-            "the grid box). Please provide only one of them."
-        )
-        if sm.BOXES_PER_FRAME is not None: self.main.help_and_exit(1,
-            "The --auto-crop and --box-csv options are mutually exclusive (both define "
-            "the grid box). Please provide only one of them."
-        )
-        if sm.SPHERES: self.main.help_and_exit(1,
-            "The --auto-crop and --sphere options are mutually exclusive (both define "
-            "the grid box). Please provide only one of them."
-        )
-
-        sm.AUTO_CROP = True
-
-
-    # --------------------------------------------------------------------------
     def _warn_chimerax_incompatible(self):
         """Warn when the grid box changes across frames: such a CMAP is a valid HDF5
         file but cannot be opened as a map series by ChimeraX (which requires every
         frame to share the same grid dimensions and origin)."""
-        if sm.AUTO_CROP:
+        if vg.BOX_TIGHT_TRAJ:
             varying = True
         elif sm.BOXES_PER_FRAME is not None:
             first = sm.BOXES_PER_FRAME[0]

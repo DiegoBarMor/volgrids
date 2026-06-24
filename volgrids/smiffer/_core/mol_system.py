@@ -25,7 +25,6 @@ class MolSystem:
         self.do_ps = len(sm.SPHERES) > 0
         self.do_box_enforced = sm.BOX_ENFORCED is not None
         self.do_boxes_per_frame = self.do_traj and (sm.BOXES_PER_FRAME is not None)
-        self.do_auto_crop = self.do_traj and sm.AUTO_CROP
         self.chemtable = self._init_chemtable()
 
         self.system = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
@@ -88,7 +87,7 @@ class MolSystem:
         self.frame = frame_idx
         if self.do_boxes_per_frame:
             self.box = sm.BOXES_PER_FRAME[frame_idx]
-        elif self.do_auto_crop:
+        elif vg.BOX_TIGHT_TRAJ:
             self.box = self._box_from_current_frame()
 
 
@@ -128,8 +127,8 @@ class MolSystem:
     # --------------------------------------------------------------------------
     def _get_init_box(self) -> vg.Box:
         if self.do_boxes_per_frame: return sm.BOXES_PER_FRAME[self.frame or 0]
-        if self.do_auto_crop: return self._box_from_current_frame()
         if self.do_box_enforced: return sm.BOX_ENFORCED
+        if vg.BOX_TIGHT_TRAJ: return self._box_from_current_frame()
 
         if self.do_ps:
             sphere = self._get_current_sphere()

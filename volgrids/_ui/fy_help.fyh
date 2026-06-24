@@ -26,13 +26,6 @@
         Each row holds 6 values in the same order as --box: x_min, x_max, y_min, y_max, z_min, z_max (in Angstrom).
         There must be at least as many rows as frames in the trajectory.
         An optional non-numeric header row is allowed. Mutually exclusive with --box and --sphere.
-    !fyh:auto_crop
-        Trajectory mode only: recompute the grid box at every frame so it tightly
-        encloses the (moving) structure, instead of using a single large box that
-        encloses the whole trajectory. Produces smaller, frame-following grids.
-        Because each frame then has a different origin/size, the resulting CMAP is a
-        valid HDF5 file but CANNOT be opened as a map series by ChimeraX.
-        Mutually exclusive with --box, --box-csv and --sphere.
     !fyh:sphere
         Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere.
         If not provided, 'whole' mode is assumed.
