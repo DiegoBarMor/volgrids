@@ -23,6 +23,7 @@ from ._parsers.parser_ini import ParserIni
 from ._parsers.parser_config import ParserConfig
 from ._parsers.grid_format import GridFormat
 from ._parsers.grid_io import GridIO
+from ._parsers.number_lists import NumberLists
 
 from .apbs.apbs_subprocess import APBSSubprocess
 
