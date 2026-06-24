@@ -162,7 +162,8 @@ class VGOperations:
                 print(f"... command: {fy.Color.cyan(meta['volgrids_command'])}")
 
         else:
-            numerics(grid, path_in.stem); print()
+            grid.name = path_in.stem
+            numerics(grid); print()
             return
 
         for key in grid_names:

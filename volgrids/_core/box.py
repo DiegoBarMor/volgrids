@@ -119,25 +119,14 @@ class Box:
         allowed and silently ignored. Each box's deltas/resolution are inferred
         just like any other box built from min/max coordinates.
         """
-        rows = np.atleast_2d(np.genfromtxt(path_csv, delimiter = ",", dtype = vg.FLOAT_DTYPE))
-
-        ##### genfromtxt parses a non-numeric header row as NaN; drop any such rows
-        rows = rows[~np.isnan(rows).any(axis = 1)]
-        if rows.size == 0: raise ValueError(
-            f"No valid numeric rows found in box CSV file: {path_csv}"
-        )
-        if rows.shape[1] != 6: raise ValueError(
-            f"Box CSV file must have exactly 6 columns "
-            f"(x_min, x_max, y_min, y_max, z_min, z_max), "
-            f"but got {rows.shape[1]} columns in: {path_csv}"
-        )
+        nums = vg.NumberLists([path_csv], 6)
 
         return [
             cls.from_min_max(
                 np.array([x_min, y_min, z_min], dtype = vg.FLOAT_DTYPE),
                 np.array([x_max, y_max, z_max], dtype = vg.FLOAT_DTYPE),
             )
-            for x_min, x_max, y_min, y_max, z_min, z_max in rows
+            for x_min, x_max, y_min, y_max, z_min, z_max in nums.values
         ]
 
 
