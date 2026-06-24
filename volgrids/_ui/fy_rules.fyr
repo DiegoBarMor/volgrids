@@ -11,6 +11,7 @@
     ~sphere[s,sphere]4+.FLOAT
     ~residues[r,residues]1+.STR
     ~nproc[n,nproc]1.INT=1
+    ~pack[,pack]
 !fed
 
 @smiffer
@@ -85,6 +86,9 @@
         path_in[]1.PATH
         ~folder_out[]1.PATH
         ~format[f,format]1.STR=MRC
+    !@
+    @extract
+        path_in[]1.PATH
     !@
 
     #### Operations for transforming single grids

@@ -12,10 +12,11 @@ import volgrids as vg
 
 # ------------------------------------------------------------------------------
 def main():
-    grid = vg.GridIO.read_bin(PATH_BIN)
+    grid = vg.Grid.load(PATH_BIN, vg.GridFormat.BIN)
     grid.arr = grid.arr.astype(int)
     cluster_ids = set(grid.arr.flatten()) - {0}
 
+    vg.GridIO.remove(PATH_CMAP)
     for cluster_id in cluster_ids:
         mask = vg.Grid(grid.box, init_grid = False)
         mask.arr = grid.arr == cluster_id
@@ -23,7 +24,7 @@ def main():
         volume = np.sum(mask.arr)
 
         print(f"Volume cluster {cluster_id}: {volume}")
-        vg.GridIO.write_cmap(PATH_CMAP, mask, key = f"cluster.{cluster_id:04}")
+        mask.save(PATH_CMAP, vg.GridFormat.CMAP, key = f"cluster.{cluster_id:04}")
 
 
 ################################################################################
@@ -34,4 +35,4 @@ if __name__ == "__main__":
 
 
 ################################################################################
-# python3 examples/bin_format/expand_mrc2cmap.py testdata/smiffer/interfaces/prot_rna/prot.stacking.clusters.bin
+# python3 examples/bin_format/expand_mrc2cmap.py testdata/smiffer/interfaces/prot_rna/prot.stk.clusters.bin

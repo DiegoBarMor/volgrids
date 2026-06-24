@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.17.1] - 2026-06-23
+- **Hotfix:** fixed bug introduced in `0.17.0` for trajectory smifs outputs.
+
+
+## [0.17.0] - 2026-06-23
+- `volgrids`
+    - Removed `GridIO.write_auto` and consolidated `Grid.save` instead.
+        - From now on, all grid saving operations should be done through the `Grid.save()` method (although the `GridIO` export methods remain available).
+    - Removed `GridIO.read_auto` and consolidated `Grid.load` instead.
+        - From now on, all grid loading operations should be done through the `Grid.load()` method (although the `GridIO` import methods remain available).
+    - Removed `CMAP_PACKED` as a grid format. `CMAP` will now be used for files with both one or multiple grids.
+
+- `smiffer`
+    - SMIF and OG grids are now saved with a shorter suffix to indicate their type.
+        - *hbacceptors* --> **hba**
+        - *hbdonors* --> **hbd**
+        - *stacking* --> **stk**
+        - *hydrophobic* --> **hphob**
+        - *hydrophilic* --> **hphil**
+        - *trimming* --> **trim**
+        - *cavities* --> **cav**
+    - Removed the `REMOVE_OLD_CMAP_OUTPUT` config and reworked automatic file cleanup instead.
+    - `MRC` is now the default output format.
+    - If `CMAP` is chosen outside trajectory mode, grids will be stored in separate cmap files.
+        - Added a `--pack` flag for saving the output to a single `.all.cmap` file, disregarding the previously chosen format.
+
+- `apbs`
+    - Fixed bug in `volgrids apbs` when using the `--mrc` flag.
+
+- `vgtools`
+    - Added an `extract` operation for extracting the unique values of a grid file into separate files.
+    - `segment` now considers absolute values above the isovalue (this allows for segmentation of negative fields e.g. apbs).
+
+
 ## [0.16.1] - 2026-06-22
 - Fixed bug where smifer's -r flag couldn't be used when APBS is run.
     - Note that because APBS is run beforehand, it's not straightforward to select the gridpoints that are only related to the desired residues, so it's currently not implemented.
@@ -14,13 +48,15 @@
 
 
 ## [0.15.0] - 2026-06-11
-- Added `box` flag to smiffer.
-    - The box used for building the grid can be provided by using the `-b`/`--box` flag.
-    - Values must be passed in the following order: x_min x_max y_min y_max z_min z_max.
-- `smutils box_dim` subcommand now prints the min and max coords of the box.
-    - It follows the same format as the one expected by the `box` flag from smiffer.
-- Can now specify output format when unpacking a CMAP file with `vgtools unpack` with the `f` flag.
-- Improved the way `vgtools convert` is used (similar to `unpack`'s `f` flag).
+- `smiffer`
+    - Can now specify the box used for building the grid with the `-b`/`--box` flag.
+        - Box information has the format: `x_min x_max y_min y_max z_min z_max`
+- `smutils`
+    - `box_dim` subcommand now prints the min and max coords of the box.
+        - Box information has the format: `x_min x_max y_min y_max z_min z_max`
+- `vgtools`
+    - Can now specify output format when unpacking a CMAP file with the `-f`/`--format` flag.
+    - The `convert` subcommand had a similar change, now using the `-f`/`--format` flag instead of multiple flags for every format.
 
 
 ## [0.14.1] - 2026-06-09

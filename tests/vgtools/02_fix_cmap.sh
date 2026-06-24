@@ -6,6 +6,6 @@ echo ">>> TEST VGTOOLS 2: Fixing CMAP files with different sized grids"
 
 folder="testdata/vgtools/fix_cmap"
 
-path_in="$folder/hbdonors.issue.cmap"
-path_out="$folder/hbdonors.fixed.cmap"
+path_in="$folder/hbd.issue.cmap"
+path_out="$folder/hbd.fixed.cmap"
 python3 volgrids vgtools fix_cmap "$path_in" "$path_out"

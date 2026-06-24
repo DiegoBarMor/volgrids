@@ -35,7 +35,7 @@ ff="$fvgtools/fix_cmap"
 fop="$fvgtools/operations"
 
 mkdir -p $fc $fp $fu $ff $fop
-rm -f $fc/* $fp/* $fu/* $ff/*.cmap $fop/*.cmap
+rm -f $fc/**/* $fp/* $fu/* $ff/*.cmap $fop/*.cmap
 
 conf_no_apbs="GRID_FORMAT_OUTPUT=MRC DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SMIF_HYDROPHOBIC=True DO_SMIF_HYDROPHILIC=True DO_SMIF_STACKING=True DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
 conf_just_stacking="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
@@ -51,20 +51,9 @@ python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.6
 python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_ccp4"
 python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fc -s 4.682 21.475 7.161 14.675 --config "$conf_cmap"
 
-mv $fc/1iqj.stacking.dx   $fc/1iqj.stk.dx
-mv $fc/1iqj.stacking.mrc  $fc/1iqj.stk.mrc
-mv $fc/1iqj.stacking.ccp4 $fc/1iqj.stk.ccp4
-mv $fc/1iqj.stacking.cmap $fc/1iqj.stk.cmap
-
 
 ############################# PACKING
 python3 volgrids smiffer $fpdb_nosolv/2esj.pdb -o $fp -s 21.865 -6.397 16.946 15.708 --config "$conf_no_apbs"
-
-mv $fp/2esj.hbacceptors.mrc $fp/2esj.hba.mrc
-mv $fp/2esj.hbdonors.mrc    $fp/2esj.hbd.mrc
-mv $fp/2esj.hydrophilic.mrc $fp/2esj.phi.mrc
-mv $fp/2esj.hydrophobic.mrc $fp/2esj.pho.mrc
-mv $fp/2esj.stacking.mrc    $fp/2esj.stk.mrc
 
 
 ############################# UNPACKING
@@ -72,7 +61,7 @@ python3 volgrids smiffer $fpdb_nosolv/1iqj.pdb -o $fu -s 4.682 21.475 7.161 14.6
 
 cd $fu
 python3 ../../../volgrids vgtools pack \
-    1iqj.hbacceptors.mrc 1iqj.hbdonors.mrc 1iqj.hydrophilic.mrc 1iqj.hydrophobic.mrc 1iqj.stacking.mrc \
+    1iqj.hba.mrc 1iqj.hbd.mrc 1iqj.hphil.mrc 1iqj.hphob.mrc 1iqj.stk.mrc \
     -o 1iqj.cmap
 cd ../../..
 
@@ -84,4 +73,4 @@ python3 volgrids vgtools pack \
     $fframes/smiffer_126.hbdonors.cmap $fframes/smiffer_142.hbdonors.cmap \
     $fframes/smiffer_3.hbdonors.cmap   $fframes/smiffer_127.hbdonors.cmap \
     $fframes/smiffer_32.hbdonors.cmap  $fframes/smiffer_50.hbdonors.cmap  \
-    -o $ff/hbdonors.issue.cmap
+    -o $ff/hbd.issue.cmap

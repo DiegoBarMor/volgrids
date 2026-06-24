@@ -44,6 +44,8 @@
         Number of worker processes to use in trajectory mode (1 disables multiprocessing), default no multiprocessing.
         Frames are dispatched to workers and processed in parallel; output ordering may differ from frame order.
         Has no effect outside trajectory mode.
+    !fyh:pack
+        Use this flag to pack the output grids into a single CMAP file (with "all" as its SMIF kind in the file extension).
 !fed
 
 @smiffer
@@ -165,6 +167,11 @@
         !fyh:format Grid format in which to unpack the CMAP file.
             Supported formats: DX, BIN, MRC, CCP4, CMAP.
     !@
+    @extract
+        !fyh:_ Extract the unique values of a grid file into separate files.
+            In the case of a CMAP file, consider all values across all grids stored inside the file.
+        !fyh:path_in Path to a grid file.
+    !@
 
     #### Operations for transforming single grids
     @fix_cmap
@@ -187,7 +194,7 @@
         !fyh:path_out Path for grid output with the cluster labels.
             The labels are integers starting from 1.
             The clusters are sorted in descending order by size (i.e. from largest to smallest).
-        !fyh:isovalue Continuous voxels with a value higher than this parameter will be considered part of the same cluster.
+        !fyh:isovalue Continuous voxels with an absolute value higher than this parameter will be considered part of the same cluster.
         !fyh:volume_thr Clusters with an amount of voxels lower than this parameter will be discarded from the resulting grid.
     !@
 

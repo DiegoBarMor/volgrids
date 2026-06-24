@@ -23,7 +23,7 @@ from .app_smiffer import AppSmiffer
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
-GRID_FORMAT_OUTPUT: str = "CMAP_PACKED"
+GRID_FORMAT_OUTPUT: str = "MRC"
 
 DO_SMIF_STACKING:    bool = True
 DO_SMIF_HBA:         bool = True

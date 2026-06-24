@@ -6,24 +6,14 @@ import volgrids as vg
 import volgrids.vgtools as vgt
 from volgrids._vendors import freyacli as fy
 
+EXTRACT_MAX_UNIQUE_VALUES = 100 # [TODO] should be a config
+EXTRACT_SKIP_ZEROS = True # [TODO] should be a config
+
 # //////////////////////////////////////////////////////////////////////////////
 class VGOperations:
     @staticmethod
     def convert(path_in: Path, path_out: Path, fmt_out: vg.GridFormat) -> None:
-        grid = vg.GridIO.read_auto(path_in)
-
-        func: callable = {
-            vg.GridFormat.DX: vg.GridIO.write_dx,
-            vg.GridFormat.BIN: vg.GridIO.write_bin,
-            vg.GridFormat.MRC: vg.GridIO.write_mrc,
-            vg.GridFormat.CCP4: vg.GridIO.write_ccp4,
-            vg.GridFormat.CMAP: vg.GridIO.write_cmap,
-        }.get(fmt_out, None)
-        if func is None:
-            raise ValueError(f"Unknown format for conversion: {fmt_out}")
-
-        extra_args = (path_in.stem,) if fmt_out == vg.GridFormat.CMAP else ()
-        func(path_out, grid, *extra_args)
+        vg.Grid.load(path_in).save(path_out, fmt_out)
 
 
     # --------------------------------------------------------------------------
@@ -32,7 +22,7 @@ class VGOperations:
         resolution = None
         warned = False
         for path_in, key in zip(paths_in, VGOperations.get_keys_packing(paths_in)):
-            grid = vg.GridIO.read_auto(path_in)
+            grid = vg.Grid.load(path_in)
             if resolution is None:
                 resolution = f"{grid.xres()} {grid.yres()} {grid.zres()}"
 
@@ -40,12 +30,12 @@ class VGOperations:
             if (new_res != resolution) and not warned:
                 print(
                     f">>> {fy.Color.red('Warning')}: Grid {path_in} has different resolution {new_res} than the first grid {resolution}. " +\
-                    "Chimera won't recognize it as a volume series and open every grid in a separate representation. " +\
+                    "Chimera won't recognize it as a volume series and will open every grid in a separate representation. " +\
                     "Use `volgrids vgtools fix_cmap` if you want to fix this."
                 )
                 warned = True
 
-            vg.GridIO.write_cmap(path_out, grid, key)
+            grid.save(path_out, vg.GridFormat.CMAP, key = key)
 
 
     # --------------------------------------------------------------------------
@@ -53,9 +43,44 @@ class VGOperations:
     def unpack(path_in: Path, folder_out: Path, fmt: vg.GridFormat) -> None:
         keys = vg.GridIO.get_cmap_keys(path_in)
         for key in keys:
-            path_out = folder_out / f"{key}.{fmt.to_ext()}"
-            grid = vg.GridIO.read_cmap(path_in, key)
-            grid.save_data(path_out, fmt, key)
+            path_out = folder_out / f"{key}.{fmt.suffix()}"
+            grid = vg.Grid.load(path_in, key = key)
+            grid.save(path_out, fmt)
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def extract(path_in: Path) -> None:
+        fmt = vg.GridIO.detect_format(path_in)
+        keys = vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True) \
+            if fmt == vg.GridFormat.CMAP else [""]
+
+        unique_values = set()
+        for key in keys:
+            grid_in = vg.Grid.load(path_in, key = key)
+            unique_values.update(np.unique(grid_in.arr))
+
+        if EXTRACT_SKIP_ZEROS: unique_values.discard(0.0)
+
+        if len(unique_values) > EXTRACT_MAX_UNIQUE_VALUES:
+            raise ValueError(
+                f"Warning: Found {len(unique_values)} unique values across {len(keys)} subgrid(s). "+\
+                f"Maximum allowed is {EXTRACT_MAX_UNIQUE_VALUES}. Aborting."
+            )
+
+        str_nvals = fy.Color.yellow(f"{len(unique_values)}")
+        str_nkeys = fy.Color.cyan(f"{len(keys)}")
+        print(f"...>>> Found {str_nvals} unique values across {str_nkeys} subgrid(s).")
+
+        for key in keys:
+            print(f"...... Extracting unique values from subgrid '{key}'...")
+            grid_in = vg.Grid.load(path_in, key = key)
+            grid_out = grid_in.copy()
+            for val in unique_values:
+                grid_out.arr = grid_in.arr == val
+                str_val = f"{val:.6f}".replace('.', '_')
+                path_out = path_in.parent / f"{path_in.stem}.{str_val}.{fmt.suffix()}"
+                grid_out.save(path_out, fmt, key = key)
 
 
     # --------------------------------------------------------------------------
@@ -64,29 +89,26 @@ class VGOperations:
         resolution = None
         keys = vg.GridIO.get_cmap_keys(path_in)
         for key in keys:
-            grid = vg.GridIO.read_cmap(path_in, key)
+            grid = vg.Grid.load(path_in, key = key)
             if resolution is None:
                 resolution = grid.box.resolution
 
             grid.reshape(grid.box.min_coords, grid.box.max_coords, resolution)
-            vg.GridIO.write_cmap(path_out, grid, key)
+            grid.save(path_out, vg.GridFormat.CMAP, key = key)
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def average(path_in: Path) -> "vg.Grid":
-        keys = vg.GridIO.get_cmap_keys(path_in)
+        keys = vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True)
         nframes = len(keys)
 
-        grid = vg.GridIO.read_cmap(path_in, keys[0])
-        avg = np.zeros_like(grid.arr)
+        grid_sum = vg.Grid.load(path_in, key = keys[0])
+        grid_sum.reset(force = True)
         for key in keys:
-            avg += vg.GridIO.read_cmap(path_in, key).arr
-        avg /= nframes
+            grid_sum += vg.Grid.load(path_in, key = key)
 
-        grid_avg: vg.Grid = vg.Grid(grid.box, init_grid = False)
-        grid_avg.arr = avg
-        return grid_avg
+        return grid_sum / nframes
 
 
     # --------------------------------------------------------------------------
@@ -95,23 +117,21 @@ class VGOperations:
         keys = vg.GridIO.get_cmap_keys(path_in)
         nframes = len(keys)
 
-        grid = vg.GridIO.read_cmap(path_in, keys[0])
         grid_avg = VGOperations.average(path_in)
+        grid_std = grid_avg.copy()
+        grid_std.reset(force = True)
 
-        stddev = np.zeros_like(grid.arr)
         for key in keys:
-            stddev += (vg.GridIO.read_cmap(path_in, key).arr - grid_avg.arr) ** 2
-        stddev = np.sqrt(stddev / nframes)
+            grid_std.arr += (vg.Grid.load(path_in, key = key).arr - grid_avg.arr) ** 2
+        grid_std.arr = np.sqrt(grid_std.arr / nframes)
 
-        grid_stddev: vg.Grid = vg.Grid(grid.box, init_grid = False)
-        grid_stddev.arr = stddev
-        return grid_stddev
+        return grid_std
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def summary(path_in: Path) -> None:
-        def numerics(g: vg.Grid, key: str):
+        def numerics(g: vg.Grid):
             n_total = g.arr.size
             n_nonzero = len(g.arr[g.arr != 0])
 
@@ -119,12 +139,12 @@ class VGOperations:
             str_max_ = fy.Color.blue(f"{g.arr.max():.2e}")
             str_perc = fy.Color.yellow(f"{100*n_nonzero/n_total:.2f}%")
 
-            print(f"... grid: {fy.Color.cyan(key)}")
+            print(f"... grid: {fy.Color.cyan(g.name)}")
             print(f"...... min: {str_min_}; max: {str_max_}; mean: {g.arr.mean():2.2e}")
             print(f"...... non-zero points: {n_nonzero}/{n_total} ({str_perc})")
 
-        grid = vg.GridIO.read_auto(path_in)
-        grid_names = vg.GridIO.get_cmap_keys(path_in) if grid.fmt.is_cmap() else [path_in.stem]
+        grid = vg.Grid.load(path_in)
+        grid_names = vg.GridIO.get_cmap_keys(path_in) if grid.fmt == vg.GridFormat.CMAP else [path_in.stem]
 
         str_res = fy.Color.green(f"{grid.xres()}x{grid.yres()}x{grid.zres()}")
         str_min = fy.Color.red(f"{grid.xmin():.2f},{grid.ymin():.2f},{grid.zmin():.2f}")
@@ -146,15 +166,15 @@ class VGOperations:
             return
 
         for key in grid_names:
-            numerics(vg.GridIO.read_cmap(path_in, key), key)
+            numerics(vg.Grid.load(path_in, key = key))
         print()
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def compare(path_in_0: Path, path_in_1: Path, threshold: float) -> "vgt.ComparisonResult":
-        grid_0 = vg.GridIO.read_auto(path_in_0)
-        grid_1 = vg.GridIO.read_auto(path_in_1)
+        grid_0 = vg.Grid.load(path_in_0)
+        grid_1 = vg.Grid.load(path_in_1)
 
         deltas_0     = grid_0.box.deltas;     deltas_1     = grid_1.box.deltas
         resolution_0 = grid_0.box.resolution; resolution_1 = grid_1.box.resolution
@@ -198,7 +218,7 @@ class VGOperations:
     def rotate(
         path_in: Path, rotate_xy: float, rotate_yz: float, rotate_xz: float, in_degrees: bool = True
     ) -> "vg.Grid":
-        grid = vg.GridIO.read_auto(path_in)
+        grid = vg.Grid.load(path_in)
         vg.GridIO.restore_boolean_dtype(grid)
         grid.arr = vg.Math.rotate_3d(grid.arr, rotate_xy, rotate_yz, rotate_xz, in_degrees)
         return grid
@@ -207,7 +227,7 @@ class VGOperations:
     # --------------------------------------------------------------------------
     @staticmethod
     def points(path_in: Path, *positions: tuple[float, float, float]) -> np.ndarray:
-        grid = vg.GridIO.read_auto(path_in)
+        grid = vg.Grid.load(path_in)
         return [grid.value_at_position(pos) for pos in positions]
 
 
@@ -215,18 +235,18 @@ class VGOperations:
     @staticmethod
     def iter_op_unary(
         path_in: Path, operation: callable
-    ) -> "Generator[tuple[str, vg.Grid]]":
+    ) -> "Generator[vg.Grid]":
         """
         Perform the numeric `operation` for one grid.
         Yields `(key, Grid)` pairs (`key` is the CMAP key, `None` for non-CMAP grids).
         """
-        is_cmap = vg.GridIO.detect_format(path_in).is_cmap()
+        is_cmap = vg.GridIO.detect_format(path_in) == vg.GridFormat.CMAP
         if not is_cmap:
-            yield None, operation(vg.GridIO.read_auto(path_in))
+            yield operation(vg.Grid.load(path_in))
             return
 
         yield from (
-            (key, operation(vg.GridIO.read_cmap(path_in, key)))
+            operation(vg.Grid.load(path_in, key = key))
             for key in vg.GridIO.get_cmap_keys(path_in, assert_has_keys = True)
         )
 
@@ -236,21 +256,21 @@ class VGOperations:
     def iter_op_binary(cls,
         path_in_0: Path, path_in_1: Path, operation: callable,
         interpolate_to_common_box = False
-    ) -> "Generator[tuple[str, vg.Grid]]":
+    ) -> "Generator[vg.Grid]":
         """
         Perform the numeric `operation` between two grids.
         Supports multi-frame CMAP trajectories: frames are processed one-by-one, with
         broadcasting if one side has a single frame and the other has N.
         Yields `(key, Grid)` pairs (`key` is the CMAP key, `None` for non-CMAP grids).
         """
-        is_cmap_0 = vg.GridIO.detect_format(path_in_0).is_cmap()
-        is_cmap_1 = vg.GridIO.detect_format(path_in_1).is_cmap()
+        is_cmap_0 = vg.GridIO.detect_format(path_in_0) == vg.GridFormat.CMAP
+        is_cmap_1 = vg.GridIO.detect_format(path_in_1) == vg.GridFormat.CMAP
 
         if not (is_cmap_0 and is_cmap_1):
-            grid_0 = vg.GridIO.read_auto(path_in_0)
-            grid_1 = vg.GridIO.read_auto(path_in_1)
+            grid_0 = vg.Grid.load(path_in_0)
+            grid_1 = vg.Grid.load(path_in_1)
             cls._interpolate_if_needed(path_in_0, path_in_1, grid_0, grid_1, interpolate_to_common_box)
-            yield None, operation(grid_0, grid_1)
+            yield operation(grid_0, grid_1)
             return
 
         keys_0 = vg.GridIO.get_cmap_keys(path_in_0, assert_has_keys = True)
@@ -267,10 +287,12 @@ class VGOperations:
         for i in range(n_frames):
             k0 = keys_0[i if n0 > 1 else 0]
             k1 = keys_1[i if n1 > 1 else 0]
-            grid_0 = vg.GridIO.read_cmap(path_in_0, k0)
-            grid_1 = vg.GridIO.read_cmap(path_in_1, k1)
+            grid_0 = vg.Grid.load(path_in_0, key = k0)
+            grid_1 = vg.Grid.load(path_in_1, key = k1)
             cls._interpolate_if_needed(path_in_0, path_in_1, grid_0, grid_1, interpolate_to_common_box)
-            yield (k0 if n0 >= n1 else k1), operation(grid_0, grid_1)
+            out: vg.Grid = operation(grid_0, grid_1)
+            out.name = k0 if n0 >= n1 else k1
+            yield out
 
 
     # --------------------------------------------------------------------------

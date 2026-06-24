@@ -8,7 +8,6 @@ from ._core.triplet import Triplet
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBDonors(SmifHBonds):
-    # --------------------------------------------------------------------------
     def __init__(self, ms: "sm.MolSystem"):
         super().__init__(ms)
         self.hbond_getter = sm.ParserChemTable.get_names_hbd
