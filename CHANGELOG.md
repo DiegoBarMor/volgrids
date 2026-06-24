@@ -2,7 +2,8 @@
 
 ## [0.18.0] - 2026-06-24
 - Added `NumberLists` class to handle common parsing of lists of numbers.
-- reworked `smutils box_dim` into `smutils box`. This new subcommand provides two children subcommands:
+- Added `BoxInfo` to contain values for reconstructing boxes (i.e. box minimum and maximum coordinates).
+- Reworked `smutils box_dim` into `smutils box`. This new subcommand provides two children subcommands:
     - `info`: print the min and max coordinates of the box as `x_min x_max y_min y_max z_min z_max`.
     - `size`: print the size of the enclosing box for a molecular structure as `x_size y_size z_size`.
 

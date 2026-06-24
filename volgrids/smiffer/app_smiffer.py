@@ -340,13 +340,10 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_box(self):
-        box = self.main.get_arg_float("box", is_list = True)
-        if not box: return
+        flat_box = self.main.get_arg_float("box", is_list = True)
+        if not flat_box: return
 
-        x_min, x_max, y_min, y_max, z_min, z_max = box
-        min_coords = np.array([x_min, y_min, z_min])
-        max_coords = np.array([x_max, y_max, z_max])
-        sm.BOX_ENFORCED = vg.Box.from_min_max(min_coords, max_coords)
+        sm.BOX_ENFORCED = vg.BoxInfo.from_list(flat_box).create_box()
 
 
     # --------------------------------------------------------------------------
