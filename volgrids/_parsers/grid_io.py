@@ -337,8 +337,8 @@ class GridIO:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def clear_cmap(path_out: Path) -> None:
-        if not vg.REMOVE_OLD_CMAP_OUTPUT: return
+    def remove(path_out: Path) -> None:
+        """Removes the specified file (if it exists)."""
         path_out.unlink(missing_ok = True)
 
 

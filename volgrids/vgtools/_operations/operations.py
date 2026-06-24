@@ -154,14 +154,14 @@ class VGOperations:
         print(f"... resolution: {str_res}; deltas: ({grid.dx():.2f},{grid.dy():.2f},{grid.dz():.2f})")
         print(f"... box: ({str_min})->({str_max})")
 
-        if grid.fmt.is_cmap():
+        if grid.fmt == vg.GridFormat.CMAP:
             meta = vg.GridIO.read_cmap_metadata(path_in)
             if "volgrids_launch_time" in meta:
                 print(f"... launched: {fy.Color.green(meta['volgrids_launch_time'])}")
             if "volgrids_command" in meta:
                 print(f"... command: {fy.Color.cyan(meta['volgrids_command'])}")
 
-        if not grid.fmt.is_cmap():
+        else:
             numerics(grid, path_in.stem); print()
             return
 
