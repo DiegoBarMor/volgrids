@@ -154,9 +154,15 @@ class VGOperations:
         print(f"... resolution: {str_res}; deltas: ({grid.dx():.2f},{grid.dy():.2f},{grid.dz():.2f})")
         print(f"... box: ({str_min})->({str_max})")
 
-        if not grid.fmt == vg.GridFormat.CMAP:
-            grid.name = path_in.stem
-            numerics(grid); print()
+        if grid.fmt == vg.GridFormat.CMAP:
+            meta = vg.GridIO.read_cmap_metadata(path_in)
+            if "volgrids_launch_time" in meta:
+                print(f"... launched: {fy.Color.green(meta['volgrids_launch_time'])}")
+            if "volgrids_command" in meta:
+                print(f"... command: {fy.Color.cyan(meta['volgrids_command'])}")
+
+        else:
+            numerics(grid, path_in.stem); print()
             return
 
         for key in grid_names:

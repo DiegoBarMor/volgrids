@@ -55,6 +55,8 @@ class AppSmiffer(vg.AppSubcommand):
         self._handle_params_resids()
         self._handle_params_sphere()
         self._handle_params_box()
+        self._handle_params_box_csv()
+        self._handle_params_auto_crop()
         self._assert_traj_apbs()
 
         app_main.load_configs(vg, sm)
@@ -130,6 +132,8 @@ class AppSmiffer(vg.AppSubcommand):
             self._process_grids()
             return _end()
         #####
+
+        self._warn_chimerax_incompatible()
 
         print()
         n_frames = len(self.ms.system.trajectory)
@@ -343,6 +347,79 @@ class AppSmiffer(vg.AppSubcommand):
         min_coords = np.array([x_min, y_min, z_min])
         max_coords = np.array([x_max, y_max, z_max])
         sm.BOX_ENFORCED = vg.Box.from_min_max(min_coords, max_coords)
+
+
+    # --------------------------------------------------------------------------
+    def _handle_params_box_csv(self):
+        path_csv = self.main.get_arg_path(
+            "box_csv", assertion = fy.PathAssertion.FILE_IN,
+            allow_none = True
+        )
+        if path_csv is None: return
+
+        if self.path_traj is None: self.main.help_and_exit(1,
+            "The --box-csv option provides a per-frame box and is only available "
+            "in trajectory mode. Please also provide a trajectory file with --traj."
+        )
+        if sm.BOX_ENFORCED is not None: self.main.help_and_exit(1,
+            "The --box-csv and --box options are mutually exclusive (both define "
+            "the grid box). Please provide only one of them."
+        )
+        if sm.SPHERES: self.main.help_and_exit(1,
+            "The --box-csv and --sphere options are mutually exclusive (both define "
+            "the grid box). Please provide only one of them."
+        )
+
+        try: sm.BOXES_PER_FRAME = vg.Box.list_from_csv(path_csv)
+        except ValueError as e: self.main.help_and_exit(1, f"{e}")
+
+
+    # --------------------------------------------------------------------------
+    def _handle_params_auto_crop(self):
+        if not self.main.get_arg_bool("auto_crop"): return
+
+        if self.path_traj is None: self.main.help_and_exit(1,
+            "The --auto-crop option follows the moving structure frame-by-frame and "
+            "is only available in trajectory mode. Please also provide a trajectory "
+            "file with --traj."
+        )
+        if sm.BOX_ENFORCED is not None: self.main.help_and_exit(1,
+            "The --auto-crop and --box options are mutually exclusive (both define "
+            "the grid box). Please provide only one of them."
+        )
+        if sm.BOXES_PER_FRAME is not None: self.main.help_and_exit(1,
+            "The --auto-crop and --box-csv options are mutually exclusive (both define "
+            "the grid box). Please provide only one of them."
+        )
+        if sm.SPHERES: self.main.help_and_exit(1,
+            "The --auto-crop and --sphere options are mutually exclusive (both define "
+            "the grid box). Please provide only one of them."
+        )
+
+        sm.AUTO_CROP = True
+
+
+    # --------------------------------------------------------------------------
+    def _warn_chimerax_incompatible(self):
+        """Warn when the grid box changes across frames: such a CMAP is a valid HDF5
+        file but cannot be opened as a map series by ChimeraX (which requires every
+        frame to share the same grid dimensions and origin)."""
+        if sm.AUTO_CROP:
+            varying = True
+        elif sm.BOXES_PER_FRAME is not None:
+            first = sm.BOXES_PER_FRAME[0]
+            varying = any(not (box == first) for box in sm.BOXES_PER_FRAME)
+        else:
+            varying = False
+
+        if not varying: return
+        print(
+            fy.Color.red("WARNING: ") +
+            "the grid box changes across frames, so each frame of the output CMAP "
+            "will have a different origin/size. The file is a valid HDF5 CMAP, but it "
+            + fy.Color.red("cannot be opened as a map series by ChimeraX") +
+            " (which requires all frames to share the same dimensions and origin)."
+        )
 
 
     # --------------------------------------------------------------------------

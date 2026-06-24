@@ -24,10 +24,15 @@ class MolSystem:
         self.do_traj = path_traj is not None
         self.do_ps = len(sm.SPHERES) > 0
         self.do_box_enforced = sm.BOX_ENFORCED is not None
+        self.do_boxes_per_frame = self.do_traj and (sm.BOXES_PER_FRAME is not None)
+        self.do_auto_crop = self.do_traj and sm.AUTO_CROP
         self.chemtable = self._init_chemtable()
 
         self.system = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
         self.frame = 0 if self.do_traj else None
+
+        if self.do_boxes_per_frame:
+            self._assert_boxes_per_frame()
 
         self.box = self._get_init_box() if box is None else box
 
@@ -81,6 +86,10 @@ class MolSystem:
     def switch_frame(self, frame_idx: int):
         self.system.trajectory[frame_idx]
         self.frame = frame_idx
+        if self.do_boxes_per_frame:
+            self.box = sm.BOXES_PER_FRAME[frame_idx]
+        elif self.do_auto_crop:
+            self.box = self._box_from_current_frame()
 
 
     # --------------------------------------------------------------------------
@@ -118,6 +127,8 @@ class MolSystem:
 
     # --------------------------------------------------------------------------
     def _get_init_box(self) -> vg.Box:
+        if self.do_boxes_per_frame: return sm.BOXES_PER_FRAME[self.frame or 0]
+        if self.do_auto_crop: return self._box_from_current_frame()
         if self.do_box_enforced: return sm.BOX_ENFORCED
 
         if self.do_ps:
@@ -143,6 +154,20 @@ class MolSystem:
             min_coords = np.min(self.system.coord.positions, axis = 0)
             max_coords = np.max(self.system.coord.positions, axis = 0)
 
+        return self._padded_box(min_coords, max_coords)
+
+
+    # --------------------------------------------------------------------------
+    def _box_from_current_frame(self) -> vg.Box:
+        """Build a box that tightly encloses the structure at the current frame
+        (used by --auto-crop, which makes the grid follow the moving structure)."""
+        positions = self.system.coord.positions
+        return self._padded_box(positions.min(axis = 0), positions.max(axis = 0))
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def _padded_box(min_coords: np.ndarray, max_coords: np.ndarray) -> vg.Box:
         box = vg.Box.from_min_max(
             min_coords = min_coords - vg.EXTRA_BOX_SIZE,
             max_coords = max_coords + vg.EXTRA_BOX_SIZE,
@@ -165,6 +190,18 @@ class MolSystem:
             chem.parse_names_hbdonors(ini)
 
         return chem
+
+
+    # --------------------------------------------------------------------------
+    def _assert_boxes_per_frame(self) -> None:
+        nframes = self.system.trajectory.n_frames
+        nboxes = len(sm.BOXES_PER_FRAME)
+        if nboxes < nframes: raise ValueError(
+            f"Number of boxes provided in the box CSV ({nboxes}) must be equal or "
+            f"higher than the number of frames in the trajectory ({nframes}). "
+            "Each row of the CSV should correspond to one frame. "
+            "Extra provided boxes will be ignored."
+        )
 
 
     # --------------------------------------------------------------------------
