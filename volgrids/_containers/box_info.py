@@ -14,12 +14,28 @@ class BoxInfo:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def from_list(cls, box_list: list[float]) -> "BoxInfo":
-        if len(box_list) != 6:
+    def parse_list_box_infos(cls, boxes_flat: list[float]) -> list["BoxInfo"]:
+        if not boxes_flat: return []
+
+        boxes = vg.NumberLists(boxes_flat, 6)
+        if boxes.error: raise ValueError(
+            f"Box should be provided as a list of 6 floats (xmin,xmax,ymin,ymax,zmin,zmax). {boxes.error}"
+        )
+        return [
+            cls(xmin, xmax, ymin, ymax, zmin, zmax)
+            for xmin, xmax, ymin, ymax, zmin, zmax in boxes.values
+        ]
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def assert_list_box_infos(boxes: list["BoxInfo"], nframes: int) -> None:
+        if nframes > len(boxes):
             raise ValueError(
-                f"Box should be provided as a list of 6 floats (xmin,xmax,ymin,ymax,zmin,zmax). Provided list has {len(box_list)} elements."
+                f"Number of boxes provided ({len(boxes)}) should be equal or higher than the number of frames in trajectory ({nframes}). " +\
+                "Each box should correspond to one frame in the trajectory. "
+                "Extra provided boxes will be ignored."
             )
-        return cls(*box_list)
 
 
     # --------------------------------------------------------------------------

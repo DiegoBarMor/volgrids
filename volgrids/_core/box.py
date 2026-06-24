@@ -14,6 +14,7 @@ class Box:
         self.deltas     : np.ndarray[float] # spacing between grid point in each dimension (in armstrong)
         self.cog        : np.ndarray[float] # center of geometry of the bounding box
         self.radius     : float             # (maximum) radius of the bounding box
+        self.info       : vg.BoxInfo
 
         if not do_init: return # useful if values are to be set immediately after the Box initialization
 
@@ -26,6 +27,8 @@ class Box:
         self.resolution = resolution
         self.deltas     = deltas
         self.infer_radius_and_cog()
+
+        self.info = vg.BoxInfo.from_box(self)
 
 
     # --------------------------------------------------------------------------
@@ -44,6 +47,7 @@ class Box:
         box.max_coords = np.array(max_coords)
         box.infer_deltas_resolution()
         box.infer_radius_and_cog()
+        box.info = vg.BoxInfo.from_box(box)
         return box
 
 
@@ -108,26 +112,6 @@ class Box:
         self.min_coords -= pad_0 * self.deltas
         self.max_coords += pad_1 * self.deltas
         self.infer_radius_and_cog()
-
-
-    # --------------------------------------------------------------------------
-    @classmethod
-    def list_from_csv(cls, path_csv) -> list["Box"]:
-        """Read a CSV of per-frame boxes (one row per frame), with 6 columns:
-        `x_min, x_max, y_min, y_max, z_min, z_max` (all in Angstrom), i.e. the same
-        ordering as the `--box` CLI flag. An optional non-numeric header row is
-        allowed and silently ignored. Each box's deltas/resolution are inferred
-        just like any other box built from min/max coordinates.
-        """
-        nums = vg.NumberLists([path_csv], 6)
-
-        return [
-            cls.from_min_max(
-                np.array([x_min, y_min, z_min], dtype = vg.FLOAT_DTYPE),
-                np.array([x_max, y_max, z_max], dtype = vg.FLOAT_DTYPE),
-            )
-            for x_min, x_max, y_min, y_max, z_min, z_max in nums.values
-        ]
 
 
     # --------------------------------------------------------------------------

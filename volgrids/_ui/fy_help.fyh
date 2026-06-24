@@ -20,15 +20,14 @@
         Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
     !fyh:box
         Provide the box information that should be used to build the grids.
-        Values must be passed in the following order: x_min x_max y_min y_max z_min z_max.
-    !fyh:box_csv
-        File path to a CSV defining a different box for each frame (trajectory mode only).
-        Each row holds 6 values in the same order as --box: x_min, x_max, y_min, y_max, z_min, z_max (in Angstrom).
-        There must be at least as many rows as frames in the trajectory.
-        An optional non-numeric header row is allowed. Mutually exclusive with --box and --sphere.
+        6 numerical values must be passed in the following order: x_min x_max y_min y_max z_min z_max (all in Angstrom).
+        In case of trajectories, 6*nframes values must be passed (one box per frame).
+        Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each box (an optional non-numeric header row is allowed).
+        Mutually exclusive with --sphere.
     !fyh:sphere
         Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere.
         If not provided, 'whole' mode is assumed.
+        Mutually exclusive with --box.
     !fyh:residues
         A string of space-separated residues for which to perform the calculations.
         The residues must be in the format "chain_id.resid" (e.g. "A.3 A.4 A.5 B.10").

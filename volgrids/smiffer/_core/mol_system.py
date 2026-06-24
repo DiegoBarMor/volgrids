@@ -23,20 +23,19 @@ class MolSystem:
         self.molname = path_struct.stem
         self.do_traj = path_traj is not None
         self.do_ps = len(sm.SPHERES) > 0
-        self.do_box_enforced = sm.BOX_ENFORCED is not None
-        self.do_boxes_per_frame = self.do_traj and (sm.BOXES_PER_FRAME is not None)
+        self.do_box_enforced = len(sm.BOXES_ENFORCED) > 0
         self.chemtable = self._init_chemtable()
 
         self.system = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
         self.frame = 0 if self.do_traj else None
+        nframes = self.system.trajectory.n_frames if self.do_traj else 1
 
-        if self.do_boxes_per_frame:
-            self._assert_boxes_per_frame()
+        if self.do_box_enforced:
+            vg.BoxInfo.assert_list_box_infos([box.info for box in sm.BOXES_ENFORCED], nframes)
 
         self.box = self._get_init_box() if box is None else box
 
         if self.do_ps:
-            nframes = self.system.trajectory.n_frames if self.do_traj else 1
             vg.SphereInfo.assert_sphere_list(sm.SPHERES, nframes)
 
         self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
@@ -85,8 +84,8 @@ class MolSystem:
     def switch_frame(self, frame_idx: int):
         self.system.trajectory[frame_idx]
         self.frame = frame_idx
-        if self.do_boxes_per_frame:
-            self.box = sm.BOXES_PER_FRAME[frame_idx]
+        if self.do_box_enforced:
+            self.box = sm.BOXES_ENFORCED[frame_idx]
         elif vg.BOX_TIGHT_TRAJ:
             self.box = self._box_from_current_frame()
 
@@ -126,9 +125,7 @@ class MolSystem:
 
     # --------------------------------------------------------------------------
     def _get_init_box(self) -> vg.Box:
-        if self.do_boxes_per_frame: return sm.BOXES_PER_FRAME[self.frame or 0]
-        if self.do_box_enforced: return sm.BOX_ENFORCED
-        if vg.BOX_TIGHT_TRAJ: return self._box_from_current_frame()
+        if self.do_box_enforced: return sm.BOXES_ENFORCED[self.frame or 0]
 
         if self.do_ps:
             sphere = self._get_current_sphere()
@@ -189,18 +186,6 @@ class MolSystem:
             chem.parse_names_hbdonors(ini)
 
         return chem
-
-
-    # --------------------------------------------------------------------------
-    def _assert_boxes_per_frame(self) -> None:
-        nframes = self.system.trajectory.n_frames
-        nboxes = len(sm.BOXES_PER_FRAME)
-        if nboxes < nframes: raise ValueError(
-            f"Number of boxes provided in the box CSV ({nboxes}) must be equal or "
-            f"higher than the number of frames in the trajectory ({nframes}). "
-            "Each row of the CSV should correspond to one frame. "
-            "Extra provided boxes will be ignored."
-        )
 
 
     # --------------------------------------------------------------------------

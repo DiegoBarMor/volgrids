@@ -20,9 +20,15 @@ class NumberLists:
 
     # --------------------------------------------------------------------------
     def _parse(self, data: list[str], width: int) -> None:
-        if len(data) == 1 and Path(data[0]).is_file():
-            self._from_csv(data[0], width)
-            return
+        if len(data) == 1:
+            if Path(data[0]).is_file():
+                self._from_csv(data[0], width)
+                return
+
+            try: float(data[0])
+            except ValueError:
+                self.error = f"Got a single value that is neither a valid number nor an existing CSV file path: {data[0]}"
+                return
 
         if len(data) % width:
             self.error = f"Got {len(data)} values, which is not a multiple of {width}."

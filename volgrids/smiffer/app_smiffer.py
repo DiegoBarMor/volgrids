@@ -55,7 +55,6 @@ class AppSmiffer(vg.AppSubcommand):
         self._handle_params_resids()
         self._handle_params_sphere()
         self._handle_params_box()
-        self._handle_params_box_csv()
         self._assert_traj_apbs()
 
         app_main.load_configs(vg, sm)
@@ -339,35 +338,18 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_box(self):
-        flat_box = self.main.get_arg_float("box", is_list = True)
-        if not flat_box: return
+        boxes_flat = self.main.get_arg_str("box", is_list = True)
+        if not boxes_flat: return
 
-        sm.BOX_ENFORCED = vg.BoxInfo.from_list(flat_box).create_box()
-
-
-    # --------------------------------------------------------------------------
-    def _handle_params_box_csv(self):
-        path_csv = self.main.get_arg_path(
-            "box_csv", assertion = fy.PathAssertion.FILE_IN,
-            allow_none = True
-        )
-        if path_csv is None: return
-
-        if self.path_traj is None: self.main.help_and_exit(1,
-            "The --box-csv option provides a per-frame box and is only available "
-            "in trajectory mode. Please also provide a trajectory file with --traj."
-        )
-        if sm.BOX_ENFORCED is not None: self.main.help_and_exit(1,
-            "The --box-csv and --box options are mutually exclusive (both define "
-            "the grid box). Please provide only one of them."
-        )
         if sm.SPHERES: self.main.help_and_exit(1,
             "The --box-csv and --sphere options are mutually exclusive (both define "
             "the grid box). Please provide only one of them."
         )
 
-        try: sm.BOXES_PER_FRAME = vg.Box.list_from_csv(path_csv)
+        try: box_infos = vg.BoxInfo.parse_list_box_infos(boxes_flat)
         except ValueError as e: self.main.help_and_exit(1, f"{e}")
+
+        sm.BOXES_ENFORCED = [box_info.create_box() for box_info in box_infos]
 
 
     # --------------------------------------------------------------------------
@@ -377,9 +359,9 @@ class AppSmiffer(vg.AppSubcommand):
         frame to share the same grid dimensions and origin)."""
         if vg.BOX_TIGHT_TRAJ:
             varying = True
-        elif sm.BOXES_PER_FRAME is not None:
-            first = sm.BOXES_PER_FRAME[0]
-            varying = any(not (box == first) for box in sm.BOXES_PER_FRAME)
+        elif sm.BOXES_ENFORCED:
+            first = sm.BOXES_ENFORCED[0]
+            varying = any(not (box == first) for box in sm.BOXES_ENFORCED)
         else:
             varying = False
 
