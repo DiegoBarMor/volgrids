@@ -21,23 +21,32 @@ class NumberLists:
     # --------------------------------------------------------------------------
     def _parse(self, data: list[str], width: int) -> None:
         if len(data) == 1:
-            if Path(data[0]).is_file():
+            ### len of 1 can mean either a path to a CSV file or single/multiple numbers
+            ### that were passed together as a single space-separated stirng, because
+            ### freyacli isn't parsing the provided value (as it could be either a path with spaces or a list of numbers)
+            try: is_valid_path = Path(data[0]).is_file()
+            except OSError: is_valid_path = False
+
+            if is_valid_path:
                 self._from_csv(data[0], width)
                 return
 
-            try: float(data[0])
-            except ValueError:
-                self.error = f"Got a single value that is neither a valid number nor an existing CSV file path: {data[0]}"
-                return
+            data = data[0].split()
+
 
         if len(data) % width:
             self.error = f"Got {len(data)} values, which is not a multiple of {width}."
             return
 
-        self.values = tuple(zip(*(
-            map(float, data[i::width])
-            for i in range(width)
-        )))
+        try:
+            self.values = tuple(zip(*(
+                map(float, data[i::width])
+                for i in range(width)
+            )))
+        except ValueError:
+            self.error = f"Error while parsing the provided value: {' '.join(data)}. " +\
+                "Its netiher an existing CSV file path nor a valid (list of) number(s)."
+            return
 
 
     # --------------------------------------------------------------------------

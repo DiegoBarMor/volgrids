@@ -138,10 +138,8 @@ class VGOperations:
 
         if grid.fmt == vg.GridFormat.CMAP:
             meta = vg.GridIO.read_cmap_metadata(path_in)
-            if "volgrids_launch_time" in meta:
-                print(f"... launched: {fy.Color.green(meta['volgrids_launch_time'])}")
-            if "volgrids_command" in meta:
-                print(f"... command: {fy.Color.cyan(meta['volgrids_command'])}")
+            print(f"... launched: {fy.Color.green(meta['volgrids_launch_time'])}")
+            print(f"... command: {fy.Color.cyan(meta['volgrids_command'])}")
 
         for key in grid_names:
             if grid.fmt == vg.GridFormat.CMAP:

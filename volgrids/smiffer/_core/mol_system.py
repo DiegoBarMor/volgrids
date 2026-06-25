@@ -31,6 +31,7 @@ class MolSystem:
         self.do_enforce_boxes = len(sm.BOXES_ENFORCED) > 0
         self.do_use_common_box = self.do_traj and not vg.BOX_TIGHT_TRAJ \
             and not self.do_use_sphere and not self.do_enforce_boxes
+        self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
 
         self.chemtable = self._init_chemtable()
 
@@ -38,16 +39,14 @@ class MolSystem:
         self.frame = 0 if self.do_traj else None
         nframes = self.system.trajectory.n_frames if self.do_traj else 1
 
+        if self.do_use_sphere:
+            vg.SphereInfo.assert_sphere_infos(sm.SPHERES, nframes)
+
         if self.do_enforce_boxes:
             vg.BoxInfo.assert_box_infos([box.info for box in sm.BOXES_ENFORCED], nframes)
 
         self.box_common = self._gen_box_common() if self.do_use_common_box else None
         self.box = self._get_current_box() if box is None else box
-
-        if self.do_use_sphere:
-            vg.SphereInfo.assert_sphere_infos(sm.SPHERES, nframes)
-
-        self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
 
 
     # --------------------------------------------------------------------------
@@ -150,15 +149,15 @@ class MolSystem:
             if vg.BOX_FORCE_EQUILATERAL: box.enforce_equilateral()
             return box
 
-        ### Priority 3: dealing with a trajectory and the user requested
-        ### a common box that can enclose the structure in all frames (via config `vg.BOX_TIGHT_TRAJ=False`)
-        if self.do_use_common_box:
-            return self._gen_box_common()
+        ### Priority 3: dealing with a trajectory and the user requested the box
+        ### to be inferred from the structure at every frame (via config `BOX_TIGHT_TRAJ=True`)
+        if not self.do_use_common_box:
+            min_coords = self.system.coord.positions.min(axis = 0)
+            max_coords = self.system.coord.positions.max(axis = 0)
+            return self._padded_box(min_coords, max_coords)
 
-        ### Priority 4: Box to be used is inferred from the structure
-        min_coords = self.system.coord.positions.min(axis = 0)
-        max_coords = self.system.coord.positions.max(axis = 0)
-        return self._padded_box(min_coords, max_coords)
+        ### Priority 4 (default): a common box that can enclose the structure in all frames is used (via config `BOX_TIGHT_TRAJ=False`)
+        return self.box_common
 
 
     # --------------------------------------------------------------------------
