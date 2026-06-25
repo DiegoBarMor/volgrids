@@ -12,7 +12,7 @@ class SphereInfo:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def sphere_list(cls, spheres_flat: list[float]) -> list["SphereInfo"]:
+    def parse_sphere_infos(cls, spheres_flat: list[float]) -> list["SphereInfo"]:
         if not spheres_flat: return []
 
         spheres = vg.NumberLists(spheres_flat, 4)
@@ -24,7 +24,7 @@ class SphereInfo:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def assert_sphere_list(spheres: list["SphereInfo"], nframes: int) -> None:
+    def assert_sphere_infos(spheres: list["SphereInfo"], nframes: int) -> None:
         if nframes > len(spheres):
             raise ValueError(
                 f"Number of spheres provided ({len(spheres)}) should be equal or higher than the number of frames in trajectory ({nframes}). " +\

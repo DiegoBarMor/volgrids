@@ -14,7 +14,7 @@ class BoxInfo:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def parse_list_box_infos(cls, boxes_flat: list[float]) -> list["BoxInfo"]:
+    def parse_box_infos(cls, boxes_flat: list[float]) -> list["BoxInfo"]:
         if not boxes_flat: return []
 
         boxes = vg.NumberLists(boxes_flat, 6)
@@ -29,7 +29,7 @@ class BoxInfo:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def assert_list_box_infos(boxes: list["BoxInfo"], nframes: int) -> None:
+    def assert_box_infos(boxes: list["BoxInfo"], nframes: int) -> None:
         if nframes > len(boxes):
             raise ValueError(
                 f"Number of boxes provided ({len(boxes)}) should be equal or higher than the number of frames in trajectory ({nframes}). " +\

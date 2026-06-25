@@ -12,33 +12,41 @@ class MolSystem:
     def __init__(self, path_struct: Path, path_traj: Path = None, box: vg.Box = None):
         import MDAnalysis as mda
 
-        self.molname  : str                 # name of the molecule
-        self.do_traj  : None | bool         # whether this is a trajectory or a single structure (None if no structure is provided)
-        self.system   : None | mda.Universe # MDAnalysis Universe object for the molecular system
-        self.frame    : None | int          # current frame number (if trajectory is used)
-        self.box      : vg.Box
-        self.do_ps    : bool
-        self.chemtable: sm.ParserChemTable
+        self.molname   : str                # name of the molecule
+        self.do_traj   : bool|None          # whether this is a trajectory or a single structure (None if no structure is provided)
+        self.system    : mda.Universe|None  # MDAnalysis Universe object for the molecular system
+        self.frame     : int|None           # current frame number (if trajectory is used)
+        self.box       : vg.Box             # current box (either enforced, sphere-based, or computed from the structure)
+        self.box_common: vg.Box|None        # box that can enclose all frames of a trajectory
+        self.chemtable : sm.ParserChemTable
+        self.do_use_sphere      : bool
+        self.do_enforce_boxes   : bool
+        self.do_use_common_box  : bool
+        self.enforce_cmap_output: bool
 
         self.molname = path_struct.stem
         self.do_traj = path_traj is not None
-        self.do_ps = len(sm.SPHERES) > 0
-        self.do_box_enforced = len(sm.BOXES_ENFORCED) > 0
+
+        self.do_use_sphere = len(sm.SPHERES) > 0
+        self.do_enforce_boxes = len(sm.BOXES_ENFORCED) > 0
+        self.do_use_common_box = self.do_traj and not vg.BOX_TIGHT_TRAJ \
+            and not self.do_use_sphere and not self.do_enforce_boxes
+        self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
+
         self.chemtable = self._init_chemtable()
 
         self.system = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
         self.frame = 0 if self.do_traj else None
         nframes = self.system.trajectory.n_frames if self.do_traj else 1
 
-        if self.do_box_enforced:
-            vg.BoxInfo.assert_list_box_infos([box.info for box in sm.BOXES_ENFORCED], nframes)
+        if self.do_use_sphere:
+            vg.SphereInfo.assert_sphere_infos(sm.SPHERES, nframes)
 
-        self.box = self._get_init_box() if box is None else box
+        if self.do_enforce_boxes:
+            vg.BoxInfo.assert_box_infos([box.info for box in sm.BOXES_ENFORCED], nframes)
 
-        if self.do_ps:
-            vg.SphereInfo.assert_sphere_list(sm.SPHERES, nframes)
-
-        self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
+        self.box_common = self._gen_box_common() if self.do_use_common_box else None
+        self.box = self._get_current_box() if box is None else box
 
 
     # --------------------------------------------------------------------------
@@ -67,16 +75,19 @@ class MolSystem:
         return obj
 
 
-
     # --------------------------------------------------------------------------
     @staticmethod
     def copy_attributes_except_system(src: "MolSystem", dst: "MolSystem"):
-        dst.molname = src.molname
-        dst.do_traj = src.do_traj
-        dst.frame = src.frame
-        dst.box = src.box
-        dst.do_ps = src.do_ps
-        dst.chemtable = src.chemtable
+        ### [TODO]: rework this method? it's easy to forget to add new attributes here when adding them to the class
+        dst.molname    = src.molname
+        dst.do_traj    = src.do_traj
+        dst.frame      = src.frame
+        dst.box        = src.box
+        dst.box_common = src.box_common
+        dst.chemtable  = src.chemtable
+        dst.do_use_sphere       = src.do_use_sphere
+        dst.do_enforce_boxes    = src.do_enforce_boxes
+        dst.do_use_common_box   = src.do_use_common_box
         dst.enforce_cmap_output = src.enforce_cmap_output
 
 
@@ -84,10 +95,7 @@ class MolSystem:
     def switch_frame(self, frame_idx: int):
         self.system.trajectory[frame_idx]
         self.frame = frame_idx
-        if self.do_box_enforced:
-            self.box = sm.BOXES_ENFORCED[frame_idx]
-        elif vg.BOX_TIGHT_TRAJ:
-            self.box = self._box_from_current_frame()
+        self.box = self._get_current_box()
 
 
     # --------------------------------------------------------------------------
@@ -112,8 +120,8 @@ class MolSystem:
     # --------------------------------------------------------------------------
     def get_relevant_atoms(self, use_custom = True, extra_dist: float = 0.0):
         query = self.chemtable.get_selection_query(use_custom)
-        if self.do_ps:
-            sphere = self._get_current_sphere()
+        if self.do_use_sphere:
+            sphere = sm.SPHERES[self.frame or 0]
             query += f"and point {sphere.get_str_query(extra_dist)}"
 
         atoms = self.system.select_atoms(query)
@@ -124,11 +132,14 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
-    def _get_init_box(self) -> vg.Box:
-        if self.do_box_enforced: return sm.BOXES_ENFORCED[self.frame or 0]
+    def _get_current_box(self) -> vg.Box:
+        ### Priority 1: Box to be used is specifically requested by the user (via CLI)
+        if self.do_enforce_boxes:
+            return sm.BOXES_ENFORCED[self.frame or 0]
 
-        if self.do_ps:
-            sphere = self._get_current_sphere()
+        ### Priority 2: Box to be used is based on a user-provided sphere (via CLI)
+        if self.do_use_sphere:
+            sphere = sm.SPHERES[self.frame or 0]
             box = vg.Box(None, None, None, do_init = False)
             box.cog = np.array(sphere.get_pos())
             box.min_coords = box.cog - sphere.radius
@@ -138,27 +149,31 @@ class MolSystem:
             if vg.BOX_FORCE_EQUILATERAL: box.enforce_equilateral()
             return box
 
-        if self.do_traj:
-            min_coords = np.full(3,  np.inf)
-            max_coords = np.full(3, -np.inf)
-            for _ in self.system.trajectory:
-                positions = self.system.coord.positions
-                np.minimum(min_coords, positions.min(axis = 0), out = min_coords)
-                np.maximum(max_coords, positions.max(axis = 0), out = max_coords)
-            self.system.trajectory[0] # rewind to frame 0
-        else:
-            min_coords = np.min(self.system.coord.positions, axis = 0)
-            max_coords = np.max(self.system.coord.positions, axis = 0)
+        ### Priority 3: dealing with a trajectory and the user requested the box
+        ### to be inferred from the structure at every frame (via config `BOX_TIGHT_TRAJ=True`)
+        if not self.do_use_common_box:
+            min_coords = self.system.coord.positions.min(axis = 0)
+            max_coords = self.system.coord.positions.max(axis = 0)
+            return self._padded_box(min_coords, max_coords)
 
-        return self._padded_box(min_coords, max_coords)
+        ### Priority 4 (default): a common box that can enclose the structure in all frames is used (via config `BOX_TIGHT_TRAJ=False`)
+        return self.box_common
 
 
     # --------------------------------------------------------------------------
-    def _box_from_current_frame(self) -> vg.Box:
-        """Build a box that tightly encloses the structure at the current frame
-        (used by --auto-crop, which makes the grid follow the moving structure)."""
-        positions = self.system.coord.positions
-        return self._padded_box(positions.min(axis = 0), positions.max(axis = 0))
+    def _gen_box_common(self) -> vg.Box:
+        """
+        In the case of trajectories and when `vg.BOX_TIGHT_TRAJ=False`, a box that can enclose all frames is computed.
+        This behavior is overridden if the user explicitly requests a box (via CLI) or a sphere (via CLI) to be used.
+        """
+        min_coords = np.full(3,  np.inf)
+        max_coords = np.full(3, -np.inf)
+        for _ in self.system.trajectory:
+            positions = self.system.coord.positions
+            np.minimum(min_coords, positions.min(axis = 0), out = min_coords)
+            np.maximum(max_coords, positions.max(axis = 0), out = max_coords)
+        self.system.trajectory[0] # rewind to frame 0
+        return self._padded_box(min_coords, max_coords)
 
 
     # --------------------------------------------------------------------------
@@ -186,14 +201,6 @@ class MolSystem:
             chem.parse_names_hbdonors(ini)
 
         return chem
-
-
-    # --------------------------------------------------------------------------
-    def _get_current_sphere(self) -> "vg.SphereInfo":
-        if not self.do_ps: raise ValueError("No pocket sphere info available.")
-        if self.frame is None: return sm.SPHERES[0]
-        return sm.SPHERES[self.frame]
-
 
 
 # //////////////////////////////////////////////////////////////////////////////

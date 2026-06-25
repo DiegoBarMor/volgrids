@@ -327,12 +327,11 @@ class GridIO:
     def read_cmap_metadata(path_cmap: Path) -> dict[str, str]:
         """Returns the custom run metadata (command, launch time) embedded as attributes by write_cmap."""
         import h5py
-        out = {}
         with h5py.File(path_cmap, 'r') as h5:
-            for attr in ("volgrids_command", "volgrids_launch_time"):
-                if attr in h5.attrs:
-                    out[attr] = bytes(h5.attrs[attr]).decode()
-        return out
+            return {
+                attr: bytes(h5.attrs[attr]).decode() if attr in h5.attrs else "<empty>"
+                for attr in ("volgrids_command", "volgrids_launch_time")
+            }
 
 
     # --------------------------------------------------------------------------

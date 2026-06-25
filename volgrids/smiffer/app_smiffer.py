@@ -64,7 +64,7 @@ class AppSmiffer(vg.AppSubcommand):
         ### so it's appropriate to place them at the end of init
         self.ms = sm.MolSystem(sm.PATH_STRUCT, self.path_traj)
         self.timer = vg.Timer(
-            f">>> {'Sphere' if self.ms.do_ps else 'Whole'} "+\
+            f">>> {'Sphere' if self.ms.do_use_sphere else 'Whole'} "+\
             f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
         )
 
@@ -332,7 +332,7 @@ class AppSmiffer(vg.AppSubcommand):
         spheres_flat = self.main.get_arg_float("sphere", is_list = True)
         if not spheres_flat: return
 
-        try: sm.SPHERES = vg.SphereInfo.sphere_list(spheres_flat)
+        try: sm.SPHERES = vg.SphereInfo.parse_sphere_infos(spheres_flat)
         except ValueError as e: self.main.help_and_exit(1, f"{e}")
 
 
@@ -346,7 +346,7 @@ class AppSmiffer(vg.AppSubcommand):
             "the grid box). Please provide only one of them."
         )
 
-        try: box_infos = vg.BoxInfo.parse_list_box_infos(boxes_flat)
+        try: box_infos = vg.BoxInfo.parse_box_infos(boxes_flat)
         except ValueError as e: self.main.help_and_exit(1, f"{e}")
 
         sm.BOXES_ENFORCED = [box_info.create_box() for box_info in box_infos]
@@ -357,22 +357,21 @@ class AppSmiffer(vg.AppSubcommand):
         """Warn when the grid box changes across frames: such a CMAP is a valid HDF5
         file but cannot be opened as a map series by ChimeraX (which requires every
         frame to share the same grid dimensions and origin)."""
-        if vg.BOX_TIGHT_TRAJ:
-            varying = True
-        elif sm.BOXES_ENFORCED:
-            first = sm.BOXES_ENFORCED[0]
-            varying = any(not (box == first) for box in sm.BOXES_ENFORCED)
-        else:
-            varying = False
-
-        if not varying: return
-        print(
-            fy.Color.red("WARNING: ") +
-            "the grid box changes across frames, so each frame of the output CMAP "
-            "will have a different origin/size. The file is a valid HDF5 CMAP, but it "
-            + fy.Color.red("cannot be opened as a map series by ChimeraX") +
-            " (which requires all frames to share the same dimensions and origin)."
+        def print_warning(): print(
+            fy.Color.red("WARNING:"),
+            "the grid box changes across frames, so each frame of the output CMAP",
+            "will have a different origin/size. The file is a valid HDF5 CMAP, but",
+            fy.Color.red("its visualization is currently not done properly by ChimeraX."),
+            "In the case of boxes with different sizes, ChimeraX will not open them as a",
+            "map series, instead it willl load all the grids at once. In the case of boxes of same size",
+            "but different origins, the grids will be opened as a series but use the box of the first frame.",
         )
+        if not self.ms.do_traj: return
+        if vg.BOX_TIGHT_TRAJ: return print_warning()
+        if not sm.BOXES_ENFORCED: return
+        if any(
+            box != sm.BOXES_ENFORCED[0] for box in sm.BOXES_ENFORCED
+        ): print_warning()
 
 
     # --------------------------------------------------------------------------

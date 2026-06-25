@@ -131,43 +131,37 @@ class VGOperations:
     # --------------------------------------------------------------------------
     @staticmethod
     def summary(path_in: Path) -> None:
-        def numerics(g: vg.Grid):
-            n_total = g.arr.size
-            n_nonzero = len(g.arr[g.arr != 0])
-
-            str_min_ = fy.Color.red(f"{g.arr.min():.2e}")
-            str_max_ = fy.Color.blue(f"{g.arr.max():.2e}")
-            str_perc = fy.Color.yellow(f"{100*n_nonzero/n_total:.2f}%")
-
-            print(f"... grid: {fy.Color.cyan(g.name)}")
-            print(f"...... min: {str_min_}; max: {str_max_}; mean: {g.arr.mean():2.2e}")
-            print(f"...... non-zero points: {n_nonzero}/{n_total} ({str_perc})")
-
         grid = vg.Grid.load(path_in)
         grid_names = vg.GridIO.get_cmap_keys(path_in) if grid.fmt == vg.GridFormat.CMAP else [path_in.stem]
 
-        str_res = fy.Color.green(f"{grid.xres()}x{grid.yres()}x{grid.zres()}")
-        str_min = fy.Color.red(f"{grid.xmin():.2f},{grid.ymin():.2f},{grid.zmin():.2f}")
-        str_max = fy.Color.blue(f"{grid.xmax():.2f},{grid.ymax():.2f},{grid.zmax():.2f}")
-
         print(f"... fmt: {fy.Color.magenta(grid.fmt.name)}, ngrids: {fy.Color.yellow(len(grid_names))}")
-        print(f"... resolution: {str_res}; deltas: ({grid.dx():.2f},{grid.dy():.2f},{grid.dz():.2f})")
-        print(f"... box: ({str_min})->({str_max})")
 
         if grid.fmt == vg.GridFormat.CMAP:
             meta = vg.GridIO.read_cmap_metadata(path_in)
-            if "volgrids_launch_time" in meta:
-                print(f"... launched: {fy.Color.green(meta['volgrids_launch_time'])}")
-            if "volgrids_command" in meta:
-                print(f"... command: {fy.Color.cyan(meta['volgrids_command'])}")
-
-        else:
-            grid.name = path_in.stem
-            numerics(grid); print()
-            return
+            print(f"... launched: {fy.Color.green(meta['volgrids_launch_time'])}")
+            print(f"... command: {fy.Color.cyan(meta['volgrids_command'])}")
 
         for key in grid_names:
-            numerics(vg.Grid.load(path_in, key = key))
+            if grid.fmt == vg.GridFormat.CMAP:
+                grid = vg.Grid.load(path_in, key = key)
+            else:
+                grid.name = path_in.stem
+
+            n_total = grid.arr.size
+            n_nonzero = len(grid.arr[grid.arr != 0])
+
+            str_box_res = fy.Color.green(f"{grid.xres()}x{grid.yres()}x{grid.zres()}")
+            str_box_min = fy.Color.red  (f"{grid.xmin():.2f},{grid.ymin():.2f},{grid.zmin():.2f}")
+            str_box_max = fy.Color.blue (f"{grid.xmax():.2f},{grid.ymax():.2f},{grid.zmax():.2f}")
+            str_val_min = fy.Color.red  (f"{grid.arr.min():.2e}")
+            str_val_max = fy.Color.blue (f"{grid.arr.max():.2e}")
+            str_perc = fy.Color.yellow  (f"{100*n_nonzero/n_total:.2f}%")
+
+            print(f"... grid: {fy.Color.cyan(grid.name)}")
+            print(f"...... resolution: {str_box_res}; deltas: ({grid.dx():.2f},{grid.dy():.2f},{grid.dz():.2f})")
+            print(f"...... box: ({str_box_min})->({str_box_max})")
+            print(f"...... min: {str_val_min}; max: {str_val_max}; mean: {grid.arr.mean():2.2e}")
+            print(f"...... non-zero points: {n_nonzero}/{n_total} ({str_perc})")
         print()
 
 

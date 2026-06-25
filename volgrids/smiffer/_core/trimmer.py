@@ -87,7 +87,7 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     def _should_run_mask_common(self) -> bool:
-        return self.ms.do_ps and self._mask_common is None
+        return self.ms.do_use_sphere and self._mask_common is None
 
 
     # --------------------------------------------------------------------------

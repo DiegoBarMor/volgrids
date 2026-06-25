@@ -32,6 +32,11 @@ class Box:
 
 
     # --------------------------------------------------------------------------
+    def __repr__(self) -> str:
+        return f"Box({self.min_coords}->{self.max_coords})"
+
+
+    # --------------------------------------------------------------------------
     @classmethod
     def from_min_max(cls, min_coords: np.ndarray, max_coords: np.ndarray) -> "Box":
         if np.any(max_coords <= min_coords):

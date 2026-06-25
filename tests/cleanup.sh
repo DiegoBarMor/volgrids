@@ -13,6 +13,10 @@ rm  -f "$folder_smiffer/toy_systems/"*.cmap
 rm -rf "$folder_smiffer/pocket_sphere"
 rm -rf "$folder_smiffer/whole"*
 rm  -f "$folder_smiffer/trajs/"**/*.cmap
+rm -rf "$folder_smiffer/trajs/few_frames/01"**
+rm -rf "$folder_smiffer/trajs/few_frames/02"**
+rm -rf "$folder_smiffer/trajs/few_frames/03"**
+rm -rf "$folder_smiffer/trajs/few_frames/04"**
 rm  -f "$folder_smiffer/ligands/"**/*.cmap
 rm  -f "$folder_smiffer/interfaces/"**/*.cmap
 rm -rf "$folder_smiffer/cavities"
