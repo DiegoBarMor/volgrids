@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.19.0] - 2026-06-25
+- `volgrids`
+    - Modified some box related configs:
+        - Renamed `USE_FIXED_DELTAS` to `BOX_FROM_DELTAS`
+        - Renamed `ENSURE_EQUILATERAL` to `BOX_FORCE_EQUILATERAL`
+        - Renamed `EXTRA_BOX_SIZE` to `BOX_PADDING`
+        - Added `BOX_TIGHT_TRAJ` config for automatically generating a tight box for every frame of a trajectory.
+
+- `smiffer`
+    - The `--box` flag now accepts either space separated values for 1 or n_frames via the CLI, or a single argument referring to the path of a CSV file. This file would contain the same box values but in comma-separated rows.
+    - Added more contol over the behavior of the box when dealing with trajectories. The current options are listed below, in order of priority (higher to lowest):
+        - **1**: Box to be used is specifically requested by the user (via CLI)
+        - **2**: Box to be used is based on a user-provided sphere (via CLI)
+        - **3**: Dealing with a trajectory and the user requested the box to be inferred from the structure at every frame (via config `BOX_TIGHT_TRAJ=True`)
+        - **4 (default)**: A common box that can enclose the structure in all frames is used (via config `BOX_TIGHT_TRAJ=False`)
+    - Some additional metadata is now saved into the CMAP headers, namely command use and time of execution.
+
+- `vgtools`
+    - The `summary` subcommand now displays the box information for every grid in a CMAP.
+
+
 ## [0.18.0] - 2026-06-24
 - Added `NumberLists` class to handle common parsing of lists of numbers.
 - Added `BoxInfo` to contain values for reconstructing boxes (i.e. box minimum and maximum coordinates).

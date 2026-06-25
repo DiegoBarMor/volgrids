@@ -22,6 +22,7 @@ def visualize_scores(path_csv: Path):
         total = sum(row[1:])
         if total == 0: continue
         df.iloc[i, 1:] = row[1:] / total
+        # df.iloc[i, 1:] = row[1:] ### use this instead to skip the normalization and visualize the absolute values of the scores
 
     ##### sort the pdbs
     prots = ["1bg0","1eby","1ehe","1h7l","1iqj","1ofz","3dd0","3ee4","5m9w","6e9a"]
@@ -128,26 +129,38 @@ class PocketScoreCalculator:
 
     # --------------------------------------------------------------------------
     def _assign_score(self, smif_kind: str, smif_ps: vg.Grid, smif_wh: vg.Grid, pocket: vg.Grid) -> None:
-        volume = len(pocket[pocket]) # the volume is given by the number of points in the pocket
+        volume_ps = len(pocket[pocket]) # the volume_ps is given by the number of points in the pocket
         sum_ps = np.sum(smif_ps)     # the sum of the smif values in the pocket
         sum_wh = np.sum(smif_wh)     # the sum of the smif values in the whole grid
-        if volume == 0:
+        if volume_ps == 0:
             raise ValueError("Warning: Pocket is empty, no points in the pocket.")
 
 
         ##### Option 0: SMIF integral without normalization
         # score = np.abs(sum_ps)
 
-        ##### Option 1: SMIF integral is only normalized by the volume of the pocket
-        # score = np.abs(sum_ps) / volume
+        ##### Option 1: SMIF integral is only normalized by the volume_ps of the pocket
+        # score = np.abs(sum_ps) / volume_ps
 
-        ##### Option 2: SMIF integral is normalized by its maximum absolute value and by the volume of the pocket
+        ##### Option 2: SMIF integral is normalized by its maximum absolute value and by the volume_ps of the pocket
         # maximum_abs = np.max(np.abs(smif))
-        # score = np.abs(sum_ps) / (maximum_abs * volume) if maximum_abs > 0 else 0
+        # score = np.abs(sum_ps) / (maximum_abs * volume_ps) if maximum_abs > 0 else 0
 
         ##### Option 3: SMIF integral of the pocket normalized by the integral of the whole grid
         score = (np.abs(sum_ps) / np.abs(sum_wh)) if np.abs(sum_wh) > 0 else 0
 
+        ##### Option 4: amount of SMIF points in the pocket with values above a threshold, normalized by the volume of the pocket
+        # isovalue = {
+        #     "hbacceptors": 0.2,
+        #     "hbdonors": 0.2,
+        #     "stacking": 0.2,
+        #     "hydrophilic": 6.0,
+        #     "hydrophobic": 6.0,
+        #     "apbs-neg": 20,
+        #     "apbs-pos": 20,
+        # }[smif_kind]
+        # volume_inside = np.sum(np.abs(smif_ps) >= isovalue)
+        # score = volume_inside / volume_ps if volume_ps > 0 else 0
 
         self.data_scores[smif_kind].append(score)
 
