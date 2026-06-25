@@ -152,9 +152,9 @@ class MolSystem:
         ### Priority 3: dealing with a trajectory and the user requested the box
         ### to be inferred from the structure at every frame (via config `BOX_TIGHT_TRAJ=True`)
         if not self.do_use_common_box:
-        min_coords = self.system.coord.positions.min(axis = 0)
-        max_coords = self.system.coord.positions.max(axis = 0)
-        return self._padded_box(min_coords, max_coords)
+            min_coords = self.system.coord.positions.min(axis = 0)
+            max_coords = self.system.coord.positions.max(axis = 0)
+            return self._padded_box(min_coords, max_coords)
 
         ### Priority 4 (default): a common box that can enclose the structure in all frames is used (via config `BOX_TIGHT_TRAJ=False`)
         return self.box_common

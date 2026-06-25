@@ -358,11 +358,13 @@ class AppSmiffer(vg.AppSubcommand):
         file but cannot be opened as a map series by ChimeraX (which requires every
         frame to share the same grid dimensions and origin)."""
         def print_warning(): print(
-            fy.Color.red("WARNING: ") +
-            "the grid box changes across frames, so each frame of the output CMAP "
-            "will have a different origin/size. The file is a valid HDF5 CMAP, but it "
-            + fy.Color.red("cannot be opened as a map series by ChimeraX") +
-            " (which requires all frames to share the same dimensions and origin)."
+            fy.Color.red("WARNING:"),
+            "the grid box changes across frames, so each frame of the output CMAP",
+            "will have a different origin/size. The file is a valid HDF5 CMAP, but",
+            fy.Color.red("its visualization is currently not done properly by ChimeraX."),
+            "In the case of boxes with different sizes, ChimeraX will not open them as a",
+            "map series, instead it willl load all the grids at once. In the case of boxes of same size",
+            "but different origins, the grids will be opened as a series but use the box of the first frame.",
         )
         if not self.ms.do_traj: return
         if vg.BOX_TIGHT_TRAJ: return print_warning()

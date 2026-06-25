@@ -26,13 +26,13 @@ python3 volgrids smiffer $path_pdb -t $path_traj -n 4 -o $folder_few_frames/01_c
 
 ###### Priority 2: Box to be used is based on a user-provided sphere (via CLI)
 query="resid 35 36 37 38"
-spheres=$(python3 volgrids smutils  sphere find $path_pdb "$query" -t $path_traj -r 2.0)
+spheres=$(python3 volgrids smutils sphere find $path_pdb "$query" -t $path_traj -r 2.0)
 python3 volgrids smiffer $path_pdb -t $path_traj -n 4 -o $folder_few_frames/02_cli -c "$conf_just_stk" -s "$spheres"
 
 
 ##### Priority 3: dealing with a trajectory and the user requested the box to be inferred from the structure at every frame (via config `BOX_TIGHT_TRAJ=True`)
-python3 volgrids smiffer $path_pdb -t $path_traj -n 4 -o $folder_few_frames/03_tight -c "$conf_just_stk BOX_TIGHT_TRAJ=True" -b $path_csv
+python3 volgrids smiffer $path_pdb -t $path_traj -n 4 -o $folder_few_frames/03_tight -c "$conf_just_stk BOX_TIGHT_TRAJ=True"
 
 
 ##### Priority 4 (default): a common box that can enclose the structure in all frames is used (via config `BOX_TIGHT_TRAJ=False`)
-python3 volgrids smiffer $path_pdb -t $path_traj -n 4 -o $folder_few_frames/04_common -c "$conf_just_stk BOX_TIGHT_TRAJ=False" -b $path_csv
+python3 volgrids smiffer $path_pdb -t $path_traj -n 4 -o $folder_few_frames/04_common -c "$conf_just_stk BOX_TIGHT_TRAJ=False"
