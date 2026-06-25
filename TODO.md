@@ -42,7 +42,6 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## VGTools
-* summary for CMAPs should display the box information for every grid stored.
 * add missing vgtools tests.
 * check what happens if performing "fix_cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
