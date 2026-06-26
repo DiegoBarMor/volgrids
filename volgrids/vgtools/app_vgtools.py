@@ -239,7 +239,7 @@ class AppVGTools(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _run_points(self):
         path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        points_flat = self.main.get_arg_float("points", is_list = True)
+        points_flat = self.main.get_arg_str("points", is_list = True)
 
         points = vg.NumberLists(points_flat, 3)
         if points.error: self.main.help_and_exit(1,
