@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.19.1] - 2026-06-27
+- All flags that receive number lists can also now receive an analogous CSV file.
+- `vgtools convert` now unpacks CMAP input files.
+- Disabled `WARNING_GRID_SIZE` for now (by assigning its default to a high value).
+
+
 ## [0.19.0] - 2026-06-25
 - `volgrids`
     - Modified some box related configs:

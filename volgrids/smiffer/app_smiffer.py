@@ -329,7 +329,7 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_sphere(self):
-        spheres_flat = self.main.get_arg_float("sphere", is_list = True)
+        spheres_flat = self.main.get_arg_str("sphere", is_list = True)
         if not spheres_flat: return
 
         try: sm.SPHERES = vg.SphereInfo.parse_sphere_infos(spheres_flat)

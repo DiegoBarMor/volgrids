@@ -37,12 +37,18 @@ class AppVGTools(vg.AppSubcommand):
         folder_out = self.main.get_arg_path("folder_out",
             assertion = fy.PathAssertion.DIR_OUT, default = path_in.parent
         )
-        fmt = self._get_valid_fmt_arg()
+        fmt_out = self._get_valid_fmt_arg()
+        fmt_in  = vg.GridIO.detect_format(path_in)
 
-        path_out = folder_out / f"{path_in.stem}.{fmt.suffix()}"
+        if fmt_in == vg.GridFormat.CMAP:
+            print(f">>> Converting (via unpacking) '{fy.Color.yellow(path_in)}' into '{fy.Color.blue(folder_out)}'")
+            vgt.VGOperations.unpack(path_in, folder_out, fmt_out)
+            return
 
-        print(f">>> Converting {fy.Color.yellow(path_in)} file to {fy.Color.magenta(fmt.name)}: {fy.Color.blue(path_out)}")
-        vgt.VGOperations.convert(path_in, path_out, fmt)
+        path_out = folder_out / f"{path_in.stem}.{fmt_out.suffix()}"
+
+        print(f">>> Converting {fy.Color.yellow(path_in)} file to {fy.Color.magenta(fmt_out.name)}: {fy.Color.blue(path_out)}")
+        vgt.VGOperations.convert(path_in, path_out, fmt_out)
 
 
     # --------------------------------------------------------------------------
@@ -61,10 +67,10 @@ class AppVGTools(vg.AppSubcommand):
         folder_out = self.main.get_arg_path("folder_out",
             assertion = fy.PathAssertion.DIR_OUT, default = path_in.parent
         )
-        fmt = self._get_valid_fmt_arg()
+        fmt_out = self._get_valid_fmt_arg()
 
         print(f">>> Unpacking '{fy.Color.yellow(path_in)}' into '{fy.Color.blue(folder_out)}'")
-        vgt.VGOperations.unpack(path_in, folder_out, fmt)
+        vgt.VGOperations.unpack(path_in, folder_out, fmt_out)
 
 
     # --------------------------------------------------------------------------
@@ -239,7 +245,7 @@ class AppVGTools(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _run_points(self):
         path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        points_flat = self.main.get_arg_float("points", is_list = True)
+        points_flat = self.main.get_arg_str("points", is_list = True)
 
         points = vg.NumberLists(points_flat, 3)
         if points.error: self.main.help_and_exit(1,

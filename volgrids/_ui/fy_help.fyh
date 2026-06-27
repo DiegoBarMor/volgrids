@@ -25,8 +25,10 @@
         Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each box (an optional non-numeric header row is allowed).
         Mutually exclusive with --sphere.
     !fyh:sphere
-        Activate 'pocket sphere' mode by providing the X, Y, Z coordinates (sphere center) and the sphere radius R for a sphere.
-        If not provided, 'whole' mode is assumed.
+        Provide the sphere information that should be used to build the grids.
+        4 numerical values must be passed in the following order: x_center y_center z_center radius (all in Angstrom).
+        In case of trajectories, 4*nframes values must be passed (one sphere per frame).
+        Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each sphere (an optional non-numeric header row is allowed).
         Mutually exclusive with --box.
     !fyh:residues
         A string of space-separated residues for which to perform the calculations.
@@ -72,7 +74,7 @@
     @sphere
         !fyh:_ Collection of utilities related to spheres in grids.
         @find
-            !fyh:_ Get the sphere information (x,y,z,radius) for the smallest sphere that encloses all the atoms inside a selection query.
+            !fyh:_ Get the sphere information "x_center y_center z_center radius" for the smallest sphere that encloses all the atoms inside a selection query.
             !fyh:path_in File path to a molecular structure e.g. a PDB file.
             !fyh:query Query for selecting the atoms that will be enclosed by the sphere (MDAnalysis query format).
             !fyh:path_traj File path to a trajectory file (e.g. XTC) supported by MDAnalysis.
@@ -83,7 +85,10 @@
             !fyh:_ Create a grid with a single boolean sphere (optionally moving in time if a trajectory is considered).
                 The grid encloses completely the provided structure file.
             !fyh:path_in File path to a molecular structure e.g. a PDB file.
-            !fyh:sphere Sphere information in the format (x,y,z,radius), as provided by the "smutils sphere find" subcommand.
+            !fyh:sphere
+                Sphere information in the format "x_center y_center z_center radius", as provided by the "smutils sphere find" subcommand.
+                In case of trajectories, 4*nframes values must be passed (one sphere per frame).
+                Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each sphere (an optional non-numeric header row is allowed).
             !fyh:folder_out
                 Folder path where the output grids should be stored.
                 If not provided, the parent folder of the input structure file will be used.
@@ -148,6 +153,7 @@
     @convert
         !fyh:_ Convert grid files between formats.
         !fyh:path_in Path of the grid to be converted.
+            If the input path is a CMAP file, then the grids will be unpacked into the requested format.
         !fyh:folder_out Folder path where to save the output grid.
             If not provided, the parent folder of the input file will be used.
         !fyh:format Grid format in which to convert the grid.
@@ -277,6 +283,7 @@
         !fyh:points (x,y,z) coordinates for the point(s) of interest.
             All values are to be provided space-separated.
             Must give at least 3 values (for a single XYZ point) or 3n values (where n is the number of points).
+            Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each point (an optional non-numeric header row is allowed).
     !@
 !@
 

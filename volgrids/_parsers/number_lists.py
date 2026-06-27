@@ -62,7 +62,7 @@ class NumberLists:
         if self.values.size == 0: raise ValueError(
             f"No valid numeric rows found in box CSV file: {path_csv}"
         )
-        if self.values.shape[1] != 6: raise ValueError(
+        if self.values.shape[1] != width: raise ValueError(
             f"CSV file must have exactly {width} columns "
             f"but got {self.values.shape[1]} columns in: {path_csv}"
         )

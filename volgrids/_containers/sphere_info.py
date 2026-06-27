@@ -12,7 +12,7 @@ class SphereInfo:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def parse_sphere_infos(cls, spheres_flat: list[float]) -> list["SphereInfo"]:
+    def parse_sphere_infos(cls, spheres_flat: list[str]) -> list["SphereInfo"]:
         if not spheres_flat: return []
 
         spheres = vg.NumberLists(spheres_flat, 4)

@@ -6,7 +6,7 @@
     ~path_chem[e,chem]1.PATH
     ~configs[c,config]*.STR
     ~box[b,box]1+.ANY
-    ~sphere[s,sphere]4+.FLOAT
+    ~sphere[s,sphere]1+.ANY
     ~residues[r,residues]1+.STR
     ~nproc[n,nproc]1.INT=1
     ~pack[,pack]
@@ -37,7 +37,7 @@
         !@
         @grid
             path_in[]1.PATH
-            sphere[s,sphere]4+.FLOAT
+            sphere[s,sphere]1+.ANY
             ~folder_out[o,out]1.PATH
             ~path_traj[t,traj]1.PATH
         !@
@@ -143,7 +143,7 @@
     !@
     @points
         path_in[]1.PATH
-        points[]3+.FLOAT
+        points[]1+.ANY
     !@
 !@
 
