@@ -153,6 +153,7 @@
     @convert
         !fyh:_ Convert grid files between formats.
         !fyh:path_in Path of the grid to be converted.
+            If the input path is a CMAP file, then the grids will be unpacked into the requested format.
         !fyh:folder_out Folder path where to save the output grid.
             If not provided, the parent folder of the input file will be used.
         !fyh:format Grid format in which to convert the grid.
