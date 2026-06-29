@@ -19,7 +19,7 @@ class AppPwOverlap(vg.AppSubcommand):
         path_dst = self.main.get_arg_path("path_target", assertion = fy.PathAssertion.FILE_IN)
         self.path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
-        app_main.load_configs(vg, sm, su)
+        app_main.load_configs()
         sm.AppSmiffer.init_params()
 
         self.ms_src = sm.MolSystem(path_src)
@@ -49,7 +49,7 @@ class AppPwOverlap(vg.AppSubcommand):
             )
             arr_dst += vg.Math.bivariate_gaussian(
                 input_mat, sm.PARAMS_STACK.mu, sm.PARAMS_STACK.cov_inv
-            ) * sm.PARAM_STK_SCALE
+            ) * vg.CFG.param_stk_scale
 
 
         normals_dst += cogs_dst

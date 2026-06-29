@@ -155,6 +155,7 @@ Run the subcommands without any further arguments to read more about their speci
 | `volgrids vgtools compare` | Compare two grid files by printing the number of differing points and their accumulated difference. |
 | `volgrids vgtools points` | Get the grid value(s) for specific XYZ point(s) in space. Grid values for every point are returned space-separated. |
 | `volgrids apbs` | Generate raw APBS potential grids for biomolecular structures. |
+| `volgrids config` | List configurations for volgrids. |
 
 <!-- ----------------------------------------------------------------------- -->
 ## Commands examples (smiffer)

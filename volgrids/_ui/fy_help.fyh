@@ -287,6 +287,10 @@
     !fyh:verbose whether to display all the outputs produced by APBS.
 !@
 
+@config
+    !fyh:_ List configurations (i.e. global settings) for volgrids.
+!@
+
 !def _io_2_inputs
     !fyh:path_in_0 Path to a first grid file (defines target coordinate system).
     !fyh:path_in_1 Path to a second grid file (will be interpolated if needed).

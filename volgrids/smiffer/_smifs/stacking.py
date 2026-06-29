@@ -9,13 +9,13 @@ class SmifStacking(sm.Smif):
     def populate_grid(self, grid: vg.Grid) -> None:
         grid.reset()
         kernel = vg.KernelGaussianBivariateAngleDist(
-            radius = sm.PARAM_STK_DIST_MU + sm.MISC_KERNEL_GAUSSIAN_SIGMAS * sm.SIGMA_DIST_STACKING,
+            radius = vg.CFG.param_stk_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * sm.SIGMA_DIST_STACKING,
             deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_STACK
         )
         for atoms_plane in self.iter_particles():
             cog, normal = self.get_cog_normal(atoms_plane)
             kernel.recalculate_kernel(normal, is_stacking = True)
-            kernel.stamp(grid, cog, multiply_by = sm.PARAM_STK_SCALE)
+            kernel.stamp(grid, cog, multiply_by = vg.CFG.param_stk_scale)
 
 
     # --------------------------------------------------------------------------

@@ -8,7 +8,7 @@ from volgrids._vendors import freyacli as fy
 class AppVGTools(vg.AppSubcommand):
     def __init__(self, app_main: "vg.AppMain"):
         super().__init__(app_main)
-        app_main.load_configs(vg, vgt)
+        app_main.load_configs()
 
 
     # --------------------------------------------------------------------------

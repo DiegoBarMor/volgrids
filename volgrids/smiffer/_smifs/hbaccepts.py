@@ -9,7 +9,7 @@ class SmifHBAccepts(SmifHBonds):
     def __init__(self, ms: "sm.MolSystem"):
         super().__init__(ms)
         self.kernel = vg.KernelGaussianBivariateAngleDist(
-            radius = sm.PARAM_HBA_DIST_MU + sm.MISC_KERNEL_GAUSSIAN_SIGMAS * sm.PARAM_HBA_DIST_SIGMA,
+            radius = vg.CFG.param_hba_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * vg.CFG.param_hba_dist_sigma,
             deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBA
         )
         self.hbond_getter = sm.ParserChemTable.get_names_hba

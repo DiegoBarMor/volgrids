@@ -4,7 +4,7 @@
     ~path_traj[t,traj]1.PATH
     ~path_apbs[a,apbs]1.PATH
     ~path_chem[e,chem]1.PATH
-    ~configs[c,config]*.STR
+    ~configs[c,config]1+.ANY
     ~box[b,box]1+.ANY
     ~sphere[s,sphere]1+.ANY
     ~residues[r,residues]1+.STR
@@ -145,6 +145,9 @@
     ~conv2mrc[m,mrc]
     ~keep_pqr[p,pqr]
     ~verbose[v,verbose]
+!@
+
+@config
 !@
 
 !def _io_1_input

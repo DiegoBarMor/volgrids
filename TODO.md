@@ -10,7 +10,7 @@
         * use the [mrcfile](https://mrcfile.readthedocs.io/en/stable/) library directly for handling MRC/CCP4 files.
         * DX parser (read) could be manually implemented.
 * refactor some of the inheritance in SMIF classes (specially for HBonds).
-* improve the calls to `AppMain.load_configs`?
+* further improve the calls to `AppMain.load_configs`?
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -56,6 +56,12 @@
 ## SMUtils
 * check why `DEBUG_CHEMTABLE_LIGAND` config isn't being taken into account
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
+
+
+<!-- ----------------------------------------------------------------------- -->
+## Config
+* add `-e` flag to edit the current configs
+* add `-r` flag to reset to default configs
 
 
 <!-- ----------------------------------------------------------------------- -->
