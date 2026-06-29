@@ -26,7 +26,7 @@ class Smif:
     def save_data(grid: vg.Grid, ms: sm.MolSystem, path_out: Path, key_out: str) -> None:
         # trajectory ignores the OUT_FORMAT config -> CMAP is the only format that supports multiple frames
         fmt = vg.GridFormat.CMAP if ms.enforce_cmap_output \
-            else vg.GridFormat.from_str(sm.OUT_FORMAT)
+            else vg.GridFormat.from_str(vg.OUT_FORMAT)
         if ms.do_traj: key_out += f".{ms.frame:04}"
         grid.save(path_out, fmt, key_out)
 

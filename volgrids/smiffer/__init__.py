@@ -21,8 +21,6 @@ from .app_smiffer import AppSmiffer
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
-OUT_FORMAT: str = "MRC"
-
 SMIF_STK:   bool = True
 SMIF_HBA:   bool = True
 SMIF_HBD:   bool = True

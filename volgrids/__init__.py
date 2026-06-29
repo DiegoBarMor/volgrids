@@ -39,6 +39,7 @@ from ._ui.app_main import AppMain
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
+OUT_FORMAT: str = "MRC"
 OUT_CMAP_COMPRESSION: int = 9
 OUT_WARNING_NPOINTS: float = 5.0e7
 OUT_OVERWRITE_OK: bool = True
@@ -63,7 +64,7 @@ __config_keys__.remove("_keys_other")
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by reading config files
 ### DEFAULT config.ini allows to first read "config_volgrids.ini" from the volgrid's repo root,
-### to be used by the volgrid's main scripts. Its default remains None for any other use case.
+### to be used by the volgrid's main scripts. Its default remains None for any other use case (e.g. when running volgrids as a package).
 ### CUSTOM config.ini allows the user to specify a custom config file path from the command line.
 
 import pathlib as _pathlib
