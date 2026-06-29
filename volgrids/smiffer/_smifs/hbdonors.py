@@ -98,7 +98,7 @@ class SmifHBDonors(SmifHBonds):
     def _attempt_to_guess_bonds(self):
         import MDAnalysis as mda
 
-        hydrogens = self.ms.system.select_atoms("not water and name H*")
+        hydrogens = self.ms.get_hydrogens()
         if len(hydrogens) == 0:
             sm.USE_STRUCTURE_HYDROGENS = False
             return

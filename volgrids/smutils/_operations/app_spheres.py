@@ -72,14 +72,13 @@ class AppSpheres(vg.AppSubcommand):
     @staticmethod
     def grid(path_pdb: Path, path_traj: Path|None, folder_out: Path, spheres: list[vg.SphereInfo]) -> None:
         ms = sm.MolSystem(path_pdb, path_traj)
-        nframes = ms.system.trajectory.n_frames
 
-        vg.SphereInfo.assert_sphere_infos(spheres, nframes)
+        vg.SphereInfo.assert_sphere_infos(spheres, ms.nframes)
 
         grid = vg.Grid(ms.box, dtype = bool)
         for i,sphere in enumerate(spheres):
             ms.switch_frame(i)
-            timer = vg.Timer(f"...>>> Frame {ms.frame}/{nframes}")
+            timer = vg.Timer(f"...>>> Frame {ms.frame}/{ms.nframes}")
             timer.start()
 
             grid.reset()

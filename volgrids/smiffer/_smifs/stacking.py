@@ -23,7 +23,7 @@ class SmifStacking(sm.Smif):
         import MDAnalysis as mda
 
         resname_to_ids = defaultdict(set)
-        atoms = self.ms.get_relevant_atoms()
+        atoms = self.ms.get_relevant_queried_atoms()
 
         if not len(atoms): return
         try:

@@ -134,15 +134,14 @@ class AppSmiffer(vg.AppSubcommand):
         self._warn_chimerax_incompatible()
 
         print()
-        n_frames = len(self.ms.system.trajectory)
 
         ### 1.a) TRAJECTORY MODE (multiprocessing)
         if self.nproc > 1:
-            sm.TrajMultiprocess(self).run(n_frames)
+            sm.TrajMultiprocess(self).run(self.ms.nframes)
             return _end()
 
         ### 1.b) TRAJECTORY MODE (single process)
-        for i in range(n_frames):
+        for i in range(self.ms.nframes):
             self.process_frame(i)
         return _end()
 
@@ -151,8 +150,7 @@ class AppSmiffer(vg.AppSubcommand):
     def process_frame(self, frame_idx: int) -> None:
         """Set per-frame state and run `_process_grids`."""
         self.ms.switch_frame(frame_idx)
-        n_frames = len(self.ms.system.trajectory)
-        timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
+        timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{self.ms.nframes}")
         timer.start()
         self._process_grids()
         timer.end()
@@ -272,10 +270,10 @@ class AppSmiffer(vg.AppSubcommand):
         ### operation or be used by HBond SMIFs.
         sm.SmifAPBS(self.ms).gen_pqr()
 
-        chains = [arr[0] for arr in self.ms.system.residues.chainIDs] # size: (nresidues,)
+        chains = self.ms.get_residue_chains() # size: (nresidues,)
         obj = sm.MolSystem.from_pqr_data(vg.TMP_APBS_CONTENT_PQR, self.ms.box, chains)
 
-        sm.MolSystem.copy_attributes_except_system(src = self.ms, dst = obj)
+        sm.MolSystem.copy_attrs_except_universe(src = self.ms, dst = obj)
         return obj
 
 

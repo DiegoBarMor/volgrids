@@ -12,7 +12,7 @@ class SmifHBonds(Smif, ABC):
         super().__init__(ms)
         self.kernel: vg.KernelGaussianBivariateAngleDist = None
         self.hbond_getter: callable
-        self.all_atoms = self.ms.get_relevant_atoms()
+        self.all_atoms = self.ms.get_relevant_queried_atoms()
         self.res_atoms = None
         self.processed_interactors = set()
 

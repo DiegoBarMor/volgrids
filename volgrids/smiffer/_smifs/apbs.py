@@ -13,13 +13,13 @@ class SmifAPBS(sm.Smif):
 
         timer = vg.Timer().start()
         ### "sm.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
-        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name) as path_apbs:
+        with vg.APBSSubprocess(self.ms.get_all_atoms(), sm.PATH_STRUCT.name) as path_apbs:
             return self._apbs_to_smif(grid, path_apbs, timer)
 
 
     # --------------------------------------------------------------------------
     def gen_pqr(self):
-        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name, only_pdb2pqr = True) as _:
+        with vg.APBSSubprocess(self.ms.get_all_atoms(), sm.PATH_STRUCT.name, only_pdb2pqr = True) as _:
             return
 
 
