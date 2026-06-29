@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.20.0] - 2026-06-29
+- Renamed most of the configs.
+    - Commonly used configs have shorter names now.
+    - Rarely used configs have longer, more detailed names.
+    - The first word of the config names (i.e. the suffix, right before the first underscore) should be consistent and help to group configs by categories.
+- Config values are now stored and handled by `ConfigManager`.
+    - A single `ConfigManager` instance is made global as `vg.CFG`.
+        - All configs are stored as attributes of this global instance.
+        - These attributes are lowercase to denote that they aren't class attributes, while the `vg.CFG` instance remains in uppercase to remind that these values are still global via this instance.
+- Added `volgrids config` subcommand to list all available configs.
+    - This display now also includes the current default value for the configs as well as their description.
+    - Smiffer's `-c` flag can no longer be used without values to achieve this effect.
+
+
 ## [0.19.1] - 2026-06-27
 - All flags that receive number lists can also now receive an analogous CSV file.
 - `vgtools convert` now unpacks CMAP input files.
