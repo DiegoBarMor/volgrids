@@ -67,13 +67,6 @@
     !@
 !@
 
-@apbs
-    path_in[]1.PATH
-    ~conv2mrc[m,mrc]
-    ~keep_pqr[p,pqr]
-    ~verbose[v,verbose]
-!@
-
 @vgtools
     #### Operations for reorganizing grids
     @convert
@@ -145,6 +138,13 @@
         path_in[]1.PATH
         points[]1+.ANY
     !@
+!@
+
+@apbs
+    path_in[]1.PATH
+    ~conv2mrc[m,mrc]
+    ~keep_pqr[p,pqr]
+    ~verbose[v,verbose]
 !@
 
 !def _io_1_input

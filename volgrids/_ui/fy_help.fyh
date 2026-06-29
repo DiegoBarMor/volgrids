@@ -137,14 +137,6 @@
     !@
 !@
 
-@apbs
-    !fyh:_ Generate raw APBS potential grids for biomolecular structures.
-    !fyh:path_in Path of a molecular structure supported by pdb2pqr and APBS.
-    !fyh:conv2mrc whether to store the output in MRC format (instead of APBS default DX format).
-    !fyh:keep_pqr whether to keep the intermediary PQR molecular structure file.
-    !fyh:verbose whether to display all the outputs produced by APBS.
-!@
-
 @vgtools
     !fyh:_ Miscellaneous tools for generic volumetric grids.
         Grids can be for any kind of data, not necessarily SMIFs.
@@ -285,6 +277,14 @@
             Must give at least 3 values (for a single XYZ point) or 3n values (where n is the number of points).
             Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each point (an optional non-numeric header row is allowed).
     !@
+!@
+
+@apbs
+    !fyh:_ Generate raw APBS potential grids for biomolecular structures.
+    !fyh:path_in Path of a molecular structure supported by pdb2pqr and APBS.
+    !fyh:conv2mrc whether to store the output in MRC format (instead of APBS default DX format).
+    !fyh:keep_pqr whether to keep the intermediary PQR molecular structure file.
+    !fyh:verbose whether to display all the outputs produced by APBS.
 !@
 
 !def _io_2_inputs
