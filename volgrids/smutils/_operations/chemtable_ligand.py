@@ -36,7 +36,7 @@ class ChemTableLigand:
             is_flat, dev = self._is_flat(cycle)
             if is_flat: flat_rings.append(cycle)
 
-            if not su.DEBUG_CHEMTABLE_LIGAND: continue
+            if not vg.CFG.debug_chemtable_ligand: continue
             msg = "FLAT" if is_flat else "...."
             print(msg, cycle, dev)
 

@@ -13,9 +13,9 @@ class Trimmer:
         self._mask_specific: vg.Grid = None
         self._current_key: str = ""
         self._distances = {
-            "small": sm.TRIMMING_DIST_SMALL,
-            "mid"  : sm.TRIMMING_DIST_MID,
-            "large": sm.TRIMMING_DIST_LARGE,
+            "small": vg.CFG.trim_occ_dist_short,
+            "mid"  : vg.CFG.trim_occ_dist_mid,
+            "large": vg.CFG.trim_occ_dist_long,
         }
 
 
@@ -58,31 +58,31 @@ class Trimmer:
     # --------------------------------------------------------------------------
     @classmethod
     def should_do_trim_small(cls) -> bool:
-        return sm.DO_SMIF_HYDROPHILIC
+        return vg.CFG.smif_hphil
 
 
     # --------------------------------------------------------------------------
     @classmethod
     def should_do_trim_mid(cls) -> bool:
         return any((
-            sm.DO_SMIF_STACKING, sm.DO_SMIF_HBA, sm.DO_SMIF_HBD, sm.DO_SMIF_HYDROPHOBIC,
-            sm.SAVE_TRIMMING_MASK, cls.should_do_cavities()
+            vg.CFG.smif_stk, vg.CFG.smif_hba, vg.CFG.smif_hbd, vg.CFG.smif_hphob,
+            vg.CFG.trim_save, cls.should_do_cavities()
         ))
 
 
     # --------------------------------------------------------------------------
     @classmethod
     def should_do_trim_large(cls) -> bool:
-        return sm.DO_SMIF_APBS
+        return vg.CFG.smif_apbs
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def should_do_cavities() -> bool:
         return any((
-            sm.DO_TRIMMING_CAVITIES, sm.SAVE_CAVITIES,
-            sm.CAVITIES_WEIGHT != 0.0
-        )) and sm.DO_TRIMMING_OCCUPANCY
+            vg.CFG.trim_cavities, vg.CFG.cav_save,
+            vg.CFG.cav_weight != 0.0
+        )) and vg.CFG.trim_occupancy
 
 
     # --------------------------------------------------------------------------
@@ -94,7 +94,7 @@ class Trimmer:
     def _should_run_mask_specific(self, key: str) -> bool:
         if key == self._current_key: return False
         self._current_key = key
-        return sm.DO_TRIMMING_OCCUPANCY
+        return vg.CFG.trim_occupancy
 
 
     # --------------------------------------------------------------------------
@@ -115,9 +115,9 @@ class Trimmer:
     # --------------------------------------------------------------------------
     def _run_common(self):
         self._mask_common = vg.Grid(self.ms.box, dtype = bool)
-        if sm.DO_TRIMMING_FARAWAY: self._trim_faraway()
-        if sm.DO_TRIMMING_SPHERE: self._trim_sphere()
-        if sm.DO_TRIMMING_RNDS: self._trim_rnds()
+        if vg.CFG.trim_faraway: self._trim_faraway()
+        if vg.CFG.trim_sphere: self._trim_sphere()
+        if vg.CFG.trim_rnds: self._trim_rnds()
 
 
     # --------------------------------------------------------------------------
@@ -136,18 +136,18 @@ class Trimmer:
 
         self.cavfinder.populate_cavities_grid(self._mask_specific)
 
-        if not sm.DO_TRIMMING_CAVITIES: return
+        if not vg.CFG.trim_cavities: return
 
         if self._mask_common is None:
             self._mask_common = vg.Grid(self.ms.box, dtype = bool)
 
-        self._mask_common.arr |= (self.cavfinder.grid.arr < sm.TRIMMING_CAVITIES_THRESHOLD)
+        self._mask_common.arr |= (self.cavfinder.grid.arr < vg.CFG.cav_threshold)
 
 
     # --------------------------------------------------------------------------
     def _trim_occupancies(self, radius: float):
         kernel = vg.KernelSphere(radius, self.ms.get_deltas(), bool)
-        for a in self.ms.get_all_atoms(use_custom = False):
+        for a in self.ms.get_all_queried_atoms(use_custom = False):
             kernel.stamp(self._mask_specific, a.position)
 
 
@@ -172,9 +172,9 @@ class Trimmer:
         xres, yres, zres = self.ms.get_resolution()
         xcog, ycog, zcog = np.floor(self.ms.get_resolution() / 2).astype(int)
         cog_cube = set((x,y,z)
-            for x in range(xcog - sm.COG_CUBE_RADIUS, xcog + sm.COG_CUBE_RADIUS + 1)
-            for y in range(ycog - sm.COG_CUBE_RADIUS, ycog + sm.COG_CUBE_RADIUS + 1)
-            for z in range(zcog - sm.COG_CUBE_RADIUS, zcog + sm.COG_CUBE_RADIUS + 1)
+            for x in range(xcog - vg.CFG.trim_rnds_cube_radius, xcog + vg.CFG.trim_rnds_cube_radius + 1)
+            for y in range(ycog - vg.CFG.trim_rnds_cube_radius, ycog + vg.CFG.trim_rnds_cube_radius + 1)
+            for z in range(zcog - vg.CFG.trim_rnds_cube_radius, zcog + vg.CFG.trim_rnds_cube_radius + 1)
         )
         queue = cog_cube.copy()
 
@@ -198,7 +198,7 @@ class Trimmer:
 
                 neigh = ni,nj,nk
                 search_dist[neigh] = min(search_dist[node] + 1, search_dist[neigh])
-                if search_dist[neigh] > sm.MAX_RNDS_DIST: continue
+                if search_dist[neigh] > vg.CFG.trim_rnds_max_dist: continue
                 if visited[neigh]: continue
                 if self._mask_common.arr[neigh]: continue
 
@@ -210,8 +210,8 @@ class Trimmer:
     # --------------------------------------------------------------------------
     def _trim_faraway(self):
         grid = self._mask_common.copy()
-        kernel = vg.KernelSphere(sm.TRIM_FARAWAY_DIST, self.ms.get_deltas(), bool)
-        for a in self.ms.get_all_atoms(use_custom = False):
+        kernel = vg.KernelSphere(vg.CFG.trim_faraway_dist, self.ms.get_deltas(), bool)
+        for a in self.ms.get_all_queried_atoms(use_custom = False):
             kernel.stamp(grid, a.position)
         self._mask_common.arr[~grid.arr] = True
 

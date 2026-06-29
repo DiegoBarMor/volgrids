@@ -10,17 +10,17 @@
         * use the [mrcfile](https://mrcfile.readthedocs.io/en/stable/) library directly for handling MRC/CCP4 files.
         * DX parser (read) could be manually implemented.
 * refactor some of the inheritance in SMIF classes (specially for HBonds).
-* improve the calls to `AppMain.load_configs`?
+* further improve the calls to `AppMain.load_configs`?
 
 
 <!-- ----------------------------------------------------------------------- -->
 ## VolGrids
-* replace `WARNING_GRID_SIZE` with a better alternative.
+* replace `OUT_WARNING_NPOINTS` with a better alternative.
 * generalize the usage of the `-c` flag (for customazing configurations) in all modes.
 * add explanations to the list of configs printed with the empty `-c` flag
 * implement: raise an error if a format file is opened with the wrong function
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
-* check if the implementation of the OVERWRITE_OK flag is user-convenient
+* check if the implementation of the OUT_OVERWRITE_OK flag is user-convenient
 * idea: centralize the usage of `mda.Universe` instances into a single wrapper class (MolSystem is already there) and add `delete_traj_locks` in its destructor (will it work?).
 * deal somehow with using a wrong comment char inside a config file
 
@@ -56,6 +56,12 @@
 ## SMUtils
 * check why `DEBUG_CHEMTABLE_LIGAND` config isn't being taken into account
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
+
+
+<!-- ----------------------------------------------------------------------- -->
+## Config
+* add `-e` flag to edit the current configs
+* add `-r` flag to reset to default configs
 
 
 <!-- ----------------------------------------------------------------------- -->

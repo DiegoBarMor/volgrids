@@ -10,7 +10,7 @@ path_traj=$folder_few_frames/fse.xtc
 path_csv=$folder_few_frames/boxes.csv
 path_txt=$folder_few_frames/boxes.txt
 
-conf_just_stk="GRID_FORMAT_OUTPUT=CMAP DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
+conf_just_stk="OUT_FORMAT=CMAP SMIF_STK=True SMIF_HBA=False SMIF_HBD=False SMIF_HPHOB=False SMIF_HPHIL=False SMIF_APBS=False"
 
 
 ###### Priority 1: Box to be used is specifically requested by the user (via CLI)

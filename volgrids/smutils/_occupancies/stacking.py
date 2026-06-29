@@ -7,7 +7,7 @@ class OgStacking(sm.SmifStacking):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.kernel = vg.KernelSphere(
-            radius = su.OG_RADIUS_STACKING,
+            radius = vg.CFG.og_stk_radius,
             deltas = self.ms.get_deltas(),
             dtype = vg.FLOAT_DTYPE
         )

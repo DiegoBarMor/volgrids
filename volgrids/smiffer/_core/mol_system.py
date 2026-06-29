@@ -13,37 +13,38 @@ class MolSystem:
         import MDAnalysis as mda
 
         self.molname   : str                # name of the molecule
-        self.do_traj   : bool|None          # whether this is a trajectory or a single structure (None if no structure is provided)
-        self.system    : mda.Universe|None  # MDAnalysis Universe object for the molecular system
         self.frame     : int|None           # current frame number (if trajectory is used)
+        self.nframes   : int                # total number of frames in the trajectory (1 if no trajectory is used)
         self.box       : vg.Box             # current box (either enforced, sphere-based, or computed from the structure)
         self.box_common: vg.Box|None        # box that can enclose all frames of a trajectory
         self.chemtable : sm.ParserChemTable
+        self.do_traj            : bool # whether this is a trajectory or a single structure (None if no structure is provided)
         self.do_use_sphere      : bool
         self.do_enforce_boxes   : bool
         self.do_use_common_box  : bool
         self.enforce_cmap_output: bool
+        self._mda_universe: mda.Universe|None  # MDAnalysis Universe object for the molecular system
 
         self.molname = path_struct.stem
-        self.do_traj = path_traj is not None
 
+        self.do_traj = path_traj is not None
         self.do_use_sphere = len(sm.SPHERES) > 0
         self.do_enforce_boxes = len(sm.BOXES_ENFORCED) > 0
-        self.do_use_common_box = self.do_traj and not vg.BOX_TIGHT_TRAJ \
+        self.do_use_common_box = self.do_traj and not vg.CFG.box_tight_traj \
             and not self.do_use_sphere and not self.do_enforce_boxes
         self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
 
         self.chemtable = self._init_chemtable()
 
-        self.system = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
+        self._mda_universe = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
         self.frame = 0 if self.do_traj else None
-        nframes = self.system.trajectory.n_frames if self.do_traj else 1
+        self.nframes = self._mda_universe.trajectory.n_frames if self.do_traj else 1
 
         if self.do_use_sphere:
-            vg.SphereInfo.assert_sphere_infos(sm.SPHERES, nframes)
+            vg.SphereInfo.assert_sphere_infos(sm.SPHERES, self.nframes)
 
         if self.do_enforce_boxes:
-            vg.BoxInfo.assert_box_infos([box.info for box in sm.BOXES_ENFORCED], nframes)
+            vg.BoxInfo.assert_box_infos([box.info for box in sm.BOXES_ENFORCED], self.nframes)
 
         self.box_common = self._gen_box_common() if self.do_use_common_box else None
         self.box = self._get_current_box() if box is None else box
@@ -63,21 +64,21 @@ class MolSystem:
 
         ### add back the chain information
         if chains is None:
-            chains = ['A'] * len(obj.system.residues)
+            chains = ['A'] * len(obj._mda_universe.residues)
 
         chains_per_atom = [
             chains[i]
-            for i,residue in enumerate(obj.system.residues)
+            for i,residue in enumerate(obj._mda_universe.residues)
             for _ in residue.atoms
         ]
 
-        obj.system.add_TopologyAttr("chainIDs", chains_per_atom)
+        obj._mda_universe.add_TopologyAttr("chainIDs", chains_per_atom)
         return obj
 
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def copy_attributes_except_system(src: "MolSystem", dst: "MolSystem"):
+    def copy_attrs_except_universe(src: "MolSystem", dst: "MolSystem"):
         ### [TODO]: rework this method? it's easy to forget to add new attributes here when adding them to the class
         dst.molname    = src.molname
         dst.do_traj    = src.do_traj
@@ -93,7 +94,7 @@ class MolSystem:
 
     # --------------------------------------------------------------------------
     def switch_frame(self, frame_idx: int):
-        self.system.trajectory[frame_idx]
+        self._mda_universe.trajectory[frame_idx]
         self.frame = frame_idx
         self.box = self._get_current_box()
 
@@ -108,9 +109,16 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
-    def get_all_atoms(self, use_custom = True):
+    def get_all_atoms(self):
+        """Returns all atoms in the molecular system, without any filtering (e.g. selection query, sphere, etc.)."""
+        return self._mda_universe.atoms
+
+
+    # --------------------------------------------------------------------------
+    def get_all_queried_atoms(self, use_custom = True):
+        """Returns all atoms that match the selection query, without any additional filtering (e.g. sphere)."""
         query = self.chemtable.get_selection_query(use_custom)
-        atoms = self.system.select_atoms(query)
+        atoms = self._mda_universe.select_atoms(query)
         if len(atoms) == 0: warnings.warn(
             f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
         )
@@ -118,17 +126,31 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
-    def get_relevant_atoms(self, use_custom = True, extra_dist: float = 0.0):
+    def get_relevant_queried_atoms(self, use_custom = True, extra_dist: float = 0.0):
+        """Returns all atoms that match the selection query, with additional filtering (e.g. sphere)."""
         query = self.chemtable.get_selection_query(use_custom)
         if self.do_use_sphere:
             sphere = sm.SPHERES[self.frame or 0]
             query += f"and point {sphere.get_str_query(extra_dist)}"
 
-        atoms = self.system.select_atoms(query)
+        atoms = self._mda_universe.select_atoms(query)
         if len(atoms) == 0: warnings.warn(
             f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
         )
         return atoms
+
+
+    # --------------------------------------------------------------------------
+    def get_hydrogens(self):
+        return self._mda_universe.select_atoms("not water and name H*")
+
+
+    # --------------------------------------------------------------------------
+    def get_residue_chains(self) -> list[str]:
+        """Returns a list of chain IDs for each residue in the molecular system."""
+        return [
+            arr[0] for arr in self._mda_universe.residues.chainIDs
+        ] # size: (nresidues,)
 
 
     # --------------------------------------------------------------------------
@@ -146,14 +168,14 @@ class MolSystem:
             box.max_coords = box.cog + sphere.radius
             box.radius = sphere.radius
             box.infer_deltas_resolution()
-            if vg.BOX_FORCE_EQUILATERAL: box.enforce_equilateral()
+            if vg.CFG.box_force_equilateral: box.enforce_equilateral()
             return box
 
         ### Priority 3: dealing with a trajectory and the user requested the box
         ### to be inferred from the structure at every frame (via config `BOX_TIGHT_TRAJ=True`)
         if not self.do_use_common_box:
-            min_coords = self.system.coord.positions.min(axis = 0)
-            max_coords = self.system.coord.positions.max(axis = 0)
+            min_coords = self._mda_universe.coord.positions.min(axis = 0)
+            max_coords = self._mda_universe.coord.positions.max(axis = 0)
             return self._padded_box(min_coords, max_coords)
 
         ### Priority 4 (default): a common box that can enclose the structure in all frames is used (via config `BOX_TIGHT_TRAJ=False`)
@@ -163,16 +185,16 @@ class MolSystem:
     # --------------------------------------------------------------------------
     def _gen_box_common(self) -> vg.Box:
         """
-        In the case of trajectories and when `vg.BOX_TIGHT_TRAJ=False`, a box that can enclose all frames is computed.
+        In the case of trajectories and when `vg.CFG.box_tight_traj=False`, a box that can enclose all frames is computed.
         This behavior is overridden if the user explicitly requests a box (via CLI) or a sphere (via CLI) to be used.
         """
         min_coords = np.full(3,  np.inf)
         max_coords = np.full(3, -np.inf)
-        for _ in self.system.trajectory:
-            positions = self.system.coord.positions
+        for _ in self._mda_universe.trajectory:
+            positions = self._mda_universe.coord.positions
             np.minimum(min_coords, positions.min(axis = 0), out = min_coords)
             np.maximum(max_coords, positions.max(axis = 0), out = max_coords)
-        self.system.trajectory[0] # rewind to frame 0
+        self._mda_universe.trajectory[0] # rewind to frame 0
         return self._padded_box(min_coords, max_coords)
 
 
@@ -180,10 +202,10 @@ class MolSystem:
     @staticmethod
     def _padded_box(min_coords: np.ndarray, max_coords: np.ndarray) -> vg.Box:
         box = vg.Box.from_min_max(
-            min_coords = min_coords - vg.BOX_PADDING,
-            max_coords = max_coords + vg.BOX_PADDING,
+            min_coords = min_coords - vg.CFG.box_padding,
+            max_coords = max_coords + vg.CFG.box_padding,
         )
-        if vg.BOX_FORCE_EQUILATERAL: box.enforce_equilateral()
+        if vg.CFG.box_force_equilateral: box.enforce_equilateral()
         return box
 
 
@@ -195,7 +217,7 @@ class MolSystem:
         folder_default_tables = vg.Utils.resolve_path_package("_data/smiffer_tables")
         chem = sm.ParserChemTable(folder_default_tables / "default.chem")
 
-        if sm.HBONDS_ONLY_NUCLEOBASE:
+        if vg.CFG.smif_hb_only_nbase:
             ini = vg.ParserIni.from_file(folder_default_tables / "nucl_simple_hb.chem")
             chem.parse_names_hbacceptors(ini)
             chem.parse_names_hbdonors(ini)

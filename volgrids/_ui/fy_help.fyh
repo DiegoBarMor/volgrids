@@ -17,7 +17,7 @@
         Use this flag with an appropriate .chem file for running smiffer in "ligand" mode.
     !fyh:configs
         File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
-        Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
+        Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`SMIF_APBS=true SMIF_STK=false`).
     !fyh:box
         Provide the box information that should be used to build the grids.
         6 numerical values must be passed in the following order: x_min x_max y_min y_max z_min z_max (all in Angstrom).
@@ -135,14 +135,6 @@
         !fyh:path_in Path to an APBS grid file (original or already processed by smiffer).
         !fyh:path_out Path where to store the resulting grid.
     !@
-!@
-
-@apbs
-    !fyh:_ Generate raw APBS potential grids for biomolecular structures.
-    !fyh:path_in Path of a molecular structure supported by pdb2pqr and APBS.
-    !fyh:conv2mrc whether to store the output in MRC format (instead of APBS default DX format).
-    !fyh:keep_pqr whether to keep the intermediary PQR molecular structure file.
-    !fyh:verbose whether to display all the outputs produced by APBS.
 !@
 
 @vgtools
@@ -285,6 +277,18 @@
             Must give at least 3 values (for a single XYZ point) or 3n values (where n is the number of points).
             Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each point (an optional non-numeric header row is allowed).
     !@
+!@
+
+@apbs
+    !fyh:_ Generate raw APBS potential grids for biomolecular structures.
+    !fyh:path_in Path of a molecular structure supported by pdb2pqr and APBS.
+    !fyh:conv2mrc whether to store the output in MRC format (instead of APBS default DX format).
+    !fyh:keep_pqr whether to keep the intermediary PQR molecular structure file.
+    !fyh:verbose whether to display all the outputs produced by APBS.
+!@
+
+@config
+    !fyh:_ List configurations (i.e. global settings) for volgrids.
 !@
 
 !def _io_2_inputs

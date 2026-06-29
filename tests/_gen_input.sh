@@ -37,12 +37,12 @@ fop="$fvgtools/operations"
 mkdir -p $fc $fp $fu $ff $fop
 rm -f $fc/**/* $fp/* $fu/* $ff/*.cmap $fop/*.cmap
 
-conf_no_apbs="GRID_FORMAT_OUTPUT=MRC DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SMIF_HYDROPHOBIC=True DO_SMIF_HYDROPHILIC=True DO_SMIF_STACKING=True DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
-conf_just_stacking="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
-conf_dx="$conf_just_stacking GRID_FORMAT_OUTPUT=DX"
-conf_mrc="$conf_just_stacking GRID_FORMAT_OUTPUT=MRC"
-conf_ccp4="$conf_just_stacking GRID_FORMAT_OUTPUT=CCP4"
-conf_cmap="$conf_just_stacking GRID_FORMAT_OUTPUT=CMAP"
+conf_no_apbs="OUT_FORMAT=MRC SMIF_STK=True SMIF_HBA=True SMIF_HBD=True SMIF_HPHOB=True SMIF_HPHIL=True SMIF_STK=True SMIF_APBS=False TRIM_SAVE=False"
+conf_just_stacking="SMIF_STK=True SMIF_HBA=False SMIF_HBD=False SMIF_HPHOB=False SMIF_HPHIL=False SMIF_APBS=False TRIM_SAVE=False"
+conf_dx="$conf_just_stacking OUT_FORMAT=DX"
+conf_mrc="$conf_just_stacking OUT_FORMAT=MRC"
+conf_ccp4="$conf_just_stacking OUT_FORMAT=CCP4"
+conf_cmap="$conf_just_stacking OUT_FORMAT=CMAP"
 
 
 ############################# CONVERSIONS

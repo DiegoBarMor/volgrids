@@ -24,43 +24,45 @@ class AppMain(fy.App):
         )
         self.subcommands = self.get_path_to_root()
 
-        command = self.subcommands.pop(0)
-        func_init = {
-            "smiffer": self._init_smiffer,
-            "smutils": self._init_smutils,
-            "apbs":    self._init_apbs,
-            "vgtools": self._init_vgtools,
-        }[command]
-        self.sub_app: "vg.AppSubcommand" = func_init()
-
 
     # --------------------------------------------------------------------------
     def run(self):
-        self.sub_app.run()
+        app = self.subcommands.pop(0)
+        if app == "smiffer": return self._run_smiffer()
+        if app == "smutils": return self._run_smutils()
+        if app == "vgtools": return self._run_vgtools()
+        if app == "apbs"   : return self._run_apbs()
+        if app == "config" : return self._run_config()
 
 
     # --------------------------------------------------------------------------
-    def load_configs(self, *modules) -> None:
-        self._load_config(vg.PATH_DEFAULT_CONFIG, modules)
+    def load_configs(self) -> None:
+        self._load_config(vg.PATH_DEFAULT_CONFIG, is_file = True)
         for path_config in vg.PATHS_CUSTOM_CONFIG:
-            self._load_config(path_config, modules)
-        self._load_config(vg.STR_CUSTOM_CONFIG, modules, is_file = False)
+            self._load_config(path_config, is_file = True)
+        self._load_config(vg.STR_CUSTOM_CONFIG, is_file = False)
 
 
     # --------------------------------------------------------------------------
-    def _init_smiffer(self) -> "vg.AppSubcommand":
+    def _run_smiffer(self) -> None:
         import volgrids.smiffer as sm
-        return sm.AppSmiffer(self)
+        sm.AppSmiffer(self).run()
 
 
     # --------------------------------------------------------------------------
-    def _init_smutils(self) -> "vg.AppSubcommand":
+    def _run_smutils(self) -> None:
         import volgrids.smutils as su
-        return su.AppSMUtils(self)
+        su.AppSMUtils(self).run()
 
 
     # --------------------------------------------------------------------------
-    def _init_apbs(self) -> "vg.AppSubcommand":
+    def _run_vgtools(self) -> None:
+        import volgrids.vgtools as vgt
+        vgt.AppVGTools(self).run()
+
+
+    # --------------------------------------------------------------------------
+    def _run_apbs(self) -> None:
         ### the parsed flags must be reconstucted.
         ### freyacli is in charge of not letting unexpected flags/arguments through
         cmd = [self.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)]
@@ -75,27 +77,23 @@ class AppMain(fy.App):
 
 
     # --------------------------------------------------------------------------
-    def _init_vgtools(self) -> "vg.AppSubcommand":
-        import volgrids.vgtools as vgt
-        return vgt.AppVGTools(self)
+    def _run_config(self) -> None:
+        vg.CFG.display_help()
 
 
     # --------------------------------------------------------------------------
-    def _load_config(self,
-        config: Path | str, modules: tuple, is_file = True
-    ) -> None:
+    def _load_config(self, config: Path | str, is_file: bool) -> None:
         if is_file:
             if config is None: return
-            parser = vg.ParserConfig.from_file(config)
+            ini = vg.ParserIni.from_file(config)
         else:
             if not config.strip(): return
-            parser = vg.ParserConfig(config)
+            ini = vg.ParserIni(config)
 
-        for scope_module in modules:
-            parser.apply_config(
-                scope_module = scope_module.__dict__,
-                this_module_keys = scope_module.__config_keys__,
-            )
+        try:
+            vg.CFG.update_configs_from_ini(ini)
+        except ValueError as e:
+            self.help_and_exit(1, str(e))
 
 
 # //////////////////////////////////////////////////////////////////////////////

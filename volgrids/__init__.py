@@ -26,44 +26,20 @@ from ._data.known_configs import KNOWN_CONFIGS
 from ._misc.timer import Timer
 
 from ._parsers.parser_ini import ParserIni
-from ._parsers.parser_config import ParserConfig
 from ._parsers.grid_io import GridIO
 from ._parsers.number_lists import NumberLists
 
 from .apbs.apbs_subprocess import APBSSubprocess
 
+from ._ui.config_manager import ConfigManager
 from ._ui.app_subcommand import AppSubcommand
 from ._ui.app_main import AppMain
-
-
-############################# CONFIG FILE GLOBALS ##############################
-_keys_other = set(globals().keys())
-
-GZIP_COMPRESSION: int = 9
-WARNING_GRID_SIZE: float = 5.0e7
-OVERWRITE_OK: bool = True
-
-BOX_PADDING: int = 5
-BOX_TIGHT_TRAJ: bool = False
-BOX_FORCE_EQUILATERAL: bool = False
-BOX_FROM_DELTAS: bool = True
-
-GRID_DX: float = 0.25
-GRID_DY: float = 0.25
-GRID_DZ: float = 0.25
-
-GRID_XRES: int = 200
-GRID_YRES: int = 200
-GRID_ZRES: int = 200
-
-__config_keys__ = set(globals().keys()) - _keys_other
-__config_keys__.remove("_keys_other")
 
 
 ######################## COMMAND LINE ARGUMENTS GLOBALS ########################
 ### These are global variables that are to be set by reading config files
 ### DEFAULT config.ini allows to first read "config_volgrids.ini" from the volgrid's repo root,
-### to be used by the volgrid's main scripts. Its default remains None for any other use case.
+### to be used by the volgrid's main scripts. Its default remains None for any other use case (e.g. when running volgrids as a package).
 ### CUSTOM config.ini allows the user to specify a custom config file path from the command line.
 
 import pathlib as _pathlib
@@ -73,13 +49,15 @@ STR_CUSTOM_CONFIG : str = ""  # "key0=value0 key1=value1 ..."
 
 
 ############################### RUNTIME GLOBALS ################################
+CFG: ConfigManager = ConfigManager()
+
 import numpy as _np
 TMP_APBS_CONTENT_IN: str = ""
 TMP_APBS_CONTENT_PQR: str = ""
 FLOAT_DTYPE: type = _np.float32
 MP_CMAP_LOCK = None # multiprocessing lock around CMAP writes (set by trajectory MP runner)
 
-### To get the informations about the command line used and the time at which the program is launched
+### To get information about the command used and the time at which the program is launched
 import sys as _sys, shlex as _shlex, datetime as _datetime
 LAUNCH_COMMAND: str = _shlex.join(_sys.argv)
 LAUNCH_TIME:    str = _datetime.datetime.now().astimezone().isoformat(timespec = "seconds")

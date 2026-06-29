@@ -14,11 +14,11 @@ rm -rf $fout
 mkdir -p $fout_benchmark $fout_pocketsphere $fout_options
 
 conf_cavities() { # trim_occ, trim_cav, save_trim, save_cav, threshold
-    echo "GRID_FORMAT_OUTPUT=CMAP DO_TRIMMING_OCCUPANCY=$1 DO_TRIMMING_CAVITIES=$2 SAVE_TRIMMING_MASK=$3 SAVE_CAVITIES=$4 TRIMMING_CAVITIES_THRESHOLD=$5"
+    echo "OUT_FORMAT=CMAP TRIM_OCCUPANCY=$1 TRIM_CAVITIES=$2 TRIM_SAVE=$3 CAV_SAVE=$4 CAV_THRESHOLD=$5"
 }
-conf_no_smifs="GRID_FORMAT_OUTPUT=CMAP DO_SMIF_STACKING=False DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
-conf_just_stak="GRID_FORMAT_OUTPUT=CMAP DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
-conf_simple_smifs="GRID_FORMAT_OUTPUT=CMAP DO_SMIF_STACKING=True DO_SMIF_HBA=True DO_SMIF_HBD=True DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
+conf_no_smifs="OUT_FORMAT=CMAP SMIF_STK=False SMIF_HBA=False SMIF_HBD=False SMIF_HPHOB=False SMIF_HPHIL=False SMIF_APBS=False"
+conf_just_stak="OUT_FORMAT=CMAP SMIF_STK=True SMIF_HBA=False SMIF_HBD=False SMIF_HPHOB=False SMIF_HPHIL=False SMIF_APBS=False"
+conf_simple_smifs="OUT_FORMAT=CMAP SMIF_STK=True SMIF_HBA=True SMIF_HBD=True SMIF_HPHOB=False SMIF_HPHIL=False SMIF_APBS=False"
 
 
 ############################# BENCHMARK SYSTEMS
@@ -28,18 +28,18 @@ run_benchmarks() {
     local names=$1
     for name in $names; do
         for i in 1 2 3; do
-            python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_benchmark" CAVITIES_NPASSES=$i
+            python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_benchmark" CAV_NPASSES=$i
             mv "$fout_benchmark/$name.cav.cmap" $fout_benchmark/npasses_$i.cmap
         done
 
         python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" \
-            CAVITIES_WEIGHT=1.0 GRID_FORMAT_OUTPUT=MRC CAVITIES_NPASSES=2
+            CAV_WEIGHT=1.0 OUT_FORMAT=MRC CAV_NPASSES=2
 
         for smif in stk hba hbd; do
             mv "$fout_benchmark/$name.$smif.mrc" "$fout_benchmark/$name.$smif.weighted.mrc"
         done
 
-        python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" SAVE_TRIMMING_MASK=true
+        python3 volgrids smiffer "$fpdb/$name.pdb" -o $fout_benchmark --config "$conf_simple_smifs" TRIM_SAVE=true
         (
             shopt -s nullglob
             cmaps=( "$fout_benchmark"/npasses*.cmap "$fout_benchmark/$name".*.cmap )
@@ -62,7 +62,7 @@ run_benchmarks "1akx 1i9v" # 2esj 4f8u 5bjo 5kx9 6tf3 7oax0 7oax1 8eyv" # rna
 path_pdb="$fpdb/1iqj.pdb"
 
 ######################### booleans
-conf_options_00="$conf_just_stak $(conf_cavities False True  True True  3)" # DO_TRIMMING_OCCUPANCY=false, so cavities should be ignored
+conf_options_00="$conf_just_stak $(conf_cavities False True  True True  3)" # TRIM_OCCUPANCY=false, so cavities should be ignored
 conf_options_01="$conf_just_stak $(conf_cavities True  False True False 3)" # cavities shouldn't be saved and shouldn't affect the trimming
 conf_options_02="$conf_just_stak $(conf_cavities True  True  True False 3)" # cavities shouldn't be saved but should affect the trimming
 conf_options_03="$conf_just_stak $(conf_cavities True  False True True  3)" # cavities should be saved but shouldn't affect the trimming

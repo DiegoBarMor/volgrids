@@ -21,19 +21,19 @@ class CavityFinder:
     # --------------------------------------------------------------------------
     def populate_cavities_grid(self, occupancy: vg.Grid):
         func: callable = self._find_cavities_naive_multi_pass \
-            if sm.CAVITIES_NPASSES > 1 else self._find_cavities_naive
+            if vg.CFG.cav_npasses > 1 else self._find_cavities_naive
         self.grid = func(occupancy)
 
 
     # --------------------------------------------------------------------------
     def apply_cavities_weighting(self, g: "vg.Grid"):
-        if sm.CAVITIES_WEIGHT == 0.0: return
+        if vg.CFG.cav_weight == 0.0: return
         if not self.has_data(): return
         if not self.grid.has_equivalent_box(g.box):
             print(fy.Color.red("WARNING:")+" Cavity grid and smif grid do not have the same box. Cavity weighting aborted.")
             return
 
-        g.arr *= (1 + self.grid.arr * sm.CAVITIES_WEIGHT)
+        g.arr *= (1 + self.grid.arr * vg.CFG.cav_weight)
 
 
     # --------------------------------------------------------------------------
@@ -100,11 +100,11 @@ class CavityFinder:
         cavities_orig = CavityFinder._find_cavities_naive(occupancy)
 
         cavities_rot = (
-            get_cavities_rot(i*90 / sm.CAVITIES_NPASSES)
-            for i in range(1, sm.CAVITIES_NPASSES)
+            get_cavities_rot(i*90 / vg.CFG.cav_npasses)
+            for i in range(1, vg.CFG.cav_npasses)
         )
 
-        cavities_orig.arr = (cavities_orig.arr + sum(cav.arr for cav in cavities_rot)) / sm.CAVITIES_NPASSES
+        cavities_orig.arr = (cavities_orig.arr + sum(cav.arr for cav in cavities_rot)) / vg.CFG.cav_npasses
         return cavities_orig
 
 

@@ -57,7 +57,7 @@ class AppSmiffer(vg.AppSubcommand):
         self._handle_params_box()
         self._assert_traj_apbs()
 
-        app_main.load_configs(vg, sm)
+        app_main.load_configs()
         self.init_params()
 
         ### these must be initialized after the configs are loaded,
@@ -76,34 +76,34 @@ class AppSmiffer(vg.AppSubcommand):
     @staticmethod
     def init_params():
         sm.PARAMS_HPHOB = vg.ParamsGaussianUnivariate(
-            mu = sm.MU_HYDROPHOBIC, sigma = sm.SIGMA_HYDROPHOBIC,
+            mu = vg.CFG.param_hphob_dist_mu, sigma = vg.CFG.param_hbhob_dist_sigma,
         )
         sm.PARAMS_HPHIL = vg.ParamsGaussianUnivariate(
-            mu = sm.MU_HYDROPHILIC, sigma = sm.SIGMA_HYDROPHILIC,
+            mu = vg.CFG.param_hphil_dist_mu, sigma = vg.CFG.param_hphil_dist_sigma,
         )
         sm.PARAMS_HBA = vg.ParamsGaussianBivariate(
-            mu_0 = sm.MU_ANGLE_HBA, mu_1 = sm.MU_DIST_HBA,
-            cov_00 = sm.SIGMA_ANGLE_HBA**2, cov_01 = 0,
-            cov_10 = 0,  cov_11 = sm.SIGMA_DIST_HBA**2,
+            mu_0 = vg.CFG.param_hba_angle_mu, mu_1 = vg.CFG.param_hba_dist_mu,
+            cov_00 = vg.CFG.param_hba_angle_sigma**2, cov_01 = 0,
+            cov_10 = 0,  cov_11 = vg.CFG.param_hba_dist_sigma**2,
         )
         sm.PARAMS_HBD_FREE = vg.ParamsGaussianBivariate(
-            mu_0 = sm.MU_ANGLE_HBD_FREE, mu_1 = sm.MU_DIST_HBD_FREE,
-            cov_00 = sm.SIGMA_ANGLE_HBD_FREE**2, cov_01 = 0,
-            cov_10 = 0,  cov_11 = sm.SIGMA_DIST_HBD_FREE**2,
+            mu_0 = vg.CFG.param_hbd_free_angle_mu, mu_1 = vg.CFG.param_hbd_free_dist_mu,
+            cov_00 = vg.CFG.param_hbd_free_angle_sigma**2, cov_01 = 0,
+            cov_10 = 0,  cov_11 = vg.CFG.param_hbd_free_dist_sigma**2,
         )
         sm.PARAMS_HBD_FIXED = vg.ParamsGaussianBivariate(
-            mu_0 = sm.MU_ANGLE_HBD_FIXED, mu_1 = sm.MU_DIST_HBD_FIXED,
-            cov_00 = sm.SIGMA_ANGLE_HBD_FIXED**2, cov_01 = 0,
-            cov_10 = 0,  cov_11 = sm.SIGMA_DIST_HBD_FIXED**2,
+            mu_0 = vg.CFG.param_hbd_fixed_angle_mu, mu_1 = vg.CFG.param_hbd_fixed_dist_mu,
+            cov_00 = vg.CFG.param_hbd_fixed_angle_sigma**2, cov_01 = 0,
+            cov_10 = 0,  cov_11 = vg.CFG.param_hbd_fixed_dist_sigma**2,
         )
         sm.PARAMS_STACK = vg.ParamsGaussianBivariate(
-            mu_0 = sm.MU_ANGLE_STACKING, mu_1 = sm.MU_DIST_STACKING,
-            cov_00 = sm.COV_STACKING_00, cov_01 = sm.COV_STACKING_01,
-            cov_10 = sm.COV_STACKING_10, cov_11 = sm.COV_STACKING_11,
+            mu_0 = vg.CFG.param_stk_angle_mu, mu_1 = vg.CFG.param_stk_dist_mu,
+            cov_00 = vg.CFG.param_stk_cov00, cov_01 = vg.CFG.param_stk_cov01,
+            cov_10 = vg.CFG.param_stk_cov10, cov_11 = vg.CFG.param_stk_cov11,
         )
 
         ### square root of the DIST contribution to sm.COV_STACKING,
-        sm.SIGMA_DIST_STACKING = np.sqrt(sm.COV_STACKING_11)
+        sm.SIGMA_DIST_STACKING = np.sqrt(vg.CFG.param_stk_cov11)
 
 
     # --------------------------------------------------------------------------
@@ -116,8 +116,8 @@ class AppSmiffer(vg.AppSubcommand):
                 path_pqr.write_text(vg.TMP_APBS_CONTENT_PQR)
 
 
-        if (sm.PATH_CHEM_LIGAND is not None) and sm.DO_SMIF_APBS:
-            sm.DO_SMIF_APBS = False
+        if (sm.PATH_CHEM_LIGAND is not None) and vg.CFG.smif_apbs:
+            vg.CFG.smif_apbs = False
             print(f"\n...--- ligand: {fy.Color.red('skipping APBS')} SMIF calculation.", end = ' ', flush = True)
 
         for path in self.paths_out.values(): # pre-clear stale CMAP outputs once
@@ -134,15 +134,14 @@ class AppSmiffer(vg.AppSubcommand):
         self._warn_chimerax_incompatible()
 
         print()
-        n_frames = len(self.ms.system.trajectory)
 
         ### 1.a) TRAJECTORY MODE (multiprocessing)
         if self.nproc > 1:
-            sm.TrajMultiprocess(self).run(n_frames)
+            sm.TrajMultiprocess(self).run(self.ms.nframes)
             return _end()
 
         ### 1.b) TRAJECTORY MODE (single process)
-        for i in range(n_frames):
+        for i in range(self.ms.nframes):
             self.process_frame(i)
         return _end()
 
@@ -151,8 +150,7 @@ class AppSmiffer(vg.AppSubcommand):
     def process_frame(self, frame_idx: int) -> None:
         """Set per-frame state and run `_process_grids`."""
         self.ms.switch_frame(frame_idx)
-        n_frames = len(self.ms.system.trajectory)
-        timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{n_frames}")
+        timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{self.ms.nframes}")
         timer.start()
         self._process_grids()
         timer.end()
@@ -162,7 +160,7 @@ class AppSmiffer(vg.AppSubcommand):
     def _process_grids(self):
         def run_with_trim_large():
             """Note that APBS should always be the first SMIF executed (in case it needs to instantiate `self.grid_smif`'s internal array)"""
-            if sm.DO_SMIF_APBS:
+            if vg.CFG.smif_apbs:
                 sm.SmifAPBS(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "large")
                 path_out, key_out = self.paths_out["apbs"], self.keys_out["apbs"]
@@ -170,31 +168,31 @@ class AppSmiffer(vg.AppSubcommand):
 
 
         def run_with_trim_mid():
-            if sm.DO_SMIF_HYDROPHOBIC:
+            if vg.CFG.smif_hphob:
                 sm.SmifHydrophobic(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
                 path_out, key_out = self.paths_out["hphob"], self.keys_out["hphob"]
                 sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
-            if sm.DO_SMIF_HBA:
+            if vg.CFG.smif_hba:
                 sm.SmifHBAccepts(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
                 path_out, key_out = self.paths_out["hba"], self.keys_out["hba"]
                 sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
-            if sm.DO_SMIF_HBD:
+            if vg.CFG.smif_hbd:
                 sm.SmifHBDonors(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
                 path_out, key_out = self.paths_out["hbd"], self.keys_out["hbd"]
                 sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
-            if sm.DO_SMIF_STACKING:
+            if vg.CFG.smif_stk:
                 sm.SmifStacking(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
                 path_out, key_out = self.paths_out["stk"], self.keys_out["stk"]
                 sm.Smif.save_data(self.grid_smif, ms, path_out, key_out)
 
-            if sm.SAVE_TRIMMING_MASK:
+            if vg.CFG.trim_save:
                 self.trimmer.run_for_saving("mid")
                 mask = self.trimmer.get_mask()
                 if mask is None:
@@ -206,7 +204,7 @@ class AppSmiffer(vg.AppSubcommand):
 
 
         def run_with_trim_small():
-            if sm.DO_SMIF_HYDROPHILIC:
+            if vg.CFG.smif_hphil:
                 sm.SmifHydrophilic(ms).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "small")
                 path_out, key_out = self.paths_out["hphil"], self.keys_out["hphil"]
@@ -216,13 +214,13 @@ class AppSmiffer(vg.AppSubcommand):
         ms = self._current_mol_system()
         self.trimmer = sm.Trimmer(ms)
 
-        self.grid_smif = vg.Grid(ms.box, init_grid = not sm.DO_SMIF_APBS)
+        self.grid_smif = vg.Grid(ms.box, init_grid = not vg.CFG.smif_apbs)
 
         if self.trimmer.should_do_trim_large(): run_with_trim_large()
         if self.trimmer.should_do_trim_mid()  : run_with_trim_mid()
         if self.trimmer.should_do_trim_small(): run_with_trim_small()
 
-        if sm.SAVE_CAVITIES and self.trimmer.should_do_cavities():
+        if vg.CFG.cav_save and self.trimmer.should_do_cavities():
             self.trimmer.run_for_saving("mid")
             path_out, key_out = self.paths_out["cav"], self.keys_out["cav"]
             sm.Smif.save_data(self.trimmer.cavfinder.grid, ms, path_out, key_out)
@@ -242,54 +240,47 @@ class AppSmiffer(vg.AppSubcommand):
                 key_cmap = self.ms.molname # frame number is to be appended in every iteration of the traj
                 return path_out, key_cmap
 
-            if self.do_pack_output: # --pack flag disregards GRID_FORMAT_OUTPUT and uses CMAP
+            if self.do_pack_output: # --pack flag disregards OUT_FORMAT and uses CMAP
                 path_out = folder_out / f"{self.ms.molname}.all{self.EXTENSION}.cmap"
                 key_cmap = f"{self.ms.molname}.{kind}"
                 return path_out, key_cmap
 
-            fmt = vg.GridFormat.from_str(sm.GRID_FORMAT_OUTPUT)
+            fmt = vg.GridFormat.from_str(vg.CFG.out_format)
             path_out = folder_out / f"{self.ms.molname}.{kind}{self.EXTENSION}.{fmt.suffix()}"
             return path_out, kind
 
         paths = {}; keys = {}
-        if sm.DO_SMIF_HBA:         paths["hba"],   keys["hba"]   = _path_key_out("hba") # old extension: hbacceptors
-        if sm.DO_SMIF_HBD:         paths["hbd"],   keys["hbd"]   = _path_key_out("hbd") # old extension: hbdonors
-        if sm.DO_SMIF_STACKING:    paths["stk"],   keys["stk"]   = _path_key_out("stk") # old extension: stacking
-        if sm.SAVE_CAVITIES:       paths["cav"],   keys["cav"]   = _path_key_out("cav") # old extension: cavities
-        if sm.DO_SMIF_APBS:        paths["apbs"],  keys["apbs"]  = _path_key_out("apbs") # old extension: apbs
-        if sm.SAVE_TRIMMING_MASK:  paths["trim"],  keys["trim"]  = _path_key_out("trim") # old extension: trimming
-        if sm.DO_SMIF_HYDROPHOBIC: paths["hphob"], keys["hphob"] = _path_key_out("hphob") # old extension: hydrophobic
-        if sm.DO_SMIF_HYDROPHILIC: paths["hphil"], keys["hphil"] = _path_key_out("hphil") # old extension: hydrophilic
+        if vg.CFG.smif_hba:   paths["hba"],   keys["hba"]   = _path_key_out("hba") # old extension: hbacceptors
+        if vg.CFG.smif_hbd:   paths["hbd"],   keys["hbd"]   = _path_key_out("hbd") # old extension: hbdonors
+        if vg.CFG.smif_stk:   paths["stk"],   keys["stk"]   = _path_key_out("stk") # old extension: stacking
+        if vg.CFG.cav_save:   paths["cav"],   keys["cav"]   = _path_key_out("cav") # old extension: cavities
+        if vg.CFG.smif_apbs:  paths["apbs"],  keys["apbs"]  = _path_key_out("apbs") # old extension: apbs
+        if vg.CFG.trim_save:  paths["trim"],  keys["trim"]  = _path_key_out("trim") # old extension: trimming
+        if vg.CFG.smif_hphob: paths["hphob"], keys["hphob"] = _path_key_out("hphob") # old extension: hydrophobic
+        if vg.CFG.smif_hphil: paths["hphil"], keys["hphil"] = _path_key_out("hphil") # old extension: hydrophilic
         return paths, keys
 
 
     # --------------------------------------------------------------------------
     def _current_mol_system(self) -> "sm.MolSystem":
-        if not sm.DO_SMIF_APBS: return self.ms
+        if not vg.CFG.smif_apbs: return self.ms
 
         ### When dealing with APBS, a first step of PQR generation should always be performed.
         ### PQR can add hydrogen atoms, which should be reflected in the occupancy trimming
         ### operation or be used by HBond SMIFs.
         sm.SmifAPBS(self.ms).gen_pqr()
 
-        chains = [arr[0] for arr in self.ms.system.residues.chainIDs] # size: (nresidues,)
+        chains = self.ms.get_residue_chains() # size: (nresidues,)
         obj = sm.MolSystem.from_pqr_data(vg.TMP_APBS_CONTENT_PQR, self.ms.box, chains)
 
-        sm.MolSystem.copy_attributes_except_system(src = self.ms, dst = obj)
+        sm.MolSystem.copy_attrs_except_universe(src = self.ms, dst = obj)
         return obj
 
 
     # --------------------------------------------------------------------------
     def _handle_params_configs(self):
-        configs = self.main.get_arg_str("configs")
+        configs = self.main.get_arg_str("configs", is_list = True)
         if not configs: return
-
-        if isinstance(configs, bool):
-            ### this happens when -c is passed without any value to it
-            ### `True` is stored instead of any string value
-            available = "\n    " + "\n    ".join(sorted(vg.KNOWN_CONFIGS))
-            print(f"Available configuration keys:{available}")
-            exit(0)
 
         for val in configs:
             if '=' in val:
@@ -367,7 +358,7 @@ class AppSmiffer(vg.AppSubcommand):
             "but different origins, the grids will be opened as a series but use the box of the first frame.",
         )
         if not self.ms.do_traj: return
-        if vg.BOX_TIGHT_TRAJ: return print_warning()
+        if vg.CFG.box_tight_traj: return print_warning()
         if not sm.BOXES_ENFORCED: return
         if any(
             box != sm.BOXES_ENFORCED[0] for box in sm.BOXES_ENFORCED
@@ -376,7 +367,7 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _assert_traj_apbs(self):
-        if not sm.DO_SMIF_APBS: return
+        if not vg.CFG.smif_apbs: return
         if (self.path_traj is None) or (sm.PATH_APBS is None): return
         self.main.help_and_exit(1,
             f"The APBS output '{sm.PATH_APBS}' was provided. However, "+

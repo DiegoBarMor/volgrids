@@ -13,13 +13,13 @@ class SmifAPBS(sm.Smif):
 
         timer = vg.Timer().start()
         ### "sm.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
-        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name) as path_apbs:
+        with vg.APBSSubprocess(self.ms.get_all_atoms(), sm.PATH_STRUCT.name) as path_apbs:
             return self._apbs_to_smif(grid, path_apbs, timer)
 
 
     # --------------------------------------------------------------------------
     def gen_pqr(self):
-        with vg.APBSSubprocess(self.ms.system.atoms, sm.PATH_STRUCT.name, only_pdb2pqr = True) as _:
+        with vg.APBSSubprocess(self.ms.get_all_atoms(), sm.PATH_STRUCT.name, only_pdb2pqr = True) as _:
             return
 
 
@@ -48,18 +48,18 @@ class SmifAPBS(sm.Smif):
         logneg = np.log10(-grid.arr[grid.arr < 0])
 
         ##### APPLY CUTOFFS
-        logpos[logpos < sm.APBS_MIN_CUTOFF] = sm.APBS_MIN_CUTOFF
-        logneg[logneg < sm.APBS_MIN_CUTOFF] = sm.APBS_MIN_CUTOFF
-        logpos[logpos > sm.APBS_MAX_CUTOFF] = sm.APBS_MAX_CUTOFF
-        logneg[logneg > sm.APBS_MAX_CUTOFF] = sm.APBS_MAX_CUTOFF
+        logpos[logpos < vg.CFG.misc_logapbs_min] = vg.CFG.misc_logapbs_min
+        logneg[logneg < vg.CFG.misc_logapbs_min] = vg.CFG.misc_logapbs_min
+        logpos[logpos > vg.CFG.misc_logapbs_max] = vg.CFG.misc_logapbs_max
+        logneg[logneg > vg.CFG.misc_logapbs_max] = vg.CFG.misc_logapbs_max
 
         ##### SHIFT VALUES TO 0
-        logpos -= sm.APBS_MIN_CUTOFF
-        logneg -= sm.APBS_MIN_CUTOFF
+        logpos -= vg.CFG.misc_logapbs_min
+        logneg -= vg.CFG.misc_logapbs_min
 
         ##### REVERSE SIGN OF LOG(ABS(GRID_NEG)) AND DOUBLE BOTH
         logpos *=  2 # this way the range of points varies between
-        logneg *= -2 # 2*APBS_MIN_CUTOFF and 2*APBS_MAX_CUTOFF
+        logneg *= -2 # 2*MISC_LOGAPBS_MIN and 2*MISC_LOGAPBS_MAX
 
         ##### RESULT
         grid.arr[grid.arr > 0] = logpos

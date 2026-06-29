@@ -7,7 +7,7 @@ class OgHydrophobic(sm.SmifHydrophobic):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.kernel = vg.KernelSphere(
-            radius = su.OG_RADIUS_HYDROPHOBIC,
+            radius = vg.CFG.og_hphob_radius,
             deltas = self.ms.get_deltas(),
             dtype = vg.FLOAT_DTYPE
         )

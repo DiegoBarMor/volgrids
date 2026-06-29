@@ -12,19 +12,3 @@ from ._operations.residues_nucleic import ResiduesNucleic
 from ._operations.chemtable_ligand import ChemTableLigand
 
 from .app_smutils import AppSMUtils
-
-
-############################# CONFIG FILE GLOBALS ##############################
-_keys_other = set(globals().keys())
-
-OG_RADIUS_STACKING: float = 2.0
-OG_RADIUS_HBA: float = 2.0
-OG_RADIUS_HBD: float = 2.0
-OG_RADIUS_HYDROPHOBIC: float = 2.0
-# OG_RADIUS_HYDROPHILIC: float = 2.0
-# OG_RADIUS_APBS: float = 2.0
-
-DEBUG_CHEMTABLE_LIGAND: bool = False
-
-__config_keys__ = set(globals().keys()) - _keys_other
-__config_keys__.remove("_keys_other")

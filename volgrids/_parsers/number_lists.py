@@ -35,6 +35,12 @@ class NumberLists:
 
 
         if len(data) % width:
+            if len(data) == 1:
+                try: float(data[0])
+                except ValueError:
+                    self.error = f"Provided value '{data[0]}' seems to be neither a number nor a valid CSV path (perhaps missing file?)."
+                    return
+
             self.error = f"Got {len(data)} values, which is not a multiple of {width}."
             return
 

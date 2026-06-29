@@ -6,8 +6,8 @@ echo ">>> TEST SMIFFER 0: Toy systems"
 
 fout="testdata/smiffer/toy_systems"
 
-conf_no_apbs="DO_SMIF_APBS=False"
-conf_ignore_h="$conf_no_apbs USE_STRUCTURE_HYDROGENS=False"
+conf_no_apbs="SMIF_APBS=False"
+conf_ignore_h="$conf_no_apbs SMIF_USE_HYDROGENS=False"
 conf_equilateral="$conf_no_apbs BOX_FORCE_EQUILATERAL=True"
 
 python3 volgrids smiffer $fout/peptide_no_h.pdb    -o $fout -c "$conf_ignore_h"

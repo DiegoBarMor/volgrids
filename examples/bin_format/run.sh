@@ -3,7 +3,7 @@ set -euo pipefail
 
 ##### test with simple toy system SMIF
 fout="testdata/smiffer/toy_systems"
-conf="GRID_FORMAT_OUTPUT=BIN DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False"
+conf="OUT_FORMAT=BIN SMIF_STK=True SMIF_HBA=False SMIF_HBD=False SMIF_HPHOB=False SMIF_HPHIL=False SMIF_APBS=False"
 python3 volgrids smiffer $fout/guanine.pdb -o $fout -c "$conf"
 
 path_smif="$fout/guanine.stk.bin"

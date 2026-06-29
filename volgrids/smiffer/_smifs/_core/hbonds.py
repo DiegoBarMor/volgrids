@@ -12,7 +12,7 @@ class SmifHBonds(Smif, ABC):
         super().__init__(ms)
         self.kernel: vg.KernelGaussianBivariateAngleDist = None
         self.hbond_getter: callable
-        self.all_atoms = self.ms.get_relevant_atoms()
+        self.all_atoms = self.ms.get_relevant_queried_atoms()
         self.res_atoms = None
         self.processed_interactors = set()
 
@@ -34,7 +34,7 @@ class SmifHBonds(Smif, ABC):
         grid.reset()
         for pos_interactor, vec_direction in self.iter_particles():
             self.kernel.recalculate_kernel(vec_direction, is_stacking = False)
-            self.kernel.stamp(grid, pos_interactor, multiply_by = sm.ENERGY_SCALE)
+            self.kernel.stamp(grid, pos_interactor, multiply_by = vg.CFG.param_hb_scale)
 
 
     # --------------------------------------------------------------------------

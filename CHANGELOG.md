@@ -1,9 +1,23 @@
 # Changelog
 
+## [0.20.0] - 2026-06-29
+- Renamed most of the configs.
+    - Commonly used configs have shorter names now.
+    - Rarely used configs have longer, more detailed names.
+    - The first word of the config names (i.e. the suffix, right before the first underscore) should be consistent and help to group configs by categories.
+- Config values are now stored and handled by `ConfigManager`.
+    - A single `ConfigManager` instance is made global as `vg.CFG`.
+        - All configs are stored as attributes of this global instance.
+        - These attributes are lowercase to denote that they aren't class attributes, while the `vg.CFG` instance remains in uppercase to remind that these values are still global via this instance.
+- Added `volgrids config` subcommand to list all available configs.
+    - This display now also includes the current default value for the configs as well as their description.
+    - Smiffer's `-c` flag can no longer be used without values to achieve this effect.
+
+
 ## [0.19.1] - 2026-06-27
 - All flags that receive number lists can also now receive an analogous CSV file.
 - `vgtools convert` now unpacks CMAP input files.
-- Disabled `WARNING_GRID_SIZE` for now (by assigning its default to a high value).
+- Disabled `OUT_WARNING_NPOINTS` for now (by assigning its default to a high value).
 
 
 ## [0.19.0] - 2026-06-25
@@ -184,7 +198,7 @@
     - Removed *SMIF_HYDRODIFF*, as it is now unnecesary.
         - This operation can now be performed very easily as postprocessing by using `vgtools op sub` (e.g. `volgrids vgtools op sub hphob.mrc hphil.mrc hdiff.mrc`)
     - All SMIF and trimming operations are now ensured to use the same molecular system information.
-        - This can be either the input structure directly, or use atom data from the pertinent intermediary PQR file (in case `DO_SMIF_APBS=true`).
+        - This can be either the input structure directly, or use atom data from the pertinent intermediary PQR file (in case `SMIF_APBS=true`).
     - Other internal refactorings.
 
 - Added `vgtools points` for getting the grid values at specific points in space.
@@ -221,7 +235,7 @@
 ## [0.9.0] - 2026-04-29
 - General:
     - Fixed compatibility issues with older versions of Python and rnapolis.
-    - Changed default configuration to `OVERWRITE_OK=true` until evaluating if the overwrite safeguard is properly implemented (mostly in terms of convenience).
+    - Changed default configuration to `OUT_OVERWRITE_OK=true` until evaluating if the overwrite safeguard is properly implemented (mostly in terms of convenience).
     - Vendor packages now consider only the local copy.
         - It should be clear now that they're a light dependency and don't need to be pip installed.
 
@@ -253,7 +267,7 @@
     - Stacking OG now considers a sphere for every stacking atom, instead of a single sphere in the center of geometry
 - Operations from `vgtools op` can now handle CMAP files with multiple grids.
 - Attempting to overwrite existing file now asks for confirmation.
-    - This behavior can be disabled with by setting the config `OVERWRITE_OK=true`
+    - This behavior can be disabled with by setting the config `OUT_OVERWRITE_OK=true`
 - Added `smutils histogram` utility.
 - Updated packaged freyacli vendor to version `0.3.0`.
 
@@ -288,7 +302,7 @@
         - Trimming and APBS remain unaffected.
 
 - Tweaks:
-    - Renamed `DO_SIMPLE_HBONDS_RNA` to `HBONDS_ONLY_NUCLEOBASE`.
+    - Renamed `DO_SIMPLE_HBONDS_RNA` to `SMIF_HB_ONLY_NBASE`.
     - An error is now raised for invalid configuration keys.
     - A list of known configuration keys can be printed by passing the -c flag with no values following.
         - It still needs to have the required arguments behind. So use it like e.g. `volgrids smiffer rna 1akx.pdb -c`.
@@ -296,8 +310,8 @@
 
 ## [0.6.1] - 2026-04-10
 - Cavities can now also be used to *weight* the smifs instead of trimming them.
-    - The `CAVITIES_WEIGHT` configuration controls how much the smifs inside cavities should be taken into account.
-    - Positive `CAVITIES_WEIGHT` values give more weight to smifs inside cavities; negative values give more weight to smifs outside.
+    - The `CAV_WEIGHT` configuration controls how much the smifs inside cavities should be taken into account.
+    - Positive `CAV_WEIGHT` values give more weight to smifs inside cavities; negative values give more weight to smifs outside.
 - Added `DO_SIMPLE_HBONDS_RNA` configuration (default: false)
     - When set to true, the RNA hbonds will only consider atoms from the nucleobases.
     - It can remove a significant amount of noise from the grid, at the cost of some relevant interactions lost.
@@ -308,7 +322,7 @@
 - Implemented config option for ensuring *equilateral grids*.
     - These are grids that have the same amount of points in every dimension i.e. an homogeneous resolution. This is independent from the deltas.
     - Equilateral grids are naturally heavier, but they could be convenient for some operations.
-- Improved the naive cavities finder by adding the possibility to perform multiple passes in evenly spaced rotations (controlled by the `CAVITIES_NPASSES` configuration)
+- Improved the naive cavities finder by adding the possibility to perform multiple passes in evenly spaced rotations (controlled by the `CAV_NPASSES` configuration)
 - The `--config` (`-c`) flag can now also take a list of either config files or *keyword=value* pairs, or a mix of both.
 - the **apbs** application and the `apbs.sh` utility now displayer errors properly.
 - Some general code improvements.
