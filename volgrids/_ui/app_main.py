@@ -24,19 +24,14 @@ class AppMain(fy.App):
         )
         self.subcommands = self.get_path_to_root()
 
-        command = self.subcommands.pop(0)
-        func_init = {
-            "smiffer": self._init_smiffer,
-            "smutils": self._init_smutils,
-            "apbs":    self._init_apbs,
-            "vgtools": self._init_vgtools,
-        }[command]
-        self.sub_app: "vg.AppSubcommand" = func_init()
-
 
     # --------------------------------------------------------------------------
     def run(self):
-        self.sub_app.run()
+        app = self.subcommands.pop(0)
+        if app == "smiffer": return self._run_smiffer()
+        if app == "smutils": return self._run_smutils()
+        if app == "vgtools": return self._run_vgtools()
+        if app == "apbs"   : return self._run_apbs()
 
 
     # --------------------------------------------------------------------------
@@ -48,19 +43,25 @@ class AppMain(fy.App):
 
 
     # --------------------------------------------------------------------------
-    def _init_smiffer(self) -> "vg.AppSubcommand":
+    def _run_smiffer(self) -> None:
         import volgrids.smiffer as sm
-        return sm.AppSmiffer(self)
+        sm.AppSmiffer(self).run()
 
 
     # --------------------------------------------------------------------------
-    def _init_smutils(self) -> "vg.AppSubcommand":
+    def _run_smutils(self) -> None:
         import volgrids.smutils as su
-        return su.AppSMUtils(self)
+        su.AppSMUtils(self).run()
 
 
     # --------------------------------------------------------------------------
-    def _init_apbs(self) -> "vg.AppSubcommand":
+    def _run_vgtools(self) -> None:
+        import volgrids.vgtools as vgt
+        vgt.AppVGTools(self).run()
+
+
+    # --------------------------------------------------------------------------
+    def _run_apbs(self) -> None:
         ### the parsed flags must be reconstucted.
         ### freyacli is in charge of not letting unexpected flags/arguments through
         cmd = [self.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)]
@@ -72,12 +73,6 @@ class AppMain(fy.App):
         apbs = vg.APBSSubprocess.run_subprocess_apbs(cmd)
         print(f"{apbs.stdout}\n{apbs.stderr}".strip(), flush = True)
         exit(apbs.returncode)
-
-
-    # --------------------------------------------------------------------------
-    def _init_vgtools(self) -> "vg.AppSubcommand":
-        import volgrids.vgtools as vgt
-        return vgt.AppVGTools(self)
 
 
     # --------------------------------------------------------------------------

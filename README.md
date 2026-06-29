@@ -2,8 +2,8 @@
 VolGrids is a framework for volumetric calculations, with emphasis in biological molecular systems. The following applications are provided:
   - **SMIF Calculator** via `volgrids smiffer`. This is the most up-to-date implementation of the [Statistical Molecular Interaction Fields (SMIF)](https://www.biorxiv.org/content/10.1101/2025.04.16.649117v1) method.
   - **Smiffer Utilities**  via `volgrids smutils`. Utilities related to more advanced SMIF usage.
-  - **APBS** via `volgrids apbs`. Wrapper around [APBS](https://apbs.readthedocs.io/en/latest/). Requires installing [APBS](#installation-ubuntu).
   - **Volgrid Tools** via `volgrids vgtools`. Collection of utilities for analysis or post-processing of generic grids.
+  - **APBS** via `volgrids apbs`. Wrapper around [APBS](https://apbs.readthedocs.io/en/latest/). Requires installing [APBS](#installation-ubuntu).
 
 You can read more in the [subcommands summary](#summary-of-subcommands).
 
@@ -124,21 +124,20 @@ Run the subcommands without any further arguments to read more about their speci
 | Command | Description |
 |---|---|
 | `volgrids smiffer` | Calculate Statistical Molecular Interaction Fields (SMIFs) for biomolecular structures. |
-| `volgrids smutils res_nobp` | Print the set of non-base-paired residues in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair(UA, CG) with any other residue. Requires rnapolis. |
+| `volgrids smutils res_nobp` | Print the set of non-base-paired residues in a given RNA structure. A residue is considered non-base-paired if it does not form a canonical base pair (UA, CG) with any other residue. Requires rnapolis. |
 | `volgrids smutils res_nostk` | Print the set of residues in a given RNA structure for residues that aren't participating in 2 stacking interactions. Requires rnapolis. |
 | `volgrids smutils chemgen` | (experimental) Automatically generates a .chem file for a ligand given its 3D structure (e.g. PDB file). Currently only generates rows for stacking interactions, following a heuristic geometrical approach. |
-| `volgrids smutils sphere find` | Get the sphere information (x,y,z,radius) for the smallest sphere that encloses all the atoms inside a selection query. |
+| `volgrids smutils sphere find` | Get the sphere information "x_center y_center z_center radius" for the smallest sphere that encloses all the atoms inside a selection query. |
 | `volgrids smutils sphere grid` | Create a grid with a single boolean sphere (optionally moving in time if a trajectory is considered). The grid encloses completely the provided structure file. |
 | `volgrids smutils box info` | Print information for the box that would enclose a molecular structure. Box information is printed as "x_min x_max y_min y_max z_min z_max". |
 | `volgrids smutils box size` | Print size for the box that would enclose a molecular structure. Size is printed as "x_size y_size z_size". |
 | `volgrids smutils occupancy` | Calculate occupancy grids (OGs) for biomolecular structures. |
 | `volgrids smutils pwoverlap` | (experimental) Calculate point-wise overlaps between two biomolecular structures. Generates a CSV file with the overlaps. Currently only considers stacking interactions. |
 | `volgrids smutils log_apbs` | Heuristic transformation of APBS grids, useful for some visualization pipelines. |
-| `volgrids apbs` | Generate raw APBS potential grids for biomolecular structures. |
 | `volgrids vgtools convert` | Convert grid files between formats. |
 | `volgrids vgtools pack` | Pack multiple grid files into a single CMAP series-file. |
 | `volgrids vgtools unpack` | Unpack a CMAP series-file into multiple grid files. |
-| `volgrids vgtools extract` | Extract the unique values of a grid file into separate files. In the case of a CMAP file, consider all values across all grids stored inside the file.|
+| `volgrids vgtools extract` | Extract the unique values of a grid file into separate files. In the case of a CMAP file, consider all values across all grids stored inside the file. |
 | `volgrids vgtools fix_cmap` | Ensure that all grids in a CMAP series-file have the same resolution, interpolating them if necessary. |
 | `volgrids vgtools rotate` | Rotate a grid file by 3 angles, along the xy, yz and xz planes (in degrees). |
 | `volgrids vgtools segment` | Segment the regions of space enclosed by a certain isovalue and save their cluster labels into a new grid. |
@@ -155,7 +154,7 @@ Run the subcommands without any further arguments to read more about their speci
 | `volgrids vgtools histogram` | Plot the distribution histogram of non-zero voxel values in a grid file. For multi-frame CMAP files, all frames are concatenated unless --key is specified. Percentiles (p50, p75, p90, p95, p99, p99.9) are printed to the console. Requires matplotlib. |
 | `volgrids vgtools compare` | Compare two grid files by printing the number of differing points and their accumulated difference. |
 | `volgrids vgtools points` | Get the grid value(s) for specific XYZ point(s) in space. Grid values for every point are returned space-separated. |
-
+| `volgrids apbs` | Generate raw APBS potential grids for biomolecular structures. |
 
 <!-- ----------------------------------------------------------------------- -->
 ## Commands examples (smiffer)
