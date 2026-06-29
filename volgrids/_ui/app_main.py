@@ -32,6 +32,7 @@ class AppMain(fy.App):
         if app == "smutils": return self._run_smutils()
         if app == "vgtools": return self._run_vgtools()
         if app == "apbs"   : return self._run_apbs()
+        if app == "config" : return self._run_config()
 
 
     # --------------------------------------------------------------------------
@@ -73,6 +74,11 @@ class AppMain(fy.App):
         apbs = vg.APBSSubprocess.run_subprocess_apbs(cmd)
         print(f"{apbs.stdout}\n{apbs.stderr}".strip(), flush = True)
         exit(apbs.returncode)
+
+
+    # --------------------------------------------------------------------------
+    def _run_config(self) -> None:
+        vg.CFG.display_help()
 
 
     # --------------------------------------------------------------------------

@@ -279,15 +279,8 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_configs(self):
-        configs = self.main.get_arg_str("configs")
+        configs = self.main.get_arg_str("configs", is_list = True)
         if not configs: return
-
-        if isinstance(configs, bool):
-            ### this happens when -c is passed without any value to it
-            ### `True` is stored instead of any string value
-            available = "\n    " + "\n    ".join(sorted(vg.KNOWN_CONFIGS))
-            print(f"Available configuration keys:{available}")
-            exit(0)
 
         for val in configs:
             if '=' in val:

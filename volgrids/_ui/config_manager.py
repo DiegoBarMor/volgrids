@@ -137,4 +137,11 @@ class ConfigManager:
         self.__dict__[key.lower()] = parse_str_value()
 
 
+    # --------------------------------------------------------------------------
+    def display_help(self):
+        available = "\n    " + "\n    ".join(sorted(vg.KNOWN_CONFIGS))
+        print(f"Available configuration keys:{available}")
+        exit(0)
+
+
 # //////////////////////////////////////////////////////////////////////////////
