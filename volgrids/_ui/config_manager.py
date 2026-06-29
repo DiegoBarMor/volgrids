@@ -1,4 +1,5 @@
 import volgrids as vg
+from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
 class ConfigManager:
@@ -92,9 +93,9 @@ class ConfigManager:
         self.og_stk_radius: float = 2.0
         self.og_hba_radius: float = 2.0
         self.og_hbd_radius: float = 2.0
-        # self.og_apbs_radius: float = 2.0
+        self.og_apbs_radius: float = 2.0 # [TODO]: implement
         self.og_hphob_radius: float = 2.0
-        # self.og_hphil_radius: float = 2.0
+        self.og_hphil_radius: float = 2.0 # [TODO]: implement
 
         self.debug_chemtable_ligand: bool = False
 
@@ -131,7 +132,7 @@ class ConfigManager:
             ### STRINGS
             return str_value.strip('"').strip("'")
 
-        if key.upper() not in vg.KNOWN_CONFIGS:
+        if key.upper() not in vg.KNOWN_CONFIGS.keys():
             raise ValueError(f"Unknown configuration: {key}.")
 
         self.__dict__[key.lower()] = parse_str_value()
@@ -139,8 +140,31 @@ class ConfigManager:
 
     # --------------------------------------------------------------------------
     def display_help(self):
-        available = "\n    " + "\n    ".join(sorted(vg.KNOWN_CONFIGS))
-        print(f"Available configuration keys:{available}")
+        def get_colors(names: list[str]):
+            old_prefix = ""
+            color = color_name_0
+            for name in names:
+                prefix = name.split('_')[0]
+                if prefix != old_prefix:
+                    color = color_name_0 if (color == color_name_1) else color_name_1
+                old_prefix = prefix
+                yield color
+
+        color_name_0 = fy.Color.green
+        color_name_1 = fy.Color.cyan
+        color_value  = fy.Color.yellow
+
+        configs = [
+            (name,value,comment) for name,(value,comment)
+            in sorted(vg.KNOWN_CONFIGS.items(), key = lambda t: t[0])
+        ]
+        colors = get_colors(name for name,_,_ in configs)
+
+        print(f"Available {color_name_1('configuration keys')}, {color_value('default values')} and description:")
+        print("    " + "\n    ".join(
+            f"{color(name)} = {color_value(value)} | {comment}"
+            for color,(name,value,comment) in zip(colors,configs)
+        ))
         exit(0)
 
 
