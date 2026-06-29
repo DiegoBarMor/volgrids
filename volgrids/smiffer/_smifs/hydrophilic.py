@@ -7,7 +7,7 @@ from ._core.hydro import SmifHydro
 class SmifHydrophilic(SmifHydro):
     def populate_grid(self, grid: vg.Grid) -> None:
         grid.reset()
-        radius = sm.MU_HYDROPHILIC + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_HYDROPHILIC
+        radius = sm.PARAM_HPHIL_DIST_MU + sm.MISC_KERNEL_GAUSSIAN_SIGMAS * sm.PARAM_HPHIL_DIST_SIGMA
         kernel = vg.KernelGaussianUnivariateDist(
             radius, self.ms.get_deltas(), vg.FLOAT_DTYPE, sm.PARAMS_HPHIL
         )

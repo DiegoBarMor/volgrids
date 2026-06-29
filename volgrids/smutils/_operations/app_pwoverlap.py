@@ -49,7 +49,7 @@ class AppPwOverlap(vg.AppSubcommand):
             )
             arr_dst += vg.Math.bivariate_gaussian(
                 input_mat, sm.PARAMS_STACK.mu, sm.PARAMS_STACK.cov_inv
-            ) * sm.ENERGY_SCALE
+            ) * sm.PARAM_STK_SCALE
 
 
         normals_dst += cogs_dst

@@ -12,11 +12,11 @@ class SmifHBDonors(SmifHBonds):
         super().__init__(ms)
         self.hbond_getter = sm.ParserChemTable.get_names_hbd
         self._kernel_hbd_free = vg.KernelGaussianBivariateAngleDist(
-            radius = sm.MU_DIST_HBD_FREE + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FREE,
+            radius = sm.PARAM_HBD_FREE_DIST_MU + sm.MISC_KERNEL_GAUSSIAN_SIGMAS * sm.PARAM_HBD_FREE_DIST_SIGMA,
             deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD_FREE
         )
         self._kernel_hbd_fixed = vg.KernelGaussianBivariateAngleDist(
-            radius = sm.MU_DIST_HBD_FIXED + sm.GAUSSIAN_KERNEL_SIGMAS * sm.SIGMA_DIST_HBD_FIXED,
+            radius = sm.PARAM_HBD_FIXED_DIST_MU + sm.MISC_KERNEL_GAUSSIAN_SIGMAS * sm.PARAM_HBD_FIXED_DIST_SIGMA,
             deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD_FIXED
         )
 
@@ -39,7 +39,7 @@ class SmifHBDonors(SmifHBonds):
 
     # --------------------------------------------------------------------------
     def find_tail_head_positions(self, triplet: Triplet) -> None:
-        if triplet.pos_head is not None: # head position is already set for succesful sm.USE_STRUCTURE_HYDROGENS iterations
+        if triplet.pos_head is not None: # head position is already set for succesful sm.SMIF_USE_HYDROGENS iterations
             return
 
         triplet.set_pos_head(self.res_atoms)
@@ -70,13 +70,13 @@ class SmifHBDonors(SmifHBonds):
 
     # --------------------------------------------------------------------------
     def _iter_triplets(self):
-        if sm.USE_STRUCTURE_HYDROGENS:
+        if sm.SMIF_USE_HYDROGENS:
             self._attempt_to_guess_bonds()
 
         for triplet in super()._iter_triplets():
             if triplet.interactor in self.processed_interactors: continue
 
-            if sm.USE_STRUCTURE_HYDROGENS:
+            if sm.SMIF_USE_HYDROGENS:
                 for hydrogen in triplet.get_interactor_bonded_hydrogens(self.res_atoms):
                     triplet.pos_tail = triplet.pos_interactor
                     triplet.pos_head = hydrogen.position
@@ -84,7 +84,7 @@ class SmifHBDonors(SmifHBonds):
                     self.processed_interactors.add(triplet.interactor)
                     yield triplet
 
-            if triplet.pos_head is None: # sm.USE_STRUCTURE_HYDROGENS falls back to "no-hydrogen" model if no hydrogens found
+            if triplet.pos_head is None: # sm.SMIF_USE_HYDROGENS falls back to "no-hydrogen" model if no hydrogens found
                 self.kernel = self._get_relevant_kernel(triplet)
                 yield triplet
 
@@ -100,7 +100,7 @@ class SmifHBDonors(SmifHBonds):
 
         hydrogens = self.ms.get_hydrogens()
         if len(hydrogens) == 0:
-            sm.USE_STRUCTURE_HYDROGENS = False
+            sm.SMIF_USE_HYDROGENS = False
             return
 
         try:
@@ -108,7 +108,7 @@ class SmifHBDonors(SmifHBonds):
             u.guess_TopologyAttrs(to_guess = ["bonds"]) # ... so that there are no problems with the bond guessing
         except (ValueError, AttributeError):
             warnings.warn("MDAnalysis could not guess bonds for hydrogens. Falling back to non-hydrogen model for H-bond donors.")
-            sm.USE_STRUCTURE_HYDROGENS = False
+            sm.SMIF_USE_HYDROGENS = False
             return
 
         ### the bonds are contained in these newly defined atomgroup, so update the all_atoms reference

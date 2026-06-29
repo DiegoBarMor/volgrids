@@ -15,7 +15,7 @@ fop="$folder/operations"
 
 
 ############################# OPERATIONS BETWEEN GRIDS
-conf_just_stacking="DO_SMIF_STACKING=True DO_SMIF_HBA=False DO_SMIF_HBD=False DO_SMIF_HYDROPHOBIC=False DO_SMIF_HYDROPHILIC=False DO_SMIF_APBS=False SAVE_TRIMMING_MASK=False"
+conf_just_stacking="SMIF_STK=True SMIF_HBA=False SMIF_HBD=False SMIF_HPHOB=False SMIF_HPHIL=False SMIF_APBS=False TRIM_SAVE=False"
 
 mkdir -p $fop
 cp $f_interface/* $fop/

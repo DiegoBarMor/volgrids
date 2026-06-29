@@ -39,22 +39,22 @@ from ._ui.app_main import AppMain
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
-GZIP_COMPRESSION: int = 9
-WARNING_GRID_SIZE: float = 5.0e7
-OVERWRITE_OK: bool = True
+OUT_CMAP_COMPRESSION: int = 9
+OUT_WARNING_NPOINTS: float = 5.0e7
+OUT_OVERWRITE_OK: bool = True
 
 BOX_PADDING: int = 5
 BOX_TIGHT_TRAJ: bool = False
 BOX_FORCE_EQUILATERAL: bool = False
 BOX_FROM_DELTAS: bool = True
 
-GRID_DX: float = 0.25
-GRID_DY: float = 0.25
-GRID_DZ: float = 0.25
+BOX_DX: float = 0.25
+BOX_DY: float = 0.25
+BOX_DZ: float = 0.25
 
-GRID_XRES: int = 200
-GRID_YRES: int = 200
-GRID_ZRES: int = 200
+BOX_XRES: int = 200
+BOX_YRES: int = 200
+BOX_ZRES: int = 200
 
 __config_keys__ = set(globals().keys()) - _keys_other
 __config_keys__.remove("_keys_other")

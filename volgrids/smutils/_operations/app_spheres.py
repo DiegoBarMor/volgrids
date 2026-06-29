@@ -42,7 +42,7 @@ class AppSpheres(vg.AppSubcommand):
         try: spheres = vg.SphereInfo.parse_sphere_infos(spheres_flat)
         except ValueError as e: self.main.help_and_exit(1, f"{e}")
 
-        self.main.load_configs(vg, sm, su) # needed for loading sm.GRID_FORMAT_OUTPUT (used by Smif.save_data)
+        self.main.load_configs(vg, sm, su) # needed for loading sm.OUT_FORMAT (used by Smif.save_data)
 
         su.AppSpheres.grid(path_in, path_traj, folder_out, spheres)
         vg.Utils.delete_traj_locks(path_traj)

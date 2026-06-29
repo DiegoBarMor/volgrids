@@ -17,7 +17,7 @@
         Use this flag with an appropriate .chem file for running smiffer in "ligand" mode.
     !fyh:configs
         File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
-        Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`DO_SMIF_APBS=true DO_SMIF_STACKING=false`).
+        Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`SMIF_APBS=true SMIF_STK=false`).
     !fyh:box
         Provide the box information that should be used to build the grids.
         6 numerical values must be passed in the following order: x_min x_max y_min y_max z_min z_max (all in Angstrom).

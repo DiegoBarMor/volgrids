@@ -289,7 +289,7 @@ class GridIO:
 
                 framedata = frame.create_dataset(
                     "data_zyx", data = data.arr.transpose(2,1,0), dtype = vg.FLOAT_DTYPE,
-                    compression = "gzip", compression_opts = vg.GZIP_COMPRESSION
+                    compression = "gzip", compression_opts = vg.OUT_CMAP_COMPRESSION
                 )
                 _add_generic_attrs(framedata, "CARRAY")
 
@@ -345,7 +345,7 @@ class GridIO:
     @staticmethod
     def confirm_overwrite(path_out: Path) -> None:
         if not path_out.exists(): return
-        if vg.OVERWRITE_OK: return
+        if vg.OUT_OVERWRITE_OK: return
 
         response = input(f"\n\nFile {path_out} {fy.Color.red('already exists')}. Do you want to overwrite it? (y/n): ")
         if response.strip().lower() in ('y', "yes"): return

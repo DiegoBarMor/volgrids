@@ -17,12 +17,12 @@ from .app_smutils import AppSMUtils
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
-OG_RADIUS_STACKING: float = 2.0
-OG_RADIUS_HBA: float = 2.0
-OG_RADIUS_HBD: float = 2.0
-OG_RADIUS_HYDROPHOBIC: float = 2.0
-# OG_RADIUS_HYDROPHILIC: float = 2.0
-# OG_RADIUS_APBS: float = 2.0
+OG_STK_RADIUS: float = 2.0
+OG_HBA_RADIUS: float = 2.0
+OG_HBD_RADIUS: float = 2.0
+# OG_APBS_RADIUS: float = 2.0
+OG_HPHOB_RADIUS: float = 2.0
+# OG_HPHIL_RADIUS: float = 2.0
 
 DEBUG_CHEMTABLE_LIGAND: bool = False
 

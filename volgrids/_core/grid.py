@@ -281,7 +281,7 @@ class Grid:
     def _warning_big_grid(self):
         rx, ry, rz = self.box.resolution
         grid_size = rx*ry*rz
-        if grid_size < vg.WARNING_GRID_SIZE: return
+        if grid_size < vg.OUT_WARNING_NPOINTS: return
         print()
         while True:
             choice = input(

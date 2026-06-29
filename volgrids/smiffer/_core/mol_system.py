@@ -217,7 +217,7 @@ class MolSystem:
         folder_default_tables = vg.Utils.resolve_path_package("_data/smiffer_tables")
         chem = sm.ParserChemTable(folder_default_tables / "default.chem")
 
-        if sm.HBONDS_ONLY_NUCLEOBASE:
+        if sm.SMIF_HB_ONLY_NBASE:
             ini = vg.ParserIni.from_file(folder_default_tables / "nucl_simple_hb.chem")
             chem.parse_names_hbacceptors(ini)
             chem.parse_names_hbdonors(ini)

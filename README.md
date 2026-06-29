@@ -178,8 +178,8 @@ volgrids smiffer testdata/smiffer/traj/7vki.pdb -t testdata/smiffer/traj/7vki.xt
 ```bash
 python3 volgrids smiffer 1akx.pdb \
     -i "$(python3 volgrids smutils res_nobp 1akx.pdb)" \
-    -c DO_SMIF_STACKING=false DO_SMIF_HYDROPHOBIC=false DO_SMIF_HYDROPHILIC=false \
-        DO_SMIF_HBA=true DO_SMIF_HBD=true HBONDS_ONLY_NUCLEOBASE=true
+    -c SMIF_STK=false SMIF_HPHOB=false SMIF_HPHIL=false \
+        SMIF_HBA=true SMIF_HBD=true SMIF_HB_ONLY_NBASE=true
 ```
 
 

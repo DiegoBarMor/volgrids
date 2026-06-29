@@ -21,73 +21,72 @@ from .app_smiffer import AppSmiffer
 ############################# CONFIG FILE GLOBALS ##############################
 _keys_other = set(globals().keys())
 
-GRID_FORMAT_OUTPUT: str = "MRC"
+OUT_FORMAT: str = "MRC"
 
-DO_SMIF_STACKING:    bool = True
-DO_SMIF_HBA:         bool = True
-DO_SMIF_HBD:         bool = True
-DO_SMIF_HYDROPHOBIC: bool = True
-DO_SMIF_HYDROPHILIC: bool = True
-DO_SMIF_APBS:        bool = True
+SMIF_STK:   bool = True
+SMIF_HBA:   bool = True
+SMIF_HBD:   bool = True
+SMIF_APBS:  bool = True
+SMIF_HPHOB: bool = True
+SMIF_HPHIL: bool = True
+SMIF_USE_HYDROGENS: bool = True
+SMIF_HB_ONLY_NBASE: bool = False
 
-DO_TRIMMING_SPHERE:    bool = True
-DO_TRIMMING_OCCUPANCY: bool = True
-DO_TRIMMING_RNDS:      bool = True
-DO_TRIMMING_FARAWAY:   bool = True
-DO_TRIMMING_CAVITIES:  bool = False
+TRIM_SPHERE:    bool = True
+TRIM_OCCUPANCY: bool = True
+TRIM_RNDS:      bool = True
+TRIM_FARAWAY:   bool = True
+TRIM_CAVITIES:  bool = False
+TRIM_SAVE: bool = False
 
-TRIMMING_CAVITIES_THRESHOLD: int = 3
-CAVITIES_NPASSES: int = 2
-CAVITIES_WEIGHT: float = 0.0
+CAV_THRESHOLD: int = 3
+CAV_NPASSES: int = 2
+CAV_WEIGHT: float = 0.0
+CAV_SAVE: bool = False
 
-SAVE_TRIMMING_MASK: bool = False
-SAVE_CAVITIES: bool = False
+TRIM_OCC_DIST_SHORT: float = 2.5
+TRIM_OCC_DIST_MID:   float = 3.0
+TRIM_OCC_DIST_LONG:  float = 3.5
 
-USE_STRUCTURE_HYDROGENS: bool = True
-HBONDS_ONLY_NUCLEOBASE: bool = False
-
-TRIMMING_DIST_SMALL: float = 2.5
-TRIMMING_DIST_MID:   float = 3.0
-TRIMMING_DIST_LARGE: float = 3.5
-
-MAX_RNDS_DIST:   float = float("inf")
-COG_CUBE_RADIUS: int = 4
+TRIM_RNDS_MAX_DIST:    float = float("inf")
+TRIM_RNDS_CUBE_RADIUS: int = 4
 
 TRIM_FARAWAY_DIST: float = 7.0
 
-ENERGY_SCALE: float = 3.5
+PARAM_STK_SCALE: float = 3.5
+PARAM_HB_SCALE:  float = 3.5
 
-MU_HYDROPHOBIC:    float = 4.4
-SIGMA_HYDROPHOBIC: float = 0.3
+PARAM_HPHOB_DIST_MU:    float = 4.4
+PARAM_HBHOB_DIST_SIGMA: float = 0.3
 
-MU_HYDROPHILIC:    float = 3.0
-SIGMA_HYDROPHILIC: float = 0.15
+PARAM_HPHIL_DIST_MU:    float = 3.0
+PARAM_HPHIL_DIST_SIGMA: float = 0.15
 
-MU_ANGLE_HBA:    float = 129.9
-MU_DIST_HBA:     float = 2.93
-SIGMA_ANGLE_HBA: float = 20.0
-SIGMA_DIST_HBA:  float = 0.21
+PARAM_HBA_ANGLE_MU:    float = 129.9
+PARAM_HBA_DIST_MU:     float = 2.93
+PARAM_HBA_ANGLE_SIGMA: float = 20.0
+PARAM_HBA_DIST_SIGMA:  float = 0.21
 
-MU_ANGLE_HBD_FREE:    float = 109.0
-MU_DIST_HBD_FREE:     float = 2.93
-SIGMA_ANGLE_HBD_FREE: float = 20.0
-SIGMA_DIST_HBD_FREE:  float = 0.21
+PARAM_HBD_FREE_ANGLE_MU:    float = 109.0
+PARAM_HBD_FREE_DIST_MU:     float = 2.93
+PARAM_HBD_FREE_ANGLE_SIGMA: float = 20.0
+PARAM_HBD_FREE_DIST_SIGMA:  float = 0.21
 
-MU_ANGLE_HBD_FIXED:    float = 180.0
-MU_DIST_HBD_FIXED:     float = 2.93
-SIGMA_ANGLE_HBD_FIXED: float = 30.0
-SIGMA_DIST_HBD_FIXED:  float = 0.21
+PARAM_HBD_FIXED_ANGLE_MU:    float = 180.0
+PARAM_HBD_FIXED_DIST_MU:     float = 2.93
+PARAM_HBD_FIXED_ANGLE_SIGMA: float = 30.0
+PARAM_HBD_FIXED_DIST_SIGMA:  float = 0.21
 
-MU_ANGLE_STACKING: float = 29.97767535
-MU_DIST_STACKING:  float = 4.1876158
-COV_STACKING_00:   float = 169.9862228
-COV_STACKING_01:   float = 6.62318852
-COV_STACKING_10:   float = 6.62318852
-COV_STACKING_11:   float = 0.37123882
+PARAM_STK_ANGLE_MU: float = 29.97767535
+PARAM_STK_DIST_MU:  float = 4.1876158
+PARAM_STK_COV00:    float = 169.9862228
+PARAM_STK_COV01:    float = 6.62318852
+PARAM_STK_COV10:    float = 6.62318852
+PARAM_STK_COV11:    float = 0.37123882
 
-GAUSSIAN_KERNEL_SIGMAS: int = 4
-APBS_MIN_CUTOFF: int = -2
-APBS_MAX_CUTOFF: int = 3
+MISC_KERNEL_GAUSSIAN_SIGMAS: int = 4
+MISC_LOGAPBS_MIN: int = -2
+MISC_LOGAPBS_MAX: int = 3
 
 __config_keys__ = set(globals().keys()) - _keys_other
 __config_keys__.remove("_keys_other")
