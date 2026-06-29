@@ -9,12 +9,19 @@ class ParserConfig(vg.ParserIni):
         """
         Applies the configuration to the provided global dictionary.
         """
-        for section in self._ini_sections.keys():
-            for k, value in self.iter_splitted_lines(section):
-                k = k.upper()
-                if k not in vg.KNOWN_CONFIGS: raise ValueError(f"Unknown configuration: {k}.")
-                if k not in this_module_keys: continue
-                scope_module[k] = self._parse_str(value)
+        keys = tuple(self._ini_sections.keys())
+        if len(keys) > 1:
+            raise ValueError(
+                f"Configuration file must have no headers, but the following were found: {keys[1:]}. "+\
+                "Remove all headers and keep only key-value pairs (or comments) in the file."
+            )
+        assert keys[0] == '', f"Unexpected INI key with value '{keys[0]}'. Check ParserIni."
+
+        for k, value in self.iter_splitted_lines(''):
+            k = k.upper()
+            if k not in vg.KNOWN_CONFIGS: raise ValueError(f"Unknown configuration: {k}.")
+            if k not in this_module_keys: continue
+            scope_module[k] = self._parse_str(value)
 
 
     # --------------------------------------------------------------------------

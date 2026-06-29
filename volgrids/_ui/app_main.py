@@ -91,11 +91,14 @@ class AppMain(fy.App):
             if not config.strip(): return
             parser = vg.ParserConfig(config)
 
-        for scope_module in modules:
-            parser.apply_config(
-                scope_module = scope_module.__dict__,
-                this_module_keys = scope_module.__config_keys__,
-            )
+        try:
+            for scope_module in modules:
+                parser.apply_config(
+                    scope_module = scope_module.__dict__,
+                    this_module_keys = scope_module.__config_keys__,
+                )
+        except ValueError as e:
+            self.help_and_exit(1, str(e))
 
 
 # //////////////////////////////////////////////////////////////////////////////

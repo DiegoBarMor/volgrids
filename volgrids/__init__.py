@@ -32,6 +32,7 @@ from ._parsers.number_lists import NumberLists
 
 from .apbs.apbs_subprocess import APBSSubprocess
 
+from ._ui.config_manager import ConfigManager
 from ._ui.app_subcommand import AppSubcommand
 from ._ui.app_main import AppMain
 
@@ -74,6 +75,8 @@ STR_CUSTOM_CONFIG : str = ""  # "key0=value0 key1=value1 ..."
 
 
 ############################### RUNTIME GLOBALS ################################
+CONFIG: ConfigManager = ConfigManager()
+
 import numpy as _np
 TMP_APBS_CONTENT_IN: str = ""
 TMP_APBS_CONTENT_PQR: str = ""
