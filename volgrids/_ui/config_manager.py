@@ -1,7 +1,8 @@
+import volgrids as vg
+
 # //////////////////////////////////////////////////////////////////////////////
 class ConfigManager:
     def __init__(self):
-
         ##################### VOLGRIDS
         self.out_format: str = "MRC"
         self.out_cmap_compression: int = 9
@@ -96,6 +97,44 @@ class ConfigManager:
         # self.og_hphil_radius: float = 2.0
 
         self.debug_chemtable_ligand: bool = False
+
+
+    # --------------------------------------------------------------------------
+    def update_configs_from_ini(self, ini: vg.ParserIni) -> None:
+        headers = ini.headers()
+        if len(headers) > 1:
+            raise ValueError(
+                f"Configuration file must have no headers, but the following were found: {headers[1:]}. "+\
+                "Remove all headers and keep only key-value pairs (or comments) in the file."
+            )
+        assert headers[0] == '', f"Unexpected INI header with value '{headers[0]}'. Check ParserIni."
+
+        for key, value in ini.iter_splitted_lines(''):
+            vg.CFG.register_config(key, value)
+
+
+    # --------------------------------------------------------------------------
+    def register_config(self, key: str, str_value: str) -> None:
+        def parse_str_value():
+            ### INTEGERS
+            if str_value.isdigit():
+                return int(str_value)
+
+            ### FLOATS
+            try: return float(str_value)
+            except ValueError: pass
+
+            ### BOOLEANS
+            if str_value.lower() in ["true", "false"]:
+                return str_value.lower() == "true"
+
+            ### STRINGS
+            return str_value.strip('"').strip("'")
+
+        if key.upper() not in vg.KNOWN_CONFIGS:
+            raise ValueError(f"Unknown configuration: {key}.")
+
+        self.__dict__[key.lower()] = parse_str_value()
 
 
 # //////////////////////////////////////////////////////////////////////////////

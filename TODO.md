@@ -10,7 +10,7 @@
         * use the [mrcfile](https://mrcfile.readthedocs.io/en/stable/) library directly for handling MRC/CCP4 files.
         * DX parser (read) could be manually implemented.
 * refactor some of the inheritance in SMIF classes (specially for HBonds).
-* improve the calls to `AppMain.load_configs`?
+* further improve the calls to `AppMain.load_configs`?
 
 
 <!-- ----------------------------------------------------------------------- -->

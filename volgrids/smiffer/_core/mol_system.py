@@ -30,7 +30,7 @@ class MolSystem:
         self.do_traj = path_traj is not None
         self.do_use_sphere = len(sm.SPHERES) > 0
         self.do_enforce_boxes = len(sm.BOXES_ENFORCED) > 0
-        self.do_use_common_box = self.do_traj and not vg.BOX_TIGHT_TRAJ \
+        self.do_use_common_box = self.do_traj and not vg.CFG.box_tight_traj \
             and not self.do_use_sphere and not self.do_enforce_boxes
         self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
 
@@ -168,7 +168,7 @@ class MolSystem:
             box.max_coords = box.cog + sphere.radius
             box.radius = sphere.radius
             box.infer_deltas_resolution()
-            if vg.BOX_FORCE_EQUILATERAL: box.enforce_equilateral()
+            if vg.CFG.box_force_equilateral: box.enforce_equilateral()
             return box
 
         ### Priority 3: dealing with a trajectory and the user requested the box
@@ -185,7 +185,7 @@ class MolSystem:
     # --------------------------------------------------------------------------
     def _gen_box_common(self) -> vg.Box:
         """
-        In the case of trajectories and when `vg.BOX_TIGHT_TRAJ=False`, a box that can enclose all frames is computed.
+        In the case of trajectories and when `vg.CFG.box_tight_traj=False`, a box that can enclose all frames is computed.
         This behavior is overridden if the user explicitly requests a box (via CLI) or a sphere (via CLI) to be used.
         """
         min_coords = np.full(3,  np.inf)
@@ -202,10 +202,10 @@ class MolSystem:
     @staticmethod
     def _padded_box(min_coords: np.ndarray, max_coords: np.ndarray) -> vg.Box:
         box = vg.Box.from_min_max(
-            min_coords = min_coords - vg.BOX_PADDING,
-            max_coords = max_coords + vg.BOX_PADDING,
+            min_coords = min_coords - vg.CFG.box_padding,
+            max_coords = max_coords + vg.CFG.box_padding,
         )
-        if vg.BOX_FORCE_EQUILATERAL: box.enforce_equilateral()
+        if vg.CFG.box_force_equilateral: box.enforce_equilateral()
         return box
 
 
@@ -217,7 +217,7 @@ class MolSystem:
         folder_default_tables = vg.Utils.resolve_path_package("_data/smiffer_tables")
         chem = sm.ParserChemTable(folder_default_tables / "default.chem")
 
-        if sm.SMIF_HB_ONLY_NBASE:
+        if vg.CFG.smif_hb_only_nbase:
             ini = vg.ParserIni.from_file(folder_default_tables / "nucl_simple_hb.chem")
             chem.parse_names_hbacceptors(ini)
             chem.parse_names_hbdonors(ini)

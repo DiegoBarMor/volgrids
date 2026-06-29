@@ -40,11 +40,11 @@ class AppMain(fy.App):
 
 
     # --------------------------------------------------------------------------
-    def load_configs(self, *modules) -> None:
-        self._load_config(vg.PATH_DEFAULT_CONFIG, modules)
+    def load_configs(self) -> None:
+        self._load_config(vg.PATH_DEFAULT_CONFIG, is_file = True)
         for path_config in vg.PATHS_CUSTOM_CONFIG:
-            self._load_config(path_config, modules)
-        self._load_config(vg.STR_CUSTOM_CONFIG, modules, is_file = False)
+            self._load_config(path_config, is_file = True)
+        self._load_config(vg.STR_CUSTOM_CONFIG, is_file = False)
 
 
     # --------------------------------------------------------------------------
@@ -81,22 +81,16 @@ class AppMain(fy.App):
 
 
     # --------------------------------------------------------------------------
-    def _load_config(self,
-        config: Path | str, modules: tuple, is_file = True
-    ) -> None:
+    def _load_config(self, config: Path | str, is_file: bool) -> None:
         if is_file:
             if config is None: return
-            parser = vg.ParserConfig.from_file(config)
+            ini = vg.ParserIni.from_file(config)
         else:
             if not config.strip(): return
-            parser = vg.ParserConfig(config)
+            ini = vg.ParserIni(config)
 
         try:
-            for scope_module in modules:
-                parser.apply_config(
-                    scope_module = scope_module.__dict__,
-                    this_module_keys = scope_module.__config_keys__,
-                )
+            vg.CFG.update_configs_from_ini(ini)
         except ValueError as e:
             self.help_and_exit(1, str(e))
 

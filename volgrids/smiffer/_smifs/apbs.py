@@ -48,14 +48,14 @@ class SmifAPBS(sm.Smif):
         logneg = np.log10(-grid.arr[grid.arr < 0])
 
         ##### APPLY CUTOFFS
-        logpos[logpos < sm.MISC_LOGAPBS_MIN] = sm.MISC_LOGAPBS_MIN
-        logneg[logneg < sm.MISC_LOGAPBS_MIN] = sm.MISC_LOGAPBS_MIN
-        logpos[logpos > sm.MISC_LOGAPBS_MAX] = sm.MISC_LOGAPBS_MAX
-        logneg[logneg > sm.MISC_LOGAPBS_MAX] = sm.MISC_LOGAPBS_MAX
+        logpos[logpos < vg.CFG.misc_logapbs_min] = vg.CFG.misc_logapbs_min
+        logneg[logneg < vg.CFG.misc_logapbs_min] = vg.CFG.misc_logapbs_min
+        logpos[logpos > vg.CFG.misc_logapbs_max] = vg.CFG.misc_logapbs_max
+        logneg[logneg > vg.CFG.misc_logapbs_max] = vg.CFG.misc_logapbs_max
 
         ##### SHIFT VALUES TO 0
-        logpos -= sm.MISC_LOGAPBS_MIN
-        logneg -= sm.MISC_LOGAPBS_MIN
+        logpos -= vg.CFG.misc_logapbs_min
+        logneg -= vg.CFG.misc_logapbs_min
 
         ##### REVERSE SIGN OF LOG(ABS(GRID_NEG)) AND DOUBLE BOTH
         logpos *=  2 # this way the range of points varies between

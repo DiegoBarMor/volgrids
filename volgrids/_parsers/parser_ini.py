@@ -52,6 +52,11 @@ class ParserIni:
 
 
     # --------------------------------------------------------------------------
+    def headers(self) -> tuple[str]:
+        return tuple(self._ini_sections.keys())
+
+
+    # --------------------------------------------------------------------------
     def iter_lines(self, key: str):
         """
         Iterates over the lines of the section identified by key.
