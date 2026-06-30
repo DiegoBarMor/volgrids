@@ -18,9 +18,16 @@ class ResnameStandard:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def standardize(cls, resname: str) -> str:
-        #### [TODO] could eventually run the standardization once as an initial preprocessing of the PDB contents,
-        #### perhaps when replacing mda as main PDB parser...
+    def standardize_mda_universe(cls, universe):
+        universe.add_TopologyAttr(
+            "resname", [
+                cls.standardize_resname(resname) for resname in universe.residues.resnames
+            ]
+        )
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def standardize_resname(cls, resname: str) -> str:
         if cls.is_rna (resname): return cls.ALIASES_RNA [resname]
         if cls.is_dna (resname): return cls.ALIASES_DNA [resname]
         if cls.is_prot(resname): return cls.ALIASES_PROT[resname]

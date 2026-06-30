@@ -9,4 +9,5 @@ tmp/
 volgrids/_backend/segmentation/main
 
 volgrids/_vendors/freyacli
+volgrids/_vendors/molsimple
 volgrids/_vendors/molutils

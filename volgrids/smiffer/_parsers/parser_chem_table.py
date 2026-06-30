@@ -26,27 +26,23 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def get_atom_hphob(self, atom):
-        resname = smf.ResnameStandard.standardize(atom.resname)
-        dict_resid = self._atoms_hphob.get(resname)
+        dict_resid = self._atoms_hphob.get(atom.resname)
         if dict_resid is None: return None
         return dict_resid.get(atom.name)
 
 
     # --------------------------------------------------------------------------
     def get_names_stacking(self, resname: str) -> list[str] | None:
-        resname = smf.ResnameStandard.standardize(resname)
         return self._names_stk.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hba(self, resname: str):
-        resname = smf.ResnameStandard.standardize(resname)
         return self._names_hba.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hbd(self, resname: str):
-        resname = smf.ResnameStandard.standardize(resname)
         return self._names_hbd.get(resname)
 
 
@@ -92,10 +88,11 @@ class ParserChemTable:
         """
 
         ### extract values from the lines
-        query = self._parser_ini.get("SELECTION_QUERY")
-        if query is None: raise ValueError("No selection query found in the table file.")
+        lst = self._parser_ini.get("RESIDUE_NAMES")
+        if lst is None: raise ValueError("No selection query found in the table file.")
+        resnames = lst[0]
 
-        self._selection_query = query[0]
+        self._selection_query = f"resname {resnames} and not (name H*)"
         self._selection_query_custom = self._selection_query
 
         if smf.CUSTOM_RESIDUES:

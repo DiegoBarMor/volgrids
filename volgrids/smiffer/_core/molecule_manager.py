@@ -40,6 +40,8 @@ class MoleculeManager:
         self.chemtable = self._init_chemtable()
 
         self._mda_universe = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
+        smf.ResnameStandard.standardize_mda_universe(self._mda_universe)
+
         self.frame = 0 if self.do_traj else None
         self.nframes = self._mda_universe.trajectory.n_frames if self.do_traj else 1
 
