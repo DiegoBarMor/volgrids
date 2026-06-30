@@ -5,7 +5,6 @@ import volgrids.smiffer as smf
 class ParserChemTable:
     def __init__(self, path_table):
         self.resnames: list[str] = []
-        self.query_resids: str = ''
         self._parser_ini = vg.ParserIni.from_file(path_table)
         self._atoms_hphob: dict[str, dict[str, float]] = {}
         self._names_stk: dict[str, list[str]] = {}
@@ -80,17 +79,7 @@ class ParserChemTable:
         ### extract values from the lines
         lst_resnames = self._parser_ini.get("RESIDUE_NAMES")
         if lst_resnames is None: raise ValueError("No selection query found in the table file.")
-
-        self.resnames = lst_resnames[0]
-        self.query_resids = f"resname {self.resnames}"
-
-        if smf.CUSTOM_RESIDUES:
-            self.query_resids += " and ("
-            for residue in smf.CUSTOM_RESIDUES.split():
-                chain, resid = residue.split('.')
-                self.query_resids += f"(chainID {chain} and resid {resid}) or "
-            self.query_resids =\
-                self.query_resids[:-4] + ")" # remove the last " or "
+        self.resnames = lst_resnames[0].split()
 
         self.parse_atom_hphobicity  (self._parser_ini)
         self.parse_names_stacking   (self._parser_ini)

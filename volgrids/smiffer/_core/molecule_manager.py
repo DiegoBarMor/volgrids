@@ -126,24 +126,19 @@ class MoleculeManager:
 
 
     # --------------------------------------------------------------------------
-    def get_all_queried_atoms(self, use_custom = True):
+    def get_all_queried_atoms(self, use_custom = True) -> "ms.ParticleGroup":
         """Returns all atoms that match the selection query, without any additional filtering (e.g. sphere)."""
 
-        #### [WIP] 00) chemtable resnames...
-        query = f"resname {self.chemtable.resnames}"
-        atoms = self._mda_universe.select_atoms(query) # [TODO] remove MDA
+        atoms = self._particles_all.select_resname(*self.chemtable.resnames)
 
-        #### [WIP] 01) specific resids via CLI...
         if use_custom:
-            query = self.chemtable.query_resids
-            atoms = atoms.select_atoms(query) # [TODO] remove MDA
+            chainresids = (ms.ChainResid.from_dotstr(s) for s in smf.CUSTOM_RESIDUES.split())
+            atoms = atoms.select_chain_resid(*chainresids)
 
-        #### [WIP] 02) no hydrogens...
-        query = "not (name H*)"
-        atoms = atoms.select_atoms(query) # [TODO] remove MDA
+        atoms = atoms.select_non_hydrogens()
 
         if len(atoms) == 0: warnings.warn(
-            f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
+            f"\n\n... {fy.Color.red('No atoms were selected')}."
         )
         return atoms
 
@@ -155,14 +150,14 @@ class MoleculeManager:
 
         if self.do_use_sphere:
             sphere = smf.SPHERES[self.frame or 0]
-
-            #### [WIP] 03) inside sphere...
-            query = sphere.get_str_query(extra_dist)
-            atoms = atoms.select_atoms(query) # [TODO] remove MDA
+            atoms = sphere.filter_particles(atoms, extra_dist)
 
             if len(atoms) == 0: warnings.warn(
-                f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
+                f"\n\n... {fy.Color.red('No atoms were selected inside the sphere')}."
             )
+
+        print(f"{len(atoms)} atoms"); exit(1) # [WIP]
+
         return atoms
 
 

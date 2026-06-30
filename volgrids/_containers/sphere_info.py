@@ -1,6 +1,8 @@
+import numpy as np
 from dataclasses import dataclass
 
 import volgrids as vg
+from volgrids._vendors import molsimple as ms
 
 # //////////////////////////////////////////////////////////////////////////////
 @dataclass
@@ -39,8 +41,13 @@ class SphereInfo:
 
 
     # --------------------------------------------------------------------------
-    def get_str_query(self, extra_dist: float = 0.0) -> str:
-        return f"point {self.x} {self.y} {self.z} {self.radius + extra_dist}"
+    def filter_particles(self,
+        particles: ms.ParticleGroup, extra_dist: float = 0.0
+    ) -> ms.ParticleGroup:
+        coords = particles.get_positions_numpy()
+        dists = np.linalg.norm(coords - np.array(self.get_pos()), axis = 1)
+        mask = dists <= (self.radius + extra_dist)
+        return particles.select_mask(mask)
 
 
 # //////////////////////////////////////////////////////////////////////////////
