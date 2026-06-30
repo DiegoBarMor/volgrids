@@ -25,6 +25,7 @@ class Triplet:
     # --------------------------------------------------------------------------
     def set_pos_tail(self, atoms) -> np.ndarray | None:
         self.pos_tail = self._safe_return_coords(
+            #### [WIP] 07) atom names...
             atoms, f"name {' '.join(self._tail)}"
         )
 
@@ -32,6 +33,7 @@ class Triplet:
     # --------------------------------------------------------------------------
     def set_pos_head(self, atoms) -> np.ndarray | None:
         self.pos_head = self._safe_return_coords(
+            #### [WIP] 07) atom names...
             atoms, f"name {self._head}"
         )
 
@@ -39,6 +41,7 @@ class Triplet:
     # --------------------------------------------------------------------------
     def set_pos_interactor(self, atoms) -> np.ndarray | None:
         self.pos_interactor = self._safe_return_coords(
+            #### [WIP] 07) atom names...
             atoms, f"name {self.interactor}"
         )
 
@@ -54,6 +57,7 @@ class Triplet:
         t0, t1 = self._tail
         self.pos_tail = self._safe_return_coords(
             atoms,
+            #### [WIP] 08) special combination of residue and atom names...
             f"({query_t0} and name {t0}) or " +\
             f"({query_t1} and name {t1})"
         )
@@ -61,6 +65,7 @@ class Triplet:
 
     # ------------------------------------------------------------------------------
     def get_interactor_bonded_hydrogens(self, atoms) -> tuple:
+        #### [WIP] 06) needs some additional handling related to the concept of bonds
         sel_atoms = atoms.select_atoms(f"name {self.interactor}") # [TODO] remove MDA
         if len(sel_atoms) == 0:
             return []
@@ -80,8 +85,8 @@ class Triplet:
 
     # ------------------------------------------------------------------------------
     @staticmethod
-    def _safe_return_coords(atoms, sel_string: str):
-        sel_atoms = atoms.select_atoms(sel_string) # [TODO] remove MDA
+    def _safe_return_coords(atoms, query: str):
+        sel_atoms = atoms.select_atoms(query) # [TODO] remove MDA
         if len(sel_atoms) == 0: return None
         return sel_atoms.center_of_geometry()
 

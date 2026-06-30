@@ -4,24 +4,14 @@ import volgrids.smiffer as smf
 # //////////////////////////////////////////////////////////////////////////////
 class ParserChemTable:
     def __init__(self, path_table):
-        self._selection_query: str = ''
-        self._selection_query_custom: str = ''
+        self.resnames: list[str] = []
+        self.query_resids: str = ''
         self._parser_ini = vg.ParserIni.from_file(path_table)
         self._atoms_hphob: dict[str, dict[str, float]] = {}
         self._names_stk: dict[str, list[str]] = {}
         self._names_hba: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._names_hbd: dict[str, list[tuple[str, str, str, bool]]] = {}
         self._parse_table()
-
-
-    # --------------------------------------------------------------------------
-    def get_selection_query(self, use_custom):
-        """
-        Custom query includes an additional condition to select only the residues specified in the `CUSTOM_RESIDUES` parameter.
-        Otherwise, the standard query is returned (i.e. that one specified in the .chem table), which does not filter by residue.
-        The distinction is needed because SMIFs are to be computed only for the specified residues, but trimming needs to consider all residues.
-        """
-        return self._selection_query_custom if use_custom else self._selection_query
 
 
     # --------------------------------------------------------------------------
@@ -88,20 +78,19 @@ class ParserChemTable:
         """
 
         ### extract values from the lines
-        lst = self._parser_ini.get("RESIDUE_NAMES")
-        if lst is None: raise ValueError("No selection query found in the table file.")
-        resnames = lst[0]
+        lst_resnames = self._parser_ini.get("RESIDUE_NAMES")
+        if lst_resnames is None: raise ValueError("No selection query found in the table file.")
 
-        self._selection_query = f"resname {resnames} and not (name H*)"
-        self._selection_query_custom = self._selection_query
+        self.resnames = lst_resnames[0]
+        self.query_resids = f"resname {self.resnames}"
 
         if smf.CUSTOM_RESIDUES:
-            self._selection_query_custom += " and ("
+            self.query_resids += " and ("
             for residue in smf.CUSTOM_RESIDUES.split():
                 chain, resid = residue.split('.')
-                self._selection_query_custom += f"(chainID {chain} and resid {resid}) or "
-            self._selection_query_custom =\
-                self._selection_query_custom[:-4] + ")" # remove the last " or "
+                self.query_resids += f"(chainID {chain} and resid {resid}) or "
+            self.query_resids =\
+                self.query_resids[:-4] + ")" # remove the last " or "
 
         self.parse_atom_hphobicity  (self._parser_ini)
         self.parse_names_stacking   (self._parser_ini)

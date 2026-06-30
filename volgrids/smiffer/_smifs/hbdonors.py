@@ -98,6 +98,7 @@ class SmifHBDonors(SmifHBonds):
     def _attempt_to_guess_bonds(self):
         import MDAnalysis as mda
 
+        ### [TODO] remove MDA dependency (it should make this method simpler too)
         hydrogens = self.mm.get_hydrogens()
         if len(hydrogens) == 0:
             vg.CFG.smif_use_hydrogens = False

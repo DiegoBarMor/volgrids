@@ -43,10 +43,12 @@ class SmifStacking(smf.Smif):
 
             for resid,chain in res_infos:
                 for plane_atoms in lst_planes_atoms:
-                    sel = f"resid {resid} and name {plane_atoms}"
-                    if chain: sel += f" and chainID {chain}"
 
-                    atoms_plane = atoms.select_atoms(sel) # [TODO] remove MDA
+                    #### [WIP] 04) atom names...
+                    query = f"resid {resid} and name {plane_atoms}"
+                    if chain: query += f" and chainID {chain}"
+                    atoms_plane = atoms.select_atoms(query) # [TODO] remove MDA
+
                     if len(atoms_plane) < 3: continue # include rings even if they're not completely inside the grid's boundaries
 
                     yield atoms_plane

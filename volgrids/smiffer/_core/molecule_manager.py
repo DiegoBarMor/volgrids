@@ -128,8 +128,20 @@ class MoleculeManager:
     # --------------------------------------------------------------------------
     def get_all_queried_atoms(self, use_custom = True):
         """Returns all atoms that match the selection query, without any additional filtering (e.g. sphere)."""
-        query = self.chemtable.get_selection_query(use_custom)
+
+        #### [WIP] 00) chemtable resnames...
+        query = f"resname {self.chemtable.resnames}"
         atoms = self._mda_universe.select_atoms(query) # [TODO] remove MDA
+
+        #### [WIP] 01) specific resids via CLI...
+        if use_custom:
+            query = self.chemtable.query_resids
+            atoms = atoms.select_atoms(query) # [TODO] remove MDA
+
+        #### [WIP] 02) no hydrogens...
+        query = "not (name H*)"
+        atoms = atoms.select_atoms(query) # [TODO] remove MDA
+
         if len(atoms) == 0: warnings.warn(
             f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
         )
@@ -139,15 +151,18 @@ class MoleculeManager:
     # --------------------------------------------------------------------------
     def get_relevant_queried_atoms(self, use_custom = True, extra_dist: float = 0.0):
         """Returns all atoms that match the selection query, with additional filtering (e.g. sphere)."""
-        query = self.chemtable.get_selection_query(use_custom)
+        atoms = self.get_all_queried_atoms(use_custom)
+
         if self.do_use_sphere:
             sphere = smf.SPHERES[self.frame or 0]
-            query += f"and point {sphere.get_str_query(extra_dist)}"
 
-        atoms = self._mda_universe.select_atoms(query) # [TODO] remove MDA
-        if len(atoms) == 0: warnings.warn(
-            f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
-        )
+            #### [WIP] 03) inside sphere...
+            query = sphere.get_str_query(extra_dist)
+            atoms = atoms.select_atoms(query) # [TODO] remove MDA
+
+            if len(atoms) == 0: warnings.warn(
+                f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
+            )
         return atoms
 
 
