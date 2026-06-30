@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.20.1] - 2026-06-30
+- Fixed bug when dividing a grid by an integer.
+
+
 ## [0.20.0] - 2026-06-29
 - Renamed most of the configs.
     - Commonly used configs have shorter names now.
