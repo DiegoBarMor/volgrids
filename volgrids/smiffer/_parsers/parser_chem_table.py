@@ -1,4 +1,5 @@
 import volgrids as vg
+import volgrids._vendors.molsimple as ms
 
 # //////////////////////////////////////////////////////////////////////////////
 class ParserChemTable:
@@ -13,7 +14,7 @@ class ParserChemTable:
 
 
     # --------------------------------------------------------------------------
-    def get_atom_hphob(self, atom):
+    def get_atom_hphob(self, atom: ms.Particle) -> float | None:
         dict_resid = self._atoms_hphob.get(atom.resname)
         if dict_resid is None: return None
         return dict_resid.get(atom.name)
