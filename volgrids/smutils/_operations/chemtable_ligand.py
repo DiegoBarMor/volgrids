@@ -3,7 +3,6 @@ from pathlib import Path
 from collections import deque
 
 import volgrids as vg
-import volgrids.smutils as su
 
 # //////////////////////////////////////////////////////////////////////////////
 class ChemTableLigand:

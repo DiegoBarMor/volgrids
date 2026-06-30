@@ -1,6 +1,6 @@
 import volgrids as vg
-import volgrids.smiffer as sm
-import volgrids.smutils as su
+import volgrids.smiffer as smf
+import volgrids.smutils as sut
 from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -27,13 +27,13 @@ class AppSMUtils(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _run_res_nobp(self) -> None:
         path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        print(su.ResiduesNucleic.get_residues_nobp(path_in))
+        print(sut.ResiduesNucleic.get_residues_nobp(path_in))
 
 
     # --------------------------------------------------------------------------
     def _run_res_nostk(self) -> None:
         path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        print(su.ResiduesNucleic.get_residues_nostk(path_in))
+        print(sut.ResiduesNucleic.get_residues_nostk(path_in))
 
 
     # --------------------------------------------------------------------------
@@ -43,28 +43,28 @@ class AppSMUtils(vg.AppSubcommand):
             assertion = fy.PathAssertion.FILE_OUT, default = path_in.with_suffix(".chem")
         )
         path_out.write_text(
-            su.ChemTableLigand(path_in).gen_chemtable()
+            sut.ChemTableLigand(path_in).gen_chemtable()
         )
 
 
     # --------------------------------------------------------------------------
     def _run_sphere(self) -> None:
-        su.AppSpheres(self.main).run()
+        sut.AppSpheres(self.main).run()
 
 
     # --------------------------------------------------------------------------
     def _run_box(self) -> None:
-        su.AppBoxes(self.main).run()
+        sut.AppBoxes(self.main).run()
 
 
     # --------------------------------------------------------------------------
     def _run_occupancy(self) -> None:
-        su.AppOccupancy(self.main).run()
+        sut.AppOccupancy(self.main).run()
 
 
     # --------------------------------------------------------------------------
     def _run_pwoverlap(self) -> None:
-        su.AppPwOverlap(self.main).run()
+        sut.AppPwOverlap(self.main).run()
 
 
     # --------------------------------------------------------------------------
@@ -73,7 +73,7 @@ class AppSMUtils(vg.AppSubcommand):
         path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         grid = vg.Grid.load(path_in)
-        sm.SmifAPBS.apply_logabs_transform(grid)
+        smf.SmifAPBS.apply_logabs_transform(grid)
         grid.save(path_out)
 
 

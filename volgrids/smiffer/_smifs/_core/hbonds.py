@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
 
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 
 from .triplet import Triplet
 from .smif import Smif
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBonds(Smif, ABC):
-    def __init__(self, ms: "sm.MolSystem"):
+    def __init__(self, ms: "smf.MolSystem"):
         super().__init__(ms)
         self.kernel: vg.KernelGaussianBivariateAngleDist = None
         self.hbond_getter: callable

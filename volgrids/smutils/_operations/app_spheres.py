@@ -2,8 +2,8 @@ import numpy as np
 from pathlib import Path
 
 import volgrids as vg
-import volgrids.smiffer as sm
-import volgrids.smutils as su
+import volgrids.smiffer as smf
+import volgrids.smutils as sut
 from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ class AppSpheres(vg.AppSubcommand):
         query = self.main.get_arg_str("query")
         radius_extra = self.main.get_arg_float("radius_extra")
 
-        print(su.AppSpheres.find(path_in, path_traj, query, radius_extra))
+        print(sut.AppSpheres.find(path_in, path_traj, query, radius_extra))
 
 
     # --------------------------------------------------------------------------
@@ -44,7 +44,7 @@ class AppSpheres(vg.AppSubcommand):
 
         self.main.load_configs() # needed for loading vg.CFG.out_format (used by Smif.save_data)
 
-        su.AppSpheres.grid(path_in, path_traj, folder_out, spheres)
+        sut.AppSpheres.grid(path_in, path_traj, folder_out, spheres)
         vg.Utils.delete_traj_locks(path_traj)
 
 
@@ -71,7 +71,7 @@ class AppSpheres(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     @staticmethod
     def grid(path_pdb: Path, path_traj: Path|None, folder_out: Path, spheres: list[vg.SphereInfo]) -> None:
-        ms = sm.MolSystem(path_pdb, path_traj)
+        ms = smf.MolSystem(path_pdb, path_traj)
 
         vg.SphereInfo.assert_sphere_infos(spheres, ms.nframes)
 
@@ -86,7 +86,7 @@ class AppSpheres(vg.AppSubcommand):
             kernel.stamp(grid, sphere.get_pos())
             path_out = folder_out / f"{ms.molname}.sphere.cmap"
             key_out = f"sphere.{i:04}"
-            sm.Smif.save_data(grid, ms, path_out, key_out) # [WIP] check this
+            smf.Smif.save_data(grid, ms, path_out, key_out) # [WIP] check this
 
             timer.end()
 

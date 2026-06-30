@@ -2,12 +2,12 @@ from abc import abstractmethod
 from pathlib import Path
 
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
 class Smif:
-    def __init__(self, ms: "sm.MolSystem"):
-        self.ms: "sm.MolSystem" = ms
+    def __init__(self, ms: "smf.MolSystem"):
+        self.ms: "smf.MolSystem" = ms
 
 
     # --------------------------------------------------------------------------
@@ -23,7 +23,7 @@ class Smif:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def save_data(grid: vg.Grid, ms: sm.MolSystem, path_out: Path, key_out: str) -> None:
+    def save_data(grid: vg.Grid, ms: smf.MolSystem, path_out: Path, key_out: str) -> None:
         # trajectory ignores the OUT_FORMAT config -> CMAP is the only format that supports multiple frames
         fmt = vg.GridFormat.CMAP if ms.enforce_cmap_output \
             else vg.GridFormat.from_str(vg.CFG.out_format)

@@ -1,9 +1,8 @@
 import volgrids as vg
-import volgrids.smiffer as sm
-import volgrids.smutils as su
+import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
-class OgHBDonors(sm._smifs_core.SmifHBonds):
+class OgHBDonors(smf._smifs_core.SmifHBonds):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.kernel = vg.KernelSphere(
@@ -11,14 +10,14 @@ class OgHBDonors(sm._smifs_core.SmifHBonds):
             deltas = self.ms.get_deltas(),
             dtype = vg.FLOAT_DTYPE
         )
-        self.hbond_getter = sm.ParserChemTable.get_names_hbd
+        self.hbond_getter = smf.ParserChemTable.get_names_hbd
 
     # --------------------------------------------------------------------------
     def can_be_interactor(self, triplet) -> bool:
-        return sm.SmifHBDonors.can_be_interactor(self, triplet)
+        return smf.SmifHBDonors.can_be_interactor(self, triplet)
 
     # --------------------------------------------------------------------------
-    def find_tail_head_positions(self, triplet: sm._smifs_core.Triplet) -> None:
+    def find_tail_head_positions(self, triplet: smf._smifs_core.Triplet) -> None:
         ### OGs only use head position (donor site) --> no tail position needed
         triplet.set_pos_head(self.res_atoms)
 

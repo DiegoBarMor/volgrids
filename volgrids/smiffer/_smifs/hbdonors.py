@@ -1,33 +1,33 @@
 import warnings
 
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 
 from ._core.hbonds import SmifHBonds
 from ._core.triplet import Triplet
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBDonors(SmifHBonds):
-    def __init__(self, ms: "sm.MolSystem"):
+    def __init__(self, ms: "smf.MolSystem"):
         super().__init__(ms)
-        self.hbond_getter = sm.ParserChemTable.get_names_hbd
+        self.hbond_getter = smf.ParserChemTable.get_names_hbd
         self._kernel_hbd_free = vg.KernelGaussianBivariateAngleDist(
             radius = vg.CFG.param_hbd_free_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * vg.CFG.param_hbd_free_dist_sigma,
-            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD_FREE
+            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_HBD_FREE
         )
         self._kernel_hbd_fixed = vg.KernelGaussianBivariateAngleDist(
             radius = vg.CFG.param_hbd_fixed_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * vg.CFG.param_hbd_fixed_dist_sigma,
-            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_HBD_FIXED
+            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_HBD_FIXED
         )
 
 
     # --------------------------------------------------------------------------
     def can_be_interactor(self, triplet: Triplet) -> bool:
-        if sm.ResnameStandard.is_prot(triplet.resname):
+        if smf.ResnameStandard.is_prot(triplet.resname):
             if triplet.resname == "PRO": # donor only if there is no previous residue
                 return not self._has_prev_res(triplet)
 
-        if sm.ResnameStandard.is_nucleic(triplet.resname):
+        if smf.ResnameStandard.is_nucleic(triplet.resname):
             if triplet.interactor == "O3'": # donor only if there is no next residue
                 return not self._has_next_res(triplet)
 
@@ -46,7 +46,7 @@ class SmifHBDonors(SmifHBonds):
 
         ############################### TAIL POSITION
         ### special cases for protein
-        if sm.ResnameStandard.is_prot(triplet.resname):
+        if smf.ResnameStandard.is_prot(triplet.resname):
             if triplet.interactor == "N": # tail points are in different residues
                 if self._has_prev_res(triplet):
                     triplet.set_pos_tail_custom( # N of peptide bond

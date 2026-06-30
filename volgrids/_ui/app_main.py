@@ -45,14 +45,14 @@ class AppMain(fy.App):
 
     # --------------------------------------------------------------------------
     def _run_smiffer(self) -> None:
-        import volgrids.smiffer as sm
-        sm.AppSmiffer(self).run()
+        import volgrids.smiffer as smf
+        smf.AppSmiffer(self).run()
 
 
     # --------------------------------------------------------------------------
     def _run_smutils(self) -> None:
-        import volgrids.smutils as su
-        su.AppSMUtils(self).run()
+        import volgrids.smutils as sut
+        sut.AppSMUtils(self).run()
 
 
     # --------------------------------------------------------------------------

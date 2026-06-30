@@ -1,7 +1,6 @@
 import numpy as np
 
 import volgrids as vg
-import volgrids.smiffer as sm
 from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////

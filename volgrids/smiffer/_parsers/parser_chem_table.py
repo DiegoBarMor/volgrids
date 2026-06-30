@@ -1,5 +1,5 @@
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
 class ParserChemTable:
@@ -26,7 +26,7 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def get_atom_hphob(self, atom):
-        resname = sm.ResnameStandard.standardize(atom.resname)
+        resname = smf.ResnameStandard.standardize(atom.resname)
         dict_resid = self._atoms_hphob.get(resname)
         if dict_resid is None: return None
         return dict_resid.get(atom.name)
@@ -34,19 +34,19 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def get_names_stacking(self, resname: str) -> list[str] | None:
-        resname = sm.ResnameStandard.standardize(resname)
+        resname = smf.ResnameStandard.standardize(resname)
         return self._names_stk.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hba(self, resname: str):
-        resname = sm.ResnameStandard.standardize(resname)
+        resname = smf.ResnameStandard.standardize(resname)
         return self._names_hba.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hbd(self, resname: str):
-        resname = sm.ResnameStandard.standardize(resname)
+        resname = smf.ResnameStandard.standardize(resname)
         return self._names_hbd.get(resname)
 
 
@@ -98,9 +98,9 @@ class ParserChemTable:
         self._selection_query = query[0]
         self._selection_query_custom = self._selection_query
 
-        if sm.CUSTOM_RESIDUES:
+        if smf.CUSTOM_RESIDUES:
             self._selection_query_custom += " and ("
-            for residue in sm.CUSTOM_RESIDUES.split():
+            for residue in smf.CUSTOM_RESIDUES.split():
                 chain, resid = residue.split('.')
                 self._selection_query_custom += f"(chainID {chain} and resid {resid}) or "
             self._selection_query_custom =\

@@ -1,9 +1,8 @@
-import numpy as np
 from pathlib import Path
 
 import volgrids as vg
-import volgrids.smiffer as sm
-import volgrids.smutils as su
+import volgrids.smiffer as smf
+import volgrids.smutils as sut
 from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -20,7 +19,7 @@ class AppBoxes(vg.AppSubcommand):
     def app_run_info(self):
         path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
 
-        vals = su.AppBoxes.info(path_in)
+        vals = sut.AppBoxes.info(path_in)
         print(*(f"{v:.3f}" for v in vals))
 
 
@@ -28,7 +27,7 @@ class AppBoxes(vg.AppSubcommand):
     def app_run_size(self):
         path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
 
-        vals = su.AppBoxes.info(path_in)
+        vals = sut.AppBoxes.info(path_in)
         print(*(
             f"{v1-v0:.3f}" for v0,v1 in zip(vals[::2], vals[1::2])
         ))
@@ -38,7 +37,7 @@ class AppBoxes(vg.AppSubcommand):
     @staticmethod
     def info(path_pdb: Path) -> tuple[float]:
         return vg.BoxInfo.from_box(
-            sm.MolSystem(path_pdb).box
+            smf.MolSystem(path_pdb).box
         ).values()
 
 

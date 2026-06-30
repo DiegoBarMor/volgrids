@@ -1,9 +1,8 @@
 import volgrids as vg
-import volgrids.smiffer as sm
-import volgrids.smutils as su
+import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
-class OgStacking(sm.SmifStacking):
+class OgStacking(smf.SmifStacking):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.kernel = vg.KernelSphere(

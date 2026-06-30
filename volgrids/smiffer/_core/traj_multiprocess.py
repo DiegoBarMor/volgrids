@@ -1,11 +1,11 @@
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
 class TrajMultiprocess:
-    def __init__(self, app: "sm.AppSmiffer"):
+    def __init__(self, app: "smf.AppSmiffer"):
         ### Set by the parent before spawning the trajectory MP pool; inherited by workers via fork.
-        self._worker_app: "sm.AppSmiffer" = app
+        self._worker_app: "smf.AppSmiffer" = app
 
 
     # --------------------------------------------------------------------------
@@ -28,7 +28,7 @@ class TrajMultiprocess:
     # ------------------------------------------------------------------------------
     def _worker_init(self):
         """Re-create the MolSystem in each worker so file handles aren't shared across forks."""
-        self._worker_app.ms = sm.MolSystem(sm.PATH_STRUCT, self._worker_app.path_traj)
+        self._worker_app.ms = smf.MolSystem(smf.PATH_STRUCT, self._worker_app.path_traj)
 
 
     # ------------------------------------------------------------------------------

@@ -1,32 +1,32 @@
 import numpy as np
 
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
-class SmifAPBS(sm.Smif):
+class SmifAPBS(smf.Smif):
     # --------------------------------------------------------------------------
     def populate_grid(self, grid: vg.Grid) -> None:
-        if sm.PATH_APBS is not None:
-            return self._apbs_to_smif(grid, sm.PATH_APBS)
+        if smf.PATH_APBS is not None:
+            return self._apbs_to_smif(grid, smf.PATH_APBS)
 
         timer = vg.Timer().start()
-        ### "sm.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
-        with vg.APBSSubprocess(self.ms.get_all_atoms(), sm.PATH_STRUCT.name) as path_apbs:
+        ### "smf.PATH_STRUCT.name" must be used, don't use "self.ms.molname"
+        with vg.APBSSubprocess(self.ms.get_all_atoms(), smf.PATH_STRUCT.name) as path_apbs:
             return self._apbs_to_smif(grid, path_apbs, timer)
 
 
     # --------------------------------------------------------------------------
     def gen_pqr(self):
-        with vg.APBSSubprocess(self.ms.get_all_atoms(), sm.PATH_STRUCT.name, only_pdb2pqr = True) as _:
+        with vg.APBSSubprocess(self.ms.get_all_atoms(), smf.PATH_STRUCT.name, only_pdb2pqr = True) as _:
             return
 
 
     # --------------------------------------------------------------------------
     @staticmethod
     def _apbs_to_smif(grid: vg.Grid, path_apbs_in, timer: vg.Timer = None) -> None:
-        if timer is not None: sm.APBS_ELAPSED_TIME = timer.end(
+        if timer is not None: smf.APBS_ELAPSED_TIME = timer.end(
             text = fy.Color.red("APBS"), end = ' '
         )
 

@@ -1,5 +1,5 @@
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 
 from ._core.hydro import SmifHydro
 
@@ -9,7 +9,7 @@ class SmifHydrophobic(SmifHydro):
         grid.reset()
         radius = vg.CFG.param_hphob_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * vg.CFG.param_hbhob_dist_sigma
         kernel = vg.KernelGaussianUnivariateDist(
-            radius, self.ms.get_deltas(), vg.FLOAT_DTYPE, sm.PARAMS_HPHOB
+            radius, self.ms.get_deltas(), vg.FLOAT_DTYPE, smf.PARAMS_HPHOB
         )
         for particle, mul_factor in self.iter_particles():
             if mul_factor < 0: continue

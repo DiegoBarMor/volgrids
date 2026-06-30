@@ -2,15 +2,15 @@ import numpy as np
 from collections import defaultdict
 
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
-class SmifStacking(sm.Smif):
+class SmifStacking(smf.Smif):
     def populate_grid(self, grid: vg.Grid) -> None:
         grid.reset()
         kernel = vg.KernelGaussianBivariateAngleDist(
-            radius = vg.CFG.param_stk_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * sm.SIGMA_DIST_STACKING,
-            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = sm.PARAMS_STACK
+            radius = vg.CFG.param_stk_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * smf.SIGMA_DIST_STACKING,
+            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_STACK
         )
         for atoms_plane in self.iter_particles():
             cog, normal = self.get_cog_normal(atoms_plane)

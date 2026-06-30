@@ -4,7 +4,7 @@ import numpy as np
 from pathlib import Path
 
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ class MolSystem:
         self.nframes   : int                # total number of frames in the trajectory (1 if no trajectory is used)
         self.box       : vg.Box             # current box (either enforced, sphere-based, or computed from the structure)
         self.box_common: vg.Box|None        # box that can enclose all frames of a trajectory
-        self.chemtable : sm.ParserChemTable
+        self.chemtable : smf.ParserChemTable
         self.do_traj            : bool # whether this is a trajectory or a single structure (None if no structure is provided)
         self.do_use_sphere      : bool
         self.do_enforce_boxes   : bool
@@ -28,8 +28,8 @@ class MolSystem:
         self.molname = path_struct.stem
 
         self.do_traj = path_traj is not None
-        self.do_use_sphere = len(sm.SPHERES) > 0
-        self.do_enforce_boxes = len(sm.BOXES_ENFORCED) > 0
+        self.do_use_sphere = len(smf.SPHERES) > 0
+        self.do_enforce_boxes = len(smf.BOXES_ENFORCED) > 0
         self.do_use_common_box = self.do_traj and not vg.CFG.box_tight_traj \
             and not self.do_use_sphere and not self.do_enforce_boxes
         self.enforce_cmap_output = self.do_traj # can get updated with other criteria too (e.g. --pack flag in app_smiffer.py)
@@ -41,10 +41,10 @@ class MolSystem:
         self.nframes = self._mda_universe.trajectory.n_frames if self.do_traj else 1
 
         if self.do_use_sphere:
-            vg.SphereInfo.assert_sphere_infos(sm.SPHERES, self.nframes)
+            vg.SphereInfo.assert_sphere_infos(smf.SPHERES, self.nframes)
 
         if self.do_enforce_boxes:
-            vg.BoxInfo.assert_box_infos([box.info for box in sm.BOXES_ENFORCED], self.nframes)
+            vg.BoxInfo.assert_box_infos([box.info for box in smf.BOXES_ENFORCED], self.nframes)
 
         self.box_common = self._gen_box_common() if self.do_use_common_box else None
         self.box = self._get_current_box() if box is None else box
@@ -130,7 +130,7 @@ class MolSystem:
         """Returns all atoms that match the selection query, with additional filtering (e.g. sphere)."""
         query = self.chemtable.get_selection_query(use_custom)
         if self.do_use_sphere:
-            sphere = sm.SPHERES[self.frame or 0]
+            sphere = smf.SPHERES[self.frame or 0]
             query += f"and point {sphere.get_str_query(extra_dist)}"
 
         atoms = self._mda_universe.select_atoms(query)
@@ -157,11 +157,11 @@ class MolSystem:
     def _get_current_box(self) -> vg.Box:
         ### Priority 1: Box to be used is specifically requested by the user (via CLI)
         if self.do_enforce_boxes:
-            return sm.BOXES_ENFORCED[self.frame or 0]
+            return smf.BOXES_ENFORCED[self.frame or 0]
 
         ### Priority 2: Box to be used is based on a user-provided sphere (via CLI)
         if self.do_use_sphere:
-            sphere = sm.SPHERES[self.frame or 0]
+            sphere = smf.SPHERES[self.frame or 0]
             box = vg.Box(None, None, None, do_init = False)
             box.cog = np.array(sphere.get_pos())
             box.min_coords = box.cog - sphere.radius
@@ -210,12 +210,12 @@ class MolSystem:
 
 
     # --------------------------------------------------------------------------
-    def _init_chemtable(self) -> "sm.ParserChemTable":
-        if sm.PATH_CHEM_LIGAND:
-            return sm.ParserChemTable(sm.PATH_CHEM_LIGAND)
+    def _init_chemtable(self) -> "smf.ParserChemTable":
+        if smf.PATH_CHEM_LIGAND:
+            return smf.ParserChemTable(smf.PATH_CHEM_LIGAND)
 
         folder_default_tables = vg.Utils.resolve_path_package("_data/smiffer_tables")
-        chem = sm.ParserChemTable(folder_default_tables / "default.chem")
+        chem = smf.ParserChemTable(folder_default_tables / "default.chem")
 
         if vg.CFG.smif_hb_only_nbase:
             ini = vg.ParserIni.from_file(folder_default_tables / "nucl_simple_hb.chem")

@@ -1,13 +1,13 @@
 import numpy as np
 
 import volgrids as vg
-import volgrids.smiffer as sm
+import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
 class Trimmer:
-    def __init__(self, ms: "sm.MolSystem"):
-        self.ms: "sm.MolSystem" = ms
-        self.cavfinder: sm.CavityFinder = sm.CavityFinder()
+    def __init__(self, ms: "smf.MolSystem"):
+        self.ms: "smf.MolSystem" = ms
+        self.cavfinder: smf.CavityFinder = smf.CavityFinder()
 
         self._mask_common: vg.Grid = None
         self._mask_specific: vg.Grid = None

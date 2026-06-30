@@ -1,9 +1,8 @@
 import volgrids as vg
-import volgrids.smiffer as sm
-import volgrids.smutils as su
+import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
-class OgHydrophobic(sm.SmifHydrophobic):
+class OgHydrophobic(smf.SmifHydrophobic):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.kernel = vg.KernelSphere(
