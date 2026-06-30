@@ -3,6 +3,7 @@ import subprocess
 from pathlib import Path
 
 import volgrids as vg
+from volgrids._vendors import molsimple as ms
 
 # //////////////////////////////////////////////////////////////////////////////
 class APBSSubprocess:
@@ -19,9 +20,9 @@ class APBSSubprocess:
         (by either passing `only_pdb2pqr=False` or by calling `run_subprocess_apbs` directly) will
         implicitly run the PQR generation first (this is handled internally inside `apbs.sh`)
         """
-        self.atoms = atoms
-        self.name_pdb = name_pdb
-        self.only_pdb2pqr = only_pdb2pqr
+        self.atoms: ms.ParticleGroup = atoms
+        self.name_pdb: str = name_pdb
+        self.only_pdb2pqr: bool = only_pdb2pqr
         self._tmpdir: tempfile.TemporaryDirectory = None
 
 
@@ -90,7 +91,7 @@ class APBSSubprocess:
         path_tmp_in   = path_tmpdir / f"{self.name_pdb}.in"
         path_tmp_pqr  = path_tmpdir / f"{self.name_pdb}.pqr"
 
-        self.atoms.write(path_tmp_pdb)
+        self.atoms.save(path_tmp_pdb)
 
         ##### APBS is being run after previously running the PQR generation (loaded into memory)
         if vg.TMP_APBS_CONTENT_IN and vg.TMP_APBS_CONTENT_PQR:

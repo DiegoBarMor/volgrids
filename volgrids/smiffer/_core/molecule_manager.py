@@ -18,7 +18,7 @@ class MoleculeManager:
 
         self.molname  : str                # name of the molecule
         self.chemtable: smf.ParserChemTable
-        self.particles: ms.ParticleGroup
+        self._particles_all: ms.ParticleGroup
 
         self.frame     : int|None           # current frame number (if trajectory is used)
         self.nframes   : int                # total number of frames in the trajectory (1 if no trajectory is used)
@@ -46,7 +46,7 @@ class MoleculeManager:
 
         self._mda_universe = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
         smf.ResnameStandard.standardize_mda_universe(self._mda_universe)
-        self.particles = ms.System(path_struct).particles # in the case of multiple models: `System.particles` is the first model
+        self._particles_all = ms.System.read_pdb(path_struct).particles # in the case of multiple models: `System._particles_all` is the first model
 
         self.frame = 0 if self.do_traj else None
         self.nframes = self._mda_universe.trajectory.n_frames if self.do_traj else 1
@@ -120,9 +120,9 @@ class MoleculeManager:
 
 
     # --------------------------------------------------------------------------
-    def get_all_atoms(self):
+    def get_all_atoms(self) -> "ms.ParticleGroup":
         """Returns all atoms in the molecular system, without any filtering (e.g. selection query, sphere, etc.)."""
-        return self._mda_universe.atoms # [TODO] remove MDA
+        return self._particles_all
 
 
     # --------------------------------------------------------------------------
@@ -185,7 +185,7 @@ class MoleculeManager:
         ### Priority 3: dealing with a trajectory and the user requested the box
         ### to be inferred from the structure at every frame (via config `BOX_TIGHT_TRAJ=True`)
         if not self.do_use_common_box:
-            ### [TODO] MDA has to be kept here for dealing with traj --> update coords of self.particles with the current frame's coordinates
+            ### [TODO] MDA has to be kept here for dealing with traj --> update coords of self._particles_all with the current frame's coordinates
             min_coords = self._mda_universe.coord.positions.min(axis = 0)
             max_coords = self._mda_universe.coord.positions.max(axis = 0)
             return self._padded_box(min_coords, max_coords)
