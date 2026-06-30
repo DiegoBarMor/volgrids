@@ -18,7 +18,7 @@ class Triplet:
         self.pos_interactor: np.ndarray | None = None
 
         self.resname = res.resname.upper()
-        self.str_prev_res = f"segid {res.segid} and resid {res.resid - 1}"
+        self.str_prev_res = f"segid {res.segid} and resid {res.resid - 1}" # [TODO] remove MDA
         self.str_this_res = f"segid {res.segid} and resid {res.resid    }"
         self.str_next_res = f"segid {res.segid} and resid {res.resid + 1}"
 
@@ -61,7 +61,7 @@ class Triplet:
 
     # ------------------------------------------------------------------------------
     def get_interactor_bonded_hydrogens(self, atoms) -> tuple:
-        sel_atoms = atoms.select_atoms(f"name {self.interactor}")
+        sel_atoms = atoms.select_atoms(f"name {self.interactor}") # [TODO] remove MDA
         if len(sel_atoms) == 0:
             return []
         bonded_atoms = [
@@ -81,7 +81,7 @@ class Triplet:
     # ------------------------------------------------------------------------------
     @staticmethod
     def _safe_return_coords(atoms, sel_string: str):
-        sel_atoms = atoms.select_atoms(sel_string)
+        sel_atoms = atoms.select_atoms(sel_string) # [TODO] remove MDA
         if len(sel_atoms) == 0: return None
         return sel_atoms.center_of_geometry()
 

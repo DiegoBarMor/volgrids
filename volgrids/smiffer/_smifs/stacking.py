@@ -27,14 +27,14 @@ class SmifStacking(smf.Smif):
 
         if not len(atoms): return
         try:
-            _ = atoms[0].chainID
+            _ = atoms[0].chainID # [TODO] remove MDA
             skip_chainID = False
         except mda.exceptions.NoDataError:
             skip_chainID = True
 
 
         for a in atoms:
-            chain = None if skip_chainID else a.chainID
+            chain = None if skip_chainID else a.chainID # [TODO] remove MDA
             resname_to_ids[a.resname.upper()].add((a.resid, chain))
 
         for resname,res_infos in resname_to_ids.items():
@@ -46,7 +46,7 @@ class SmifStacking(smf.Smif):
                     sel = f"resid {resid} and name {plane_atoms}"
                     if chain: sel += f" and chainID {chain}"
 
-                    atoms_plane = atoms.select_atoms(sel)
+                    atoms_plane = atoms.select_atoms(sel) # [TODO] remove MDA
                     if len(atoms_plane) < 3: continue # include rings even if they're not completely inside the grid's boundaries
 
                     yield atoms_plane

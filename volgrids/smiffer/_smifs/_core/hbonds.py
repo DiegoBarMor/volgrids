@@ -51,7 +51,7 @@ class SmifHBonds(Smif, ABC):
 
     # --------------------------------------------------------------------------
     def _iter_triplets(self):
-        for res in self.all_atoms.residues:
+        for res in self.all_atoms.residues: # [TODO] remove MDA
             hbond_tuples = self.hbond_getter(self.mm.chemtable, res.resname)
             if hbond_tuples is None: continue # skip weird residues
 
@@ -63,19 +63,19 @@ class SmifHBonds(Smif, ABC):
                 triplet = Triplet(res, *hbond_tuple)
                 if not self.can_be_interactor(triplet): continue
 
-                self.res_atoms = self.all_atoms.select_atoms(triplet.str_this_res)
+                self.res_atoms = self.all_atoms.select_atoms(triplet.str_this_res) # [TODO] remove MDA
                 triplet.set_pos_interactor(self.res_atoms)
                 yield triplet
 
 
     # ------------------------------------------------------------------------------
     def _has_prev_res(self, triplet: Triplet) -> bool:
-        return len(self.all_atoms.select_atoms(triplet.str_prev_res)) > 0
+        return len(self.all_atoms.select_atoms(triplet.str_prev_res)) > 0 # [TODO] remove MDA
 
 
     # ------------------------------------------------------------------------------
     def _has_next_res(self, triplet: Triplet) -> bool:
-        return len(self.all_atoms.select_atoms(triplet.str_next_res)) > 0
+        return len(self.all_atoms.select_atoms(triplet.str_next_res)) > 0 # [TODO] remove MDA
 
 
 # //////////////////////////////////////////////////////////////////////////////

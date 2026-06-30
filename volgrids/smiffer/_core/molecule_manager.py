@@ -6,6 +6,7 @@ from pathlib import Path
 import volgrids as vg
 import volgrids.smiffer as smf
 from volgrids._vendors import freyacli as fy
+from volgrids._vendors import molsimple as ms
 
 # //////////////////////////////////////////////////////////////////////////////
 class MoleculeManager:
@@ -15,18 +16,22 @@ class MoleculeManager:
     def __init__(self, path_struct: Path, path_traj: Path = None, box: vg.Box = None):
         import MDAnalysis as mda
 
-        self.molname   : str                # name of the molecule
+        self.molname  : str                # name of the molecule
+        self.chemtable: smf.ParserChemTable
+        self.particles: ms.ParticleGroup
+
         self.frame     : int|None           # current frame number (if trajectory is used)
         self.nframes   : int                # total number of frames in the trajectory (1 if no trajectory is used)
+        self._mda_universe: mda.Universe|None  # MDAnalysis Universe object for the molecular system
+
         self.box       : vg.Box             # current box (either enforced, sphere-based, or computed from the structure)
         self.box_common: vg.Box|None        # box that can enclose all frames of a trajectory
-        self.chemtable : smf.ParserChemTable
+
         self.do_traj            : bool # whether this is a trajectory or a single structure (None if no structure is provided)
         self.do_use_sphere      : bool
         self.do_enforce_boxes   : bool
         self.do_use_common_box  : bool
         self.enforce_cmap_output: bool
-        self._mda_universe: mda.Universe|None  # MDAnalysis Universe object for the molecular system
 
         self.molname = path_struct.stem
 
@@ -40,6 +45,8 @@ class MoleculeManager:
         self.chemtable = self._init_chemtable()
 
         self._mda_universe = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
+        self.particles = ms.System(path_struct).particles # in the case of multiple models: `System.particles` is the first model
+
         self.frame = 0 if self.do_traj else None
         self.nframes = self._mda_universe.trajectory.n_frames if self.do_traj else 1
 
@@ -67,15 +74,15 @@ class MoleculeManager:
 
         ### add back the chain information
         if chains is None:
-            chains = ['A'] * len(obj._mda_universe.residues)
+            chains = ['A'] * len(obj._mda_universe.residues) # [TODO] remove MDA
 
         chains_per_atom = [
             chains[i]
-            for i,residue in enumerate(obj._mda_universe.residues)
+            for i,residue in enumerate(obj._mda_universe.residues) # [TODO] remove MDA
             for _ in residue.atoms
         ]
 
-        obj._mda_universe.add_TopologyAttr("chainIDs", chains_per_atom)
+        obj._mda_universe.add_TopologyAttr("chainIDs", chains_per_atom) # [TODO] remove MDA
         return obj
 
 
@@ -114,14 +121,14 @@ class MoleculeManager:
     # --------------------------------------------------------------------------
     def get_all_atoms(self):
         """Returns all atoms in the molecular system, without any filtering (e.g. selection query, sphere, etc.)."""
-        return self._mda_universe.atoms
+        return self._mda_universe.atoms # [TODO] remove MDA
 
 
     # --------------------------------------------------------------------------
     def get_all_queried_atoms(self, use_custom = True):
         """Returns all atoms that match the selection query, without any additional filtering (e.g. sphere)."""
         query = self.chemtable.get_selection_query(use_custom)
-        atoms = self._mda_universe.select_atoms(query)
+        atoms = self._mda_universe.select_atoms(query) # [TODO] remove MDA
         if len(atoms) == 0: warnings.warn(
             f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
         )
@@ -136,7 +143,7 @@ class MoleculeManager:
             sphere = smf.SPHERES[self.frame or 0]
             query += f"and point {sphere.get_str_query(extra_dist)}"
 
-        atoms = self._mda_universe.select_atoms(query)
+        atoms = self._mda_universe.select_atoms(query) # [TODO] remove MDA
         if len(atoms) == 0: warnings.warn(
             f"\n\n... The selection query '{fy.Color.blue(query)}' {fy.Color.red('did not return any atoms')}."
         )
@@ -145,14 +152,14 @@ class MoleculeManager:
 
     # --------------------------------------------------------------------------
     def get_hydrogens(self):
-        return self._mda_universe.select_atoms("not water and name H*")
+        return self._mda_universe.select_atoms("not water and name H*") # [TODO] remove MDA
 
 
     # --------------------------------------------------------------------------
     def get_residue_chains(self) -> list[str]:
         """Returns a list of chain IDs for each residue in the molecular system."""
         return [
-            arr[0] for arr in self._mda_universe.residues.chainIDs
+            arr[0] for arr in self._mda_universe.residues.chainIDs # [TODO] remove MDA
         ] # size: (nresidues,)
 
 
@@ -177,6 +184,7 @@ class MoleculeManager:
         ### Priority 3: dealing with a trajectory and the user requested the box
         ### to be inferred from the structure at every frame (via config `BOX_TIGHT_TRAJ=True`)
         if not self.do_use_common_box:
+            ### [TODO] MDA has to be kept here for dealing with traj --> update coords of self.particles with the current frame's coordinates
             min_coords = self._mda_universe.coord.positions.min(axis = 0)
             max_coords = self._mda_universe.coord.positions.max(axis = 0)
             return self._padded_box(min_coords, max_coords)
