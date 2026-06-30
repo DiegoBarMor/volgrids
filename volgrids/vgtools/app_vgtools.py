@@ -175,7 +175,7 @@ class AppVGTools(vg.AppSubcommand):
             "add": vg.Grid.__add__,
             "sub": vg.Grid.__sub__,
             "mul": vg.Grid.__mul__,
-            "div": vg.Grid.__div__,
+            "div": vg.Grid.__truediv__,
             "and": vg.Grid.__and__,
             "or" : vg.Grid.__or__,
         }[command]
