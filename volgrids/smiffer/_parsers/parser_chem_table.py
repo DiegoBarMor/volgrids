@@ -92,10 +92,11 @@ class ParserChemTable:
         """
 
         ### extract values from the lines
-        query = self._parser_ini.get("SELECTION_QUERY")
-        if query is None: raise ValueError("No selection query found in the table file.")
+        lst = self._parser_ini.get("RESIDUE_NAMES")
+        if lst is None: raise ValueError("No selection query found in the table file.")
+        resnames = lst[0]
 
-        self._selection_query = query[0]
+        self._selection_query = f"resname {resnames} and not (name H*)"
         self._selection_query_custom = self._selection_query
 
         if smf.CUSTOM_RESIDUES:
