@@ -26,27 +26,23 @@ class ParserChemTable:
 
     # --------------------------------------------------------------------------
     def get_atom_hphob(self, atom):
-        resname = smf.ResnameStandard.standardize(atom.resname)
-        dict_resid = self._atoms_hphob.get(resname)
+        dict_resid = self._atoms_hphob.get(atom.resname)
         if dict_resid is None: return None
         return dict_resid.get(atom.name)
 
 
     # --------------------------------------------------------------------------
     def get_names_stacking(self, resname: str) -> list[str] | None:
-        resname = smf.ResnameStandard.standardize(resname)
         return self._names_stk.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hba(self, resname: str):
-        resname = smf.ResnameStandard.standardize(resname)
         return self._names_hba.get(resname)
 
 
     # --------------------------------------------------------------------------
     def get_names_hbd(self, resname: str):
-        resname = smf.ResnameStandard.standardize(resname)
         return self._names_hbd.get(resname)
 
 
