@@ -60,7 +60,7 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
-    def __div__(self, other: "Grid|float|int") -> "Grid":
+    def __truediv__(self, other: "Grid|float|int") -> "Grid":
         obj = self.__class__(self.box, init_grid = False)
         if isinstance(other, Grid):
             obj.arr = self.arr / other.arr
