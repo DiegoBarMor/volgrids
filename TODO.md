@@ -20,15 +20,13 @@
 * add explanations to the list of configs printed with the empty `-c` flag
 * implement: raise an error if a format file is opened with the wrong function
 * add tests for parameters being directly passed to the App classes (instead of parsing the CLI arguments)
-* check if the implementation of the OUT_OVERWRITE_OK flag is user-convenient
+* check if the implementation of the `OUT_OVERWRITE_OK` flag is user-convenient
 * deal somehow with using a wrong comment char inside a config file
 
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
 * validate the INI headers when parsing a user's provided chem table
-* there seems to be some previous bugs in trajectory mode; track down and fix.
-* check what happens with structure files with multiple models.
 * RNDS trimming could be removed. instead of it, a post-processing with a similar (and probably better) effect could be done with SMIF segmentation.
 * change the ligand example to one that uses both HBACCEPTORS, HBDONORS and NAMES_HBD_FIXED
 * document the .chem tables
@@ -37,7 +35,7 @@
 * add tests for -r flag
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
 * check whether the trimmer can still be saved when no smifs are calculated.
-* MDAnalysis struggles when parsing certain PQR files.
+* MDAnalysis struggles when parsing certain PQR files e.g. when coordinates are large number so that there is no space in between the columns.
 
 
 <!-- ----------------------------------------------------------------------- -->

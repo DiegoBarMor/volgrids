@@ -45,6 +45,7 @@ class MoleculeManager:
         self.chemtable = self._init_chemtable()
 
         self._mda_universe = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
+        smf.ResnameStandard.standardize_mda_universe(self._mda_universe)
         self.particles = ms.System(path_struct).particles # in the case of multiple models: `System.particles` is the first model
 
         self.frame = 0 if self.do_traj else None
