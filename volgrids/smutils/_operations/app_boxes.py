@@ -37,7 +37,7 @@ class AppBoxes(vg.AppSubcommand):
     @staticmethod
     def info(path_pdb: Path) -> tuple[float]:
         return vg.BoxInfo.from_box(
-            smf.MolSystem(path_pdb).box
+            smf.MoleculeManager(path_pdb).box
         ).values()
 
 

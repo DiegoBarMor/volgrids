@@ -15,7 +15,7 @@ class AppSmiffer(vg.AppSubcommand):
         self.str_mode = str_mode # just for printing
 
         ##### initialized once in __init__
-        self.ms: smf.MolSystem
+        self.mm: smf.MoleculeManager
         self.timer: vg.Timer
         self.folder_out: Path
         self.path_traj: Path
@@ -62,14 +62,14 @@ class AppSmiffer(vg.AppSubcommand):
 
         ### these must be initialized after the configs are loaded,
         ### so it's appropriate to place them at the end of init
-        self.ms = smf.MolSystem(smf.PATH_STRUCT, self.path_traj)
+        self.mm = smf.MoleculeManager(smf.PATH_STRUCT, self.path_traj)
         self.timer = vg.Timer(
-            f">>> {'Sphere' if self.ms.do_use_sphere else 'Whole'} "+\
-            f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.ms.molname)}'"
+            f">>> {'Sphere' if self.mm.do_use_sphere else 'Whole'} "+\
+            f"{fy.Color.magenta(self.str_mode)} for '{fy.Color.yellow(self.mm.molname)}'"
         )
 
         self.paths_out, self.keys_out = self._get_paths_keys_out(self.folder_out)
-        self.ms.enforce_cmap_output |= self.do_pack_output
+        self.mm.enforce_cmap_output |= self.do_pack_output
 
 
     # --------------------------------------------------------------------------
@@ -112,7 +112,7 @@ class AppSmiffer(vg.AppSubcommand):
             self.timer.end(text = fy.Color.green("volgrids"), minus = smf.APBS_ELAPSED_TIME)
             vg.Utils.delete_traj_locks(self.path_traj)
             if vg.TMP_APBS_CONTENT_PQR:
-                path_pqr = self.folder_out / f"{self.ms.molname}.pqr"
+                path_pqr = self.folder_out / f"{self.mm.molname}.pqr"
                 path_pqr.write_text(vg.TMP_APBS_CONTENT_PQR)
 
 
@@ -126,7 +126,7 @@ class AppSmiffer(vg.AppSubcommand):
         self.timer.start()
 
         ##### 0) SINGLE PDB MODE
-        if not self.ms.do_traj:
+        if not self.mm.do_traj:
             self._process_grids()
             return _end()
         #####
@@ -137,11 +137,11 @@ class AppSmiffer(vg.AppSubcommand):
 
         ### 1.a) TRAJECTORY MODE (multiprocessing)
         if self.nproc > 1:
-            smf.TrajMultiprocess(self).run(self.ms.nframes)
+            smf.TrajMultiprocess(self).run(self.mm.nframes)
             return _end()
 
         ### 1.b) TRAJECTORY MODE (single process)
-        for i in range(self.ms.nframes):
+        for i in range(self.mm.nframes):
             self.process_frame(i)
         return _end()
 
@@ -149,8 +149,8 @@ class AppSmiffer(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def process_frame(self, frame_idx: int) -> None:
         """Set per-frame state and run `_process_grids`."""
-        self.ms.switch_frame(frame_idx)
-        timer = vg.Timer(f"...>>> Frame {self.ms.frame}/{self.ms.nframes}")
+        self.mm.switch_frame(frame_idx)
+        timer = vg.Timer(f"...>>> Frame {self.mm.frame}/{self.mm.nframes}")
         timer.start()
         self._process_grids()
         timer.end()
@@ -161,36 +161,36 @@ class AppSmiffer(vg.AppSubcommand):
         def run_with_trim_large():
             """Note that APBS should always be the first SMIF executed (in case it needs to instantiate `self.grid_smif`'s internal array)"""
             if vg.CFG.smif_apbs:
-                smf.SmifAPBS(ms).populate_grid(self.grid_smif)
+                smf.SmifAPBS(mm).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "large")
                 path_out, key_out = self.paths_out["apbs"], self.keys_out["apbs"]
-                smf.Smif.save_data(self.grid_smif, ms, path_out, key_out)
+                smf.Smif.save_data(self.grid_smif, mm, path_out, key_out)
 
 
         def run_with_trim_mid():
             if vg.CFG.smif_hphob:
-                smf.SmifHydrophobic(ms).populate_grid(self.grid_smif)
+                smf.SmifHydrophobic(mm).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
                 path_out, key_out = self.paths_out["hphob"], self.keys_out["hphob"]
-                smf.Smif.save_data(self.grid_smif, ms, path_out, key_out)
+                smf.Smif.save_data(self.grid_smif, mm, path_out, key_out)
 
             if vg.CFG.smif_hba:
-                smf.SmifHBAccepts(ms).populate_grid(self.grid_smif)
+                smf.SmifHBAccepts(mm).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
                 path_out, key_out = self.paths_out["hba"], self.keys_out["hba"]
-                smf.Smif.save_data(self.grid_smif, ms, path_out, key_out)
+                smf.Smif.save_data(self.grid_smif, mm, path_out, key_out)
 
             if vg.CFG.smif_hbd:
-                smf.SmifHBDonors(ms).populate_grid(self.grid_smif)
+                smf.SmifHBDonors(mm).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
                 path_out, key_out = self.paths_out["hbd"], self.keys_out["hbd"]
-                smf.Smif.save_data(self.grid_smif, ms, path_out, key_out)
+                smf.Smif.save_data(self.grid_smif, mm, path_out, key_out)
 
             if vg.CFG.smif_stk:
-                smf.SmifStacking(ms).populate_grid(self.grid_smif)
+                smf.SmifStacking(mm).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "mid")
                 path_out, key_out = self.paths_out["stk"], self.keys_out["stk"]
-                smf.Smif.save_data(self.grid_smif, ms, path_out, key_out)
+                smf.Smif.save_data(self.grid_smif, mm, path_out, key_out)
 
             if vg.CFG.trim_save:
                 self.trimmer.run_for_saving("mid")
@@ -200,21 +200,21 @@ class AppSmiffer(vg.AppSubcommand):
                 else:
                     reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
                     path_out, key_out = self.paths_out["trim"], self.keys_out["trim"]
-                    smf.Smif.save_data(reverse, ms, path_out, key_out)
+                    smf.Smif.save_data(reverse, mm, path_out, key_out)
 
 
         def run_with_trim_small():
             if vg.CFG.smif_hphil:
-                smf.SmifHydrophilic(ms).populate_grid(self.grid_smif)
+                smf.SmifHydrophilic(mm).populate_grid(self.grid_smif)
                 self.trimmer.trim(self.grid_smif, "small")
                 path_out, key_out = self.paths_out["hphil"], self.keys_out["hphil"]
-                smf.Smif.save_data(self.grid_smif, ms, path_out, key_out)
+                smf.Smif.save_data(self.grid_smif, mm, path_out, key_out)
 
 
-        ms = self._current_mol_system()
-        self.trimmer = smf.Trimmer(ms)
+        mm = self._current_mol_system()
+        self.trimmer = smf.Trimmer(mm)
 
-        self.grid_smif = vg.Grid(ms.box, init_grid = not vg.CFG.smif_apbs)
+        self.grid_smif = vg.Grid(mm.box, init_grid = not vg.CFG.smif_apbs)
 
         if self.trimmer.should_do_trim_large(): run_with_trim_large()
         if self.trimmer.should_do_trim_mid()  : run_with_trim_mid()
@@ -223,7 +223,7 @@ class AppSmiffer(vg.AppSubcommand):
         if vg.CFG.cav_save and self.trimmer.should_do_cavities():
             self.trimmer.run_for_saving("mid")
             path_out, key_out = self.paths_out["cav"], self.keys_out["cav"]
-            smf.Smif.save_data(self.trimmer.cavfinder.grid, ms, path_out, key_out)
+            smf.Smif.save_data(self.trimmer.cavfinder.grid, mm, path_out, key_out)
 
         vg.TMP_APBS_CONTENT_PQR = "" # clear temporary PQR so that (optionally) subsequent frames recalculate it
 
@@ -235,18 +235,18 @@ class AppSmiffer(vg.AppSubcommand):
     def _get_paths_keys_out(self, folder_out: Path) -> tuple[dict[str, Path], dict[str, str]]:
         """Return two dictionaries: `{kind: path_out}`, `{kind: key_cmap}` for each SMIF kind that is enabled."""
         def _path_key_out(kind: str) -> tuple[Path, str]:
-            if self.ms.do_traj:
-                path_out = folder_out / f"{self.ms.molname}.{kind}{self.EXTENSION}.cmap"
-                key_cmap = self.ms.molname # frame number is to be appended in every iteration of the traj
+            if self.mm.do_traj:
+                path_out = folder_out / f"{self.mm.molname}.{kind}{self.EXTENSION}.cmap"
+                key_cmap = self.mm.molname # frame number is to be appended in every iteration of the traj
                 return path_out, key_cmap
 
             if self.do_pack_output: # --pack flag disregards OUT_FORMAT and uses CMAP
-                path_out = folder_out / f"{self.ms.molname}.all{self.EXTENSION}.cmap"
-                key_cmap = f"{self.ms.molname}.{kind}"
+                path_out = folder_out / f"{self.mm.molname}.all{self.EXTENSION}.cmap"
+                key_cmap = f"{self.mm.molname}.{kind}"
                 return path_out, key_cmap
 
             fmt = vg.GridFormat.from_str(vg.CFG.out_format)
-            path_out = folder_out / f"{self.ms.molname}.{kind}{self.EXTENSION}.{fmt.suffix()}"
+            path_out = folder_out / f"{self.mm.molname}.{kind}{self.EXTENSION}.{fmt.suffix()}"
             return path_out, kind
 
         paths = {}; keys = {}
@@ -262,18 +262,18 @@ class AppSmiffer(vg.AppSubcommand):
 
 
     # --------------------------------------------------------------------------
-    def _current_mol_system(self) -> "smf.MolSystem":
-        if not vg.CFG.smif_apbs: return self.ms
+    def _current_mol_system(self) -> "smf.MoleculeManager":
+        if not vg.CFG.smif_apbs: return self.mm
 
         ### When dealing with APBS, a first step of PQR generation should always be performed.
         ### PQR can add hydrogen atoms, which should be reflected in the occupancy trimming
         ### operation or be used by HBond SMIFs.
-        smf.SmifAPBS(self.ms).gen_pqr()
+        smf.SmifAPBS(self.mm).gen_pqr()
 
-        chains = self.ms.get_residue_chains() # size: (nresidues,)
-        obj = smf.MolSystem.from_pqr_data(vg.TMP_APBS_CONTENT_PQR, self.ms.box, chains)
+        chains = self.mm.get_residue_chains() # size: (nresidues,)
+        obj = smf.MoleculeManager.from_pqr_data(vg.TMP_APBS_CONTENT_PQR, self.mm.box, chains)
 
-        smf.MolSystem.copy_attrs_except_universe(src = self.ms, dst = obj)
+        smf.MoleculeManager.copy_attrs_except_universe(src = self.mm, dst = obj)
         return obj
 
 
@@ -357,7 +357,7 @@ class AppSmiffer(vg.AppSubcommand):
             "map series, instead it willl load all the grids at once. In the case of boxes of same size",
             "but different origins, the grids will be opened as a series but use the box of the first frame.",
         )
-        if not self.ms.do_traj: return
+        if not self.mm.do_traj: return
         if vg.CFG.box_tight_traj: return print_warning()
         if not smf.BOXES_ENFORCED: return
         if any(

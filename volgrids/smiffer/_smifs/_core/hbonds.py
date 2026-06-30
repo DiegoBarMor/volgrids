@@ -8,11 +8,11 @@ from .smif import Smif
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBonds(Smif, ABC):
-    def __init__(self, ms: "smf.MolSystem"):
-        super().__init__(ms)
+    def __init__(self, mm: "smf.MoleculeManager"):
+        super().__init__(mm)
         self.kernel: vg.KernelGaussianBivariateAngleDist = None
         self.hbond_getter: callable
-        self.all_atoms = self.ms.get_relevant_queried_atoms()
+        self.all_atoms = self.mm.get_relevant_queried_atoms()
         self.res_atoms = None
         self.processed_interactors = set()
 
@@ -52,7 +52,7 @@ class SmifHBonds(Smif, ABC):
     # --------------------------------------------------------------------------
     def _iter_triplets(self):
         for res in self.all_atoms.residues:
-            hbond_tuples = self.hbond_getter(self.ms.chemtable, res.resname)
+            hbond_tuples = self.hbond_getter(self.mm.chemtable, res.resname)
             if hbond_tuples is None: continue # skip weird residues
 
             self.processed_interactors.clear()

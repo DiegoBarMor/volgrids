@@ -10,7 +10,7 @@ class SmifStacking(smf.Smif):
         grid.reset()
         kernel = vg.KernelGaussianBivariateAngleDist(
             radius = vg.CFG.param_stk_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * smf.SIGMA_DIST_STACKING,
-            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_STACK
+            deltas = self.mm.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_STACK
         )
         for atoms_plane in self.iter_particles():
             cog, normal = self.get_cog_normal(atoms_plane)
@@ -23,7 +23,7 @@ class SmifStacking(smf.Smif):
         import MDAnalysis as mda
 
         resname_to_ids = defaultdict(set)
-        atoms = self.ms.get_relevant_queried_atoms()
+        atoms = self.mm.get_relevant_queried_atoms()
 
         if not len(atoms): return
         try:
@@ -38,7 +38,7 @@ class SmifStacking(smf.Smif):
             resname_to_ids[a.resname.upper()].add((a.resid, chain))
 
         for resname,res_infos in resname_to_ids.items():
-            lst_planes_atoms = self.ms.chemtable.get_names_stacking(resname)
+            lst_planes_atoms = self.mm.chemtable.get_names_stacking(resname)
             if lst_planes_atoms is None: continue
 
             for resid,chain in res_infos:

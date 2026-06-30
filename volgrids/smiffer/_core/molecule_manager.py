@@ -8,7 +8,10 @@ import volgrids.smiffer as smf
 from volgrids._vendors import freyacli as fy
 
 # //////////////////////////////////////////////////////////////////////////////
-class MolSystem:
+class MoleculeManager:
+    """Manages the molecular system, including the structure, (optional) trajectory, enclosing box, chemtable and selection queries."""
+
+    # --------------------------------------------------------------------------
     def __init__(self, path_struct: Path, path_traj: Path = None, box: vg.Box = None):
         import MDAnalysis as mda
 
@@ -55,7 +58,7 @@ class MolSystem:
     def from_pqr_data(cls, pqr_data: str, box: vg.Box = None, chains: list[str] = None):
         """Adds back the `chains` information that is empty in the PQR file. `chains` should be of size (nresidues,)."""
         if not pqr_data:
-            raise ValueError("Empty PQR content, aborting MolSystem instantiation.")
+            raise ValueError("Empty PQR content, aborting MoleculeManager instantiation.")
 
         with tempfile.NamedTemporaryFile(mode = "w+", suffix = ".pqr", delete = True) as tmp_pqr:
             tmp_pqr.write(pqr_data)
@@ -78,7 +81,7 @@ class MolSystem:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def copy_attrs_except_universe(src: "MolSystem", dst: "MolSystem"):
+    def copy_attrs_except_universe(src: "MoleculeManager", dst: "MoleculeManager"):
         ### [TODO]: rework this method? it's easy to forget to add new attributes here when adding them to the class
         dst.molname    = src.molname
         dst.do_traj    = src.do_traj

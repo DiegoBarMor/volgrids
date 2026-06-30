@@ -71,22 +71,22 @@ class AppSpheres(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     @staticmethod
     def grid(path_pdb: Path, path_traj: Path|None, folder_out: Path, spheres: list[vg.SphereInfo]) -> None:
-        ms = smf.MolSystem(path_pdb, path_traj)
+        mm = smf.MoleculeManager(path_pdb, path_traj)
 
-        vg.SphereInfo.assert_sphere_infos(spheres, ms.nframes)
+        vg.SphereInfo.assert_sphere_infos(spheres, mm.nframes)
 
-        grid = vg.Grid(ms.box, dtype = bool)
+        grid = vg.Grid(mm.box, dtype = bool)
         for i,sphere in enumerate(spheres):
-            ms.switch_frame(i)
-            timer = vg.Timer(f"...>>> Frame {ms.frame}/{ms.nframes}")
+            mm.switch_frame(i)
+            timer = vg.Timer(f"...>>> Frame {mm.frame}/{mm.nframes}")
             timer.start()
 
             grid.reset()
-            kernel = vg.KernelSphere(sphere.radius, ms.get_deltas(), bool)
+            kernel = vg.KernelSphere(sphere.radius, mm.get_deltas(), bool)
             kernel.stamp(grid, sphere.get_pos())
-            path_out = folder_out / f"{ms.molname}.sphere.cmap"
+            path_out = folder_out / f"{mm.molname}.sphere.cmap"
             key_out = f"sphere.{i:04}"
-            smf.Smif.save_data(grid, ms, path_out, key_out) # [WIP] check this
+            smf.Smif.save_data(grid, mm, path_out, key_out) # [WIP] check this
 
             timer.end()
 

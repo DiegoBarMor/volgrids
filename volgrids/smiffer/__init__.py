@@ -1,4 +1,4 @@
-from ._core.mol_system import MolSystem
+from ._core.molecule_manager import MoleculeManager
 from ._core.traj_multiprocess import TrajMultiprocess
 from ._core.cavity_finder import CavityFinder
 from ._core.trimmer import Trimmer

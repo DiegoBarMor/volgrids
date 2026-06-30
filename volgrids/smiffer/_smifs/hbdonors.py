@@ -8,16 +8,16 @@ from ._core.triplet import Triplet
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBDonors(SmifHBonds):
-    def __init__(self, ms: "smf.MolSystem"):
-        super().__init__(ms)
+    def __init__(self, mm: "smf.MoleculeManager"):
+        super().__init__(mm)
         self.hbond_getter = smf.ParserChemTable.get_names_hbd
         self._kernel_hbd_free = vg.KernelGaussianBivariateAngleDist(
             radius = vg.CFG.param_hbd_free_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * vg.CFG.param_hbd_free_dist_sigma,
-            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_HBD_FREE
+            deltas = self.mm.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_HBD_FREE
         )
         self._kernel_hbd_fixed = vg.KernelGaussianBivariateAngleDist(
             radius = vg.CFG.param_hbd_fixed_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * vg.CFG.param_hbd_fixed_dist_sigma,
-            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_HBD_FIXED
+            deltas = self.mm.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_HBD_FIXED
         )
 
 
@@ -98,7 +98,7 @@ class SmifHBDonors(SmifHBonds):
     def _attempt_to_guess_bonds(self):
         import MDAnalysis as mda
 
-        hydrogens = self.ms.get_hydrogens()
+        hydrogens = self.mm.get_hydrogens()
         if len(hydrogens) == 0:
             vg.CFG.smif_use_hydrogens = False
             return

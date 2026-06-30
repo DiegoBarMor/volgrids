@@ -10,8 +10,8 @@ class AppPwOverlap(vg.AppSubcommand):
     def __init__(self, app_main: "vg.AppMain"):
         super().__init__(app_main)
 
-        self.ms_src: smf.MolSystem
-        self.ms_dst: smf.MolSystem
+        self.mm_src: smf.MoleculeManager
+        self.mm_dst: smf.MoleculeManager
         self.path_out: Path
 
         path_src = self.main.get_arg_path("path_source", assertion = fy.PathAssertion.FILE_IN)
@@ -21,14 +21,14 @@ class AppPwOverlap(vg.AppSubcommand):
         app_main.load_configs()
         smf.AppSmiffer.init_params()
 
-        self.ms_src = smf.MolSystem(path_src)
-        self.ms_dst = smf.MolSystem(path_dst)
+        self.mm_src = smf.MoleculeManager(path_src)
+        self.mm_dst = smf.MoleculeManager(path_dst)
 
 
     # --------------------------------------------------------------------------
     def run(self):
-        smif_src = smf.SmifStacking(self.ms_src)
-        smif_dst = smf.SmifStacking(self.ms_dst)
+        smif_src = smf.SmifStacking(self.mm_src)
+        smif_dst = smf.SmifStacking(self.mm_dst)
 
         agroups_dst = list(smif_dst.iter_particles())
         cogs_dst, normals_dst = zip(*(

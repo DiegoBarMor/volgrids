@@ -7,7 +7,7 @@ class OgHBAccepts(smf._smifs_core.SmifHBonds):
         super().__init__(*args, **kwargs)
         self.kernel = vg.KernelSphere(
             radius = vg.CFG.og_hba_radius,
-            deltas = self.ms.get_deltas(),
+            deltas = self.mm.get_deltas(),
             dtype = vg.FLOAT_DTYPE
         )
         self.hbond_getter = smf.ParserChemTable.get_names_hba

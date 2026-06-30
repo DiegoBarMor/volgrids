@@ -93,7 +93,7 @@
     - This way, it has a similar usage as `smutils sphere grid` (where the spheres are simply the output from `smutils sphere find`).
 - Fixed bug where APBS in trajectories was always using the coordinates of the first frame.
 - Fixed trimming issue in smifer trajectory mode with pockets.
-- `ms.frame` is now 0-based (indexing).
+- `mm.frame` is now 0-based (indexing).
 
 
 ## [0.15.0] - 2026-06-11

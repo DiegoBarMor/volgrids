@@ -5,8 +5,8 @@ import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
 class Trimmer:
-    def __init__(self, ms: "smf.MolSystem"):
-        self.ms: "smf.MolSystem" = ms
+    def __init__(self, mm: "smf.MoleculeManager"):
+        self.mm: "smf.MoleculeManager" = mm
         self.cavfinder: smf.CavityFinder = smf.CavityFinder()
 
         self._mask_common: vg.Grid = None
@@ -87,7 +87,7 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     def _should_run_mask_common(self) -> bool:
-        return self.ms.do_use_sphere and self._mask_common is None
+        return self.mm.do_use_sphere and self._mask_common is None
 
 
     # --------------------------------------------------------------------------
@@ -114,7 +114,7 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     def _run_common(self):
-        self._mask_common = vg.Grid(self.ms.box, dtype = bool)
+        self._mask_common = vg.Grid(self.mm.box, dtype = bool)
         if vg.CFG.trim_faraway: self._trim_faraway()
         if vg.CFG.trim_sphere: self._trim_sphere()
         if vg.CFG.trim_rnds: self._trim_rnds()
@@ -123,7 +123,7 @@ class Trimmer:
     # --------------------------------------------------------------------------
     def _run_specific(self, dist: float):
         if self._mask_specific is None:
-            self._mask_specific = vg.Grid(self.ms.box, dtype = bool)
+            self._mask_specific = vg.Grid(self.mm.box, dtype = bool)
         else:
             self._mask_specific.reset()
 
@@ -139,24 +139,24 @@ class Trimmer:
         if not vg.CFG.trim_cavities: return
 
         if self._mask_common is None:
-            self._mask_common = vg.Grid(self.ms.box, dtype = bool)
+            self._mask_common = vg.Grid(self.mm.box, dtype = bool)
 
         self._mask_common.arr |= (self.cavfinder.grid.arr < vg.CFG.cav_threshold)
 
 
     # --------------------------------------------------------------------------
     def _trim_occupancies(self, radius: float):
-        kernel = vg.KernelSphere(radius, self.ms.get_deltas(), bool)
-        for a in self.ms.get_all_queried_atoms(use_custom = False):
+        kernel = vg.KernelSphere(radius, self.mm.get_deltas(), bool)
+        for a in self.mm.get_all_queried_atoms(use_custom = False):
             kernel.stamp(self._mask_specific, a.position)
 
 
     # --------------------------------------------------------------------------
     def _trim_sphere(self):
-        coords = vg.Math.get_coords_array(self.ms.get_resolution(), self.ms.get_deltas(), self.ms.get_min_coords())
-        shifted_coords = coords - self.ms.get_cog()
+        coords = vg.Math.get_coords_array(self.mm.get_resolution(), self.mm.get_deltas(), self.mm.get_min_coords())
+        shifted_coords = coords - self.mm.get_cog()
         dist_from_cog = vg.Math.get_norm(shifted_coords)
-        self._mask_common.arr[dist_from_cog > self.ms.get_radius()] = True
+        self._mask_common.arr[dist_from_cog > self.mm.get_radius()] = True
 
 
     # --------------------------------------------------------------------------
@@ -165,12 +165,12 @@ class Trimmer:
         Perform a random search to remove isolated regions.
         Can be problematic (e.g. slow, aggressive trimming); use with caution.
         """
-        visited = np.zeros(self.ms.get_resolution(), dtype = bool)
+        visited = np.zeros(self.mm.get_resolution(), dtype = bool)
 
         directions = np.array([[i,j,k] for i in range(-1,2) for j in range(-1,2) for k in range(-1,2) if i&j&k])
 
-        xres, yres, zres = self.ms.get_resolution()
-        xcog, ycog, zcog = np.floor(self.ms.get_resolution() / 2).astype(int)
+        xres, yres, zres = self.mm.get_resolution()
+        xcog, ycog, zcog = np.floor(self.mm.get_resolution() / 2).astype(int)
         cog_cube = set((x,y,z)
             for x in range(xcog - vg.CFG.trim_rnds_cube_radius, xcog + vg.CFG.trim_rnds_cube_radius + 1)
             for y in range(ycog - vg.CFG.trim_rnds_cube_radius, ycog + vg.CFG.trim_rnds_cube_radius + 1)
@@ -178,7 +178,7 @@ class Trimmer:
         )
         queue = cog_cube.copy()
 
-        search_dist = np.full(self.ms.get_resolution(), np.inf)
+        search_dist = np.full(self.mm.get_resolution(), np.inf)
         for point in cog_cube: search_dist[point] = 0
 
         while queue:
@@ -210,8 +210,8 @@ class Trimmer:
     # --------------------------------------------------------------------------
     def _trim_faraway(self):
         grid = self._mask_common.copy()
-        kernel = vg.KernelSphere(vg.CFG.trim_faraway_dist, self.ms.get_deltas(), bool)
-        for a in self.ms.get_all_queried_atoms(use_custom = False):
+        kernel = vg.KernelSphere(vg.CFG.trim_faraway_dist, self.mm.get_deltas(), bool)
+        for a in self.mm.get_all_queried_atoms(use_custom = False):
             kernel.stamp(grid, a.position)
         self._mask_common.arr[~grid.arr] = True
 

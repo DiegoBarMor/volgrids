@@ -6,11 +6,11 @@ from ._core.triplet import Triplet
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHBAccepts(SmifHBonds):
-    def __init__(self, ms: "smf.MolSystem"):
-        super().__init__(ms)
+    def __init__(self, mm: "smf.MoleculeManager"):
+        super().__init__(mm)
         self.kernel = vg.KernelGaussianBivariateAngleDist(
             radius = vg.CFG.param_hba_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * vg.CFG.param_hba_dist_sigma,
-            deltas = self.ms.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_HBA
+            deltas = self.mm.get_deltas(), dtype = vg.FLOAT_DTYPE, params = smf.PARAMS_HBA
         )
         self.hbond_getter = smf.ParserChemTable.get_names_hba
 

@@ -6,8 +6,8 @@ import volgrids.smiffer as smf
 
 # //////////////////////////////////////////////////////////////////////////////
 class Smif:
-    def __init__(self, ms: "smf.MolSystem"):
-        self.ms: "smf.MolSystem" = ms
+    def __init__(self, mm: "smf.MoleculeManager"):
+        self.mm: "smf.MoleculeManager" = mm
 
 
     # --------------------------------------------------------------------------
@@ -23,11 +23,11 @@ class Smif:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def save_data(grid: vg.Grid, ms: smf.MolSystem, path_out: Path, key_out: str) -> None:
+    def save_data(grid: vg.Grid, mm: smf.MoleculeManager, path_out: Path, key_out: str) -> None:
         # trajectory ignores the OUT_FORMAT config -> CMAP is the only format that supports multiple frames
-        fmt = vg.GridFormat.CMAP if ms.enforce_cmap_output \
+        fmt = vg.GridFormat.CMAP if mm.enforce_cmap_output \
             else vg.GridFormat.from_str(vg.CFG.out_format)
-        if ms.do_traj: key_out += f".{ms.frame:04}"
+        if mm.do_traj: key_out += f".{mm.frame:04}"
         grid.save(path_out, fmt, key_out)
 
 

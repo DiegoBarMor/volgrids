@@ -27,8 +27,8 @@ class TrajMultiprocess:
 
     # ------------------------------------------------------------------------------
     def _worker_init(self):
-        """Re-create the MolSystem in each worker so file handles aren't shared across forks."""
-        self._worker_app.ms = smf.MolSystem(smf.PATH_STRUCT, self._worker_app.path_traj)
+        """Re-create the MoleculeManager in each worker so file handles aren't shared across forks."""
+        self._worker_app.mm = smf.MoleculeManager(smf.PATH_STRUCT, self._worker_app.path_traj)
 
 
     # ------------------------------------------------------------------------------

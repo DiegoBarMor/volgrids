@@ -9,7 +9,7 @@ class SmifHydrophilic(SmifHydro):
         grid.reset()
         radius = vg.CFG.param_hphil_dist_mu + vg.CFG.misc_kernel_gaussian_sigmas * vg.CFG.param_hphil_dist_sigma
         kernel = vg.KernelGaussianUnivariateDist(
-            radius, self.ms.get_deltas(), vg.FLOAT_DTYPE, smf.PARAMS_HPHIL
+            radius, self.mm.get_deltas(), vg.FLOAT_DTYPE, smf.PARAMS_HPHIL
         )
         for particle, mul_factor in self.iter_particles():
             if mul_factor > 0: continue
