@@ -1,3 +1,4 @@
+import tempfile
 import numpy as np
 from pathlib import Path
 
@@ -271,10 +272,12 @@ class AppSmiffer(vg.AppSubcommand):
         smf.SmifAPBS(self.mm).gen_pqr()
 
         chains = self.mm.get_residue_chains() # size: (nresidues,)
-        obj = smf.MoleculeManager.from_pqr_data(vg.TMP_APBS_CONTENT_PQR, self.mm.box, chains)
+        with tempfile.NamedTemporaryFile(mode = "w+", suffix = ".pqr", delete = True) as tmp_pqr:
+            tmp_pqr.write(vg.TMP_APBS_CONTENT_PQR)
+            tmp_pqr.flush()
+            self.mm.init_atoms(tmp_pqr.name, chains = chains) # re-initialize the atoms with the PQR content (which may have added hydrogens)
 
-        smf.MoleculeManager.copy_attrs_except_universe(src = self.mm, dst = obj)
-        return obj
+        return self.mm
 
 
     # --------------------------------------------------------------------------

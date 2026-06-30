@@ -1,3 +1,5 @@
+from volgrids._vendors import molsimple as ms
+
 # //////////////////////////////////////////////////////////////////////////////
 class ResnameStandard:
     ### [WIP] add a more comprehensive mapping of aliases
@@ -18,12 +20,10 @@ class ResnameStandard:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def standardize_mda_universe(cls, universe):
-        universe.add_TopologyAttr(
-            "resname", [
-                cls.standardize_resname(resname) for resname in universe.residues.resnames
-            ]
-        )
+    def standardize_particle_group(cls, atoms: ms.ParticleGroup) -> None:
+        atoms.set_resnames([
+            cls.standardize_resname(resname) for resname in atoms.get_resnames()
+        ])
 
     # --------------------------------------------------------------------------
     @classmethod

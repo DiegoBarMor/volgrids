@@ -48,11 +48,7 @@ class MoleculeManager:
         self.chemtable = self._init_chemtable()
 
         self._mda_universe = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
-        smf.ResnameStandard.standardize_mda_universe(self._mda_universe)
-
-        self.atoms_all = ms.System.read_pdb(path_struct).particles # in the case of multiple models: `System.atoms_all` is the first model
-        self.atoms_filter_trim = self._init_filter_trim()
-        self.atoms_filter_smif = self._init_filter_smif()
+        self.init_atoms(path_struct)
 
         self.frame = 0 if self.do_traj else None
         self.nframes = self._mda_universe.trajectory.n_frames if self.do_traj else 1
@@ -68,45 +64,20 @@ class MoleculeManager:
 
 
     # --------------------------------------------------------------------------
-    @classmethod
-    def from_pqr_data(cls, pqr_data: str, box: vg.Box = None, chains: list[str] = None):
-        """Adds back the `chains` information that is empty in the PQR file. `chains` should be of size (nresidues,)."""
-        if not pqr_data:
-            raise ValueError("Empty PQR content, aborting MoleculeManager instantiation.")
+    def init_atoms(self, path_struct: Path, chains: list[str] = None):
+        """Can add back the `chains` information that is empty in PQR files. `chains` should be of size (nresidues,)."""
+        self.atoms_all = ms.System.read_pdb(path_struct).particles # in the case of multiple models: `System.atoms_all` is the first model
+        smf.ResnameStandard.standardize_particle_group(self.atoms_all)
+        self.atoms_filter_trim = self._init_filter_trim()
 
-        with tempfile.NamedTemporaryFile(mode = "w+", suffix = ".pqr", delete = True) as tmp_pqr:
-            tmp_pqr.write(pqr_data)
-            tmp_pqr.flush()
-            obj = cls(Path(tmp_pqr.name), path_traj = None, box = box)
+        if chains is not None:
+            residues = self.atoms_all.split_residues()
+            chains_per_atom = [
+                chains[i] for i,residue in enumerate(residues) for _ in residue
+            ]
+            self.atoms_all.set_chainids(chains_per_atom)
 
-        ### add back the chain information
-        if chains is None:
-            chains = ['A'] * len(obj._mda_universe.residues) # [TODO] remove MDA
-
-        chains_per_atom = [
-            chains[i]
-            for i,residue in enumerate(obj._mda_universe.residues) # [TODO] remove MDA
-            for _ in residue.atoms
-        ]
-
-        obj._mda_universe.add_TopologyAttr("chainIDs", chains_per_atom) # [TODO] remove MDA
-        return obj
-
-
-    # --------------------------------------------------------------------------
-    @staticmethod
-    def copy_attrs_except_universe(src: "MoleculeManager", dst: "MoleculeManager"):
-        ### [TODO]: rework this method? it's easy to forget to add new attributes here when adding them to the class
-        dst.molname    = src.molname
-        dst.do_traj    = src.do_traj
-        dst.frame      = src.frame
-        dst.box        = src.box
-        dst.box_common = src.box_common
-        dst.chemtable  = src.chemtable
-        dst.do_use_sphere       = src.do_use_sphere
-        dst.do_enforce_boxes    = src.do_enforce_boxes
-        dst.do_use_common_box   = src.do_use_common_box
-        dst.enforce_cmap_output = src.enforce_cmap_output
+        self.atoms_filter_smif = self._init_filter_smif()
 
 
     # --------------------------------------------------------------------------
@@ -145,10 +116,8 @@ class MoleculeManager:
 
     # --------------------------------------------------------------------------
     def get_residue_chains(self) -> list[str]:
-        """Returns a list of chain IDs for each residue in the molecular system."""
-        return [
-            arr[0] for arr in self._mda_universe.residues.chainIDs # [TODO] remove MDA
-        ] # size: (nresidues,)
+        """Returns a list of chain IDs for each residue in the molecular system, size: (nresidues,)"""
+        return [residue[0].chainid for residue in self.atoms_all.split_residues()]
 
 
     # --------------------------------------------------------------------------
