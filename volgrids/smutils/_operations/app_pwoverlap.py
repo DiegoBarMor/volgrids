@@ -30,16 +30,16 @@ class AppPwOverlap(vg.AppSubcommand):
         smif_src = smf.SmifStacking(self.mm_src)
         smif_dst = smf.SmifStacking(self.mm_dst)
 
-        agroups_dst = list(smif_dst.iter_particles())
+        lst_particles_dst = list(smif_dst.iter_particles())
         cogs_dst, normals_dst = zip(*(
-            smf.SmifStacking.get_cog_normal(ag) for ag in agroups_dst
+            smf.SmifStacking.get_cog_normal(particles) for particles in lst_particles_dst
         ))
         cogs_dst = np.array(cogs_dst).reshape(1, 1, -1, 3)
         normals_dst = np.array(normals_dst).reshape(1, 1, -1, 3)
         arr_dst = np.zeros(cogs_dst.shape[:-1], dtype = vg.FLOAT_DTYPE)
 
-        for agroups_src in smif_src.iter_particles():
-            cog_src, normal_src = smf.SmifStacking.get_cog_normal(agroups_src)
+        for particles_src in smif_src.iter_particles():
+            cog_src, normal_src = smf.SmifStacking.get_cog_normal(particles_src)
             centered_cogs_dst = cogs_dst - cog_src
             dists = vg.Math.get_norm(centered_cogs_dst)
 
@@ -52,14 +52,12 @@ class AppPwOverlap(vg.AppSubcommand):
 
 
         normals_dst += cogs_dst
-        chain_ids = (ag[0].chainID for ag in agroups_dst)
-        resids    = (ag[0].resid for ag in agroups_dst)
-        residues  = [f"{chain_id}.{resid}" for chain_id, resid in zip(chain_ids, resids)]
+        chresids = [particles[0].get_chain_resid() for particles in lst_particles_dst]
 
         self.path_out.write_text(
             "residue,pwoverlap_stk\n"+
             '\n'.join(
-                f"{res},{val:.6f}" for res, val in zip(residues, arr_dst[0][0])
+                f"{res},{val:.6f}" for res, val in zip(chresids, arr_dst[0][0])
             )
         )
 

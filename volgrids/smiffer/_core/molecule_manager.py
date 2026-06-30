@@ -129,13 +129,13 @@ class MoleculeManager:
     def get_all_queried_atoms(self, use_custom = True) -> "ms.ParticleGroup":
         """Returns all atoms that match the selection query, without any additional filtering (e.g. sphere)."""
 
-        atoms = self._particles_all.select_resname(*self.chemtable.resnames)
+        atoms = self._particles_all\
+            .select_resname(*self.chemtable.resnames)\
+            .select_non_hydrogens()
 
         if use_custom:
             chainresids = (ms.ChainResid.from_dotstr(s) for s in smf.CUSTOM_RESIDUES.split())
             atoms = atoms.select_chain_resid(*chainresids)
-
-        atoms = atoms.select_non_hydrogens()
 
         if len(atoms) == 0: warnings.warn(
             f"\n\n... {fy.Color.red('No atoms were selected')}."
@@ -151,12 +151,9 @@ class MoleculeManager:
         if self.do_use_sphere:
             sphere = smf.SPHERES[self.frame or 0]
             atoms = sphere.filter_particles(atoms, extra_dist)
-
             if len(atoms) == 0: warnings.warn(
                 f"\n\n... {fy.Color.red('No atoms were selected inside the sphere')}."
             )
-
-        print(f"{len(atoms)} atoms"); exit(1) # [WIP]
 
         return atoms
 

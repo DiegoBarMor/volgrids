@@ -1,8 +1,8 @@
 import numpy as np
-from collections import defaultdict
 
 import volgrids as vg
 import volgrids.smiffer as smf
+from volgrids._vendors import molsimple as ms
 
 # //////////////////////////////////////////////////////////////////////////////
 class SmifStacking(smf.Smif):
@@ -20,45 +20,29 @@ class SmifStacking(smf.Smif):
 
     # --------------------------------------------------------------------------
     def iter_particles(self):
-        import MDAnalysis as mda
-
-        resname_to_ids = defaultdict(set)
         atoms = self.mm.get_relevant_queried_atoms()
-
         if not len(atoms): return
-        try:
-            _ = atoms[0].chainID # [TODO] remove MDA
-            skip_chainID = False
-        except mda.exceptions.NoDataError:
-            skip_chainID = True
 
+        residues = atoms.split_residues()
 
-        for a in atoms:
-            chain = None if skip_chainID else a.chainID # [TODO] remove MDA
-            resname_to_ids[a.resname.upper()].add((a.resid, chain))
+        for residue in residues:
+            resname = residue[0].resname.upper()
+            lst_names_planes = self.mm.chemtable.get_names_stacking(resname)
 
-        for resname,res_infos in resname_to_ids.items():
-            lst_planes_atoms = self.mm.chemtable.get_names_stacking(resname)
-            if lst_planes_atoms is None: continue
+            if lst_names_planes is None: continue
+            for names_plane in lst_names_planes:
+                atoms_plane = residue.select_name(*names_plane.split())
+                if len(atoms_plane) < 3: continue # include rings even if they're not completely inside the grid's boundaries
 
-            for resid,chain in res_infos:
-                for plane_atoms in lst_planes_atoms:
-
-                    #### [WIP] 04) atom names...
-                    query = f"resid {resid} and name {plane_atoms}"
-                    if chain: query += f" and chainID {chain}"
-                    atoms_plane = atoms.select_atoms(query) # [TODO] remove MDA
-
-                    if len(atoms_plane) < 3: continue # include rings even if they're not completely inside the grid's boundaries
-
-                    yield atoms_plane
+                yield atoms_plane
 
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_cog_normal(atoms_plane) -> tuple[np.ndarray, np.ndarray]:
-        cog = atoms_plane.center_of_geometry()
-        a,b,c = atoms_plane.positions[:3]
+    def get_cog_normal(atoms_plane: ms.ParticleGroup) -> tuple[np.ndarray, np.ndarray]:
+        coords = atoms_plane.get_positions_numpy()
+        cog = np.mean(coords, axis = 0)
+        a,b,c = coords[:3]
         u = vg.Math.normalize(b - a)
         v = vg.Math.normalize(c - a)
         normal = vg.Math.normalize(np.cross(u, v))
