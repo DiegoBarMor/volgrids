@@ -5,7 +5,7 @@ from .smif import Smif
 # //////////////////////////////////////////////////////////////////////////////
 class SmifHydro(Smif, ABC):
     def iter_particles(self):
-        for atom in self.mm.get_relevant_queried_atoms():
+        for atom in self.mm.get_atoms_insphere():
             exit(42) # [WIP]
 
             factor_atom = self.mm.chemtable.get_atom_hphob(atom)

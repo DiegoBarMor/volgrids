@@ -20,7 +20,7 @@ class SmifStacking(smf.Smif):
 
     # --------------------------------------------------------------------------
     def iter_particles(self):
-        atoms = self.mm.get_relevant_queried_atoms()
+        atoms = self.mm.get_atoms_insphere()
         if not len(atoms): return
 
         residues = atoms.split_residues()

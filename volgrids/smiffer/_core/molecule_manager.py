@@ -18,7 +18,10 @@ class MoleculeManager:
 
         self.molname  : str                # name of the molecule
         self.chemtable: smf.ParserChemTable
-        self._particles_all: ms.ParticleGroup
+
+        self.atoms_all: ms.ParticleGroup # all atoms in the molecular system, without any filtering (e.g. selection query, sphere, etc.)
+        self.atoms_filter_trim: ms.ParticleGroup # atoms from the requested resname (from the chemtable) and with no hydrogens, to be used by Trimmer
+        self.atoms_filter_smif: ms.ParticleGroup # same as `atoms_filter_trim` but further filtered to only include atoms part of the optional explicit filtering of custom residues (from the CLI)
 
         self.frame     : int|None           # current frame number (if trajectory is used)
         self.nframes   : int                # total number of frames in the trajectory (1 if no trajectory is used)
@@ -46,7 +49,10 @@ class MoleculeManager:
 
         self._mda_universe = vg.Utils.create_mda_universe_quiet(path_struct, path_traj)
         smf.ResnameStandard.standardize_mda_universe(self._mda_universe)
-        self._particles_all = ms.System.read_pdb(path_struct).particles # in the case of multiple models: `System._particles_all` is the first model
+
+        self.atoms_all = ms.System.read_pdb(path_struct).particles # in the case of multiple models: `System.atoms_all` is the first model
+        self.atoms_filter_trim = self._init_filter_trim()
+        self.atoms_filter_smif = self._init_filter_smif()
 
         self.frame = 0 if self.do_traj else None
         self.nframes = self._mda_universe.trajectory.n_frames if self.do_traj else 1
@@ -120,41 +126,15 @@ class MoleculeManager:
 
 
     # --------------------------------------------------------------------------
-    def get_all_atoms(self) -> "ms.ParticleGroup":
-        """Returns all atoms in the molecular system, without any filtering (e.g. selection query, sphere, etc.)."""
-        return self._particles_all
-
-
-    # --------------------------------------------------------------------------
-    def get_all_queried_atoms(self, use_custom = True) -> "ms.ParticleGroup":
-        """Returns all atoms that match the selection query, without any additional filtering (e.g. sphere)."""
-
-        atoms = self._particles_all\
-            .select_resname(*self.chemtable.resnames)\
-            .select_non_hydrogens()
-
-        if use_custom:
-            chainresids = (ms.ChainResid.from_dotstr(s) for s in smf.CUSTOM_RESIDUES.split())
-            atoms = atoms.select_chain_resid(*chainresids)
-
-        if len(atoms) == 0: warnings.warn(
-            f"\n\n... {fy.Color.red('No atoms were selected')}."
-        )
-        return atoms
-
-
-    # --------------------------------------------------------------------------
-    def get_relevant_queried_atoms(self, use_custom = True, extra_dist: float = 0.0):
-        """Returns all atoms that match the selection query, with additional filtering (e.g. sphere)."""
-        atoms = self.get_all_queried_atoms(use_custom)
-
+    def get_atoms_insphere(self, extra_dist: float = 0.0) -> "ms.ParticleGroup":
+        """
+        Same as `atoms_filter_smif` but further filtered to only include atoms inside an (optional) sphere.
+        It must be calculated at every frame if the sphere is moving (e.g. when using a trajectory).
+        """
+        atoms = self.atoms_filter_smif
         if self.do_use_sphere:
             sphere = smf.SPHERES[self.frame or 0]
             atoms = sphere.filter_particles(atoms, extra_dist)
-            if len(atoms) == 0: warnings.warn(
-                f"\n\n... {fy.Color.red('No atoms were selected inside the sphere')}."
-            )
-
         return atoms
 
 
@@ -192,7 +172,7 @@ class MoleculeManager:
         ### Priority 3: dealing with a trajectory and the user requested the box
         ### to be inferred from the structure at every frame (via config `BOX_TIGHT_TRAJ=True`)
         if not self.do_use_common_box:
-            ### [TODO] MDA has to be kept here for dealing with traj --> update coords of self._particles_all with the current frame's coordinates
+            ### [TODO] MDA has to be kept here for dealing with traj --> update coords of self.atoms_all with the current frame's coordinates
             min_coords = self._mda_universe.coord.positions.min(axis = 0)
             max_coords = self._mda_universe.coord.positions.max(axis = 0)
             return self._padded_box(min_coords, max_coords)
@@ -242,6 +222,32 @@ class MoleculeManager:
             chem.parse_names_hbdonors(ini)
 
         return chem
+
+
+    # --------------------------------------------------------------------------
+    def _init_filter_trim(self) -> "ms.ParticleGroup":
+        atoms = self.atoms_all\
+            .select_resname(*self.chemtable.resnames)\
+            .select_non_hydrogens()
+
+        if len(atoms) == 0: warnings.warn(
+            f"\n\n... {fy.Color.red('Empty atom selection')}."
+        )
+        return atoms
+
+
+    # --------------------------------------------------------------------------
+    def _init_filter_smif(self):
+        atoms = self.atoms_filter_trim
+
+        if smf.CUSTOM_RESIDUES:
+            chainresids = (ms.ChainResid.from_dotstr(s) for s in smf.CUSTOM_RESIDUES.split())
+            atoms = atoms.select_chain_resid(*chainresids)
+
+        if len(atoms) == 0: warnings.warn(
+            f"\n\n... {fy.Color.red('Empty atom selection')}."
+        )
+        return atoms
 
 
 # //////////////////////////////////////////////////////////////////////////////
