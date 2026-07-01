@@ -99,7 +99,8 @@ class SmifHBDonors(SmifHBonds):
         import MDAnalysis as mda
 
         ### [TODO] remove MDA dependency (it should make this method simpler too)
-        hydrogens = self.mm.get_hydrogens()
+        # hydrogens = self.mm.get_hydrogens()
+        hydrogens = self.mm.atoms_all.select_hydrogens()
         if len(hydrogens) == 0:
             vg.CFG.smif_use_hydrogens = False
             return

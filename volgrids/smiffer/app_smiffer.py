@@ -277,6 +277,8 @@ class AppSmiffer(vg.AppSubcommand):
             tmp_pqr.flush()
             self.mm.init_atoms(tmp_pqr.name, chains = chains) # re-initialize the atoms with the PQR content (which may have added hydrogens)
 
+        ### [NOTE] consider that adding extra atoms could mean that the boxes might need to be recalculated
+
         return self.mm
 
 
