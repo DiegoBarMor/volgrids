@@ -22,9 +22,15 @@ cp $f_interface/* $fop/
 python3 volgrids smiffer $fop/prot.pdb --config "$conf_just_stacking"
 python3 volgrids smiffer $fop/rna.pdb  --config "$conf_just_stacking"
 
+python3 volgrids vgtools op neg $fop/prot.stk.mrc $fop/prot.neg.cmap
 python3 volgrids vgtools op abs $fop/prot.stk.mrc $fop/prot.abs.cmap
 python3 volgrids vgtools op abs $fop/rna.stk.mrc  $fop/rna.abs.cmap
 python3 volgrids vgtools op add $fop/prot.stk.mrc $fop/rna.stk.mrc  $fop/prot_plus_rna.cmap
 python3 volgrids vgtools op sub $fop/prot.stk.mrc $fop/rna.stk.mrc  $fop/prot_minus_rna.cmap
 python3 volgrids vgtools op mul $fop/prot.stk.mrc $fop/rna.stk.mrc  $fop/prot_mul_rna.cmap
 python3 volgrids vgtools op div $fop/prot.stk.mrc $fop/rna.stk.mrc  $fop/prot_div_rna.cmap
+
+python3 volgrids vgtools op not $fop/prot.stk.mrc $fop/prot.neg.cmap
+python3 volgrids vgtools op and $fop/prot.stk.mrc $fop/rna.stk.mrc  $fop/prot_and_rna.cmap
+python3 volgrids vgtools op or  $fop/prot.stk.mrc $fop/rna.stk.mrc  $fop/prot_or_rna.cmap
+python3 volgrids vgtools op xor $fop/prot.stk.mrc $fop/rna.stk.mrc  $fop/prot_xor_rna.cmap

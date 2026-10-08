@@ -161,7 +161,7 @@ class AppVGTools(vg.AppSubcommand):
     def _run_op(self):
         command = self.main.subcommands.pop(0)
 
-        if command == "abs": # abs is the only unary operation for now
+        if command in ("neg", "abs", "not"):
             self._run_op_unary(command)
             return
 
@@ -178,6 +178,7 @@ class AppVGTools(vg.AppSubcommand):
             "div": vg.Grid.__truediv__,
             "and": vg.Grid.__and__,
             "or" : vg.Grid.__or__,
+            "xor" : vg.Grid.__xor__,
         }[command]
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} with {fy.Color.blue(path_in_1)}")
@@ -190,7 +191,9 @@ class AppVGTools(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _run_op_unary(self, command: str):
         operation: callable = {
+            "neg": vg.Grid.__neg__,
             "abs": vg.Grid.__abs__,
+            "not": vg.Grid.__invert__,
         }[command]
 
         path_in  = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)

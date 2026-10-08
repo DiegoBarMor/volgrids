@@ -215,6 +215,11 @@
             Perform numeric operations between two grids.
             These are simple element-wise arithmethics (addition, substraction, multiplication, division), as well as absolute value for a single grid.
             They rely on numpy, so grids with mismatched shapes will be interpolated if needed (the second grid passed gets interpolated).
+        @neg
+            !fyh:_ Element-wise negation of the grid's points.
+            !fyh:path_in Path to a grid file.
+            !fyh:path_out Path where to store the resulting grid.
+        !@
         @abs
             !fyh:_ Element-wise absolute value of the grid's points.
             !fyh:path_in Path to a grid file.
@@ -239,11 +244,20 @@
                 Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
             !use:_io_2_inputs
         !@
+        @not
+            !fyh:_ Element-wise NOT of the boolean grid's points.
+            !fyh:path_in Path to a grid file.
+            !fyh:path_out Path where to store the resulting grid.
+        !@
         @and
             !fyh:_ Element-wise AND of the boolean grids' points.
             !use:_io_2_inputs
         !@
         @or
+            !fyh:_ Element-wise OR of the boolean grids' points.
+            !use:_io_2_inputs
+        !@
+        @xor
             !fyh:_ Element-wise OR of the boolean grids' points.
             !use:_io_2_inputs
         !@
