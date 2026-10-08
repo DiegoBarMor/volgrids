@@ -101,6 +101,8 @@
         !use:_io_1_input
         ~isovalue[i,isovalue]1.FLOAT=0.1
         ~volume_thr[v,volume-threshold]1.INT=200
+        ~path_cog[,cog]1.PATH
+        ~path_com[,com]1.PATH
     !@
 
     #### Operations for combining multiple grids

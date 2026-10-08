@@ -112,6 +112,61 @@ class VGOperations:
 
 
     # --------------------------------------------------------------------------
+    @classmethod
+    def segmented_cogs(cls, path_blobs: Path) -> dict[int, list[int, int, int]]:
+        def _calc_cog(mask_blob: np.ndarray) -> list:
+            coords_blob = coords.arr[mask_blob]
+            cog: np.ndarray = np.mean(coords_blob, axis = 0)
+            return cog.tolist()
+
+        box = vg.Grid.load(path_blobs).box # [TODO] can be improved by loading the box directly
+        coords = vg.Grid.init_coords_grid(box)
+        return {
+            label : _calc_cog(mask_blob)
+            for label, mask_blob in cls._iter_segmented_blob_masks(path_blobs)
+        }
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def segmented_coms(cls, path_blobs: Path, path_vals: Path) -> dict[int, list[int, int, int]]:
+        def _calc_com(mask_blob: np.ndarray) -> list:
+            coords_blob = coords.arr[mask_blob]
+            vals_blob = vals.arr[mask_blob]
+            mass_total = np.sum(vals_blob) # \sum_i{m_i}
+            weighted_coords = vals_blob[:,None] * coords_blob # m_i r_i
+            com: np.ndarray = np.sum(weighted_coords, axis = 0) / mass_total # \frac{\sum_i{m_i r_i}}{\sum_i{m_i}}
+            return com.tolist()
+
+        box = vg.Grid.load(path_blobs).box # [TODO] can be improved by loading the box directly
+        coords = vg.Grid.init_coords_grid(box)
+
+        vals = vg.Grid.load(path_vals)
+        if (box.resolution != vals.box.resolution).any():
+            print(
+                f">>> {fy.Color.red('Warning')}: BLOB grid box resolution ({box.resolution}) doesn't match that of values " +\
+                f"grid {vals.box.resolution}. COMs won't be computed."
+            )
+            return {}
+
+        return {
+            label : _calc_com(mask_blob)
+            for label, mask_blob in cls._iter_segmented_blob_masks(path_blobs)
+        }
+
+
+    # --------------------------------------------------------------------------
+    @staticmethod
+    def _iter_segmented_blob_masks(path_blobs: Path):
+        blobs = vg.Grid.load(path_blobs)
+        max_blob = np.max(blobs.arr) # assume input is a proper blobs grid, composed only of integer blob labels
+        if max_blob <= 0: return
+
+        for label in range(1, int(max_blob) + 1):
+            yield label, blobs.arr == label
+
+
+    # --------------------------------------------------------------------------
     @staticmethod
     def std_dev(path_in: Path) -> "vg.Grid":
         keys = vg.GridIO.get_cmap_keys(path_in)

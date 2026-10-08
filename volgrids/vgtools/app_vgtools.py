@@ -109,6 +109,8 @@ class AppVGTools(vg.AppSubcommand):
     def _run_segment(self):
         path_in    = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
         path_out   = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
+        path_cog   = self.main.get_arg_path("path_cog", assertion = fy.PathAssertion.FILE_OUT, allow_none = True)
+        path_com   = self.main.get_arg_path("path_com", assertion = fy.PathAssertion.FILE_OUT, allow_none = True)
         isovalue   = self.main.get_arg_float("isovalue")
         volume_thr = self.main.get_arg_int("volume_thr")
 
@@ -137,6 +139,19 @@ class AppVGTools(vg.AppSubcommand):
             err_msg = "Grid segmentation failed"
         )
         print(stdout)
+
+        if (path_cog is None) and (path_com is None): return
+        import json
+
+        if path_cog is not None:
+            path_cog.write_text(json.dumps(
+                vgt.VGOperations.segmented_cogs(path_blobs = path_out)
+            ))
+
+        if path_com is not None:
+            path_com.write_text(json.dumps(
+                vgt.VGOperations.segmented_coms(path_blobs = path_out, path_vals = path_in)
+            ))
 
 
     # --------------------------------------------------------------------------

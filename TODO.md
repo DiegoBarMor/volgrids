@@ -12,6 +12,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## VOLGRIDS
+* add possibility to just load a box from a grid file (instead of loading the whole grid just to access the box).
 * replace `OUT_WARNING_NPOINTS` with a better alternative.
 * generalize the usage of the `-c` flag (for customizing configurations) in all modes.
 * implement: raise an error if a format file is opened with the wrong function
@@ -36,6 +37,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## VGTools
+* allow segmentation from/to formats different than BIN (via conversions).
 * add missing vgtools tests.
 * check what happens if performing "fix_cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
