@@ -145,6 +145,14 @@ class Grid:
 
     # --------------------------------------------------------------------------
     @classmethod
+    def init_coords_grid(cls, box: "vg.Box", dtype = None):
+        grid = cls(box, init_grid = False, dtype = dtype)
+        grid.arr = vg.Math.get_coords_array(grid.box.resolution, grid.box.deltas, grid.box.min_coords)
+        return grid
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
     def load(cls, path_in: Path, fmt: "vg.GridFormat" = None, key: str = None) -> "Grid":
         """
         If the format is not specified, it will be detected based on the input path extension.
@@ -222,7 +230,9 @@ class Grid:
     # --------------------------------------------------------------------------
     @classmethod
     def reverse(cls, other: "Grid") -> "Grid":
-        """Return a new Grid with the reversed values of the other Grid.
+        """
+        [TODO] DEPRECATED, will remove. Use `Grid.__neg__` (e.g. `-grid`) or `Grid.__invert__` (e.g. `~grid`) instead
+        Return a new Grid with the reversed values of the other Grid.
         For boolean grids, the reverse is the logical not.
         For numeric grids, the reverse is the negation of the values.
         """

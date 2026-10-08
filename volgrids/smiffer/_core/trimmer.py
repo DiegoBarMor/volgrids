@@ -153,7 +153,7 @@ class Trimmer:
 
     # --------------------------------------------------------------------------
     def _trim_sphere(self):
-        coords = vg.Math.get_coords_array(self.mm.get_resolution(), self.mm.get_deltas(), self.mm.get_min_coords())
+        coords = vg.Grid.init_coords_grid(self.mm.box).arr
         shifted_coords = coords - self.mm.get_cog()
         dist_from_cog = vg.Math.get_norm(shifted_coords)
         self._mask_common.arr[dist_from_cog > self.mm.get_radius()] = True
