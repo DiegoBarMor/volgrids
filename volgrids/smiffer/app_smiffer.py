@@ -199,9 +199,8 @@ class AppSmiffer(vg.AppSubcommand):
                 if mask is None:
                     print(fy.Color.red("WARNING: ") + "Trimming mask was requested to be saved, but it is None. Skipping.")
                 else:
-                    reverse = vg.Grid.reverse(mask) # save the points that are NOT trimmed
                     path_out, key_out = self.paths_out["trim"], self.keys_out["trim"]
-                    smf.Smif.save_data(reverse, mm, path_out, key_out)
+                    smf.Smif.save_data(~mask, mm, path_out, key_out) # save the points that are NOT trimmed
 
 
         def run_with_trim_small():

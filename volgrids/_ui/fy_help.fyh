@@ -22,13 +22,13 @@
         File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
         Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`SMIF_APBS=true SMIF_STK=false`).
     !fyh:box
-        Provide the box information that should be used to build the grids.
+        Provide the box information that should be used to build the grid(s).
         6 numerical values must be passed in the following order: x_min x_max y_min y_max z_min z_max (all in Angstrom).
         In case of trajectories, 6*nframes values must be passed (one box per frame).
         Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each box (an optional non-numeric header row is allowed).
         Mutually exclusive with --sphere.
     !fyh:sphere
-        Provide the sphere information that should be used to build the grids.
+        Provide the sphere information that should be used to build the grid(s).
         4 numerical values must be passed in the following order: x_center y_center z_center radius (all in Angstrom).
         In case of trajectories, 4*nframes values must be passed (one sphere per frame).
         Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each sphere (an optional non-numeric header row is allowed).
@@ -189,14 +189,16 @@
         !fyh:z Rotation angle in degrees along the xy plane (in degrees).
     !@
     @segment
-        !fyh:_ Segment the regions of space enclosed by a certain isovalue and save their cluster labels into a new grid.
+        !fyh:_ Segment the regions of space enclosed by a certain isovalue and save their BLOB (cluster) labels into a new grid.
         !fyh:path_in Path to a grid file.
             Must be in "BIN" format.
-        !fyh:path_out Path for grid output with the cluster labels.
+        !fyh:path_out Path for grid output with the BLOB labels.
             The labels are integers starting from 1.
-            The clusters are sorted in descending order by size (i.e. from largest to smallest).
-        !fyh:isovalue Continuous voxels with an absolute value higher than this parameter will be considered part of the same cluster.
-        !fyh:volume_thr Clusters with an amount of voxels lower than this parameter will be discarded from the resulting grid.
+            The BLOBs are sorted in descending order by size (i.e. from largest to smallest).
+        !fyh:isovalue Continuous voxels with an absolute value higher than this parameter will be considered part of the same BLOB.
+        !fyh:volume_thr BLOBs with an amount of voxels lower than this parameter will be discarded from the resulting grid.
+        !fyh:path_cog Output the center of geometry (COG) of the BLOBs into the provided path, as JSON format.
+        !fyh:path_com Output the center of mass (COM) of the BLOBs into the provided path, as JSON format.
     !@
 
     #### Operations for combining multiple grids
@@ -215,6 +217,11 @@
             Perform numeric operations between two grids.
             These are simple element-wise arithmethics (addition, substraction, multiplication, division), as well as absolute value for a single grid.
             They rely on numpy, so grids with mismatched shapes will be interpolated if needed (the second grid passed gets interpolated).
+        @neg
+            !fyh:_ Element-wise negation of the grid's points.
+            !fyh:path_in Path to a grid file.
+            !fyh:path_out Path where to store the resulting grid.
+        !@
         @abs
             !fyh:_ Element-wise absolute value of the grid's points.
             !fyh:path_in Path to a grid file.
@@ -239,11 +246,20 @@
                 Dubious operation, as grids have usually many 0-valued points; make sure to preprocess the denominator grid appropriately.
             !use:_io_2_inputs
         !@
+        @not
+            !fyh:_ Element-wise NOT of the boolean grid's points.
+            !fyh:path_in Path to a grid file.
+            !fyh:path_out Path where to store the resulting grid.
+        !@
         @and
             !fyh:_ Element-wise AND of the boolean grids' points.
             !use:_io_2_inputs
         !@
         @or
+            !fyh:_ Element-wise OR of the boolean grids' points.
+            !use:_io_2_inputs
+        !@
+        @xor
             !fyh:_ Element-wise OR of the boolean grids' points.
             !use:_io_2_inputs
         !@

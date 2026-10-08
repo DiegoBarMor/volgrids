@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.0] - 2026-10-08
+- Added a method for initializing coordinate grids: `vg.Grid.init_coords_grid`.
+    - These are the grids whose voxels correspond to the spatial coordinates indicated by their respective box.
+    - Prefer using this method instead of the backend `vg.Math.get_coords_array` directly.
+        - `vg.Math.get_coords_array` interface was modified slightly (`min_coords` argument is no longer optional).
+- Added negation, logical inverse and XOR grid operations to `vgtools op`.
+- Added possibility to export blob positions for `vgtools segment` into a JSON file.
+    - This is done via the flags `--cog` or `--com` for center of geomety / center of mass respectively.
+
+
 ## [1.0.0] - 2026-07-07
 - Major refactorings for the code implementations.
     - `smiffer`

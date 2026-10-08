@@ -101,6 +101,8 @@
         !use:_io_1_input
         ~isovalue[i,isovalue]1.FLOAT=0.1
         ~volume_thr[v,volume-threshold]1.INT=200
+        ~path_cog[,cog]1.PATH
+        ~path_com[,com]1.PATH
     !@
 
     #### Operations for combining multiple grids
@@ -111,13 +113,18 @@
         !use:_io_1_input
     !@
     @op
+        ### mathematical
+        @neg !use:_io_1_input  !@
         @abs !use:_io_1_input  !@
         @add !use:_io_2_inputs !@
         @sub !use:_io_2_inputs !@
         @mul !use:_io_2_inputs !@
         @div !use:_io_2_inputs !@
+        ### bitwise
+        @not !use:_io_1_input  !@
         @and !use:_io_2_inputs !@
         @or  !use:_io_2_inputs !@
+        @xor !use:_io_2_inputs !@
     !@
 
     #### Operations for inspecting/analyzing grids

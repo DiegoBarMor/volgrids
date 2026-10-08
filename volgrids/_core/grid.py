@@ -73,6 +73,13 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def __neg__(self) -> "Grid":
+        obj = self.__class__(self.box, init_grid = False)
+        obj.arr = - self.arr
+        return obj
+
+
+    # --------------------------------------------------------------------------
     def __abs__(self) -> "Grid":
         obj = self.__class__(self.box, init_grid = False)
         obj.arr = np.abs(self.arr)
@@ -80,14 +87,26 @@ class Grid:
 
 
     # --------------------------------------------------------------------------
+    def __invert__(self) -> "Grid":
+        """
+        Return a new Grid with the logical NOT of the values of the Grid.
+        The input grid is converted into boolean if it is not already, and the output grid is also boolean.
+        """
+        obj = self.__class__(self.box, init_grid = False)
+        vg.GridIO.restore_boolean_dtype(self)
+        obj.arr = np.logical_not(self.arr)
+        return obj
+
+
+    # --------------------------------------------------------------------------
     def __and__(self, other: "Grid") -> "Grid":
         """
-        Return a new Grid with the logical or of the values of the two Grids.
+        Return a new Grid with the logical AND of the values of the two Grids.
         The input grids are converted into boolean if they are not already, and the output grid is also boolean.
         """
         obj = self.__class__(self.box, init_grid = False)
         if not isinstance(other, Grid):
-            raise TypeError(f"Cannot add {type(other)} to Grid. Use another Grid.")
+            raise TypeError(f"Cannot AND {type(other)} to Grid. Use another Grid.")
         vg.GridIO.restore_boolean_dtype(self)
         vg.GridIO.restore_boolean_dtype(other)
         obj.arr = np.logical_and(self.arr, other.arr)
@@ -97,16 +116,39 @@ class Grid:
     # --------------------------------------------------------------------------
     def __or__(self, other: "Grid") -> "Grid":
         """
-        Return a new Grid with the logical or of the values of the two Grids.
+        Return a new Grid with the logical OR of the values of the two Grids.
         The input grids are converted into boolean if they are not already, and the output grid is also boolean.
         """
         obj = self.__class__(self.box, init_grid = False)
         if not isinstance(other, Grid):
-            raise TypeError(f"Cannot add {type(other)} to Grid. Use another Grid.")
+            raise TypeError(f"Cannot OR {type(other)} to Grid. Use another Grid.")
         vg.GridIO.restore_boolean_dtype(self)
         vg.GridIO.restore_boolean_dtype(other)
         obj.arr = np.logical_or(self.arr, other.arr)
         return obj
+
+
+    # --------------------------------------------------------------------------
+    def __xor__(self, other: "Grid") -> "Grid":
+        """
+        Return a new Grid with the logical XOR of the values of the two Grids.
+        The input grids are converted into boolean if they are not already, and the output grid is also boolean.
+        """
+        obj = self.__class__(self.box, init_grid = False)
+        if not isinstance(other, Grid):
+            raise TypeError(f"Cannot XOR {type(other)} to Grid. Use another Grid.")
+        vg.GridIO.restore_boolean_dtype(self)
+        vg.GridIO.restore_boolean_dtype(other)
+        obj.arr = np.logical_xor(self.arr, other.arr)
+        return obj
+
+
+    # --------------------------------------------------------------------------
+    @classmethod
+    def init_coords_grid(cls, box: "vg.Box", dtype = None):
+        grid = cls(box, init_grid = False, dtype = dtype)
+        grid.arr = vg.Math.get_coords_array(grid.box.resolution, grid.box.deltas, grid.box.min_coords)
+        return grid
 
 
     # --------------------------------------------------------------------------
@@ -188,7 +230,9 @@ class Grid:
     # --------------------------------------------------------------------------
     @classmethod
     def reverse(cls, other: "Grid") -> "Grid":
-        """Return a new Grid with the reversed values of the other Grid.
+        """
+        [TODO] DEPRECATED, will remove. Use `Grid.__neg__` (e.g. `-grid`) or `Grid.__invert__` (e.g. `~grid`) instead
+        Return a new Grid with the reversed values of the other Grid.
         For boolean grids, the reverse is the logical not.
         For numeric grids, the reverse is the negation of the values.
         """

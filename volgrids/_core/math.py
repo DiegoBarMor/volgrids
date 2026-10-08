@@ -161,7 +161,11 @@ class Math:
 
     # --------------------------------------------------------------------------
     @staticmethod
-    def get_coords_array(resolution, deltas, min_coords = None) -> np.ndarray:
+    def get_coords_array(
+        resolution: tuple[float, float, float],
+        deltas:     tuple[float, float, float],
+        min_coords: tuple[float, float, float],
+    ) -> np.ndarray:
         """
         input:  resolution (3,)
                 deltas (3,)
@@ -170,7 +174,7 @@ class Math:
         """
         xres, yres, zres = resolution
         dx, dy, dz = deltas
-        x0, y0, z0 = (0,0,0) if min_coords is None else min_coords
+        x0, y0, z0 = min_coords
 
         xrange = x0 + np.linspace(0, dx * (xres - 1), xres)
         yrange = y0 + np.linspace(0, dy * (yres - 1), yres)

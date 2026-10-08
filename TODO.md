@@ -12,6 +12,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## VOLGRIDS
+* add possibility to just load a box from a grid file (instead of loading the whole grid just to access the box).
 * replace `OUT_WARNING_NPOINTS` with a better alternative.
 * generalize the usage of the `-c` flag (for customizing configurations) in all modes.
 * implement: raise an error if a format file is opened with the wrong function
@@ -22,6 +23,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
+* toy system `O3'` atom from `ribose_gua_no_h` should also have a hba smif.
 * validate the INI headers when parsing a user's provided chem table
 * RNDS trimming could be removed. instead of it, a post-processing with a similar (and probably better) effect could be done with SMIF segmentation.
 * change the ligand example to one that uses both HBACCEPTORS, HBDONORS and NAMES_HBD_FIXED
@@ -32,10 +34,12 @@
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
 * check whether the trimmer can still be saved when no smifs are calculated.
 * MDAnalysis struggles when parsing certain PQR files e.g. when coordinates are large number so that there is no space in between the columns.
+* improve rotations in the cavity finder (rotate the structure instead of the occupancy grid)
 
 
 <!-- ----------------------------------------------------------------------- -->
 ## VGTools
+* allow segmentation from/to formats different than BIN (via conversions).
 * add missing vgtools tests.
 * check what happens if performing "fix_cmap" operation when cmap input and output are the same file
 * implement the fixing operation directy on "packing", to ensure that packed frames have the same resolution (add flag to override this behavior)
@@ -47,8 +51,10 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMUtils
+* fix rnapolis error
 * check why `DEBUG_CHEMTABLE_LIGAND` config isn't being taken into account
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
+* trimming as a post-processing operation?
 
 
 <!-- ----------------------------------------------------------------------- -->

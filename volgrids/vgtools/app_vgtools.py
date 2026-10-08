@@ -109,6 +109,8 @@ class AppVGTools(vg.AppSubcommand):
     def _run_segment(self):
         path_in    = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
         path_out   = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
+        path_cog   = self.main.get_arg_path("path_cog", assertion = fy.PathAssertion.FILE_OUT, allow_none = True)
+        path_com   = self.main.get_arg_path("path_com", assertion = fy.PathAssertion.FILE_OUT, allow_none = True)
         isovalue   = self.main.get_arg_float("isovalue")
         volume_thr = self.main.get_arg_int("volume_thr")
 
@@ -138,6 +140,19 @@ class AppVGTools(vg.AppSubcommand):
         )
         print(stdout)
 
+        if (path_cog is None) and (path_com is None): return
+        import json
+
+        if path_cog is not None:
+            path_cog.write_text(json.dumps(
+                vgt.VGOperations.segmented_cogs(path_blobs = path_out)
+            ))
+
+        if path_com is not None:
+            path_com.write_text(json.dumps(
+                vgt.VGOperations.segmented_coms(path_blobs = path_out, path_vals = path_in)
+            ))
+
 
     # --------------------------------------------------------------------------
     def _run_average(self):
@@ -161,7 +176,7 @@ class AppVGTools(vg.AppSubcommand):
     def _run_op(self):
         command = self.main.subcommands.pop(0)
 
-        if command == "abs": # abs is the only unary operation for now
+        if command in ("neg", "abs", "not"):
             self._run_op_unary(command)
             return
 
@@ -178,6 +193,7 @@ class AppVGTools(vg.AppSubcommand):
             "div": vg.Grid.__truediv__,
             "and": vg.Grid.__and__,
             "or" : vg.Grid.__or__,
+            "xor" : vg.Grid.__xor__,
         }[command]
 
         print(f">>> Performing '{fy.Color.yellow(command)}' operation on grids: {fy.Color.red(path_in_0)} with {fy.Color.blue(path_in_1)}")
@@ -190,7 +206,9 @@ class AppVGTools(vg.AppSubcommand):
     # --------------------------------------------------------------------------
     def _run_op_unary(self, command: str):
         operation: callable = {
+            "neg": vg.Grid.__neg__,
             "abs": vg.Grid.__abs__,
+            "not": vg.Grid.__invert__,
         }[command]
 
         path_in  = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
