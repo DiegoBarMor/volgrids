@@ -34,16 +34,17 @@ Check out the [tutorials](https://github.com/louismeuret/Volgrids_Tutorials).
 ## Requirements
 ### Hard requirements
 - Grid operations are based on **NumPy** arrays.
-- Molecular structures and trajectories data are parsed by [**MDAnalysis**](https://github.com/MDAnalysis/mdanalysis).
-- CMAP files are parsed by **h5py**.
 
 ### Optional requirements
+- Molecular structures with format different than PDB and trajectories data are parsed by [**MDAnalysis**](https://github.com/MDAnalysis/mdanalysis).
+- CMAP files are parsed by **h5py**.
 - [**APBS**]: Follow the instructions from [here](#installation-ubuntu).
 - [**rnapolis**](https://github.com/tzok/rnapolis-py) (`pip install rnapolis`) for running residue-selection utilities from `smutils`.
 
 ### Vendors
 The following are dependencies that are included as vendors in `volgrid`'s pip distribution. If you don't want to use pip, they will be fetched automatically from GitHub the first time you run `volgrids`. Alternatively, run `bash scripts/_prepare.sh` in your local copy of the `volgrids` repo to fetch the vendor packages manually at any moment.
 - [**freyacli**](https://github.com/DiegoBarMor/freyacli) for CLI management
+- [**molsimple**](https://github.com/DiegoBarMor/molsimple) for parsing PDB files.
 - [**molutils**](https://github.com/DiegoBarMor/molutils) for utilities dealing with PDB files.
 
 
@@ -191,7 +192,7 @@ python3 volgrids smiffer 1akx.pdb \
 <!-- ----------------------------------------------------------------------- -->
 ## Visualization
 ### Color standard (smiffer)
-| Potential       | Color      | RGB 0-1    | RGB 0-255  | HEX    |
+| Interaction     | Color      | RGB 0-1    | RGB 0-255  | HEX    |
 |-----------------|------------|------------|------------|--------|
 | APBS -          | Red        | 1,0,0      | 255,0,0    | FF0000 |
 | APBS +          | Blue       | 0,0,1      | 0,0,255    | 0000FF |

@@ -22,13 +22,13 @@
         File path to a configuration file with global settings, to override the default settings (e.g. config_volgrids.ini).
         Alternatively, it can be a space-separated list of `configuration=value` keyword pairs for the global settings e.g. (`SMIF_APBS=true SMIF_STK=false`).
     !fyh:box
-        Provide the box information that should be used to build the grids.
+        Provide the box information that should be used to build the grid(s).
         6 numerical values must be passed in the following order: x_min x_max y_min y_max z_min z_max (all in Angstrom).
         In case of trajectories, 6*nframes values must be passed (one box per frame).
         Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each box (an optional non-numeric header row is allowed).
         Mutually exclusive with --sphere.
     !fyh:sphere
-        Provide the sphere information that should be used to build the grids.
+        Provide the sphere information that should be used to build the grid(s).
         4 numerical values must be passed in the following order: x_center y_center z_center radius (all in Angstrom).
         In case of trajectories, 4*nframes values must be passed (one sphere per frame).
         Alternatively, a single path to a CSV file can be provided, with each of its rows containing comma-separated values for each sphere (an optional non-numeric header row is allowed).

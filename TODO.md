@@ -23,6 +23,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMIFFER
+* toy system `O3'` atom from `ribose_gua_no_h` should also have a hba smif.
 * validate the INI headers when parsing a user's provided chem table
 * RNDS trimming could be removed. instead of it, a post-processing with a similar (and probably better) effect could be done with SMIF segmentation.
 * change the ligand example to one that uses both HBACCEPTORS, HBDONORS and NAMES_HBD_FIXED
@@ -33,6 +34,7 @@
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
 * check whether the trimmer can still be saved when no smifs are calculated.
 * MDAnalysis struggles when parsing certain PQR files e.g. when coordinates are large number so that there is no space in between the columns.
+* improve rotations in the cavity finder (rotate the structure instead of the occupancy grid)
 
 
 <!-- ----------------------------------------------------------------------- -->
@@ -49,8 +51,10 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMUtils
+* fix rnapolis error
 * check why `DEBUG_CHEMTABLE_LIGAND` config isn't being taken into account
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
+* trimming as a post-processing operation?
 
 
 <!-- ----------------------------------------------------------------------- -->

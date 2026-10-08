@@ -10,7 +10,7 @@ class Kernel:
         self.deltas: np.ndarray = deltas
         self.arr: np.ndarray = np.zeros(self.kernel_res, dtype = dtype)
 
-        ##### initizalize auxiliary kernel of distance values
+        ##### initialize auxiliary kernel of distance values
         coords_no_shift = vg.Grid.init_coords_grid(
             vg.Box((0,0,0), self.kernel_res, self.deltas)
         ).arr
@@ -25,6 +25,7 @@ class Kernel:
     # --------------------------------------------------------------------------
     def stamp(self, grid: vg.Grid, center_stamp_at: np.ndarray, multiply_by = None) -> None:
         ##### infer the position where to stamp the kernel at the big grid
+        ##### the following numpy arrays are of dimension (3,)
         stamp_orig = center_stamp_at - self.deltas * self.kernel_res / 2
         rel_orig = stamp_orig - grid.box.min_coords
         idx_start = np.round(rel_orig / self.deltas).astype(int)
