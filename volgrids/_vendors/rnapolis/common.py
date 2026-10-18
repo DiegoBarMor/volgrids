@@ -247,6 +247,30 @@ class ResidueLabel:
     name: str
 
 
+AMINO_ACID_ONE_LETTER = {
+    "ALA": "A",
+    "ARG": "R",
+    "ASN": "N",
+    "ASP": "D",
+    "CYS": "C",
+    "GLN": "Q",
+    "GLU": "E",
+    "GLY": "G",
+    "HIS": "H",
+    "ILE": "I",
+    "LEU": "L",
+    "LYS": "K",
+    "MET": "M",
+    "PHE": "F",
+    "PRO": "P",
+    "SER": "S",
+    "THR": "T",
+    "TRP": "W",
+    "TYR": "Y",
+    "VAL": "V",
+}
+
+
 @dataclass(frozen=True, order=True)
 class ResidueAuth:
     """Auth-style residue identifier (auth chain/number/icode/name)."""
@@ -255,6 +279,57 @@ class ResidueAuth:
     number: int
     icode: Optional[str]
     name: str
+
+
+@dataclass(frozen=True, order=True)
+class MissingResidue:
+    """Unobserved or zero-occupancy residue reported in the file header.
+
+    Sources: mmCIF ``_pdbx_unobs_or_zero_occ_residues`` and PDB REMARK 465
+    records. The identifiers follow the same conventions as modelled
+    residues, so missing residues can be interleaved with them by chain and
+    numbering.
+    """
+
+    label: Optional[ResidueLabel]
+    auth: Optional[ResidueAuth]
+    name: str
+
+    @property
+    def chain(self) -> Optional[str]:
+        """Return chain identifier from auth or label coordinates."""
+        if self.auth is not None:
+            return self.auth.chain
+        if self.label is not None:
+            return self.label.chain
+        return None
+
+    @property
+    def number(self) -> Optional[int]:
+        """Return residue number from auth or label coordinates."""
+        if self.auth is not None:
+            return self.auth.number
+        if self.label is not None:
+            return self.label.number
+        return None
+
+    @property
+    def one_letter_name(self) -> str:
+        """Best-effort one-letter code inferred from the component identifier.
+
+        Prefer the entity sequence (indexed by residue number) when available;
+        this fallback covers standard amino-acid and nucleotide identifiers.
+        """
+        upper = (self.name or "").upper()
+        if upper in AMINO_ACID_ONE_LETTER:
+            return AMINO_ACID_ONE_LETTER[upper]
+        if len(upper) == 1:
+            return upper
+        if len(upper) == 2 and upper[0] == "D":
+            return upper[1]
+        if upper and str.isalpha(upper[-1]):
+            return upper[-1]
+        return "n"
 
 
 @dataclass(frozen=True)
@@ -791,7 +866,7 @@ class BpSeq:
         """
         # if PuLP solvers are not installed, use FCFS
         if solver is None:
-            return self.fcfs()
+            return self.fcfs
 
         # build conflict graph
         regions = self.__regions
@@ -818,26 +893,20 @@ class BpSeq:
         problem = pulp.LpProblem("POA", pulp.LpMaximize)
 
         # create decision variables
-        variables = []
         vars_by_region = defaultdict(list)
-        vars_by_order = defaultdict(list)
         var_by_region_order = {}
-        region_by_var = {}
         for i in range(len(regions)):
             for j in range(max_order):
-                variable = pulp.LpVariable(f"x_{i}_{j}", 0, 1, pulp.LpInteger)
-                variables.append(variable)
+                variable = problem.add_variable(f"x_{i}_{j}", 0, 1, pulp.LpInteger)
                 vars_by_region[i].append(variable)
-                vars_by_order[j].append(variable)
                 var_by_region_order[(i, j)] = variable
-                region_by_var[variable] = regions[i]
 
         # define objective function terms
         terms = []
 
-        for order, vars in vars_by_order.items():
-            for var in vars:
-                length = region_by_var[var][2]
+        for i, region_vars in vars_by_region.items():
+            length = regions[i][2]
+            for order, var in enumerate(region_vars):
                 if order == 0:
                     terms.append(var * length)
                 else:
@@ -863,29 +932,35 @@ class BpSeq:
         # solve the problem
         try:
             logging.debug(f"POA: problem formulation\n{problem}")
-            problem.solve(solver)
+            stats = problem.solve(solver)
         except pulp.PulpSolverError:
             logging.warning(
                 "POA: failed to solve problem using MILP approach, fallback to FCFS"
             )
-            return self.fcfs()
+            return self.fcfs
 
         # if problem is infeasible, fallback to FCFS
-        if problem.status != pulp.LpStatusOptimal:
+        if hasattr(stats, "status"):
+            optimal = stats.status == pulp.LpSolveStatus.Optimal
+            solve_time = stats.time
+            solver_name = stats.solver
+        else:
+            optimal = problem.status == pulp.LpStatusOptimal
+            solve_time = problem.solutionTime
+            solver_name = solver.name
+
+        if not optimal:
             logging.warning("POA: problem is infeasible, fallback to FCFS")
-            return self.fcfs()
+            return self.fcfs
 
         # log solver time statistics
-        logging.debug(
-            f"POA: solver {solver.name} took {round(problem.solutionTime, 2)} seconds"
-        )
+        logging.debug(f"POA: solver {solver_name} took {round(solve_time, 2)} seconds")
 
         # map variable values to orders
         orders = [0 for _ in range(len(regions))]
         for variable in problem.variables():
-            if variable.varValue == 1:
-                name = variable.getName()
-                i, order = map(int, name.split("_")[1:])
+            if variable.varValue is not None and variable.varValue > 0.5:
+                i, order = map(int, variable.name.split("_")[1:])
                 orders[i] = order
 
         return self.__make_dot_bracket(regions, orders)

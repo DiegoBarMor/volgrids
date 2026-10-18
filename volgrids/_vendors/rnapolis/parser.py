@@ -4,7 +4,7 @@ from typing import IO, Dict, List, Optional, Tuple, Union, cast
 import numpy as np
 from scipy.spatial import KDTree
 
-from volgrids._vendors.rnapolis.common import ResidueAuth, ResidueLabel
+from volgrids._vendors.rnapolis.common import MissingResidue, ResidueAuth, ResidueLabel
 from volgrids._vendors.rnapolis.tertiary import Atom, Residue3D, Structure3D
 
 logging.basicConfig(level=logging.INFO)
@@ -31,9 +31,16 @@ def read_3d_structure(
     atoms, modified, sequence_by_entity, is_nucleic_acid_by_entity = (
         parse_cif(cif_or_pdb) if is_cif(cif_or_pdb) else parse_pdb(cif_or_pdb)
     )
+    missing_residues = (
+        parse_missing_residues_cif(cif_or_pdb)
+        if is_cif(cif_or_pdb)
+        else parse_missing_residues_pdb(cif_or_pdb)
+    )
     if not atoms:
         logger.warning("No atoms parsed from file, returning empty Structure3D.")
-        return Structure3D([])
+        return Structure3D(
+            [], missing_residues=missing_residues, sequence_by_entity=sequence_by_entity
+        )
     available_models = {atom.model: None for atom in atoms}
     atoms_by_model = {
         model: list(filter(lambda atom: atom.model == model, atoms))
@@ -49,6 +56,7 @@ def read_3d_structure(
         sequence_by_entity,
         is_nucleic_acid_by_entity,
         nucleic_acid_only,
+        missing_residues,
     )
 
 
@@ -65,6 +73,55 @@ def parse_cif(
     Dict[str, bool],
 ]:
     raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
+
+
+def _read_mmcif_data(cif: IO[str]):
+    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
+
+
+def parse_missing_residues_cif(cif: IO[str]) -> List[MissingResidue]:
+    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
+
+def parse_missing_residues_pdb(pdb: IO[str]) -> List[MissingResidue]:
+    """Parse unobserved residues reported in PDB REMARK 465 records.
+
+    This is a best-effort parser: header and empty REMARK 465 lines are
+    skipped, and only lines whose residue number parses as an integer are
+    kept. Only auth-style identifiers are available in PDB files.
+    """
+    pdb.seek(0)
+
+    try:
+        content = pdb.read()
+    except io.UnsupportedOperation:
+        if hasattr(pdb, "name"):
+            with open(pdb.name, "r", encoding="utf-8") as handle:
+                content = handle.read()
+        else:
+            raise
+    if isinstance(content, bytes):
+        content = content.decode("utf-8")
+
+    missing: List[MissingResidue] = []
+    for line in content.splitlines():
+        if not line.startswith("REMARK 465"):
+            continue
+        fields = line[len("REMARK 465") :].split()
+        if len(fields) < 3:
+            continue
+        name, chain, number = fields[0], fields[1], fields[2]
+        parsed_number = try_parse_int(number)
+        if parsed_number is None:
+            continue
+        icode = fields[3] if len(fields) > 3 and fields[3] not in ("?", ".") else None
+        missing.append(
+            MissingResidue(
+                None,
+                ResidueAuth(chain, parsed_number, icode, name),
+                name,
+            )
+        )
+    return missing
 
 
 def parse_pdb(
@@ -138,6 +195,7 @@ def group_atoms(
     sequence_by_entity: Dict[str, str],
     is_nucleic_acid_by_entity: Dict[str, bool],
     nucleic_acid_only: bool,
+    missing_residues: Optional[List[MissingResidue]] = None,
 ) -> Structure3D:
     """Group atoms into residues and build a Structure3D.
 
@@ -153,12 +211,12 @@ def group_atoms(
         is_nucleic_acid_by_entity (Dict[str, bool]): Mapping from entity ID to
             nucleic-acid flag.
         nucleic_acid_only (bool): If True, keep only nucleic-acid residues.
-
-    Returns:
-        Structure3D: Assembled structure.
+        missing_residues (Optional[List[MissingResidue]]): Residues reported in
+            the file header as unobserved or zero-occupancy, stored on the
+            structure for downstream consumers.
     """
     if not atoms:
-        return Structure3D([])
+        return Structure3D([], missing_residues=missing_residues or [])
 
     key_previous = (atoms[0].label, atoms[0].auth, atoms[0].model)
     residue_atoms = [atoms[0]]
@@ -215,7 +273,11 @@ def group_atoms(
         else:
             residues = [residue for residue in residues if residue.is_nucleotide]
 
-    return Structure3D(residues)
+    return Structure3D(
+        residues,
+        missing_residues=missing_residues or [],
+        sequence_by_entity=sequence_by_entity,
+    )
 
 
 def get_residue_name(
