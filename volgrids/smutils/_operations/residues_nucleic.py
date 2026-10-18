@@ -10,7 +10,7 @@ class ResiduesNucleic:
     # --------------------------------------------------------------------------
     @classmethod
     def get_residues_bp_canonical(cls, path_pdb: Path) -> set[str]:
-        from rnapolis.common import Structure2D
+        from volgrids._vendors.rnapolis.common import Structure2D
 
         structure2d: Structure2D = cls._get_rnapolis_struct2d(path_pdb)
         base_pairs = [bp for bp in structure2d.base_pairs if bp.saenger is not None]
@@ -27,7 +27,7 @@ class ResiduesNucleic:
     def get_residues_stacking(cls, path_pdb: Path) -> set[str]:
         """Return residues that are participating in at least `STACKING_THRESHOLD` stacking interactions."""
         from collections import Counter
-        from rnapolis.common import Structure2D
+        from volgrids._vendors.rnapolis.common import Structure2D
 
         structure2d: Structure2D = cls._get_rnapolis_struct2d(path_pdb)
         stackings = [bp for bp in structure2d.stackings if bp.topology is not None]
@@ -74,9 +74,9 @@ class ResiduesNucleic:
     # --------------------------------------------------------------------------
     @staticmethod
     def _get_rnapolis_struct2d(path_pdb: Path):
-        from rnapolis.annotator import  (
-            extract_base_interactions,
+        from volgrids._vendors.rnapolis.annotator import  (
             handle_input_file,
+            extract_base_interactions,
             read_3d_structure,
         )
 
