@@ -3,30 +3,29 @@ from typing import IO, Dict, List, Optional, Tuple, Union, cast
 import numpy as np
 from scipy.spatial import KDTree
 
-from volgrids._vendors.rnapolis.common import MissingResidue, ResidueAuth, ResidueLabel
+from volgrids._vendors.rnapolis.common import ResidueAuth, ResidueLabel
 from volgrids._vendors.rnapolis.tertiary import Atom, Residue3D, Structure3D
 
 
-def read_3d_structure(
-    cif_or_pdb: IO[str],
-) -> Structure3D:
+def read_3d_structure(path_pdb) -> Structure3D:
     """Read a PDB or mmCIF structure into a Structure3D object.
 
     The function auto-detects whether the input is mmCIF or PDB, parses atoms,
     groups them into residues and optionally filters to nucleic-acid residues only.
 
     Args:
-        cif_or_pdb (IO[str]): Open file-like object with PDB or mmCIF content.
+        path_pdb
     Returns:
         Structure3D: Parsed 3D structure.
     """
     nucleic_acid_only: bool = False
-    atoms, modified, sequence_by_entity, is_nucleic_acid_by_entity =\
-        parse_pdb(cif_or_pdb)
+    with open(path_pdb, 'r') as file:
+        atoms, modified, sequence_by_entity, is_nucleic_acid_by_entity =\
+            parse_pdb(file)
 
     if not atoms:
         return Structure3D(
-            [], missing_residues=[], sequence_by_entity=sequence_by_entity
+            [], sequence_by_entity=sequence_by_entity
         )
     available_models = {atom.model: None for atom in atoms}
     atoms_by_model = {
@@ -40,7 +39,6 @@ def read_3d_structure(
         sequence_by_entity,
         is_nucleic_acid_by_entity,
         nucleic_acid_only,
-        [],
     )
 
 def parse_pdb(
@@ -114,7 +112,6 @@ def group_atoms(
     sequence_by_entity: Dict[str, str],
     is_nucleic_acid_by_entity: Dict[str, bool],
     nucleic_acid_only: bool,
-    missing_residues: Optional[List[MissingResidue]] = None,
 ) -> Structure3D:
     """Group atoms into residues and build a Structure3D.
 
@@ -130,12 +127,9 @@ def group_atoms(
         is_nucleic_acid_by_entity (Dict[str, bool]): Mapping from entity ID to
             nucleic-acid flag.
         nucleic_acid_only (bool): If True, keep only nucleic-acid residues.
-        missing_residues (Optional[List[MissingResidue]]): Residues reported in
-            the file header as unobserved or zero-occupancy, stored on the
-            structure for downstream consumers.
     """
     if not atoms:
-        return Structure3D([], missing_residues=missing_residues or [])
+        return Structure3D([])
 
     key_previous = (atoms[0].label, atoms[0].auth, atoms[0].model)
     residue_atoms = [atoms[0]]
@@ -194,7 +188,6 @@ def group_atoms(
 
     return Structure3D(
         residues,
-        missing_residues=missing_residues or [],
         sequence_by_entity=sequence_by_entity,
     )
 

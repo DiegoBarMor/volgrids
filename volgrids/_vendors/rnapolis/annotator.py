@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 import math
 from collections import Counter, defaultdict
 from typing import Dict, List, Optional, Set, Tuple

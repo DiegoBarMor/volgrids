@@ -75,11 +75,9 @@ class ResiduesNucleic:
     @staticmethod
     def _get_rnapolis_struct2d(path_pdb: Path):
         from volgrids._vendors.rnapolis.parser import read_3d_structure
-        from volgrids._vendors.rnapolis.util import handle_input_file
         from volgrids._vendors.rnapolis.annotator import extract_base_interactions
 
-        file = handle_input_file(path_pdb)
-        structure3d = read_3d_structure(file)
+        structure3d = read_3d_structure(path_pdb)
         base_interactions = extract_base_interactions(structure3d)
         structure2d, _ = structure3d.extract_secondary_structure(base_interactions)
         return structure2d

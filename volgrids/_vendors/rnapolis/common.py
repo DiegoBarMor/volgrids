@@ -267,57 +267,6 @@ class ResidueAuth:
     name: str
 
 
-@dataclass(frozen=True, order=True)
-class MissingResidue:
-    """Unobserved or zero-occupancy residue reported in the file header.
-
-    Sources: mmCIF ``_pdbx_unobs_or_zero_occ_residues`` and PDB REMARK 465
-    records. The identifiers follow the same conventions as modelled
-    residues, so missing residues can be interleaved with them by chain and
-    numbering.
-    """
-
-    label: Optional[ResidueLabel]
-    auth: Optional[ResidueAuth]
-    name: str
-
-    @property
-    def chain(self) -> Optional[str]:
-        """Return chain identifier from auth or label coordinates."""
-        if self.auth is not None:
-            return self.auth.chain
-        if self.label is not None:
-            return self.label.chain
-        return None
-
-    @property
-    def number(self) -> Optional[int]:
-        """Return residue number from auth or label coordinates."""
-        if self.auth is not None:
-            return self.auth.number
-        if self.label is not None:
-            return self.label.number
-        return None
-
-    @property
-    def one_letter_name(self) -> str:
-        """Best-effort one-letter code inferred from the component identifier.
-
-        Prefer the entity sequence (indexed by residue number) when available;
-        this fallback covers standard amino-acid and nucleotide identifiers.
-        """
-        upper = (self.name or "").upper()
-        if upper in AMINO_ACID_ONE_LETTER:
-            return AMINO_ACID_ONE_LETTER[upper]
-        if len(upper) == 1:
-            return upper
-        if len(upper) == 2 and upper[0] == "D":
-            return upper[1]
-        if upper and str.isalpha(upper[-1]):
-            return upper[-1]
-        return "n"
-
-
 @dataclass(frozen=True)
 @total_ordering
 class Residue:
@@ -883,12 +832,8 @@ class BpSeq:
         # if problem is infeasible, fallback to FCFS
         if hasattr(stats, "status"):
             optimal = stats.status == pulp.LpSolveStatus.Optimal
-            solve_time = stats.time
-            solver_name = stats.solver
         else:
             optimal = problem.status == pulp.LpStatusOptimal
-            solve_time = problem.solutionTime
-            solver_name = solver.name
 
         if not optimal:
             # problem is infeasible, fallback to FCFS
