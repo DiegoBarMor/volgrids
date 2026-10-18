@@ -5,10 +5,11 @@ dir_vendors="volgrids/_vendors"
 
 fetch_vendor_dbm() {
     local name_vendor="$1"
+    local tag_version="$2"
     dir_out="$dir_vendors/$name_vendor"
 
     rm -rf "$dir_out"
-    git clone --depth 1 "https://github.com/DiegoBarMor/$name_vendor" $dir_vendors/_tmp
+    git clone --depth 1 --branch "$tag_version" "https://github.com/DiegoBarMor/$name_vendor" $dir_vendors/_tmp
 
     mv "$dir_vendors/_tmp/$name_vendor" "$dir_out"
     mv $dir_vendors/_tmp/*.md "$dir_vendors/$name_vendor"/
@@ -38,12 +39,14 @@ PYCODE
 
 rm -f "$dir_vendors/versions.txt"
 
-fetch_vendor_dbm freyacli
-fetch_vendor_dbm molsimple
-fetch_vendor_dbm molutils
+fetch_vendor_dbm freyacli  v0.4.5
+fetch_vendor_dbm molsimple v0.1.2
+fetch_vendor_dbm molutils  v0.6.0
 
-fix_vendor_imports freyacli  freyacli
+fix_vendor_imports freyacli freyacli
+
 fix_vendor_imports molsimple molsimple
-fix_vendor_imports molutils  molutils
 
 fix_vendor_imports molutils freyacli
+fix_vendor_imports molutils molsimple
+fix_vendor_imports molutils molutils
