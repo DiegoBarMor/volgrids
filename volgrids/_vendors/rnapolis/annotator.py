@@ -1,8 +1,5 @@
 #! /usr/bin/env python
-import argparse
-import logging
 import math
-import os
 from collections import Counter, defaultdict
 from typing import Dict, List, Optional, Set, Tuple
 
@@ -18,19 +15,14 @@ from volgrids._vendors.rnapolis.common import (
     BasePhosphate,
     BaseRibose,
     BPh,
-    BpSeq,
     LeontisWesthof,
-    OtherInteraction,
     Residue,
     Saenger,
     Stacking,
     StackingTopology,
-    Stem,
-    Structure2D,
 )
-from volgrids._vendors.rnapolis.parser import read_3d_structure
+
 from volgrids._vendors.rnapolis.tertiary import (
-    AVERAGE_OXYGEN_PHOSPHORUS_DISTANCE_COVALENT,
     BASE_ACCEPTORS,
     BASE_ATOMS,
     BASE_DONORS,
@@ -38,20 +30,16 @@ from volgrids._vendors.rnapolis.tertiary import (
     PHOSPHATE_ACCEPTORS,
     RIBOSE_ACCEPTORS,
     Atom,
-    Mapping2D3D,  # Added import
     Residue3D,
     Structure3D,
     torsion_angle,
 )
-from volgrids._vendors.rnapolis.util import handle_input_file
 
 HYDROGEN_BOND_MAX_DISTANCE = 4.0
 HYDROGEN_BOND_ANGLE_RANGE = (50.0, 130.0)  # 90 degrees is ideal, so allow +- 40 degrees
 STACKING_MAX_DISTANCE = 6.0
 STACKING_MAX_ANGLE_BETWEEN_NORMALS = 35.0
 STACKING_MAX_ANGLE_BETWEEN_VECTOR_AND_NORMAL = 45.0
-
-logging.basicConfig(level=os.getenv("LOGLEVEL", "INFO").upper())
 
 
 def angle_between_vectors(
@@ -77,7 +65,7 @@ def detect_cis_trans(residue_i: Residue3D, residue_j: Residue3D) -> Optional[str
     """
     Classify a base pair as cis or trans based on a torsion angle.
 
-    The function uses C1'–N1/N9 atoms of both residues to compute a torsion
+    The function uses C1'-N1/N9 atoms of both residues to compute a torsion
     angle and classifies the pair as cis or trans.
 
     Args:
@@ -111,7 +99,7 @@ def detect_bph_br_classification(
     donor_residue: Residue3D, donor: Atom, acceptor: Atom
 ) -> Optional[int]:
     """
-    Classify base–phosphate or base–ribose interactions.
+    Classify base-phosphate or base-ribose interactions.
 
     The classification is based on donor and acceptor atom names, residue
     type and a torsion angle around selected atoms.
@@ -186,7 +174,7 @@ def merge_and_clean_bph_br(
     pairs: List[Tuple[Residue3D, Residue3D, int]],
 ) -> Dict[Tuple[Residue3D, Residue3D], OrderedSet[int]]:
     """
-    Merge and simplify base–phosphate and base–ribose classifications.
+    Merge and simplify base-phosphate and base-ribose classifications.
 
     Multiple classifications for the same residue pair are merged into a set
     and then cleaned according to simple rules (for example 3+5 → 4).
@@ -223,7 +211,7 @@ def find_pairs(
     structure: Structure3D, model: Optional[int] = None
 ) -> Tuple[List[BasePair], List[BasePhosphate], List[BaseRibose]]:
     """
-    Find base–base, base–phosphate and base–ribose interactions.
+    Find base-base, base-phosphate and base-ribose interactions.
 
     The function scans all residues in the structure, builds a KDTree of
     donors and acceptors and applies geometric filters to detect hydrogen
@@ -234,7 +222,7 @@ def find_pairs(
         model: Optional model number to restrict the search to a single model.
 
     Returns:
-        Lists of base pairs, base–phosphate and base–ribose interactions.
+        Lists of base pairs, base-phosphate and base-ribose interactions.
     """
     # put all donors and acceptors into a KDTree
     coordinates = []
@@ -298,10 +286,6 @@ def find_pairs(
 
         residue_i = coordinates_residue_map[coordinates[i]]
         residue_j = coordinates_residue_map[coordinates[j]]
-        logging.debug(
-            f"Checking pair {residue_i.full_name} {atom_i.name} - "
-            f"{residue_j.full_name} {atom_j.name}"
-        )
 
         # check for base-phosphate contacts
         if (
@@ -309,7 +293,6 @@ def find_pairs(
             and atom_i not in used_atoms
             and atom_j not in used_atoms
         ):
-            logging.debug("Checking base-phosphate interaction")
             if type_i == "donor":
                 donor_residue, acceptor_residue = residue_i, residue_j
                 donor_atom, acceptor_atom = atom_i, atom_j
@@ -329,7 +312,6 @@ def find_pairs(
             and atom_i not in used_atoms
             and atom_j not in used_atoms
         ):
-            logging.debug("Checking base-ribose interaction")
             if type_i == "donor":
                 donor_residue, acceptor_residue = residue_i, residue_j
                 donor_atom, acceptor_atom = atom_i, atom_j
@@ -347,16 +329,12 @@ def find_pairs(
         if residue_i.base_normal_vector is None or residue_j.base_normal_vector is None:
             continue
 
-        logging.debug("Checking base-base interaction")
         vector = atom_i.coordinates - atom_j.coordinates
         angle1 = math.degrees(
             angle_between_vectors(residue_i.base_normal_vector, vector)
         )
         angle2 = math.degrees(
             angle_between_vectors(residue_j.base_normal_vector, vector)
-        )
-        logging.debug(
-            f"Angles between normals and hydrogen bond: {angle1:.2f} and {angle2:.2f}"
         )
         if (
             HYDROGEN_BOND_ANGLE_RANGE[0] < angle1 < HYDROGEN_BOND_ANGLE_RANGE[1]
@@ -380,11 +358,6 @@ def find_pairs(
         cis_trans = detect_cis_trans(residue_i, residue_j)
         if cis_trans is None:
             continue
-
-        logging.debug(
-            f"Matched {residue_i.full_name} with {residue_j.full_name} as "
-            f"{cis_trans} {edges_i} {edges_j}"
-        )
 
         if residue_i < residue_j:
             for edge_i in edges_i:
@@ -556,7 +529,7 @@ def extract_base_interactions(
     """
     Extract all base-level interactions from a 3D structure.
 
-    This includes base pairs, base–phosphate, base–ribose and stacking
+    This includes base pairs, base-phosphate, base-ribose and stacking
     interactions and returns them wrapped in a BaseInteractions object.
 
     Args:
@@ -571,35 +544,3 @@ def extract_base_interactions(
     return BaseInteractions.from_structure3d(
         tertiary_structure, base_pairs, stackings, base_ribose, base_phosphate, []
     )
-
-
-def generate_pymol_script(mapping: Mapping2D3D, stems: List[Stem]) -> str:
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-
-def write_json(path: str, structure2d: Structure2D):
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-
-def write_csv(path: str, structure2d: Structure2D):
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-def write_bpseq(path: str, bpseq: BpSeq):
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-def add_common_output_arguments(parser: argparse.ArgumentParser):
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-def handle_output_arguments(
-    args: argparse.Namespace,
-    structure2d: Structure2D,
-    mapping: Mapping2D3D,
-    input_filename: str,
-):
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-def main():
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-if __name__ == "__main__":
-    main()

@@ -4,7 +4,7 @@ import math
 from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import cached_property, total_ordering
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy
 import numpy.typing
@@ -15,20 +15,16 @@ from volgrids._vendors.rnapolis.common import (
     BasePair,
     BpSeq,
     Entry,
-    GlycosidicBond,
     InterStemParameters,
     LeontisWesthof,
     MissingResidue,
-    Molecule,
     Residue,
     ResidueAuth,
     ResidueLabel,
     Saenger,
     Stacking,
     Stem,
-    Strand,
     Structure2D,
-    classify_molecule,
 )
 
 BASE_ATOMS = {
@@ -189,25 +185,6 @@ class Residue3D(Residue):
         """Hash residue by model and residue identifiers."""
         return hash((self.model, self.label, self.auth))
 
-    def __repr__(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
-    def chi(self) -> float:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
-    def chi_class(self) -> Optional[GlycosidicBond]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
-    def outermost_atom(self) -> Atom:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
-    def innermost_atom(self) -> Atom:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
     @cached_property
     def is_nucleotide(self) -> bool:
         """Heuristically determine whether this residue behaves like a nucleotide.
@@ -297,36 +274,12 @@ class Residue3D(Residue):
         normal: numpy.typing.NDArray[numpy.floating] = numpy.cross(v1, v2)
         return normal / numpy.linalg.norm(normal)
 
-    @cached_property
-    def molecule_type(self) -> Molecule:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
-    def has_all_nucleobase_heavy_atoms(self) -> bool:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
     def find_atom(self, atom_name: str) -> Optional[Atom]:
         """Find an atom with the given name in this residue, or return None."""
         for atom in self.atoms:
             if atom.name == atom_name:
                 return atom
         return None
-
-    def is_connected(self, next_residue_candidate) -> bool:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def __chi_purine(self) -> float:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def __chi_pyrimidine(self) -> float:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def __outer_generator(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def __inner_generator(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
 
 @dataclass(frozen=True, order=True)
 class BasePair3D(BasePair):
@@ -369,10 +322,6 @@ class BasePair3D(BasePair):
         )
 
     @cached_property
-    def score(self) -> int:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
     def is_canonical(self) -> bool:
         """Return True if the base pair is Watson–Crick or wobble-like."""
         if self.saenger is not None:
@@ -397,11 +346,6 @@ class Stacking3D(Stacking):
 
     nt1_3d: Residue3D
     nt2_3d: Residue3D
-
-    @cached_property
-    def reverse(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
 
 def _residue_entries_with_missing(
     nucleotides: List[Residue3D],
@@ -649,24 +593,6 @@ class Mapping2D3D:
         return result
 
     @cached_property
-    def base_pair_graph(
-        self,
-    ) -> Dict[Residue3D, Set[Residue3D]]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
-    def base_pair_dict(self) -> Dict[Tuple[Residue3D, Residue3D], BasePair3D]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
-    def stackings(self) -> List[Stacking3D]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
-    def stacking_graph(self) -> Dict[Residue3D, Set[Residue3D]]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
     def strands_sequences(self) -> List[Tuple[str, str]]:
         """Return sequences per chain as (chain_id, sequence) tuples.
 
@@ -788,12 +714,6 @@ class Mapping2D3D:
                 for index_, sequence, pair in result.values()
             ]
         ), index_to_residue_map
-
-    def find_residue_for_entry(self, entry: Entry) -> Optional[Residue3D]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def get_residues_for_strand(self, strand: Strand) -> List[Residue3D]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
 
     @cached_property
     def dot_bracket(self) -> str:
@@ -1021,10 +941,6 @@ class Mapping2D3D:
             result.append("".join(dbn[i : i + len(sequence)]))
             i += len(sequence)
         return result
-
-    @cached_property
-    def all_dot_brackets(self) -> List[str]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
 
     @cached_property
     def extended_dot_bracket(self) -> str:

@@ -1,4 +1,3 @@
-import logging
 from typing import IO, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
@@ -7,12 +6,9 @@ from scipy.spatial import KDTree
 from volgrids._vendors.rnapolis.common import MissingResidue, ResidueAuth, ResidueLabel
 from volgrids._vendors.rnapolis.tertiary import Atom, Residue3D, Structure3D
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 
 def read_3d_structure(
-    cif_or_pdb: IO[str], model: Optional[int] = None, nucleic_acid_only: bool = False
+    cif_or_pdb: IO[str],
 ) -> Structure3D:
     """Read a PDB or mmCIF structure into a Structure3D object.
 
@@ -21,108 +17,31 @@ def read_3d_structure(
 
     Args:
         cif_or_pdb (IO[str]): Open file-like object with PDB or mmCIF content.
-        model (Optional[int]): Model number to extract (1-based). If None, the
-            first model encountered is used.
-        nucleic_acid_only (bool): If True, keep only nucleic-acid residues.
-
     Returns:
         Structure3D: Parsed 3D structure.
     """
-    atoms, modified, sequence_by_entity, is_nucleic_acid_by_entity = (
-        parse_cif(cif_or_pdb) if is_cif(cif_or_pdb) else parse_pdb(cif_or_pdb)
-    )
-    missing_residues = (
-        parse_missing_residues_cif(cif_or_pdb)
-        if is_cif(cif_or_pdb)
-        else parse_missing_residues_pdb(cif_or_pdb)
-    )
+    nucleic_acid_only: bool = False
+    atoms, modified, sequence_by_entity, is_nucleic_acid_by_entity =\
+        parse_pdb(cif_or_pdb)
+
     if not atoms:
-        logger.warning("No atoms parsed from file, returning empty Structure3D.")
         return Structure3D(
-            [], missing_residues=missing_residues, sequence_by_entity=sequence_by_entity
+            [], missing_residues=[], sequence_by_entity=sequence_by_entity
         )
     available_models = {atom.model: None for atom in atoms}
     atoms_by_model = {
         model: list(filter(lambda atom: atom.model == model, atoms))
         for model in available_models
     }
-    if model is not None and model in available_models:
-        atoms = atoms_by_model[model]
-    else:
-        atoms = atoms_by_model[list(available_models.keys())[0]]
+    atoms = atoms_by_model[list(available_models.keys())[0]]
     return group_atoms(
         atoms,
         modified,
         sequence_by_entity,
         is_nucleic_acid_by_entity,
         nucleic_acid_only,
-        missing_residues,
+        [],
     )
-
-
-def is_cif(cif_or_pdb: IO[str]) -> bool:
-    return False # [WIP] minimal rnapolis v0.16.2"
-
-
-def parse_cif(
-    cif: IO[str],
-) -> Tuple[
-    List[Atom],
-    Dict[Union[ResidueLabel, ResidueAuth], str],
-    Dict[str, str],
-    Dict[str, bool],
-]:
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-
-def _read_mmcif_data(cif: IO[str]):
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-
-def parse_missing_residues_cif(cif: IO[str]) -> List[MissingResidue]:
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-def parse_missing_residues_pdb(pdb: IO[str]) -> List[MissingResidue]:
-    """Parse unobserved residues reported in PDB REMARK 465 records.
-
-    This is a best-effort parser: header and empty REMARK 465 lines are
-    skipped, and only lines whose residue number parses as an integer are
-    kept. Only auth-style identifiers are available in PDB files.
-    """
-    pdb.seek(0)
-
-    try:
-        content = pdb.read()
-    except io.UnsupportedOperation:
-        if hasattr(pdb, "name"):
-            with open(pdb.name, "r", encoding="utf-8") as handle:
-                content = handle.read()
-        else:
-            raise
-    if isinstance(content, bytes):
-        content = content.decode("utf-8")
-
-    missing: List[MissingResidue] = []
-    for line in content.splitlines():
-        if not line.startswith("REMARK 465"):
-            continue
-        fields = line[len("REMARK 465") :].split()
-        if len(fields) < 3:
-            continue
-        name, chain, number = fields[0], fields[1], fields[2]
-        parsed_number = try_parse_int(number)
-        if parsed_number is None:
-            continue
-        icode = fields[3] if len(fields) > 3 and fields[3] not in ("?", ".") else None
-        missing.append(
-            MissingResidue(
-                None,
-                ResidueAuth(chain, parsed_number, icode, name),
-                name,
-            )
-        )
-    return missing
-
 
 def parse_pdb(
     pdb: IO[str],
@@ -348,15 +267,7 @@ def get_one_letter_name(
 
 
 def detect_one_letter_name(atoms: List[Atom]) -> str:
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-
-def _mmcif_value(s: Optional[str]) -> Optional[str]:
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-
-def try_parse_int(s: Optional[str]) -> Optional[int]:
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
+    raise NotImplementedError("[WIP] minimal rnapolis v0.16.17")
 
 
 def filter_clashing_atoms(atoms: List[Atom], clash_distance: float = 0.5) -> List[Atom]:

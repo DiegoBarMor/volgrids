@@ -1,6 +1,4 @@
 import itertools
-import logging
-import os
 import string
 from collections import defaultdict
 from collections.abc import Sequence
@@ -10,10 +8,6 @@ from functools import cache, cached_property, total_ordering
 from typing import Dict, List, Optional, Tuple
 
 import pulp
-
-LOGLEVEL = os.environ.get("LOGLEVEL", "INFO").upper()
-logging.basicConfig(level=LOGLEVEL)
-
 
 class Molecule(Enum):
     """Simple classification of molecule type."""
@@ -27,10 +21,6 @@ RNA_NAMES = frozenset({"A", "C", "G", "U", "I"})
 DNA_NAMES = frozenset({"DA", "DC", "DG", "DT", "DU", "DI"})
 SUGAR_ATOMS = frozenset({"C1'", "C2'", "C3'", "C4'", "O4'"})
 
-
-def classify_molecule(name: str, atom_names: Optional[frozenset] = None) -> Molecule:
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
 class GlycosidicBond(Enum):
     """Orientation of the glycosidic bond."""
 
@@ -40,7 +30,7 @@ class GlycosidicBond(Enum):
 
 @total_ordering
 class LeontisWesthof(Enum):
-    """Leontis–Westhof base pair geometry classification."""
+    """Leontis-Westhof base pair geometry classification."""
 
     cWW = "cWW"
     cWH = "cWH"
@@ -63,11 +53,11 @@ class LeontisWesthof(Enum):
 
     @property
     def reverse(self):
-        """Return the Leontis–Westhof class with swapped edges."""
+        """Return the Leontis-Westhof class with swapped edges."""
         return LeontisWesthof[f"{self.name[0]}{self.name[2]}{self.name[1]}"]
 
     def __lt__(self, other):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
+        raise NotImplementedError("[WIP] minimal rnapolis v0.16.17")
 
 
 class Saenger(Enum):
@@ -104,7 +94,7 @@ class Saenger(Enum):
 
     @staticmethod
     def table() -> Dict[Tuple[str, str], str]:
-        """Return mapping from (base pair, Leontis–Westhof) to Saenger class name."""
+        """Return mapping from (base pair, Leontis-Westhof) to Saenger class name."""
         return {
             ("AA", "tWW"): "I",
             ("AA", "tHH"): "II",
@@ -175,12 +165,12 @@ class Saenger(Enum):
         residue_j_one_letter_name: str,
         lw: LeontisWesthof,
     ) -> Optional["Saenger"]:
-        """Map a Leontis–Westhof class and base pair to a Saenger class.
+        """Map a Leontis-Westhof class and base pair to a Saenger class.
 
         Args:
             residue_i_one_letter_name: One-letter code of the first base.
             residue_j_one_letter_name: One-letter code of the second base.
-            lw: Leontis–Westhof classification.
+            lw: Leontis-Westhof classification.
 
         Returns:
             Matching Saenger class or ``None`` if not defined.
@@ -192,7 +182,7 @@ class Saenger(Enum):
 
     @property
     def is_canonical(self) -> bool:
-        """Return True for canonical Watson–Crick or wobble pairs."""
+        """Return True for canonical Watson-Crick or wobble pairs."""
         return self == Saenger.XIX or self == Saenger.XX or self == Saenger.XXVIII
 
 
@@ -204,12 +194,8 @@ class StackingTopology(Enum):
     inward = "inward"
     outward = "outward"
 
-    @property
-    def reverse(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
 class BR(Enum):
-    """Base–ribose interaction classes."""
+    """Base-ribose interaction classes."""
 
     _0 = "0BR"
     _1 = "1BR"
@@ -224,7 +210,7 @@ class BR(Enum):
 
 
 class BPh(Enum):
-    """Base–phosphate interaction classes."""
+    """Base-phosphate interaction classes."""
 
     _0 = "0BPh"
     _1 = "1BPh"
@@ -374,14 +360,6 @@ class Residue:
         return None
 
     @property
-    def name(self) -> Optional[str]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @property
-    def molecule_type(self) -> Molecule:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @property
     @cache
     def full_name(self) -> Optional[str]:
         """Return human-readable residue identifier (e.g. A.A/23^A)."""
@@ -418,7 +396,7 @@ class Interaction:
 
 @dataclass(frozen=True, order=True)
 class BasePair(Interaction):
-    """Base pair interaction with Leontis–Westhof and Saenger class."""
+    """Base pair interaction with Leontis-Westhof and Saenger class."""
 
     lw: LeontisWesthof
     saenger: Optional[Saenger]
@@ -433,14 +411,14 @@ class Stacking(Interaction):
 
 @dataclass(frozen=True, order=True)
 class BaseRibose(Interaction):
-    """Base–ribose interaction."""
+    """Base-ribose interaction."""
 
     br: Optional[BR]
 
 
 @dataclass(frozen=True, order=True)
 class BasePhosphate(Interaction):
-    """Base–phosphate interaction."""
+    """Base-phosphate interaction."""
 
     bph: Optional[BPh]
 
@@ -471,13 +449,10 @@ class Entry(Sequence):
         raise IndexError()
 
     def __lt__(self, other):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
+        raise NotImplementedError("[WIP] minimal rnapolis v0.16.17")
 
     def __len__(self) -> int:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def __str__(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
+        raise NotImplementedError("[WIP] minimal rnapolis v0.16.17")
 
 
 @dataclass(frozen=True)
@@ -498,7 +473,7 @@ class Strand:
         Args:
             entries: Consecutive BPSEQ entries forming the strand.
             dotbracket: Full dot-bracket structure string.
-            reverse: If True, reverse 5'–3' direction.
+            reverse: If True, reverse 5'-3' direction.
 
         Returns:
             New strand object covering the selected region.
@@ -517,9 +492,6 @@ class Strand:
         structure = dotbracket[first - 1 : last]
         return Strand(first, last, sequence, structure)
 
-    def __str__(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
 
 @dataclass
 class SingleStrand:
@@ -528,12 +500,6 @@ class SingleStrand:
     strand: Strand
     is5p: bool
     is3p: bool
-
-    def __post_init__(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def __str__(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
 
 @dataclass
 class Stem:
@@ -622,18 +588,6 @@ class BpSeq:
 
     entries: List[Entry]
 
-    @staticmethod
-    def from_string(bpseq_str: str) -> "BpSeq":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @staticmethod
-    def from_file(bpseq_path: str) -> "BpSeq":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @staticmethod
-    def from_dotbracket(dot_bracket: "DotBracket") -> "BpSeq":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
     def __post_init__(self):
         """Build internal mapping from indices to their pairing partners."""
         self.pairs = {}
@@ -641,12 +595,6 @@ class BpSeq:
             if j != 0:
                 self.pairs[i] = j
                 self.pairs[j] = i
-
-    def __str__(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def __eq__(self, other):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
 
     @cached_property
     def sequence(self) -> str:
@@ -830,10 +778,6 @@ class BpSeq:
         return stems, single_strands, hairpins, loops
 
     @cached_property
-    def graphviz(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
     def __regions(self) -> List[Tuple[int, int, int]]:
         """Internal helper: list of stem regions (start, partner, length)."""
         return [
@@ -931,12 +875,9 @@ class BpSeq:
 
         # solve the problem
         try:
-            logging.debug(f"POA: problem formulation\n{problem}")
             stats = problem.solve(solver)
         except pulp.PulpSolverError:
-            logging.warning(
-                "POA: failed to solve problem using MILP approach, fallback to FCFS"
-            )
+            # failed to solve problem using MILP approach, fallback to FCFS"
             return self.fcfs
 
         # if problem is infeasible, fallback to FCFS
@@ -950,11 +891,8 @@ class BpSeq:
             solver_name = solver.name
 
         if not optimal:
-            logging.warning("POA: problem is infeasible, fallback to FCFS")
+            # problem is infeasible, fallback to FCFS
             return self.fcfs
-
-        # log solver time statistics
-        logging.debug(f"POA: solver {solver_name} took {round(solve_time, 2)} seconds")
 
         # map variable values to orders
         orders = [0 for _ in range(len(regions))]
@@ -992,19 +930,6 @@ class BpSeq:
         structure = "".join(structure)
         return DotBracket.from_string(sequence, structure)
 
-    @cached_property
-    def fcfs(self) -> "DotBracket":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @cached_property
-    def all_dot_brackets(self) -> list[str]:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def without_pseudoknots(self) -> "BpSeq":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def without_isolated(self) -> "BpSeq":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
 
 @dataclass
 class DotBracket:
@@ -1012,10 +937,6 @@ class DotBracket:
 
     sequence: str
     structure: str
-
-    @staticmethod
-    def from_file(path: str) -> "DotBracket":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
 
     @staticmethod
     def from_string(sequence: str, structure: str) -> "DotBracket":
@@ -1055,36 +976,12 @@ class DotBracket:
                 begin = matches[c]
                 self.pairs.append((begins[begin].pop(), i))
 
-    def __str__(self):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def __eq__(self, other):
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def __hash__(self) -> int:
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    def without_pseudoknots(self) -> "DotBracket":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
 
 @dataclass
 class MultiStrandDotBracket(DotBracket):
     """Dot-bracket representation for multiple strands concatenated together."""
 
     strands: List[Strand]
-
-    @staticmethod
-    def from_string(sequence: str, structure: str) -> "DotBracket":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @staticmethod
-    def from_multiline_string(input: str) -> "DotBracket":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
-
-    @staticmethod
-    def from_file(path: str) -> "DotBracket":
-        raise NotImplementedError("[WIP] minimal rnapolis v0.16.2")
 
 
 @dataclass(frozen=True, order=True)
@@ -1116,8 +1013,8 @@ class BaseInteractions:
             structure3d: 3D structure used as a reference.
             base_pairs: List of base-pair interactions.
             stackings: List of stacking interactions.
-            base_ribose_interactions: List of base–ribose interactions.
-            base_phosphate_interactions: List of base–phosphate interactions.
+            base_ribose_interactions: List of base-ribose interactions.
+            base_phosphate_interactions: List of base-phosphate interactions.
             other_interactions: List of other interactions.
 
         Returns:
