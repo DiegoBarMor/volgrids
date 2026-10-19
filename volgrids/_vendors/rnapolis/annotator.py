@@ -314,13 +314,15 @@ def find_pairs(
             continue
 
         if residue_i < residue_j:
-            for edge_i in edges_i:
-                for edge_j in edges_j:
-                    labels.append((residue_i, residue_j, cis_trans, edge_i, edge_j))
+            labels += [
+                (residue_i, residue_j, cis_trans, edge_i, edge_j)
+                for edge_i in edges_i for edge_j in edges_j
+            ]
         else:
-            for edge_i in edges_i:
-                for edge_j in edges_j:
-                    labels.append((residue_j, residue_i, cis_trans, edge_j, edge_i))
+            labels += [
+                (residue_j, residue_i, cis_trans, edge_j, edge_i)
+                for edge_i in edges_i for edge_j in edges_j
+            ]
 
     # create a list of base pairs
     base_base_pairs = []
@@ -344,19 +346,17 @@ def find_pairs(
         lw = LeontisWesthof[f"{cis_trans}{edge_i}{edge_j}"]
         base_base_pairs.append((residue_i, residue_j, lw))
 
-    base_pairs = []
-    for residue_i, residue_j, lw in sorted(base_base_pairs):
-        base_pairs.append(
-            BasePair(
-                Residue(residue_i.label, residue_i.auth),
-                Residue(residue_j.label, residue_j.auth),
-                lw,
-                Saenger.from_leontis_westhof(
-                    residue_i.one_letter_name, residue_j.one_letter_name, lw
-                ),
-            )
+    base_pairs = [
+        BasePair(
+            Residue(residue_i.label, residue_i.auth),
+            Residue(residue_j.label, residue_j.auth),
+            lw,
+            Saenger.from_leontis_westhof(
+                residue_i.one_letter_name, residue_j.one_letter_name, lw
+            ),
         )
-
+        for residue_i, residue_j, lw in sorted(base_base_pairs)
+    ]
     return base_pairs
 
 
@@ -432,22 +432,18 @@ def find_stackings(
         same_direction = True if numpy.dot(normal_i, normal_j) > 0.0 else False
 
         if residue_i < residue_j:
-            if same_direction:
-                pairs.append((residue_i, residue_j, "upward"))
-            else:
-                pairs.append((residue_i, residue_j, "inward"))
+            pairs.append((residue_i, residue_j, "upward" if same_direction else "inward"))
         else:
-            if same_direction:
-                pairs.append((residue_j, residue_i, "downward"))
-            else:
-                pairs.append((residue_j, residue_i, "outward"))
+            pairs.append((residue_j, residue_i, "downward" if same_direction else "outward"))
 
-    stackings = []
-    for residue_i, residue_j, topology in sorted(pairs):
-        nt1 = Residue(residue_i.label, residue_i.auth)
-        nt2 = Residue(residue_j.label, residue_j.auth)
-        stackings.append(Stacking(nt1, nt2, StackingTopology[topology]))
-
+    stackings = [
+        Stacking(
+            Residue(residue_i.label, residue_i.auth),
+            Residue(residue_j.label, residue_j.auth),
+            StackingTopology[topology]
+        )
+        for residue_i, residue_j, topology in sorted(pairs)
+    ]
     return stackings
 
 
