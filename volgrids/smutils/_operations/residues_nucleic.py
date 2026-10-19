@@ -16,7 +16,7 @@ class ResiduesNucleic:
         base_pairs = [bp for bp in interactions.base_pairs if bp.saenger is not None]
         bp_full_names = [
             [bp.nt1.full_name, bp.nt2.full_name] for bp in base_pairs
-            if bp.lw.value == "cWW" and bp.saenger.value in ("XIX", "XX")
+            if bp.lw.value == "cWW" and bp.saenger.value in ("XIX", "XX") # to consider wobble pairs: Saenger.XXVIII
         ]
         bps = {bp[0] for bp in bp_full_names} | {bp[1] for bp in bp_full_names}
         return {cls._rnapolis_residue(bp) for bp in bps}

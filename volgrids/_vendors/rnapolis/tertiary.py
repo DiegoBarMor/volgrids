@@ -7,7 +7,6 @@ import numpy
 import numpy.typing
 
 from volgrids._vendors.rnapolis.common import (
-    BaseInteractions,
     Residue,
     ResidueAuth,
     ResidueLabel,
@@ -140,22 +139,6 @@ class Residue3D(Residue):
         if not self.standard_residue_name:
             object.__setattr__(self, "standard_residue_name", self.name or "")
 
-    # Dict representing expected name of atom involved in glycosidic bond
-    outermost_atoms = {"A": "N9", "G": "N9", "C": "N1", "U": "N1", "T": "N1"}
-    # Dist representing expected name of atom closest to the tetrad center
-    innermost_atoms = {"A": "N6", "G": "O6", "C": "N4", "U": "O4", "T": "O4"}
-    # Heavy atoms in phosphate and ribose
-    phosphate_atoms = {"P", "OP1", "OP2", "O3'", "O5'"}
-    sugar_atoms = {"C1'", "C2'", "C3'", "C4'", "C5'", "O4'"}
-    # Heavy atoms for each main nucleobase
-    nucleobase_heavy_atoms = {
-        "A": set(["N1", "C2", "N3", "C4", "C5", "C6", "N6", "N7", "C8", "N9"]),
-        "G": set(["N1", "C2", "N2", "N3", "C4", "C5", "C6", "O6", "N7", "C8", "N9"]),
-        "C": set(["N1", "C2", "O2", "N3", "C4", "N4", "C5", "C6"]),
-        "U": set(["N1", "C2", "O2", "N3", "C4", "O4", "C5", "C6"]),
-        "T": set(["N1", "C2", "O2", "N3", "C4", "O4", "C5", "C5M", "C6"]),
-    }
-
     def __lt__(self, other):
         """Order residues by (model, chain, residue number, insertion code)."""
         return (self.model, self.chain or "", self.number, self.icode or " ") < (
@@ -168,73 +151,6 @@ class Residue3D(Residue):
     def __hash__(self):
         """Hash residue by model and residue identifiers."""
         return hash((self.model, self.label, self.auth))
-
-    @cached_property
-    def is_nucleotide(self) -> bool:
-        """Heuristically determine whether this residue behaves like a nucleotide.
-
-        The decision is based on:
-
-        - presence of phosphate atoms,
-        - presence of sugar atoms,
-        - match to expected nucleobase heavy atoms,
-        - connectivity scores between sugar and base/phosphate.
-
-        Returns True if the combined score exceeds 0.5.
-        """
-        scores = {"phosphate": 0.0, "sugar": 0.0, "base": 0.0, "connections": 0.0}
-        weights = {"phosphate": 0.25, "sugar": 0.25, "base": 0.25, "connections": 0.25}
-
-        residue_atoms = {atom.name for atom in self.atoms}
-
-        phosphate_match = len(residue_atoms.intersection(self.phosphate_atoms))
-        scores["phosphate"] = phosphate_match / len(self.phosphate_atoms)
-
-        sugar_match = len(residue_atoms.intersection(self.sugar_atoms))
-        scores["sugar"] = sugar_match / len(self.sugar_atoms)
-
-        nucleobase_atoms = {
-            key: self.nucleobase_heavy_atoms[key] for key in self.nucleobase_heavy_atoms
-        }
-        matches = {
-            key: len(residue_atoms.intersection(nucleobase_atoms[key]))
-            / len(nucleobase_atoms[key])
-            for key in nucleobase_atoms
-        }
-        best_match = max(matches.items(), key=lambda x: x[1])
-        scores["base"] = best_match[1]
-
-        connection_score = 0.0
-        distance_threshold = 2.0
-
-        if "P" in residue_atoms and "O5'" in residue_atoms:
-            p_atom = next(atom for atom in self.atoms if atom.name == "P")
-            o5_atom = next(atom for atom in self.atoms if atom.name == "O5'")
-            if (
-                numpy.linalg.norm(p_atom.coordinates - o5_atom.coordinates)
-                <= distance_threshold
-            ):
-                connection_score += 0.5
-        if "C1'" in residue_atoms:
-            c1_atom = next(atom for atom in self.atoms if atom.name == "C1'")
-            for base_connection in ["N9", "N1"]:
-                if base_connection in residue_atoms:
-                    base_atom = next(
-                        atom for atom in self.atoms if atom.name == base_connection
-                    )
-                    if (
-                        numpy.linalg.norm(c1_atom.coordinates - base_atom.coordinates)
-                        <= distance_threshold
-                    ):
-                        connection_score += 0.5
-                        break
-
-        scores["connections"] = connection_score
-
-        probability = sum(
-            scores[component] * weights[component] for component in scores.keys()
-        )
-        return probability > 0.5
 
     @cached_property
     def base_normal_vector(self) -> Optional[numpy.typing.NDArray[numpy.floating]]:
@@ -282,21 +198,9 @@ class Structure3D:
 
 def torsion_angle(a1: Atom, a2: Atom, a3: Atom, a4: Atom) -> float:
     """Calculates the torsion angle between four atoms."""
-    return calculate_torsion_angle_coords(
-        a1.coordinates, a2.coordinates, a3.coordinates, a4.coordinates
-    )
-
-
-def calculate_torsion_angle_coords(
-    p1: numpy.typing.NDArray[numpy.floating],
-    p2: numpy.typing.NDArray[numpy.floating],
-    p3: numpy.typing.NDArray[numpy.floating],
-    p4: numpy.typing.NDArray[numpy.floating],
-) -> float:
-    """Calculates the torsion angle between four points defined by their coordinates."""
-    v1 = p2 - p1
-    v2 = p3 - p2
-    v3 = p4 - p3
+    v1 = a2.coordinates - a1.coordinates
+    v2 = a3.coordinates - a2.coordinates
+    v3 = a4.coordinates - a3.coordinates
 
     # Normalize vectors to avoid issues with very short vectors
     v1_norm = v1 / numpy.linalg.norm(v1) if numpy.linalg.norm(v1) > 1e-6 else v1

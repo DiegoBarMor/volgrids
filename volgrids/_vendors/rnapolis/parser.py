@@ -19,12 +19,11 @@ def read_3d_structure(path_pdb) -> Structure3D:
         Structure3D: Parsed 3D structure.
     """
     with open(path_pdb, 'r') as file:
-        atoms, modified, sequence_by_entity, _ =\
-            parse_pdb(file)
+        atoms, modified = parse_pdb(file)
 
     if not atoms:
         return Structure3D(
-            [], sequence_by_entity=sequence_by_entity
+            [], sequence_by_entity={}
         )
     available_models = {atom.model: None for atom in atoms}
     atoms_by_model = {
@@ -35,7 +34,7 @@ def read_3d_structure(path_pdb) -> Structure3D:
     return group_atoms(
         atoms,
         modified,
-        sequence_by_entity,
+        {},
     )
 
 def parse_pdb(
@@ -43,8 +42,6 @@ def parse_pdb(
 ) -> Tuple[
     List[Atom],
     Dict[Union[ResidueLabel, ResidueAuth], str],
-    Dict[str, str],
-    Dict[str, bool],
 ]:
     """Parse a PDB file into atoms and modification information.
 
@@ -58,10 +55,6 @@ def parse_pdb(
             - **List[Atom]**: list of Atom objects.
             - **Dict[Union[ResidueLabel, ResidueAuth], str]**:
               mapping of modified residues to standard residue names.
-            - **Dict[str, str]**:
-              empty sequence-by-entity dictionary.
-            - **Dict[str, bool]**:
-              empty is-nucleic-acid-by-entity dictionary.
     """
     pdb.seek(0)
     atoms_to_process: List[Atom] = []
@@ -100,7 +93,7 @@ def parse_pdb(
             modified[auth] = standard_residue_name
 
     atoms = filter_clashing_atoms(atoms_to_process)
-    return atoms, modified, {}, {}
+    return atoms, modified
 
 
 def group_atoms(

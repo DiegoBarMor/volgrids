@@ -4,25 +4,6 @@ from enum import Enum
 from functools import cache, total_ordering
 from typing import Dict, List, Optional, Tuple
 
-class Molecule(Enum):
-    """Simple classification of molecule type."""
-
-    DNA = "DNA"
-    RNA = "RNA"
-    Other = "Other"
-
-
-RNA_NAMES = frozenset({"A", "C", "G", "U", "I"})
-DNA_NAMES = frozenset({"DA", "DC", "DG", "DT", "DU", "DI"})
-SUGAR_ATOMS = frozenset({"C1'", "C2'", "C3'", "C4'", "O4'"})
-
-class GlycosidicBond(Enum):
-    """Orientation of the glycosidic bond."""
-
-    anti = "anti"
-    syn = "syn"
-
-
 @total_ordering
 class LeontisWesthof(Enum):
     """Leontis-Westhof base pair geometry classification."""
@@ -45,11 +26,6 @@ class LeontisWesthof(Enum):
     tSW = "tSW"
     tSH = "tSH"
     tSS = "tSS"
-
-    @property
-    def reverse(self):
-        """Return the Leontis-Westhof class with swapped edges."""
-        return LeontisWesthof[f"{self.name[0]}{self.name[2]}{self.name[1]}"]
 
     def __lt__(self, other):
         raise NotImplementedError("[WIP] minimal rnapolis v0.16.17")
@@ -175,11 +151,6 @@ class Saenger(Enum):
             return Saenger[Saenger.table()[key]]
         return None
 
-    @property
-    def is_canonical(self) -> bool:
-        """Return True for canonical Watson-Crick or wobble pairs."""
-        return self == Saenger.XIX or self == Saenger.XX or self == Saenger.XXVIII
-
 
 class StackingTopology(Enum):
     """Relative orientation of stacked bases."""
@@ -189,35 +160,6 @@ class StackingTopology(Enum):
     inward = "inward"
     outward = "outward"
 
-class BR(Enum):
-    """Base-ribose interaction classes."""
-
-    _0 = "0BR"
-    _1 = "1BR"
-    _2 = "2BR"
-    _3 = "3BR"
-    _4 = "4BR"
-    _5 = "5BR"
-    _6 = "6BR"
-    _7 = "7BR"
-    _8 = "8BR"
-    _9 = "9BR"
-
-
-class BPh(Enum):
-    """Base-phosphate interaction classes."""
-
-    _0 = "0BPh"
-    _1 = "1BPh"
-    _2 = "2BPh"
-    _3 = "3BPh"
-    _4 = "4BPh"
-    _5 = "5BPh"
-    _6 = "6BPh"
-    _7 = "7BPh"
-    _8 = "8BPh"
-    _9 = "9BPh"
-
 
 @dataclass(frozen=True, order=True)
 class ResidueLabel:
@@ -226,30 +168,6 @@ class ResidueLabel:
     chain: Optional[str]
     number: int
     name: str
-
-
-AMINO_ACID_ONE_LETTER = {
-    "ALA": "A",
-    "ARG": "R",
-    "ASN": "N",
-    "ASP": "D",
-    "CYS": "C",
-    "GLN": "Q",
-    "GLU": "E",
-    "GLY": "G",
-    "HIS": "H",
-    "ILE": "I",
-    "LEU": "L",
-    "LYS": "K",
-    "MET": "M",
-    "PHE": "F",
-    "PRO": "P",
-    "SER": "S",
-    "THR": "T",
-    "TRP": "W",
-    "TYR": "Y",
-    "VAL": "V",
-}
 
 
 @dataclass(frozen=True, order=True)
@@ -354,27 +272,11 @@ class Stacking(Interaction):
 
 
 @dataclass(frozen=True, order=True)
-class BaseRibose(Interaction):
-    """Base-ribose interaction."""
-
-    br: Optional[BR]
-
-
-@dataclass(frozen=True, order=True)
-class BasePhosphate(Interaction):
-    """Base-phosphate interaction."""
-
-    bph: Optional[BPh]
-
-
-@dataclass(frozen=True, order=True)
 class BaseInteractions:
     """Container for all base-level interactions in a structure."""
 
     base_pairs: List[BasePair]
     stackings: List[Stacking]
-    base_ribose_interactions: List[BaseRibose]
-    base_phosphate_interactions: List[BasePhosphate]
 
     @classmethod
     def from_structure3d(
@@ -382,8 +284,6 @@ class BaseInteractions:
         structure3d: "Structure3D",
         base_pairs: List[BasePair],
         stackings: List[Stacking],
-        base_ribose_interactions: List[BaseRibose],
-        base_phosphate_interactions: List[BasePhosphate],
     ) -> "BaseInteractions":
         """Unify residue identifiers across interactions based on a 3D structure.
 
@@ -394,8 +294,6 @@ class BaseInteractions:
             structure3d: 3D structure used as a reference.
             base_pairs: List of base-pair interactions.
             stackings: List of stacking interactions.
-            base_ribose_interactions: List of base-ribose interactions.
-            base_phosphate_interactions: List of base-phosphate interactions.
 
         Returns:
             BaseInteractions: Normalized interactions container.
@@ -451,25 +349,7 @@ class BaseInteractions:
                 stacking = Stacking(nt1=nt1, nt2=nt2, topology=stacking.topology)
             stackings_new.append(stacking)
 
-        base_ribose_interactions_new = []
-        for base_ribose in base_ribose_interactions:
-            nt1 = unify_nt(base_ribose.nt1)
-            nt2 = unify_nt(base_ribose.nt2)
-            if nt1 != base_ribose.nt1 or nt2 != base_ribose.nt2:
-                base_ribose = BaseRibose(nt1=nt1, nt2=nt2, br=base_ribose.br)
-            base_ribose_interactions_new.append(base_ribose)
-
-        base_phosphate_interactions_new = []
-        for base_phosphate in base_phosphate_interactions:
-            nt1 = unify_nt(base_phosphate.nt1)
-            nt2 = unify_nt(base_phosphate.nt2)
-            if nt1 != base_phosphate.nt1 or nt2 != base_phosphate.nt2:
-                base_phosphate = BasePhosphate(nt1=nt1, nt2=nt2, bph=base_phosphate.bph)
-            base_phosphate_interactions_new.append(base_phosphate)
-
         return cls(
             base_pairs=base_pairs_new,
             stackings=stackings_new,
-            base_ribose_interactions=base_ribose_interactions_new,
-            base_phosphate_interactions=base_phosphate_interactions_new,
         )

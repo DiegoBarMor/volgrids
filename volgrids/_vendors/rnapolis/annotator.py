@@ -1,5 +1,5 @@
 import math
-from collections import Counter, defaultdict
+from collections import Counter
 from typing import Dict, List, Optional, Set, Tuple
 
 import numpy
@@ -7,12 +7,8 @@ import numpy.typing
 from scipy.spatial import KDTree
 
 from volgrids._vendors.rnapolis.common import (
-    BR,
     BaseInteractions,
     BasePair,
-    BasePhosphate,
-    BaseRibose,
-    BPh,
     LeontisWesthof,
     Residue,
     Saenger,
@@ -167,54 +163,11 @@ def detect_bph_br_classification(
 
     return None
 
-
-def merge_and_clean_bph_br(
-    pairs: List[Tuple[Residue3D, Residue3D, int]],
-) -> Dict[Tuple[Residue3D, Residue3D], set[int]]:
-    """
-    Merge and simplify base-phosphate and base-ribose classifications.
-
-    Multiple classifications for the same residue pair are merged into a set
-    and then cleaned according to simple rules (for example 3+5 → 4).
-
-    Args:
-        pairs: List of residue pairs with their classification codes.
-
-    Returns:
-        Mapping from residue pairs to a cleaned set of classification codes.
-    """
-    bph_br_map: Dict[Tuple[Residue3D, Residue3D], set[int]] = defaultdict(
-        set
-    )
-    first_cl: Dict[Tuple[Residue3D, Residue3D], set[int]] = {}
-    for residue_i, residue_j, classification in pairs:
-        key = (residue_i, residue_j)
-        bph_br_map[key].add(classification)
-        if key not in first_cl: first_cl[key] = classification
-    for key, bphs_brs in bph_br_map.items():
-        # 3BPh and 5BPh simultanously means that it is actually 4BPh
-        if 3 in bphs_brs and 5 in bphs_brs:
-            bphs_brs.remove(3)
-            bphs_brs.remove(5)
-            bphs_brs.add(4)
-            if first_cl[key] in (3,5): first_cl[key] = 4
-        # 7BPh and 9BPh simultanously means that it is actually 8BPh
-        if 7 in bphs_brs and 9 in bphs_brs:
-            bphs_brs.remove(7)
-            bphs_brs.remove(9)
-            bphs_brs.add(8)
-            if first_cl[key] in (7,9): first_cl[key] = 8
-    for key, bphs_brs in bph_br_map.items():
-        if len(bphs_brs) > 1:
-            bph_br_map[key] = {first_cl[key]}
-    return bph_br_map
-
-
 def find_pairs(
     structure: Structure3D, model: Optional[int] = None
-) -> Tuple[List[BasePair], List[BasePhosphate], List[BaseRibose]]:
+) -> List[BasePair]:
     """
-    Find base-base, base-phosphate and base-ribose interactions.
+    Find base-base interactions.
 
     The function scans all residues in the structure, builds a KDTree of
     donors and acceptors and applies geometric filters to detect hydrogen
@@ -225,7 +178,7 @@ def find_pairs(
         model: Optional model number to restrict the search to a single model.
 
     Returns:
-        Lists of base pairs, base-phosphate and base-ribose interactions.
+        Lists of base pairs.
     """
     # put all donors and acceptors into a KDTree
     coordinates = []
@@ -253,14 +206,12 @@ def find_pairs(
                 coordinates_residue_map[xyz] = residue
 
     if len(coordinates) < 2:
-        return [], [], []
+        return []
 
     kdtree = KDTree(coordinates)
 
     # find all hydrogen bonds
     hydrogen_bonds = []
-    base_phosphate_pairs = []
-    base_ribose_pairs = []
     used_atoms: Set[Atom] = set()
     for i, j in kdtree.query_pairs(HYDROGEN_BOND_MAX_DISTANCE):
         type_i = coordinates_type_map[coordinates[i]]
@@ -291,41 +242,41 @@ def find_pairs(
         residue_j = coordinates_residue_map[coordinates[j]]
 
         # check for base-phosphate contacts
+        ### MINIMAL VERSION: retain these checks for the update of `used_atoms`
         if (
             (atom_i.name in PHOSPHATE_ACCEPTORS or atom_j.name in PHOSPHATE_ACCEPTORS)
             and atom_i not in used_atoms
             and atom_j not in used_atoms
         ):
             if type_i == "donor":
-                donor_residue, acceptor_residue = residue_i, residue_j
+                donor_residue = residue_i
                 donor_atom, acceptor_atom = atom_i, atom_j
             else:
-                donor_residue, acceptor_residue = residue_j, residue_i
+                donor_residue = residue_j
                 donor_atom, acceptor_atom = atom_j, atom_i
             bph = detect_bph_br_classification(donor_residue, donor_atom, acceptor_atom)
             if bph is not None:
                 used_atoms.add(atom_i)
                 used_atoms.add(atom_j)
-                base_phosphate_pairs.append((donor_residue, acceptor_residue, bph))
             continue
 
         # check for base-ribose contacts
+        ### MINIMAL VERSION: retain these checks for the update of `used_atoms`
         if (
             (atom_i.name in RIBOSE_ACCEPTORS or atom_j.name in RIBOSE_ACCEPTORS)
             and atom_i not in used_atoms
             and atom_j not in used_atoms
         ):
             if type_i == "donor":
-                donor_residue, acceptor_residue = residue_i, residue_j
+                donor_residue = residue_i
                 donor_atom, acceptor_atom = atom_i, atom_j
             else:
-                donor_residue, acceptor_residue = residue_j, residue_i
+                donor_residue = residue_j
                 donor_atom, acceptor_atom = atom_j, atom_i
             br = detect_bph_br_classification(donor_residue, donor_atom, acceptor_atom)
             if br is not None:
                 used_atoms.add(atom_i)
                 used_atoms.add(atom_j)
-                base_ribose_pairs.append((donor_residue, acceptor_residue, br))
             continue
 
         # check for base-base contacts
@@ -406,33 +357,7 @@ def find_pairs(
             )
         )
 
-    bph_map = merge_and_clean_bph_br(sorted(base_phosphate_pairs))
-    base_phosphates = []
-    for pair, bphs in bph_map.items():
-        residue_i, residue_j = pair
-        for bph in bphs:
-            base_phosphates.append(
-                BasePhosphate(
-                    Residue(residue_i.label, residue_i.auth),
-                    Residue(residue_j.label, residue_j.auth),
-                    BPh[f"_{bph}"],
-                )
-            )
-
-    br_map = merge_and_clean_bph_br(sorted(base_ribose_pairs))
-    base_riboses = []
-    for pair, brs in br_map.items():
-        residue_i, residue_j = pair
-        for br in brs:
-            base_riboses.append(
-                BaseRibose(
-                    Residue(residue_i.label, residue_i.auth),
-                    Residue(residue_j.label, residue_j.auth),
-                    BR[f"_{br}"],
-                )
-            )
-
-    return base_pairs, base_phosphates, base_riboses
+    return base_pairs
 
 
 def find_stackings(
@@ -542,8 +467,8 @@ def extract_base_interactions(
     Returns:
         BaseInteractions: Container with all detected interactions.
     """
-    base_pairs, base_phosphate, base_ribose = find_pairs(tertiary_structure, model)
+    base_pairs = find_pairs(tertiary_structure, model)
     stackings = find_stackings(tertiary_structure, model)
     return BaseInteractions.from_structure3d(
-        tertiary_structure, base_pairs, stackings, base_ribose, base_phosphate
+        tertiary_structure, base_pairs, stackings
     )
