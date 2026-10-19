@@ -1,4 +1,4 @@
-freyacli __version__ = "0.4.5"
+freyacli __version__ = "0.4.4"
 molsimple __version__ = "0.1.2"
 molutils __version__ = "0.6.0"
 rnapolis __version__ = "0.16.17"
