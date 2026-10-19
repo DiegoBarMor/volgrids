@@ -368,13 +368,6 @@ class BasePhosphate(Interaction):
 
 
 @dataclass(frozen=True, order=True)
-class OtherInteraction(Interaction):
-    """Catch-all interaction type for non-standard contacts."""
-
-    pass
-
-
-@dataclass(frozen=True, order=True)
 class BaseInteractions:
     """Container for all base-level interactions in a structure."""
 
@@ -382,7 +375,6 @@ class BaseInteractions:
     stackings: List[Stacking]
     base_ribose_interactions: List[BaseRibose]
     base_phosphate_interactions: List[BasePhosphate]
-    other_interactions: List[OtherInteraction]
 
     @classmethod
     def from_structure3d(
@@ -392,7 +384,6 @@ class BaseInteractions:
         stackings: List[Stacking],
         base_ribose_interactions: List[BaseRibose],
         base_phosphate_interactions: List[BasePhosphate],
-        other_interactions: List[OtherInteraction],
     ) -> "BaseInteractions":
         """Unify residue identifiers across interactions based on a 3D structure.
 
@@ -405,7 +396,6 @@ class BaseInteractions:
             stackings: List of stacking interactions.
             base_ribose_interactions: List of base-ribose interactions.
             base_phosphate_interactions: List of base-phosphate interactions.
-            other_interactions: List of other interactions.
 
         Returns:
             BaseInteractions: Normalized interactions container.
@@ -477,20 +467,11 @@ class BaseInteractions:
                 base_phosphate = BasePhosphate(nt1=nt1, nt2=nt2, bph=base_phosphate.bph)
             base_phosphate_interactions_new.append(base_phosphate)
 
-        other_interactions_new = []
-        for other_interaction in other_interactions:
-            nt1 = unify_nt(other_interaction.nt1)
-            nt2 = unify_nt(other_interaction.nt2)
-            if nt1 != other_interaction.nt1 or nt2 != other_interaction.nt2:
-                other_interaction = OtherInteraction(nt1=nt1, nt2=nt2)
-            other_interactions_new.append(other_interaction)
-
         return cls(
             base_pairs=base_pairs_new,
             stackings=stackings_new,
             base_ribose_interactions=base_ribose_interactions_new,
             base_phosphate_interactions=base_phosphate_interactions_new,
-            other_interactions=other_interactions_new,
         )
 
 @dataclass
@@ -505,4 +486,3 @@ class Structure2D:
     stackings: List[Stacking]
     base_ribose_interactions: List[BaseRibose]
     base_phosphate_interactions: List[BasePhosphate]
-    other_interactions: List[OtherInteraction]

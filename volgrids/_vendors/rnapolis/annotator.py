@@ -4,7 +4,6 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy
 import numpy.typing
-from ordered_set import OrderedSet
 from scipy.spatial import KDTree
 
 from volgrids._vendors.rnapolis.common import (
@@ -171,7 +170,7 @@ def detect_bph_br_classification(
 
 def merge_and_clean_bph_br(
     pairs: List[Tuple[Residue3D, Residue3D, int]],
-) -> Dict[Tuple[Residue3D, Residue3D], OrderedSet[int]]:
+) -> Dict[Tuple[Residue3D, Residue3D], set[int]]:
     """
     Merge and simplify base-phosphate and base-ribose classifications.
 
@@ -184,25 +183,30 @@ def merge_and_clean_bph_br(
     Returns:
         Mapping from residue pairs to a cleaned set of classification codes.
     """
-    bph_br_map: Dict[Tuple[Residue3D, Residue3D], OrderedSet[int]] = defaultdict(
-        OrderedSet
+    bph_br_map: Dict[Tuple[Residue3D, Residue3D], set[int]] = defaultdict(
+        set
     )
+    first_cl: Dict[Tuple[Residue3D, Residue3D], set[int]] = {}
     for residue_i, residue_j, classification in pairs:
-        bph_br_map[(residue_i, residue_j)].add(classification)
-    for bphs_brs in bph_br_map.values():
+        key = (residue_i, residue_j)
+        bph_br_map[key].add(classification)
+        if key not in first_cl: first_cl[key] = classification
+    for key, bphs_brs in bph_br_map.items():
         # 3BPh and 5BPh simultanously means that it is actually 4BPh
         if 3 in bphs_brs and 5 in bphs_brs:
             bphs_brs.remove(3)
             bphs_brs.remove(5)
             bphs_brs.add(4)
+            if first_cl[key] in (3,5): first_cl[key] = 4
         # 7BPh and 9BPh simultanously means that it is actually 8BPh
         if 7 in bphs_brs and 9 in bphs_brs:
             bphs_brs.remove(7)
             bphs_brs.remove(9)
             bphs_brs.add(8)
+            if first_cl[key] in (7,9): first_cl[key] = 8
     for key, bphs_brs in bph_br_map.items():
         if len(bphs_brs) > 1:
-            bph_br_map[key] = OrderedSet([bphs_brs[0]])
+            bph_br_map[key] = {first_cl[key]}
     return bph_br_map
 
 
@@ -541,5 +545,5 @@ def extract_base_interactions(
     base_pairs, base_phosphate, base_ribose = find_pairs(tertiary_structure, model)
     stackings = find_stackings(tertiary_structure, model)
     return BaseInteractions.from_structure3d(
-        tertiary_structure, base_pairs, stackings, base_ribose, base_phosphate, []
+        tertiary_structure, base_pairs, stackings, base_ribose, base_phosphate
     )

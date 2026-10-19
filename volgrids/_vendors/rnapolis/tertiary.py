@@ -1,19 +1,16 @@
 import math
 from dataclasses import dataclass, field
 from functools import cached_property, total_ordering
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import numpy
 import numpy.typing
 
 from volgrids._vendors.rnapolis.common import (
     BaseInteractions,
-    BasePair,
-    LeontisWesthof,
     Residue,
     ResidueAuth,
     ResidueLabel,
-    Stacking,
     Structure2D,
 )
 
@@ -269,72 +266,6 @@ class Residue3D(Residue):
                 return atom
         return None
 
-@dataclass(frozen=True, order=True)
-class BasePair3D(BasePair):
-    """3D extension of BasePair with explicit 3D residue references and helpers."""
-
-    nt1_3d: Residue3D
-    nt2_3d: Residue3D
-
-    score_table = {
-        LeontisWesthof.cWW: 1,
-        LeontisWesthof.tWW: 2,
-        LeontisWesthof.cWH: 3,
-        LeontisWesthof.tWH: 4,
-        LeontisWesthof.cWS: 5,
-        LeontisWesthof.tWS: 6,
-        LeontisWesthof.cHW: 7,
-        LeontisWesthof.tHW: 8,
-        LeontisWesthof.cHH: 9,
-        LeontisWesthof.tHH: 10,
-        LeontisWesthof.cHS: 11,
-        LeontisWesthof.tHS: 12,
-        LeontisWesthof.cSW: 13,
-        LeontisWesthof.tSW: 14,
-        LeontisWesthof.cSH: 15,
-        LeontisWesthof.tSH: 16,
-        LeontisWesthof.cSS: 17,
-        LeontisWesthof.tSS: 18,
-    }
-
-    @cached_property
-    def reverse(self):
-        """Return the same base-pair with swapped nucleotides and reversed LW class."""
-        return BasePair3D(
-            self.nt2,
-            self.nt1,
-            self.lw.reverse,
-            self.saenger,
-            self.nt2_3d,
-            self.nt1_3d,
-        )
-
-    @cached_property
-    def is_canonical(self) -> bool:
-        """Return True if the base pair is Watson-Crick or wobble-like."""
-        if self.saenger is not None:
-            return self.saenger.is_canonical
-
-        nts = "".join(
-            sorted(
-                [
-                    self.nt1_3d.one_letter_name.upper(),
-                    self.nt2_3d.one_letter_name.upper(),
-                ]
-            )
-        )
-        return self.lw == LeontisWesthof.cWW and (
-            nts == "AU" or nts == "AT" or nts == "CG" or nts == "GU"
-        )
-
-
-@dataclass(frozen=True, order=True)
-class Stacking3D(Stacking):
-    """3D extension of Stacking with explicit 3D residues and reversible topology."""
-
-    nt1_3d: Residue3D
-    nt2_3d: Residue3D
-
 
 @dataclass
 class Structure3D:
@@ -342,34 +273,12 @@ class Structure3D:
 
     Attributes:
         residues: List of Residue3D objects in the structure.
-        residue_map: Mapping from ResidueLabel/ResidueAuth to Residue3D, filled in
-            automatically in __post_init__.
         sequence_by_entity: Mapping from entity ID to the full one-letter
             sequence from the file header, if present.
     """
 
     residues: List[Residue3D]
-    residue_map: Dict[Union[ResidueLabel, ResidueAuth], Residue3D] = field(init=False)
     sequence_by_entity: Dict[str, str] = field(default_factory=dict)
-
-    def __post_init__(self):
-        """Populate residue_map for fast residue lookup by label/auth identifiers."""
-        self.residue_map = {}
-        for residue in self.residues:
-            if residue.label is not None:
-                self.residue_map[residue.label] = residue
-            if residue.auth is not None:
-                self.residue_map[residue.auth] = residue
-
-    def find_residue(
-        self, label: Optional[ResidueLabel], auth: Optional[ResidueAuth]
-    ) -> Optional[Residue3D]:
-        """Find a residue by label or author-style identifier."""
-        if label is not None and label in self.residue_map:
-            return self.residue_map.get(label)
-        if auth is not None and auth in self.residue_map:
-            return self.residue_map.get(auth)
-        return None
 
     def extract_secondary_structure(
         self,
@@ -389,7 +298,6 @@ class Structure3D:
             base_interactions.stackings,
             base_interactions.base_ribose_interactions,
             base_interactions.base_phosphate_interactions,
-            base_interactions.other_interactions,
         )
         return structure2d
 
