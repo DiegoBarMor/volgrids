@@ -11,7 +11,6 @@ from volgrids._vendors.rnapolis.common import (
     Residue,
     ResidueAuth,
     ResidueLabel,
-    Structure2D,
 )
 
 BASE_ATOMS = {
@@ -279,27 +278,6 @@ class Structure3D:
 
     residues: List[Residue3D]
     sequence_by_entity: Dict[str, str] = field(default_factory=dict)
-
-    def extract_secondary_structure(
-        self,
-        base_interactions: BaseInteractions,
-    ) -> Structure2D:
-        """
-        Create a secondary structure representation.
-
-        Args:
-            base_interactions: Interactions
-
-        Returns:
-            The Structure2D object.
-        """
-        structure2d = Structure2D(
-            base_interactions.base_pairs,
-            base_interactions.stackings,
-            base_interactions.base_ribose_interactions,
-            base_interactions.base_phosphate_interactions,
-        )
-        return structure2d
 
 
 def torsion_angle(a1: Atom, a2: Atom, a3: Atom, a4: Atom) -> float:

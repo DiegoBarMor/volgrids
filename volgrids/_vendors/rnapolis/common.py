@@ -473,16 +473,3 @@ class BaseInteractions:
             base_ribose_interactions=base_ribose_interactions_new,
             base_phosphate_interactions=base_phosphate_interactions_new,
         )
-
-@dataclass
-class Structure2D:
-    """Secondary structure representation plus derived structural elements.
-
-    This object collects interactions, BPSEQ, _,
-    _, _ and optional inter-stem parameters.
-    """
-
-    base_pairs: List[BasePair]
-    stackings: List[Stacking]
-    base_ribose_interactions: List[BaseRibose]
-    base_phosphate_interactions: List[BasePhosphate]

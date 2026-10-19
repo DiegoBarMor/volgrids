@@ -10,10 +10,10 @@ class ResiduesNucleic:
     # --------------------------------------------------------------------------
     @classmethod
     def get_residues_bp_canonical(cls, path_pdb: Path) -> set[str]:
-        from volgrids._vendors.rnapolis.common import Structure2D
+        from volgrids._vendors.rnapolis.common import BaseInteractions
 
-        structure2d: Structure2D = cls._get_rnapolis_struct2d(path_pdb)
-        base_pairs = [bp for bp in structure2d.base_pairs if bp.saenger is not None]
+        interactions: BaseInteractions = cls._get_rnapolis_struct2d(path_pdb)
+        base_pairs = [bp for bp in interactions.base_pairs if bp.saenger is not None]
         bp_full_names = [
             [bp.nt1.full_name, bp.nt2.full_name] for bp in base_pairs
             if bp.lw.value == "cWW" and bp.saenger.value in ("XIX", "XX")
@@ -27,10 +27,10 @@ class ResiduesNucleic:
     def get_residues_stacking(cls, path_pdb: Path) -> set[str]:
         """Return residues that are participating in at least `STACKING_THRESHOLD` stacking interactions."""
         from collections import Counter
-        from volgrids._vendors.rnapolis.common import Structure2D
+        from volgrids._vendors.rnapolis.common import BaseInteractions
 
-        structure2d: Structure2D = cls._get_rnapolis_struct2d(path_pdb)
-        stackings = [bp for bp in structure2d.stackings if bp.topology is not None]
+        interactions: BaseInteractions = cls._get_rnapolis_struct2d(path_pdb)
+        stackings = [bp for bp in interactions.stackings if bp.topology is not None]
         stk_full_names = [
             [stk.nt1.full_name, stk.nt2.full_name] for stk in stackings
         ]
@@ -76,11 +76,7 @@ class ResiduesNucleic:
     def _get_rnapolis_struct2d(path_pdb: Path):
         from volgrids._vendors.rnapolis.parser import read_3d_structure
         from volgrids._vendors.rnapolis.annotator import extract_base_interactions
-
-        structure3d = read_3d_structure(path_pdb)
-        base_interactions = extract_base_interactions(structure3d)
-        structure2d = structure3d.extract_secondary_structure(base_interactions)
-        return structure2d
+        return extract_base_interactions(read_3d_structure(path_pdb))
 
 
 # //////////////////////////////////////////////////////////////////////////////

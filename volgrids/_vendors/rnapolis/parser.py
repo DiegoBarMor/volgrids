@@ -4,7 +4,7 @@ import numpy as np
 from scipy.spatial import KDTree
 
 from volgrids._vendors.rnapolis.common import ResidueAuth, ResidueLabel
-from volgrids._vendors.rnapolis.tertiary import Atom, Residue3D, Structure3D
+from volgrids._vendors.rnapolis.tertiary import Atom, Residue3D, Structure3D, BASE_ATOMS
 
 
 def read_3d_structure(path_pdb) -> Structure3D:
@@ -18,9 +18,8 @@ def read_3d_structure(path_pdb) -> Structure3D:
     Returns:
         Structure3D: Parsed 3D structure.
     """
-    nucleic_acid_only: bool = False
     with open(path_pdb, 'r') as file:
-        atoms, modified, sequence_by_entity, is_nucleic_acid_by_entity =\
+        atoms, modified, sequence_by_entity, _ =\
             parse_pdb(file)
 
     if not atoms:
@@ -37,8 +36,6 @@ def read_3d_structure(path_pdb) -> Structure3D:
         atoms,
         modified,
         sequence_by_entity,
-        is_nucleic_acid_by_entity,
-        nucleic_acid_only,
     )
 
 def parse_pdb(
@@ -110,8 +107,6 @@ def group_atoms(
     atoms: List[Atom],
     modified: Dict[Union[ResidueLabel, ResidueAuth], str],
     sequence_by_entity: Dict[str, str],
-    is_nucleic_acid_by_entity: Dict[str, bool],
-    nucleic_acid_only: bool,
 ) -> Structure3D:
     """Group atoms into residues and build a Structure3D.
 
@@ -126,7 +121,6 @@ def group_atoms(
         sequence_by_entity (Dict[str, str]): Mapping from entity ID to sequence.
         is_nucleic_acid_by_entity (Dict[str, bool]): Mapping from entity ID to
             nucleic-acid flag.
-        nucleic_acid_only (bool): If True, keep only nucleic-acid residues.
     """
     if not atoms:
         return Structure3D([])
@@ -174,17 +168,6 @@ def group_atoms(
     residues.append(
         Residue3D(label, auth, model, one_letter_name, tuple(residue_atoms), name)
     )
-
-    if nucleic_acid_only:
-        if is_nucleic_acid_by_entity:
-            residues = [
-                residue
-                for residue in residues
-                if (entity_id := residue.atoms[0].entity_id) is not None
-                and is_nucleic_acid_by_entity.get(entity_id, False)
-            ]
-        else:
-            residues = [residue for residue in residues if residue.is_nucleotide]
 
     return Structure3D(
         residues,
@@ -260,7 +243,29 @@ def get_one_letter_name(
 
 
 def detect_one_letter_name(atoms: List[Atom]) -> str:
-    raise NotImplementedError("[WIP] minimal rnapolis v0.16.17")
+    """Guess a nucleotide one-letter code based on expected base atoms.
+
+    A simple scoring scheme compares the observed atom names with expected
+    base-atom sets in ``BASE_ATOMS`` for A, C, G, U, T.
+
+    Args:
+        atoms (List[Atom]): Atoms belonging to a single residue.
+
+    Returns:
+        str: Best-scoring nucleotide (A/C/G/U/T) or '?' if no match is found.
+    """
+    atom_names_present = {atom.name for atom in atoms}
+    score = {}
+    for candidate in "ACGUT":
+        atom_names_expected = BASE_ATOMS[candidate]
+        count = sum(
+            1 for atom in atom_names_expected if atom in atom_names_present
+        ) / len(atom_names_expected)
+        score[candidate] = count
+    items = sorted(score.items(), key=lambda kv: kv[1], reverse=True)
+    if items[0][1] == 0:
+        return "?"
+    return items[0][0]
 
 
 def filter_clashing_atoms(atoms: List[Atom], clash_distance: float = 0.5) -> List[Atom]:
