@@ -79,7 +79,7 @@ class ResiduesNucleic:
 
         structure3d = read_3d_structure(path_pdb)
         base_interactions = extract_base_interactions(structure3d)
-        structure2d, _ = structure3d.extract_secondary_structure(base_interactions)
+        structure2d = structure3d.extract_secondary_structure(base_interactions)
         return structure2d
 
 
