@@ -50,3 +50,5 @@ fix_vendor_imports molsimple molsimple
 fix_vendor_imports molutils freyacli
 fix_vendor_imports molutils molsimple
 fix_vendor_imports molutils molutils
+
+echo rnapolis __version__ = \""$(cat "$dir_vendors/rnapolis/version.txt")"\" >> "$dir_vendors/versions.txt"
