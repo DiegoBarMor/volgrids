@@ -51,7 +51,7 @@
 
 <!-- ----------------------------------------------------------------------- -->
 ## SMUtils
-* fix rnapolis error
+* refactor rnapolis into reusing molsimple System, instead of re-parsing the PDB files during `res_nobp` and `res_nostk`.
 * check why `DEBUG_CHEMTABLE_LIGAND` config isn't being taken into account
 * reimplement automatic script generation for visualizing pockets in VMD (pocket-sphere mode)
 * trimming as a post-processing operation?

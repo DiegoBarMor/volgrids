@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1] - 2026-10-19
+- Updated `molutils` vendor.
+- Added a minimal version of `rnapolis` as a new vendor.
+- Smiffer will now notify when calculating grids for a file with multiple models.
+    - It will still calculate the SMIFs just for the first model (as it was doing before).
+
+
 ## [1.1.0] - 2026-10-08
 - Added a method for initializing coordinate grids: `vg.Grid.init_coords_grid`.
     - These are the grids whose voxels correspond to the spatial coordinates indicated by their respective box.

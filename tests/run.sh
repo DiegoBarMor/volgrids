@@ -2,7 +2,7 @@
 set -eu
 
 ##### Fetch testdata (if needed)
-if [[ ! -d testdata/smiffer/apbs ]]; then
+if [[ ! -d testdata/smiffer/pdb_clean ]]; then
     git clone --depth 1 https://github.com/DiegoBarMor/volgrids-testdata testdata
 fi
 
