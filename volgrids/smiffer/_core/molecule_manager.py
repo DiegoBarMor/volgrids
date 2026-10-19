@@ -77,7 +77,12 @@ class MoleculeManager:
         ###### PART 0: read the structure and standardize residue names
         ### note that in the case of multiple models `System.particles` is always the first model
         ### so `self.atoms_all` shouldn't be concerned with multiple-models PDBs or with altlocs
-        self.atoms_all = ms.System.read_pdb(path_struct).particles.select_first_altloc()
+        system = ms.System.read_pdb(path_struct)
+        if len(system.models) > 1: print(
+            fy.Color.red("WARNING: ") +\
+            f"'{path_struct}' contains {len(system.models)} models. volgrids will consider just the first model."
+        )
+        self.atoms_all = system.particles.select_first_altloc()
         smf.ResnameStandard.standardize_particle_group(self.atoms_all)
 
 
