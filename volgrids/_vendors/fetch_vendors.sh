@@ -39,9 +39,9 @@ PYCODE
 
 rm -f "$dir_vendors/versions.txt"
 
-fetch_vendor_dbm freyacli  v0.4.4
+fetch_vendor_dbm freyacli  v0.5.0
 fetch_vendor_dbm molsimple v0.1.2
-fetch_vendor_dbm molutils  v0.6.0
+fetch_vendor_dbm molutils  v0.6.1
 
 fix_vendor_imports freyacli freyacli
 

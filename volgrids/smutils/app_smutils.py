@@ -26,20 +26,20 @@ class AppSMUtils(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_res_nobp(self) -> None:
-        path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_in = self.main.arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
         print(sut.ResiduesNucleic.get_residues_nobp(path_in))
 
 
     # --------------------------------------------------------------------------
     def _run_res_nostk(self) -> None:
-        path_in = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_in = self.main.arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
         print(sut.ResiduesNucleic.get_residues_nostk(path_in))
 
 
     # --------------------------------------------------------------------------
     def _run_chemgen(self) -> None:
-        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        path_out = self.main.get_arg_path("path_out",
+        path_in  = self.main.arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.arg_path("path_out",
             assertion = fy.PathAssertion.FILE_OUT, default = path_in.with_suffix(".chem")
         )
         path_out.write_text(
@@ -69,8 +69,8 @@ class AppSMUtils(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _run_log_apbs(self) -> None:
-        path_in  = self.main.get_arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
-        path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
+        path_in  = self.main.arg_path("path_in",  assertion = fy.PathAssertion.FILE_IN)
+        path_out = self.main.arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         grid = vg.Grid.load(path_in)
         smf.SmifAPBS.apply_logabs_transform(grid)

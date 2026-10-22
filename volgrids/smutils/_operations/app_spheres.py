@@ -18,26 +18,22 @@ class AppSpheres(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def app_run_find(self):
-        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        path_traj = self.main.get_arg_path("path_traj",
-            assertion = fy.PathAssertion.FILE_IN, allow_none = True
-        )
-        query = self.main.get_arg_str("query")
-        radius_extra = self.main.get_arg_float("radius_extra")
+        path_in  = self.main.arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_traj = self.main.arg_path("path_traj", assertion = fy.PathAssertion.FILE_IN)
+        query = self.main.arg_str("query")
+        radius_extra = self.main.arg_float("radius_extra")
 
         print(sut.AppSpheres.find(path_in, path_traj, query, radius_extra))
 
 
     # --------------------------------------------------------------------------
     def app_run_grid(self):
-        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
-        path_traj = self.main.get_arg_path("path_traj",
-            assertion = fy.PathAssertion.FILE_IN, allow_none = True
-        )
-        folder_out = self.main.get_arg_path("folder_out",
+        path_in  = self.main.arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_traj = self.main.arg_path("path_traj", assertion = fy.PathAssertion.FILE_IN)
+        folder_out = self.main.arg_path("folder_out",
             assertion = fy.PathAssertion.DIR_OUT, default = path_in.parent
         )
-        spheres_flat = self.main.get_arg_float("sphere", is_list = True)
+        spheres_flat = self.main.arg_str_list("sphere")
 
         try: spheres = vg.SphereInfo.parse_sphere_infos(spheres_flat)
         except ValueError as e: self.main.help_and_exit(1, f"{e}")
