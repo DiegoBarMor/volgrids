@@ -31,6 +31,7 @@
 * check if there's a bug in the peptide bond N of the test toy system peptide_no_h
 * add tests for apbs
 * add tests for -r flag
+    * -r flag is never being considered for trimming; sometimes it's good to consider it, sometimes it's better to not. control the behaviour with a config
 * add possibility for treshold i.e. removing low value points (treshold of 0.5 already can reduce CMAP sizes by 90%)
 * check whether the trimmer can still be saved when no smifs are calculated.
 * MDAnalysis struggles when parsing certain PQR files e.g. when coordinates are large number so that there is no space in between the columns.

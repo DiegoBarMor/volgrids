@@ -71,6 +71,7 @@ class SmifHBonds(Smif, ABC):
 
                     if not self.can_be_interactor(triplet): continue
 
+                    triplet.reset_posits()
                     triplet.set_pos_interactor()
                     yield triplet
 
