@@ -17,7 +17,7 @@ class AppBoxes(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def app_run_info(self):
-        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_in  = self.main.arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
 
         vals = sut.AppBoxes.info(path_in)
         print(*(f"{v:.3f}" for v in vals))
@@ -25,7 +25,7 @@ class AppBoxes(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def app_run_size(self):
-        path_in  = self.main.get_arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
+        path_in  = self.main.arg_path("path_in", assertion = fy.PathAssertion.FILE_IN)
 
         vals = sut.AppBoxes.info(path_in)
         print(*(

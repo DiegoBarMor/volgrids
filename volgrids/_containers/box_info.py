@@ -14,7 +14,7 @@ class BoxInfo:
 
     # --------------------------------------------------------------------------
     @classmethod
-    def parse_box_infos(cls, boxes_flat: list[float]) -> list["BoxInfo"]:
+    def parse_box_infos(cls, boxes_flat: list[str]) -> list["BoxInfo"]:
         if not boxes_flat: return []
 
         boxes = vg.NumberLists(boxes_flat, 6)

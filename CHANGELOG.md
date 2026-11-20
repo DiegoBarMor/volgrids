@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.2] - 2026-11-20
+- Fixed issue for hydrogen bond SMIFs where many residues were sometimes being ignored.
+- Updated `freyacli` and `molutils` vendors.
+
+
 ## [1.1.1] - 2026-10-19
 - Updated `molutils` vendor.
 - Added a minimal version of `rnapolis` as a new vendor.

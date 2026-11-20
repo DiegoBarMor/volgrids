@@ -37,6 +37,13 @@ class Triplet:
 
 
     # --------------------------------------------------------------------------
+    def reset_posits(self) -> None:
+        self.pos_tail = None
+        self.pos_head = None
+        self.pos_interactor = None
+
+
+    # --------------------------------------------------------------------------
     def set_pos_tail(self, tail_override: tuple[str] = None) -> None:
         tail = self._tail if tail_override is None else tail_override
         self.pos_tail = self._safe_cog(self.residue_this, *tail)

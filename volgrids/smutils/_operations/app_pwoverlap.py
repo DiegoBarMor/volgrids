@@ -14,9 +14,9 @@ class AppPwOverlap(vg.AppSubcommand):
         self.mm_dst: smf.MoleculeManager
         self.path_out: Path
 
-        path_src = self.main.get_arg_path("path_source", assertion = fy.PathAssertion.FILE_IN)
-        path_dst = self.main.get_arg_path("path_target", assertion = fy.PathAssertion.FILE_IN)
-        self.path_out = self.main.get_arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
+        path_src = self.main.arg_path("path_source", assertion = fy.PathAssertion.FILE_IN)
+        path_dst = self.main.arg_path("path_target", assertion = fy.PathAssertion.FILE_IN)
+        self.path_out = self.main.arg_path("path_out", assertion = fy.PathAssertion.FILE_OUT)
 
         app_main.load_configs()
         smf.AppSmiffer.init_params()

@@ -4,9 +4,9 @@
     ~path_traj[t,traj]1.PATH
     ~path_apbs[a,apbs]1.PATH
     ~path_chem[e,chem]1.PATH
-    ~configs[c,config]1+.ANY
-    ~box[b,box]1+.ANY
-    ~sphere[s,sphere]1+.ANY
+    ~configs[c,config]1+.STR
+    ~box[b,box]1+.STR
+    ~sphere[s,sphere]1+.STR
     ~residues[r,residues]1+.STR
     ~nproc[n,nproc]1.INT=1
     ~pack[,pack]
@@ -37,7 +37,7 @@
         !@
         @grid
             path_in[]1.PATH
-            sphere[s,sphere]1+.ANY
+            sphere[s,sphere]1+.STR
             ~folder_out[o,out]1.PATH
             ~path_traj[t,traj]1.PATH
         !@
@@ -143,7 +143,7 @@
     !@
     @points
         path_in[]1.PATH
-        points[]1+.ANY
+        points[]1+.STR
     !@
 !@
 

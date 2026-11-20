@@ -30,27 +30,24 @@ class AppSmiffer(vg.AppSubcommand):
         self.grid_smif: vg.Grid
 
         #### CLI arguments
-        smf.PATH_STRUCT = self.main.get_arg_path(
+        smf.PATH_STRUCT = self.main.arg_path(
             "path_in",   assertion = fy.PathAssertion.FILE_IN
         )
-        smf.PATH_APBS = self.main.get_arg_path(
+        smf.PATH_APBS = self.main.arg_path(
             "path_apbs", assertion = fy.PathAssertion.FILE_IN,
-            allow_none = True
         )
-        self.path_traj = self.main.get_arg_path(
+        self.path_traj = self.main.arg_path(
             "path_traj", assertion = fy.PathAssertion.FILE_IN,
-            allow_none = True
         )
-        smf.PATH_CHEM_LIGAND = self.main.get_arg_path(
+        smf.PATH_CHEM_LIGAND = self.main.arg_path(
             "path_chem", assertion = fy.PathAssertion.FILE_IN,
-            allow_none = True
         )
-        self.folder_out = self.main.get_arg_path(
+        self.folder_out = self.main.arg_path(
             "folder_out", assertion = fy.PathAssertion.DIR_OUT,
             default = smf.PATH_STRUCT.parent
         )
-        self.nproc = max(1, self.main.get_arg_int("nproc", default = 1))
-        self.do_pack_output = self.main.get_arg_bool("pack")
+        self.nproc = max(1, self.main.arg_int("nproc"))
+        self.do_pack_output = self.main.arg_toggle("pack")
 
         self._handle_params_configs()
         self._handle_params_resids()
@@ -283,7 +280,7 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_configs(self):
-        configs = self.main.get_arg_str("configs", is_list = True)
+        configs = self.main.arg_str_list("configs")
         if not configs: return
 
         for val in configs:
@@ -311,7 +308,7 @@ class AppSmiffer(vg.AppSubcommand):
             )
             return residue
 
-        residues = self.main.get_arg_str("residues")
+        residues = self.main.arg_str_list("residues")
         if not residues: return
 
         splitted = (x for res in residues for x in res.split())
@@ -324,7 +321,7 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_sphere(self):
-        spheres_flat = self.main.get_arg_str("sphere", is_list = True)
+        spheres_flat = self.main.arg_str_list("sphere")
         if not spheres_flat: return
 
         try: smf.SPHERES = vg.SphereInfo.parse_sphere_infos(spheres_flat)
@@ -333,7 +330,7 @@ class AppSmiffer(vg.AppSubcommand):
 
     # --------------------------------------------------------------------------
     def _handle_params_box(self):
-        boxes_flat = self.main.get_arg_str("box", is_list = True)
+        boxes_flat = self.main.arg_str_list("box")
         if not boxes_flat: return
 
         if smf.SPHERES: self.main.help_and_exit(1,
